@@ -1,9 +1,4 @@
-library ebisu_cpp.cpp_utils;
-
-import 'package:ebisu/ebisu.dart';
-import 'package:id/id.dart';
-// custom <additional imports>
-// end <additional imports>
+part of ebisu_cpp.cpp;
 
 class Namespace {
 
@@ -28,10 +23,9 @@ ${_helper(it, txt)}
 
   // end <class Namespace>
 }
-
-// custom <library cpp_utils>
+// custom <part utils>
 
 Namespace namespace(List<String> ns) =>
   new Namespace()..names = ns;
 
-// end <library cpp_utils>
+// end <part utils>

@@ -2,7 +2,9 @@ library ebisu_cpp.test.test_cpp_enum;
 
 import 'package:unittest/unittest.dart';
 // custom <additional imports>
-import 'package:ebisu_cpp/cpp_enum.dart';
+
+import 'package:ebisu_cpp/cpp.dart';
+
 // end <additional imports>
 
 // custom <library test_cpp_enum>
@@ -15,10 +17,14 @@ main() {
       final id = 'color_${isClass}';
       var sample = cppEnum(id)
         ..isClass = isClass
+        ..hasToCStr = true
+        ..hasFromCStr = true
         ..values = [ 'red', 'green', 'blue' ];
       print(sample);
       sample = cppEnum('${id}_map')
         ..isClass = isClass
+        ..hasToCStr = true
+        ..hasFromCStr = true
         ..valueMap = {
           'red' : 0xA00000,
           'green' : 0x009900,

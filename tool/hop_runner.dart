@@ -17,6 +17,7 @@ void main(List<String> args) {
   addTask('analyze_test',
       createAnalyzerTask([
         "test/test_cpp_enum.dart",
+        "test/test_cpp_member.dart",
         "test/test_cpp_class.dart",
         "test/test_cpp_utils.dart"
       ]));

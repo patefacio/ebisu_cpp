@@ -2,7 +2,9 @@ library ebisu_cpp.test.test_cpp_utils;
 
 import 'package:unittest/unittest.dart';
 // custom <additional imports>
-import 'package:ebisu_cpp/cpp_utils.dart';
+
+import 'package:ebisu_cpp/cpp.dart';
+
 // end <additional imports>
 
 // custom <library test_cpp_utils>
