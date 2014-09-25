@@ -15,13 +15,13 @@ main() {
   test('basic', () {
     [ true, false ].forEach((bool isClass) {
       final id = 'color_${isClass}';
-      var sample = cppEnum(id)
+      var sample = enum_(id)
         ..isClass = isClass
         ..hasToCStr = true
         ..hasFromCStr = true
         ..values = [ 'red', 'green', 'blue' ];
       print(sample);
-      sample = cppEnum('${id}_map')
+      sample = enum_('${id}_map')
         ..isClass = isClass
         ..hasToCStr = true
         ..hasFromCStr = true
@@ -31,7 +31,7 @@ main() {
           'blue' : 0x3333FF,
         };
       print(sample);
-      sample = cppEnum('${id}_mask')
+      sample = enum_('${id}_mask')
         ..isClass = isClass
         ..values = [ 'red', 'green', 'blue' ]
         ..isMask = true;

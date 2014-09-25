@@ -17,6 +17,17 @@ main() {
     print(ns.wrap('this is a test'));
   });
 
+  test('headers', () {
+    final includes = headers(
+      [
+        'boost/filesystem.hpp', 'foo.hpp', 'bar.hpp', 'cstring', 'cmath', 'iosfwd'
+      ]);
+
+    includes.add('iostream');
+    includes.addAll(['iostream', 'foo.hpp', 'boost/filesystem.hpp', 'boost/function.hpp']);
+
+    print("Includes:\n${includes.includes}");
+  });
 // end <main>
 
 }

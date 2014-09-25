@@ -9,6 +9,9 @@ dependencies:
   path: ">=1.2.2 < 1.10.0"
 
 # custom <ebisu_cpp dependencies>
+
+  quiver: ">=0.18.2"
+
 # end <ebisu_cpp dependencies>
 
 dev_dependencies:

@@ -31,6 +31,7 @@ void main() {
       ..imports = [
         'package:id/id.dart',
         'package:ebisu/ebisu.dart',
+        'package:quiver/iterables.dart',
       ]
       ..enums = [
         enum_('access')
@@ -64,7 +65,7 @@ void main() {
           ..doc = 'Brief description for the entity',
           member('descr')
           ..doc = 'Description of entity',
-        ]
+        ],
       ]
       ..parts = [
         part('utils')
@@ -72,6 +73,13 @@ void main() {
           class_('namespace')
           ..members = [
             member('names')..type = 'List<String>',
+          ],
+          class_('headers')
+          ..doc = 'Collection of headers to be included'
+          ..members = [
+            member('headers')
+            ..access = RO
+            ..type = 'Set<String>'
           ]
         ],
         part('file')
@@ -80,7 +88,7 @@ void main() {
         ],
         part('enum')
         ..classes = [
-          class_('cpp_enum')
+          class_('enum')
           ..extend = 'Entity'
           ..members = [
             member('values')
@@ -128,7 +136,7 @@ void main() {
         ],
         part('class')
         ..classes = [
-          class_('cpp_class')
+          class_('class')
           ..extend = 'Entity'
           ..members = [
             member('struct')..doc = 'Is this definition a *struct*'
@@ -137,10 +145,15 @@ void main() {
             member('bases_private')..type = 'List<String>'..classInit = [],
             member('bases_protected')..type = 'List<String>'..classInit = [],
             member('forward_ptrs')..type = 'List<PtrType>'..classInit = [],
-            member('forward_enums')..type = 'List<CppEnum>'..classInit = [],
-            member('enums')..type = 'List<CppEnum>'..classInit = [],
-          ]
+            member('enums_forward')..type = 'List<Enum>'..classInit = [],
+            member('enums')..type = 'List<Enum>'..classInit = [],
+            member('headers')..type = 'Headers'..access = RO,
+            member('impl_headers')..type = 'Headers'..access = RO,
+          ],
         ],
+        part('lib')
+        ..classes = [
+        ]
       ]
     ];
 

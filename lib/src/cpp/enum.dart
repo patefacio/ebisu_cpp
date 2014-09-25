@@ -1,6 +1,6 @@
 part of ebisu_cpp.cpp;
 
-class CppEnum extends Entity {
+class Enum extends Entity {
 
   /// Strings for the values of the enum
   List<String> get values => _values;
@@ -17,9 +17,9 @@ class CppEnum extends Entity {
   /// If true the values are powers of two for bit masking
   bool isMask = false;
 
-  // custom <class CppEnum>
+  // custom <class Enum>
 
-  CppEnum(Id id) : super(id);
+  Enum(Id id) : super(id);
 
   set values(Iterable<String> values) {
     _values = new List<String>.from(values);
@@ -49,7 +49,7 @@ class CppEnum extends Entity {
     String result;
     if(values != null) {
       if(values.any((String v) => !Id.isSnake(v)))
-        errors.add('For CppEnum($id) *values* must snake case');
+        throw 'For CppEnum($id) *values* must snake case';
       if(isMask) {
         result = _makeMaskEnum();
       } else {
@@ -110,7 +110,7 @@ ${indentBlock(_ids.map((id) => id.shout + ' = 1 << ${i++}').join(',\n'))}
 
   String _makeMapEnum() {
     if(valueMap.keys.any((String v) => !Id.isSnake(v)))
-      errors.add('For CppEnum($id) *valueMap* must have snake case keys');
+      throw 'For CppEnum($id) *valueMap* must have snake case keys';
     return '''
 enum ${_classDecl} {
 ${
@@ -125,8 +125,7 @@ ${
       throw 'For CppEnum($id) *values* or *valueMap* must be set';
   }
 
-
-  // end <class CppEnum>
+  // end <class Enum>
   List<String> _values;
   /// Ids for the values of the enum
   List<Id> _ids;
@@ -136,8 +135,8 @@ ${
 }
 // custom <part enum>
 
-CppEnum
-cppEnum(Object id) =>
-  new CppEnum(id is Id? id : new Id(id));
+Enum
+enum_(Object id) =>
+  new Enum(id is Id? id : new Id(id));
 
 // end <part enum>
