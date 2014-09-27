@@ -53,6 +53,15 @@ void main() {
         ..doc = 'Standard pointer type declaration'
         ..values = [
           id('sptr'), id('uptr'), id('scptr'), id('ucptr'),
+        ],
+        enum_('method')
+        ..values = [
+          id('equal'), id('less_than'),
+          id('default_ctor'),
+          id('copy_ctor'),
+          id('move'),
+          id('assign_copy'),
+          id('assign_ctor'),
         ]
       ]
       ..classes = [
@@ -80,6 +89,16 @@ void main() {
             member('headers')
             ..access = RO
             ..type = 'Set<String>'
+          ],
+          class_('code_block')
+          ..doc = 'Wraps an optional protection block with optional code injection'
+          ..ctorSansNew = true
+          ..members = [
+            member('tag')
+            ..doc = 'Tag for protect block. If present includes protect block'
+            ..ctors = [''],
+            member('snippets')..type = 'List<String>'..classInit = [],
+            member('has_snippets_first')..classInit = false,
           ]
         ],
         part('file')
@@ -121,7 +140,7 @@ void main() {
         ],
         part('member')
         ..classes = [
-          class_('cpp_member')
+          class_('member')
           ..extend = 'Entity'
           ..members = [
             member('type')..doc = 'Type of member',
@@ -132,13 +151,24 @@ void main() {
             ..classInit = false,
             member('mutable')..doc = 'Is the member mutable'
             ..classInit = false,
-          ]
+          ],
         ],
         part('class')
+        ..enums = [
+          enum_('code_blocks')
+          ..values = [
+            id('cb_public'),
+            id('cb_protected'),
+            id('cb_private'),
+            id('cb_pre_decl'),
+            id('cb_post_decl'),
+          ]
+        ]
         ..classes = [
           class_('class')
           ..extend = 'Entity'
           ..members = [
+            member('definition')..access = IA,
             member('struct')..doc = 'Is this definition a *struct*'
             ..classInit = false,
             member('bases_public')..type = 'List<String>'..classInit = [],
@@ -147,12 +177,23 @@ void main() {
             member('forward_ptrs')..type = 'List<PtrType>'..classInit = [],
             member('enums_forward')..type = 'List<Enum>'..classInit = [],
             member('enums')..type = 'List<Enum>'..classInit = [],
+            member('members')..type = 'List<Member>'..classInit = [],
+            member('methods')..type = 'List<Method>'..classInit = [],
             member('headers')..type = 'Headers'..access = RO,
             member('impl_headers')..type = 'Headers'..access = RO,
+            member('custom_blocks')..type = 'List<CodeBlocks>'..classInit = [],
+            member('code_blocks')
+            ..access = RO
+            ..type = 'Map<CodeBlocks, CodeBlock>'..classInit = {},
           ],
         ],
         part('lib')
         ..classes = [
+          class_('lib')
+          ..extend = 'Entity'
+          ..members = [
+            member('classes')..type = 'List<Class>'..classInit = [],
+          ]
         ]
       ]
     ];

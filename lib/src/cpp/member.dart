@@ -1,6 +1,6 @@
 part of ebisu_cpp.cpp;
 
-class CppMember extends Entity {
+class Member extends Entity {
 
   /// Type of member
   String type;
@@ -15,9 +15,9 @@ class CppMember extends Entity {
   /// Is the member mutable
   bool mutable = false;
 
-  // custom <class CppMember>
+  // custom <class Member>
 
-  CppMember(Id id) : super(id);
+  Member(Id id) : super(id);
 
   String toString() {
     if(static && mutable)
@@ -27,6 +27,11 @@ class CppMember extends Entity {
   }
 
   String get initializer => init==null? '{}' : '{ $init }';
+  String get name => '${id.snake}_';
+
+  CppAccess get cppAccess =>
+    (access == ia || access == ro) ? private :
+    public;
 
   get _parts => [
     briefComment,
@@ -49,15 +54,14 @@ class CppMember extends Entity {
   get _static => static? 'static ' : '';
   get _mutable => mutable? 'mutable ' : '';
   get _init => initializer;
-  get _decl => '$_static$_mutable$_refType $id $_init;';
-
-  // end <class CppMember>
+  get _decl => '$_static$_mutable$_refType $name $_init;';
+  // end <class Member>
 }
 // custom <part member>
 
-CppMember
+Member
   member(Object id) =>
-  new CppMember(id is Id? id : new Id(id));
+  new Member(id is Id? id : new Id(id));
 
 
 // end <part member>

@@ -13,6 +13,7 @@ main() {
 // custom <main>
 
   test('basic', () {
+
     final c = class_('c_1')
       ..basesPublic = ['Foo', 'Bar']
       ..enums = [
@@ -24,12 +25,22 @@ main() {
       ..enumsForward = [
         enum_('abcs')..values = [ 'a','b','c'],
       ]
+      ..members = [
+        member('foo_bar')..type = 'string'..init = '"Foo"',
+        member('foo_bor')..type = 'int',
+        member('foo_bur')..type = 'string',
+      ]
+      ..getCodeBlock(cbProtected).snippets.addAll(['Foobargoo', 'int foobargoo'])
+      ..methods = [ equal, less ]
+      ..customBlocks = [ cbPublic, cbPrivate ]
       ..headers = [ 'cmath', 'boost/filesystem.hpp' ]
       ..implHeaders = [ 'cmath', 'boost/filesystem.hpp' ]
       ..forwardPtrs = [ sptr, uptr, scptr, ucptr ];
 
-    print(c.definition);
-    print('Headers for ${c.className} => ${c.headers}');
+    final d = c.definition;
+    print(d);
+
+    //print('Headers for ${c.className} => ${c.headers}');
   });
 // end <main>
 

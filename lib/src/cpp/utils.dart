@@ -63,6 +63,37 @@ class Headers {
   // end <class Headers>
   Set<String> _headers;
 }
+
+/// Wraps an optional protection block with optional code injection
+class CodeBlock {
+
+  CodeBlock(this.tag);
+
+  /// Tag for protect block. If present includes protect block
+  String tag;
+  List<String> snippets = [];
+  bool hasSnippetsFirst = false;
+
+  // custom <class CodeBlock>
+
+  bool get hasTag => tag != null && tag.length > 0;
+
+  String toString() {
+    if(hasTag) {
+      return hasSnippetsFirst?
+        combine([ ]..addAll(snippets)..add(customBlock(tag))) :
+        combine([ customBlock(tag) ]..addAll(snippets));
+    }
+    return combine(snippets);
+  }
+
+  // end <class CodeBlock>
+}
+
+/// Create a CodeBlock sans new, for more declarative construction
+CodeBlock
+codeBlock([String tag]) =>
+  new CodeBlock(tag);
 // custom <part utils>
 
 Namespace namespace(List<String> ns) =>

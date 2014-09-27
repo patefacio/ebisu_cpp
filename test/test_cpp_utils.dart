@@ -28,6 +28,14 @@ main() {
 
     print("Includes:\n${includes.includes}");
   });
+
+  test('code_blocks', () {
+    final cb = codeBlock('foo public');
+    print(cb);
+    cb.snippets.addAll(['This','is','a','test']);
+    print(cb);
+  });
+
 // end <main>
 
 }
