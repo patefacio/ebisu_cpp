@@ -12,6 +12,7 @@ part 'src/cpp/enum.dart';
 part 'src/cpp/member.dart';
 part 'src/cpp/class.dart';
 part 'src/cpp/lib.dart';
+part 'src/cpp/installation.dart';
 
 /// Access for member variable - ia - inaccessible, ro - read/only, rw read/write
 class Access implements Comparable<Access> {
@@ -84,9 +85,9 @@ class CppAccess implements Comparable<CppAccess> {
 
   String toString() {
     switch(this) {
-      case PUBLIC: return "Public";
-      case PRIVATE: return "Private";
-      case PROTECTED: return "Protected";
+      case PUBLIC: return "public";
+      case PRIVATE: return "private";
+      case PROTECTED: return "protected";
     }
     return null;
   }
@@ -94,9 +95,9 @@ class CppAccess implements Comparable<CppAccess> {
   static CppAccess fromString(String s) {
     if(s == null) return null;
     switch(s) {
-      case "Public": return PUBLIC;
-      case "Private": return PRIVATE;
-      case "Protected": return PROTECTED;
+      case "public": return PUBLIC;
+      case "private": return PRIVATE;
+      case "protected": return PROTECTED;
       default: return null;
     }
   }
@@ -319,18 +320,19 @@ const Map _ptrSuffixMap = const {
 ptrSuffix(PtrType ptrType) => _ptrSuffixMap[ptrType];
 
 Map _ptrStdTypeMap = {
-  sptr : (String T) => 'shared_ptr< $T >',
-  uptr : (String T) => 'unique_ptr< $T >',
-  scptr : (String T) => 'shared_ptr< const $T >',
-  ucptr : (String T) => 'unique_ptr< const $T >',
+  sptr : (String T) => 'std::shared_ptr< $T >',
+  uptr : (String T) => 'std::unique_ptr< $T >',
+  scptr : (String T) => 'std::shared_ptr< const $T >',
+  ucptr : (String T) => 'std::unique_ptr< const $T >',
 };
 
 ptrType(PtrType ptrType, String t) =>
   _ptrStdTypeMap[ptrType](t);
 
-String combine(List<String> parts) =>
+String combine(Iterable<Object> parts) =>
   parts
-  .where((String s) => s != null && s.length > 0)
+  .where((Object o) => o != null && (o is! String || o.length > 0))
+  .map((Object o) => (o is Iterable)? combine(o) : o.toString())
   .join('\n');
 
 String quote(String s) => '"$s"';

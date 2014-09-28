@@ -41,6 +41,7 @@ void main() {
         ],
         enum_('cpp_access')
         ..doc = 'Cpp access'
+        ..isSnakeString = true
         ..values = [
           id('public'), id('private'), id('protected'),
         ],
@@ -81,7 +82,7 @@ void main() {
         ..classes = [
           class_('namespace')
           ..members = [
-            member('names')..type = 'List<String>',
+            member('names')..type = 'List<String>'..classInit = [],
           ],
           class_('headers')
           ..doc = 'Collection of headers to be included'
@@ -99,11 +100,37 @@ void main() {
             ..ctors = [''],
             member('snippets')..type = 'List<String>'..classInit = [],
             member('has_snippets_first')..classInit = false,
+          ],
+          class_('base')
+          ..doc = 'Base class'
+          ..ctorSansNew = true
+          ..members = [
+            member('class_name')..ctors = [''],
+            member('access')
+            ..doc = 'Is base class public, protected, or private'
+            ..type = 'CppAccess'..classInit = 'public',
+            member('init')
+            ..doc = 'How to initiailize the base class in ctor initializer',
+            member('virtual')
+            ..doc = 'If true inheritance is virtual'
+            ..classInit = false,
+            member('streamable')
+            ..doc = 'If true and streamers are being provided, base is streamed first'
+            ..classInit = false,
           ]
         ],
         part('file')
         ..classes = [
-          class_('cpp_file'),
+          class_('cpp_file')
+          ..members = [
+            member('filename')..type = 'Id'..ctors = [''],
+            member('namespace')..type = 'Namespace'..ctorsOpt = [''],
+            member('is_header')..classInit = true,
+            member('include_guard'),
+            member('custom_blocks')
+            ..access = RO
+            ..type = 'Map<FileCodeBlock, CodeBlock>'..classInit = {},
+          ],
         ],
         part('enum')
         ..classes = [
@@ -132,10 +159,12 @@ void main() {
             ..doc = 'If true adds from_c_str method'..classInit = false,
             member('has_to_c_str')
             ..doc = 'If true adds to_c_str method'..classInit = false,
-            member('is_streamable')
+            member('streamable')
             ..doc = 'If true adds streaming support'..classInit = false,
             member('is_mask')
             ..doc = 'If true the values are powers of two for bit masking'..classInit = false,
+            member('is_nested')
+            ..doc = 'If true is nested in class and requires *friend* stream support'..classInit = false,
           ],
         ],
         part('member')
@@ -155,13 +184,13 @@ void main() {
         ],
         part('class')
         ..enums = [
-          enum_('code_blocks')
+          enum_('class_code_block')
           ..values = [
-            id('cb_public'),
-            id('cb_protected'),
-            id('cb_private'),
-            id('cb_pre_decl'),
-            id('cb_post_decl'),
+            id('cls_public'),
+            id('cls_protected'),
+            id('cls_private'),
+            id('cls_pre_decl'),
+            id('cls_post_decl'),
           ]
         ]
         ..classes = [
@@ -171,9 +200,7 @@ void main() {
             member('definition')..access = IA,
             member('struct')..doc = 'Is this definition a *struct*'
             ..classInit = false,
-            member('bases_public')..type = 'List<String>'..classInit = [],
-            member('bases_private')..type = 'List<String>'..classInit = [],
-            member('bases_protected')..type = 'List<String>'..classInit = [],
+            member('bases')..type = 'List<Base>'..classInit = [],
             member('forward_ptrs')..type = 'List<PtrType>'..classInit = [],
             member('enums_forward')..type = 'List<Enum>'..classInit = [],
             member('enums')..type = 'List<Enum>'..classInit = [],
@@ -181,20 +208,54 @@ void main() {
             member('methods')..type = 'List<Method>'..classInit = [],
             member('headers')..type = 'Headers'..access = RO,
             member('impl_headers')..type = 'Headers'..access = RO,
-            member('custom_blocks')..type = 'List<CodeBlocks>'..classInit = [],
+            member('custom_blocks')..type = 'List<ClassCodeBlock>'..classInit = [],
             member('code_blocks')
             ..access = RO
-            ..type = 'Map<CodeBlocks, CodeBlock>'..classInit = {},
+            ..type = 'Map<ClassCodeBlock, CodeBlock>'..classInit = {},
+            member('streamable')
+            ..doc = 'If true adds streaming support'..classInit = false,
           ],
         ],
         part('lib')
+        ..enums = [
+          enum_('file_code_block')
+          ..values = [
+            id('fcb_pre_namespace'),
+            id('fcb_post_namespace'),
+            id('fcb_begin_namespace'),
+            id('fcb_end_namespace'),
+          ]
+        ]
         ..classes = [
           class_('lib')
           ..extend = 'Entity'
           ..members = [
+            member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
+            member('headers')..type = 'List<Header>'..classInit = [],
+          ],
+          class_('header')
+          ..extend = 'Entity'
+          ..members = [
+            member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('classes')..type = 'List<Class>'..classInit = [],
           ]
-        ]
+        ],
+        part('installation')
+        ..classes = [
+          class_('app')
+          ..members = [
+            member('classes')..type = 'List<Class>'..classInit = [],
+          ],
+          class_('script'),
+          class_('test'),
+          class_('installation')
+          ..members = [
+            member('apps')..type = 'List<App>'..classInit = [],
+            member('scripts')..type = 'List<Scripts>'..classInit = [],
+            member('libs')..type = 'List<Lib>'..classInit = [],
+            member('tests')..type = 'List<Test>'..classInit = [],
+          ]
+        ],
       ]
     ];
 

@@ -36,6 +36,12 @@ main() {
     print(cb);
   });
 
+  test('test_file', () {
+    final f = cppFile('test', namespace(['foo','bar']));
+    print(f.contents);
+  });
+
+
 // end <main>
 
 }

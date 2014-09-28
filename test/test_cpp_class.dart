@@ -14,31 +14,44 @@ main() {
 
   test('basic', () {
 
-    final c = class_('c_1')
-      ..basesPublic = ['Foo', 'Bar']
-      ..enums = [
-        enum_('letters')
-        ..hasToCStr = true
-        ..hasFromCStr = true
-        ..values = [ 'a','b','c' ],
-      ]
-      ..enumsForward = [
-        enum_('abcs')..values = [ 'a','b','c'],
-      ]
-      ..members = [
-        member('foo_bar')..type = 'string'..init = '"Foo"',
-        member('foo_bor')..type = 'int',
-        member('foo_bur')..type = 'string',
-      ]
-      ..getCodeBlock(cbProtected).snippets.addAll(['Foobargoo', 'int foobargoo'])
-      ..methods = [ equal, less ]
-      ..customBlocks = [ cbPublic, cbPrivate ]
-      ..headers = [ 'cmath', 'boost/filesystem.hpp' ]
-      ..implHeaders = [ 'cmath', 'boost/filesystem.hpp' ]
-      ..forwardPtrs = [ sptr, uptr, scptr, ucptr ];
+    final l =
+      lib('lib1')
+      ..namespace = namespace(['foo','bar'])
+      ..headers = [
+        header('guts')
+        ..classes = [
+          class_('c_1')
+          ..streamable = true
+          ..bases = [
+            base('Foo'),
+            base('Bar')..access = protected,
+            base('Goo')..virtual = true
+          ]
+          ..enums = [
+            enum_('letters')
+            ..streamable = true
+            ..hasFromCStr = false
+            ..values = [ 'a','b','c' ],
+          ]
+          ..enumsForward = [
+            enum_('abcs')..streamable = true..values = [ 'a','b','c'],
+          ]
+          ..members = [
+            member('foo_bar')..type = 'std::string'..init = '"Foo"',
+            member('foo_bor')..type = 'int',
+            member('foo_bur')..type = 'std::string',
+            member('letters')..type = 'Letters'..init = 'C_1::B_e',
+          ]
+          ..getCodeBlock(clsProtected).snippets.addAll(['//Sample code block stuff...'])
+          ..methods = [ equal, less ]
+          ..customBlocks = [ clsPublic, clsPrivate ]
+          ..headers = [ 'cmath', 'boost/filesystem.hpp' ]
+          ..implHeaders = [ 'cmath', 'boost/filesystem.hpp' ]
+          ..forwardPtrs = [ sptr, uptr, scptr, ucptr ]
+        ]
+      ];
 
-    final d = c.definition;
-    print(d);
+    l.generate();
 
     //print('Headers for ${c.className} => ${c.headers}');
   });

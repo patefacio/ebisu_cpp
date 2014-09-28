@@ -27,7 +27,8 @@ class Member extends Entity {
   }
 
   String get initializer => init==null? '{}' : '{ $init }';
-  String get name => '${id.snake}_';
+  String get name => '${id.snake}';
+  String get vname => '${id.snake}_';
 
   CppAccess get cppAccess =>
     (access == ia || access == ro) ? private :
@@ -54,7 +55,7 @@ class Member extends Entity {
   get _static => static? 'static ' : '';
   get _mutable => mutable? 'mutable ' : '';
   get _init => initializer;
-  get _decl => '$_static$_mutable$_refType $name $_init;';
+  get _decl => '$_static$_mutable$_refType $vname $_init;';
   // end <class Member>
 }
 // custom <part member>

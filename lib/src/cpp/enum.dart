@@ -13,9 +13,11 @@ class Enum extends Entity {
   /// If true adds to_c_str method
   bool hasToCStr = false;
   /// If true adds streaming support
-  bool isStreamable = false;
+  bool streamable = false;
   /// If true the values are powers of two for bit masking
   bool isMask = false;
+  /// If true is nested in class and requires *friend* stream support
+  bool isNested = false;
 
   // custom <class Enum>
 
@@ -39,11 +41,15 @@ class Enum extends Entity {
 
     return combine([
       decl,
-      toCString,
-      hasToCStr? outStreamer : null,
-      fromCString,
+      streamSupport
     ]);
   }
+
+  String get streamSupport => combine([
+    (streamable || hasToCStr)? toCString : null,
+    streamable? outStreamer : null,
+    hasFromCStr? fromCString : null,
+  ]);
 
   String get decl {
     String result;
@@ -66,8 +72,9 @@ class Enum extends Entity {
 
   String get toCString => isMask? _maskToCString : _generalToCString;
   String get _maskToCString => '';
-  String get _generalToCString => !hasToCStr? null : '''
-inline char const* to_c_str($name e) {
+  String get _friend => isNested? 'friend ' : '';
+  String get _generalToCString => '''
+${_friend}inline char const* to_c_str($name e) {
   switch(e) {
 ${
   indentBlock(_valueNames.map((n) => 'case $name::$n: return ${quote(n)}').join(';\n'), '    ')
@@ -76,7 +83,7 @@ ${
 }''';
 
   String get outStreamer => '''
-inline std::ostream& operator<<(std::ostream &out, $name e) {
+${_friend}inline std::ostream& operator<<(std::ostream &out, $name e) {
   return out << to_c_str(e);
 }''';
 

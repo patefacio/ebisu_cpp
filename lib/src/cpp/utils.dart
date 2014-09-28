@@ -2,7 +2,7 @@ part of ebisu_cpp.cpp;
 
 class Namespace {
 
-  List<String> names;
+  List<String> names = [];
 
   // custom <class Namespace>
 
@@ -94,6 +94,34 @@ class CodeBlock {
 CodeBlock
 codeBlock([String tag]) =>
   new CodeBlock(tag);
+
+/// Base class
+class Base {
+
+  Base(this.className);
+
+  String className;
+  /// Is base class public, protected, or private
+  CppAccess access = public;
+  /// How to initiailize the base class in ctor initializer
+  String init;
+  /// If true inheritance is virtual
+  bool virtual = false;
+  /// If true and streamers are being provided, base is streamed first
+  bool streamable = false;
+
+  // custom <class Base>
+
+  String get decl => '$access $_virtual$className';
+  String get _virtual => virtual? 'virtual ' : '';
+
+  // end <class Base>
+}
+
+/// Create a Base sans new, for more declarative construction
+Base
+base([String className]) =>
+  new Base(className);
 // custom <part utils>
 
 Namespace namespace(List<String> ns) =>

@@ -1,49 +1,49 @@
 part of ebisu_cpp.cpp;
 
-class CodeBlocks implements Comparable<CodeBlocks> {
-  static const CB_PUBLIC = const CodeBlocks._(0);
-  static const CB_PROTECTED = const CodeBlocks._(1);
-  static const CB_PRIVATE = const CodeBlocks._(2);
-  static const CB_PRE_DECL = const CodeBlocks._(3);
-  static const CB_POST_DECL = const CodeBlocks._(4);
+class ClassCodeBlock implements Comparable<ClassCodeBlock> {
+  static const CLS_PUBLIC = const ClassCodeBlock._(0);
+  static const CLS_PROTECTED = const ClassCodeBlock._(1);
+  static const CLS_PRIVATE = const ClassCodeBlock._(2);
+  static const CLS_PRE_DECL = const ClassCodeBlock._(3);
+  static const CLS_POST_DECL = const ClassCodeBlock._(4);
 
   static get values => [
-    CB_PUBLIC,
-    CB_PROTECTED,
-    CB_PRIVATE,
-    CB_PRE_DECL,
-    CB_POST_DECL
+    CLS_PUBLIC,
+    CLS_PROTECTED,
+    CLS_PRIVATE,
+    CLS_PRE_DECL,
+    CLS_POST_DECL
   ];
 
   final int value;
 
   int get hashCode => value;
 
-  const CodeBlocks._(this.value);
+  const ClassCodeBlock._(this.value);
 
   copy() => this;
 
-  int compareTo(CodeBlocks other) => value.compareTo(other.value);
+  int compareTo(ClassCodeBlock other) => value.compareTo(other.value);
 
   String toString() {
     switch(this) {
-      case CB_PUBLIC: return "CbPublic";
-      case CB_PROTECTED: return "CbProtected";
-      case CB_PRIVATE: return "CbPrivate";
-      case CB_PRE_DECL: return "CbPreDecl";
-      case CB_POST_DECL: return "CbPostDecl";
+      case CLS_PUBLIC: return "ClsPublic";
+      case CLS_PROTECTED: return "ClsProtected";
+      case CLS_PRIVATE: return "ClsPrivate";
+      case CLS_PRE_DECL: return "ClsPreDecl";
+      case CLS_POST_DECL: return "ClsPostDecl";
     }
     return null;
   }
 
-  static CodeBlocks fromString(String s) {
+  static ClassCodeBlock fromString(String s) {
     if(s == null) return null;
     switch(s) {
-      case "CbPublic": return CB_PUBLIC;
-      case "CbProtected": return CB_PROTECTED;
-      case "CbPrivate": return CB_PRIVATE;
-      case "CbPreDecl": return CB_PRE_DECL;
-      case "CbPostDecl": return CB_POST_DECL;
+      case "ClsPublic": return CLS_PUBLIC;
+      case "ClsProtected": return CLS_PROTECTED;
+      case "ClsPrivate": return CLS_PRIVATE;
+      case "ClsPreDecl": return CLS_PRE_DECL;
+      case "ClsPostDecl": return CLS_POST_DECL;
       default: return null;
     }
   }
@@ -54,9 +54,7 @@ class Class extends Entity {
 
   /// Is this definition a *struct*
   bool struct = false;
-  List<String> basesPublic = [];
-  List<String> basesPrivate = [];
-  List<String> basesProtected = [];
+  List<Base> bases = [];
   List<PtrType> forwardPtrs = [];
   List<Enum> enumsForward = [];
   List<Enum> enums = [];
@@ -64,8 +62,10 @@ class Class extends Entity {
   List<Method> methods = [];
   Headers get headers => _headers;
   Headers get implHeaders => _implHeaders;
-  List<CodeBlocks> customBlocks = [];
-  Map<CodeBlocks, CodeBlock> get codeBlocks => _codeBlocks;
+  List<ClassCodeBlock> customBlocks = [];
+  Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
+  /// If true adds streaming support
+  bool streamable = false;
 
   // custom <class Class>
 
@@ -73,10 +73,14 @@ class Class extends Entity {
 
   String get classStyle => struct? 'struct' : 'class';
 
+  Iterable<Base> get basesPublic => bases.where((b) => b.access == public);
+  Iterable<Base> get basesProtected => bases.where((b) => b.access == protected);
+  Iterable<Base> get basesPrivate => bases.where((b) => b.access == private);
+
   List<String> get _baseDecls => []
-    ..addAll(basesPublic.map((b) => 'public $b'))
-    ..addAll(basesProtected.map((b) => 'protected $b'))
-    ..addAll(basesPrivate.map((b) => 'private $b'));
+    ..addAll(basesPublic.map((b) => b.decl))
+    ..addAll(basesProtected.map((b) => b.decl))
+    ..addAll(basesPrivate.map((b) => b.decl));
 
   String get _baseDecl {
     final decls = _baseDecls;
@@ -84,7 +88,7 @@ class Class extends Entity {
     ' :\n' + indentBlock(_baseDecls.join(',\n')) : '';
   }
 
-  CodeBlock getCodeBlock(CodeBlocks cb) {
+  CodeBlock getCodeBlock(ClassCodeBlock cb) {
     var result = _codeBlocks[cb];
     return (result == null) ?
       (_codeBlocks[cb] = codeBlock()) : result;
@@ -92,7 +96,8 @@ class Class extends Entity {
 
   String get definition {
     if(_definition == null) {
-      customBlocks.forEach((CodeBlocks cb) {
+      enums.forEach((e) => e.isNested = true);
+      customBlocks.forEach((ClassCodeBlock cb) {
         getCodeBlock(cb)..tag = '$cb $className';
       });
       _definition = combine(_parts);
@@ -113,21 +118,26 @@ class Class extends Entity {
     briefComment,
     detailedComment,
     _classOpener,
-    indentBlock(enums.map((e) => e.toString()).join('\n')),
+    indentBlock(combine(_enumDecls)),
+    indentBlock(combine(_enumStreamers)),
     _operatorMethods,
     'public:',
-    _codeBlockText(cbPublic),
+    _codeBlockText(clsPublic),
     indentBlock(publicMembers.map((m) => _memberDefinition(m)).join('\n')),
+    streamable? outStreamer : null,
     'protected:',
-    _codeBlockText(cbProtected),
+    _codeBlockText(clsProtected),
     indentBlock(protectedMembers.map((m) => _memberDefinition(m)).join('\n')),
     'private:',
-    _codeBlockText(cbPrivate),
+    _codeBlockText(clsPrivate),
     indentBlock(privateMembers.map((m) => _memberDefinition(m)).join('\n')),
     _classCloser,
   ];
 
-  _codeBlockText(CodeBlocks cb) {
+  get _enumDecls => enums.map((e) => e.decl);
+  get _enumStreamers => enums.map((e) => e.streamSupport);
+
+  _codeBlockText(ClassCodeBlock cb) {
     final codeBlock = _codeBlocks[cb];
     return codeBlock != null? codeBlock.toString() : null;
   }
@@ -135,6 +145,16 @@ class Class extends Entity {
   _memberDefinition(Member m) => m.toString();
 
   get className => id.capSnake;
+
+  get outStreamer => '''
+  friend inline std::ostream& operator<<(std::ostream& out, $className const& item) {
+    ${
+members.map((m) => "out << '\\n' << ${quote(m.name + ':')} << item.${m.vname}").join(';\n    ')
+};
+    return out;
+  }
+''';
+
   get _classOpener => '''
 $classStyle $className$_baseDecl
 {
@@ -146,14 +166,14 @@ public:''';
 bool operator==($className const& rhs) {
   return this == &rhs ||
     (${
-members.map((m) => '${m.name} == rhs.${m.name}').join(' &&\n    ')
+members.map((m) => '${m.vname} == rhs.${m.vname}').join(' &&\n    ')
 });
 }''';
   }
 
   get _opLessThan {
     List pairs = [];
-    pairs.addAll(members.map((m) => [ m.name, 'rhs.${m.name}' ]));
+    pairs.addAll(members.map((m) => [ m.vname, 'rhs.${m.vname}' ]));
     return '''
 bool operator<($className const& rhs) {
   return ${
@@ -200,7 +220,7 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
   String _definition;
   Headers _headers;
   Headers _implHeaders;
-  Map<CodeBlocks, CodeBlock> _codeBlocks = {};
+  Map<ClassCodeBlock, CodeBlock> _codeBlocks = {};
 }
 // custom <part class>
 
@@ -212,11 +232,11 @@ Class
 class_(Object id) =>
   new Class(id is Id? id : new Id(id));
 
-const cbPublic = CodeBlocks.CB_PUBLIC;
-const cbProtected = CodeBlocks.CB_PROTECTED;
-const cbPrivate = CodeBlocks.CB_PRIVATE;
-const cbPreDecl = CodeBlocks.CB_PRE_DECL;
-const cbPostDecl = CodeBlocks.CB_POST_DECL;
+const clsPublic = ClassCodeBlock.CLS_PUBLIC;
+const clsProtected = ClassCodeBlock.CLS_PROTECTED;
+const clsPrivate = ClassCodeBlock.CLS_PRIVATE;
+const clsPreDecl = ClassCodeBlock.CLS_PRE_DECL;
+const clsPostDecl = ClassCodeBlock.CLS_POST_DECL;
 
 
 // end <part class>
