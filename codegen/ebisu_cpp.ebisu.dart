@@ -76,6 +76,10 @@ void main() {
           member('descr')
           ..doc = 'Description of entity',
         ],
+        class_('template')
+        ..members = [
+          member('decls')..type = 'List<String>',
+        ]
       ]
       ..parts = [
         part('utils')
@@ -122,15 +126,12 @@ void main() {
         part('file')
         ..classes = [
           class_('cpp_file')
+          ..isAbstract = true
+          ..extend = 'Entity'
           ..members = [
-            member('filename')..type = 'Id'..ctors = [''],
-            member('path')..ctors = [''],
-            member('contents')..ctors = [''],
-            member('namespace')..type = 'Namespace'..ctorsOpt = [''],
-            member('is_header')..classInit = true,
-            member('include_guard'),
+            member('custom_blocks')..type = 'List<FileCodeBlock>'..classInit = [],
             member('code_blocks')
-            ..type = 'Map<FileCodeBlock, CodeBlock>'..classInit = {},
+            ..type = 'Map<FileCodeBlock, CodeBlock>'..access = IA..classInit = {},
           ],
         ],
         part('enum')
@@ -174,12 +175,21 @@ void main() {
           ..extend = 'Entity'
           ..members = [
             member('type')..doc = 'Type of member',
-            member('init')..doc = 'Initialization of member',
-            member('access')..doc = 'Access of member'..type = 'Access'..classInit = 'ro',
-            member('ref_type')..doc = 'Ref type of member'..type = 'RefType'..classInit = 'value',
+            member('init')..doc = 'Initialization of member (if type is null and Dart type is key in { int:int, double:double }, cpp type is set to value type)'..access = RO,
+            member('access')
+            ..doc = 'Idiomatic access of member'..type = 'Access'..classInit = 'ia',
+            member('cpp_access')
+            ..doc = 'C++ style access of member'..type = 'CppAccess'..access = WO,
+            member('ref_type')
+            ..doc = 'Ref type of member'..type = 'RefType'..classInit = 'value',
+            member('by_ref')
+            ..doc = 'Pass member around by reference'..classInit = false,
             member('static')..doc = 'Is the member static'
             ..classInit = false,
             member('mutable')..doc = 'Is the member mutable'
+            ..classInit = false,
+            member('no_init')
+            ..doc = 'If set will not initialize variable - use sparingly'
             ..classInit = false,
           ],
         ],
@@ -201,6 +211,7 @@ void main() {
             member('definition')..access = IA,
             member('struct')..doc = 'Is this definition a *struct*'
             ..classInit = false,
+            member('template')..type = 'Template'..access = RO,
             member('bases')..type = 'List<Base>'..classInit = [],
             member('forward_ptrs')..type = 'List<PtrType>'..classInit = [],
             member('enums_forward')..type = 'List<Enum>'..classInit = [],
@@ -236,13 +247,18 @@ void main() {
             member('installation')..type = 'Installation',
           ],
           class_('header')
-          ..extend = 'Entity'
+          ..extend = 'CppFile'
           ..members = [
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
+            member('file_path')..access = RO,
             member('classes')..type = 'List<Class>'..classInit = [],
-            member('code_blocks')
-            ..access = RO
-            ..type = 'Map<FileCodeBlock, CodeBlock>'..classInit = {},
+          ],
+          class_('impl')
+          ..extend = 'CppFile'
+          ..members = [
+            member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
+            member('file_path')..access = RO,
+            member('classes')..type = 'List<Class>'..classInit = [],
           ]
         ],
         part('installation')

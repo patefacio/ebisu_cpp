@@ -280,6 +280,21 @@ class Entity {
   // end <class Entity>
 }
 
+class Template {
+
+  List<String> decls;
+
+  // custom <class Template>
+
+  Template(Iterable<String> decls_) : decls = new List<String>.from(decls_);
+
+  String get decl => '''
+template< ${decls.join(', ')} >''';
+
+
+  // end <class Template>
+}
+
 // custom <library cpp>
 
 const ia = Access.IA;
@@ -328,6 +343,11 @@ Map _ptrStdTypeMap = {
 
 ptrType(PtrType ptrType, String t) =>
   _ptrStdTypeMap[ptrType](t);
+
+String br(Object o) =>
+  o == null? null :
+  o is Iterable? br(combine(o)) :
+  (o is String && o.length > 0) ? '$o\n' : null;
 
 String combine(Iterable<Object> parts) =>
   parts
@@ -410,5 +430,9 @@ String cleanAccess(String txt) {
   //         onMatch: (Match m) { print('Matched ${m.group(0)}'); return 'foo';},
   //         onNonMatch: (String nm) { print('Non match <$nm>'); return 'goo';}));
 }
+
+Template
+template([Iterable<String> decls]) =>
+  new Template(decls);
 
 // end <library cpp>

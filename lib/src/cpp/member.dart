@@ -4,16 +4,22 @@ class Member extends Entity {
 
   /// Type of member
   String type;
-  /// Initialization of member
-  String init;
-  /// Access of member
-  Access access = ro;
+  /// Initialization of member (if type is null and Dart type is key in { int:int, double:double }, cpp type is set to value type)
+  String get init => _init;
+  /// Idiomatic access of member
+  Access access = ia;
+  /// C++ style access of member
+  set cppAccess(CppAccess cppAccess) => _cppAccess = cppAccess;
   /// Ref type of member
   RefType refType = value;
+  /// Pass member around by reference
+  bool byRef = false;
   /// Is the member static
   bool static = false;
   /// Is the member mutable
   bool mutable = false;
+  /// If set will not initialize variable - use sparingly
+  bool noInit = false;
 
   // custom <class Member>
 
@@ -26,13 +32,45 @@ class Member extends Entity {
     return combine(_parts);
   }
 
-  String get initializer => init==null? '{}' : '{ $init }';
+  set initText(String txt) {
+    _init = txt;
+  }
+
+  set init(Object init_) {
+    if(type == null) {
+      if(init_ is double) {
+        type = 'double';
+      } else if(init_ is String) {
+        type = 'std::string';
+        init_ = quote(init_);
+      } else {
+        type = 'int';
+      }
+    }
+    _init = init_.toString();
+  }
+
+  //  String get _initValue => init is! String? init.toString() : init;
+  String get initializer =>
+    noInit? '' :
+    init==null? ' {}' :
+    ' { $init }';
   String get name => '${id.snake}';
   String get vname => '${id.snake}_';
+  String get getter => (access == ro || access == rw)? '''
+//! getter for ${vname} (access is $access)
+$_argType $name() const { return $vname; }''' : null;
+
+  String get setter => access == rw? '''
+//! setter for ${vname} (access is $access)
+void $name($_argType $name) { $vname = $name; }''' : null;
 
   CppAccess get cppAccess =>
-    (access == ia || access == ro) ? private :
+    _cppAccess != null? _cppAccess :
+    (access == ia || access == ro || access == rw) ? private :
     public;
+
+  get _argType => byRef? '$type &' : type;
 
   get _parts => [
     briefComment,
@@ -54,9 +92,11 @@ class Member extends Entity {
 
   get _static => static? 'static ' : '';
   get _mutable => mutable? 'mutable ' : '';
-  get _init => initializer;
-  get _decl => '$_static$_mutable$_refType $vname $_init;';
+  //  get _init => initializer;
+  get _decl => '$_static$_mutable$_refType $vname$initializer;';
   // end <class Member>
+  String _init;
+  CppAccess _cppAccess;
 }
 // custom <part member>
 

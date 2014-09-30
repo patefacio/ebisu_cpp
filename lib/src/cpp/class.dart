@@ -54,6 +54,7 @@ class Class extends Entity {
 
   /// Is this definition a *struct*
   bool struct = false;
+  Template get template => _template;
   List<Base> bases = [];
   List<PtrType> forwardPtrs = [];
   List<Enum> enumsForward = [];
@@ -77,6 +78,12 @@ class Class extends Entity {
   Iterable<Base> get basesProtected => bases.where((b) => b.access == protected);
   Iterable<Base> get basesPrivate => bases.where((b) => b.access == private);
 
+  set template(Object t) =>
+    _template =
+    t is Iterable? new Template(t) :
+    t is String? new Template([t]) :
+    t as Template;
+
   List<String> get _baseDecls => []
     ..addAll(basesPublic.map((b) => b.decl))
     ..addAll(basesProtected.map((b) => b.decl))
@@ -98,7 +105,7 @@ class Class extends Entity {
     if(_definition == null) {
       enums.forEach((e) => e.isNested = true);
       customBlocks.forEach((ClassCodeBlock cb) {
-        getCodeBlock(cb)..tag = '$cb $className';
+        getCodeBlock(cb).tag = '$cb $className';
       });
       _definition = combine(_parts);
     }
@@ -117,26 +124,34 @@ class Class extends Entity {
     enumsForward.map((e) => e.toString()).join('\n'),
     briefComment,
     detailedComment,
+    _codeBlockText(clsPreDecl),
+    _templateDecl,
     _classOpener,
     indentBlock(combine(_enumDecls)),
     indentBlock(combine(_enumStreamers)),
     _operatorMethods,
     _wrapInAccess(public,
-        combine([
+        indentBlock(
+          combine([
           _codeBlockText(clsPublic),
-          indentBlock(publicMembers.map((m) => _memberDefinition(m)).join('\n')),
-          streamable? outStreamer : null])),
+          br(publicMembers.map((m) => _memberDefinition(m))),
+          members.map((m) => br([m.getter, m.setter])),
+          streamable? outStreamer : null]))),
     _wrapInAccess(protected,
-        combine([
-          _codeBlockText(clsProtected),
-          indentBlock(protectedMembers.map((m) => _memberDefinition(m)).join('\n'))])),
+        indentBlock(
+          combine([
+            _codeBlockText(clsProtected),
+            protectedMembers.map((m) => _memberDefinition(m)).join('\n')]))),
     _wrapInAccess(private,
-        combine([
-          _codeBlockText(clsPrivate),
-          indentBlock(privateMembers.map((m) => _memberDefinition(m)).join('\n'))])),
+        indentBlock(
+          combine([
+            _codeBlockText(clsPrivate),
+            privateMembers.map((m) => _memberDefinition(m)).join('\n')]))),
     _classCloser,
+    _codeBlockText(clsPostDecl),
   ];
 
+  get _templateDecl => _template != null? _template.decl : null;
   get _enumDecls => enums.map((e) => e.decl);
   get _enumStreamers => enums.map((e) => e.streamSupport);
 
@@ -228,6 +243,7 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
 
   // end <class Class>
   String _definition;
+  Template _template;
   Headers _headers;
   Headers _implHeaders;
   Map<ClassCodeBlock, CodeBlock> _codeBlocks = {};
@@ -247,6 +263,5 @@ const clsProtected = ClassCodeBlock.CLS_PROTECTED;
 const clsPrivate = ClassCodeBlock.CLS_PRIVATE;
 const clsPreDecl = ClassCodeBlock.CLS_PRE_DECL;
 const clsPostDecl = ClassCodeBlock.CLS_POST_DECL;
-
 
 // end <part class>

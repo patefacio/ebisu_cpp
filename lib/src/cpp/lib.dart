@@ -59,12 +59,10 @@ class Lib extends Entity {
   generate() {
     final cpp = installation.paths["cpp"];
     headers.forEach((Header header) {
-      header.namespace = namespace;
-      final headerPath = '${installation.cppPath}/${namespace.asPath}';
-      final headerFile = new CppFile(header.id, headerPath,
-          header.contents(), namespace)
-        ..codeBlocks = header.codeBlocks;
-      headerFile.generate();
+      header
+        ..namespace = namespace
+        .._filePath = '${installation.cppPath}/${namespace.asPath}/${header.id.snake}.hpp'
+        ..generate();
     });
   }
 
@@ -76,33 +74,60 @@ class Lib extends Entity {
   // end <class Lib>
 }
 
-class Header extends Entity {
+class Header extends CppFile {
 
   Namespace namespace = new Namespace();
+  String get filePath => _filePath;
   List<Class> classes = [];
-  Map<FileCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
 
   // custom <class Header>
 
   Header(Id id) : super(id);
 
-  contents() =>
-      namespace.wrap(
+  String get contents =>
+    _wrapIncludeGuard(
+      _contentsWithBlocks(
         combine([
           classes.map((Class cls) => cls.definition),
-                ]));
+        ])));
 
   String toString() => '''
         header($id)
           classes:[${classes.map((cls) => cls.className).join(', ')}]
 ''';
 
+  String get _includeGuard => namespace == null? '__${id.shout}__' :
+    '__${namespace.names.map((n) => new Id(n).shout).join("_")}_${id.shout}_HPP__';
+
+  String _wrapIncludeGuard(String text) =>'''
+#ifndef $_includeGuard
+#define $_includeGuard
+$text
+#endif // $_includeGuard
+''';
+
   // end <class Header>
-  Map<FileCodeBlock, CodeBlock> _codeBlocks = {};
+  String _filePath;
+}
+
+class Impl extends CppFile {
+
+  Namespace namespace = new Namespace();
+  String get filePath => _filePath;
+  List<Class> classes = [];
+
+  // custom <class Impl>
+  // end <class Impl>
+  String _filePath;
 }
 // custom <part lib>
 
 Lib lib(Object id) => new Lib(id is Id? id : new Id(id));
 Header header(Object id) => new Header(id is Id? id : new Id(id));
+
+const fcbPreNamespace = FileCodeBlock.FCB_PRE_NAMESPACE;
+const fcbPostNamespace = FileCodeBlock.FCB_POST_NAMESPACE;
+const fcbBeginNamespace = FileCodeBlock.FCB_BEGIN_NAMESPACE;
+const fcbEndNamespace = FileCodeBlock.FCB_END_NAMESPACE;
 
 // end <part lib>
