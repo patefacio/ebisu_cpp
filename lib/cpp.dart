@@ -331,7 +331,7 @@ ptrType(PtrType ptrType, String t) =>
 
 String combine(Iterable<Object> parts) =>
   parts
-  .where((Object o) => o != null && (o is! String || o.length > 0))
+  .where((Object o) => o != null && (o is! String || (o as String).length > 0))
   .map((Object o) => (o is Iterable)? combine(o) : o.toString())
   .join('\n');
 
@@ -383,5 +383,32 @@ bool isSystemHeader(String h) =>
   _systemHeaders.contains(h) ||
   _posixHeaders.contains(h) ||
   _linuxHeaders.contains(h);
+
+//final _accessRegex = new RegExp(r"(public:|private:|protected:)(.+?)(public:|private:|protected:)", multiLine: true);
+final _accessRegex = new RegExp(r"\s*public:|private:|protected:\s*", multiLine: true);
+
+String cleanAccess(String txt) {
+  var result = [];
+  var prior = null;
+  var start = 0;
+
+  _accessRegex.allMatches(txt).forEach((Match m) {
+    final pre = txt.substring(start, m.start);
+    final current = txt.substring(m.start, m.end);
+    final rest = txt.substring(m.end);
+
+    result.add(pre);
+    result.add(current);
+    prior = current;
+    start = m.end;
+  });
+
+  result.add(txt.substring(start));
+
+  return result.join('');
+  // print(txt.splitMapJoin(_accesRegex,
+  //         onMatch: (Match m) { print('Matched ${m.group(0)}'); return 'foo';},
+  //         onNonMatch: (String nm) { print('Non match <$nm>'); return 'goo';}));
+}
 
 // end <library cpp>

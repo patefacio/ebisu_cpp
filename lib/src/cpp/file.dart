@@ -2,24 +2,46 @@ part of ebisu_cpp.cpp;
 
 class CppFile {
 
-  CppFile(this.filename, [ this.namespace ]);
+  CppFile(this.filename, this.path, this.contents, [ this.namespace ]);
 
   Id filename;
+  String path;
+  String contents;
   Namespace namespace;
   bool isHeader = true;
   String includeGuard;
-  Map<FileCodeBlock, CodeBlock> get customBlocks => _customBlocks;
+  Map<FileCodeBlock, CodeBlock> codeBlocks = {};
 
   // custom <class CppFile>
 
-  String get contents => wrapIncludeGuard(combine([
-'guts'
-  ]));
+  generate() {
+    final headerPath = '$path/${filename.snake}${isHeader? ".hpp" : ".cpp"}';
+    mergeWithFile(_contents, headerPath);
+  }
+
+  String get _insides => combine([
+    _codeBlockText(FileCodeBlock.FCB_PRE_NAMESPACE),
+    namespace.wrap(
+      combine([
+        _codeBlockText(FileCodeBlock.FCB_BEGIN_NAMESPACE),
+        contents,
+        _codeBlockText(FileCodeBlock.FCB_END_NAMESPACE)
+      ])),
+    _codeBlockText(FileCodeBlock.FCB_POST_NAMESPACE),
+  ]);
+
+  _codeBlockText(FileCodeBlock cb) {
+    final codeBlock = codeBlocks[cb];
+    return codeBlock != null? codeBlock.toString() : null;
+  }
+
+  String get _contents => isHeader?
+    _wrapIncludeGuard(_insides) : _insides;
 
   String get _includeGuard => namespace == null? '__${filename.shout}__' :
     '__${namespace.names.map((n) => new Id(n).shout).join("_")}_${filename.shout}__';
 
-  String wrapIncludeGuard(String text) =>
+  String _wrapIncludeGuard(String text) =>
     isHeader? '''
 #ifndef $_includeGuard
 #define $_includeGuard
@@ -28,14 +50,7 @@ $text
 ''': text;
 
   // end <class CppFile>
-  Map<FileCodeBlock, CodeBlock> _customBlocks = {};
 }
 // custom <part file>
-
-CppFile
-  cppFile(Object f, [namespace]) =>
-  f is String?
-  new CppFile(new Id(f), namespace) :
-  new CppFile(f, namespace);
 
 // end <part file>

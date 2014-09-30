@@ -124,11 +124,12 @@ void main() {
           class_('cpp_file')
           ..members = [
             member('filename')..type = 'Id'..ctors = [''],
+            member('path')..ctors = [''],
+            member('contents')..ctors = [''],
             member('namespace')..type = 'Namespace'..ctorsOpt = [''],
             member('is_header')..classInit = true,
             member('include_guard'),
-            member('custom_blocks')
-            ..access = RO
+            member('code_blocks')
             ..type = 'Map<FileCodeBlock, CodeBlock>'..classInit = {},
           ],
         ],
@@ -232,26 +233,40 @@ void main() {
           ..members = [
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('headers')..type = 'List<Header>'..classInit = [],
+            member('installation')..type = 'Installation',
           ],
           class_('header')
           ..extend = 'Entity'
           ..members = [
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('classes')..type = 'List<Class>'..classInit = [],
+            member('code_blocks')
+            ..access = RO
+            ..type = 'Map<FileCodeBlock, CodeBlock>'..classInit = {},
           ]
         ],
         part('installation')
         ..classes = [
           class_('app')
           ..members = [
+            member('installation')..type = 'Installation',
             member('classes')..type = 'List<Class>'..classInit = [],
           ],
-          class_('script'),
-          class_('test'),
+          class_('script')
+          ..members = [
+            member('installation')..type = 'Installation',
+          ],
+          class_('test')
+          ..members = [
+            member('installation')..type = 'Installation',
+          ],
           class_('installation')
           ..members = [
+            member('id')..type = 'Id'..ctors = [''],
+            member('root')..doc = 'Fully qualified path to installation'..access = RO,
+            member('paths')..type = 'Map<String, String>'..classInit = {}..access = RO,
             member('apps')..type = 'List<App>'..classInit = [],
-            member('scripts')..type = 'List<Scripts>'..classInit = [],
+            member('scripts')..type = 'List<Script>'..classInit = [],
             member('libs')..type = 'List<Lib>'..classInit = [],
             member('tests')..type = 'List<Test>'..classInit = [],
           ]

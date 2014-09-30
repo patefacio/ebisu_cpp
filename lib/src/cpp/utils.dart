@@ -21,6 +21,9 @@ ${_helper(it, txt)}
     }
   }
 
+  String toString() => names.join('::');
+  String get asPath => names.join('/');
+
   // end <class Namespace>
 }
 

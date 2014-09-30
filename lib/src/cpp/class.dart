@@ -121,21 +121,31 @@ class Class extends Entity {
     indentBlock(combine(_enumDecls)),
     indentBlock(combine(_enumStreamers)),
     _operatorMethods,
-    'public:',
-    _codeBlockText(clsPublic),
-    indentBlock(publicMembers.map((m) => _memberDefinition(m)).join('\n')),
-    streamable? outStreamer : null,
-    'protected:',
-    _codeBlockText(clsProtected),
-    indentBlock(protectedMembers.map((m) => _memberDefinition(m)).join('\n')),
-    'private:',
-    _codeBlockText(clsPrivate),
-    indentBlock(privateMembers.map((m) => _memberDefinition(m)).join('\n')),
+    _wrapInAccess(public,
+        combine([
+          _codeBlockText(clsPublic),
+          indentBlock(publicMembers.map((m) => _memberDefinition(m)).join('\n')),
+          streamable? outStreamer : null])),
+    _wrapInAccess(protected,
+        combine([
+          _codeBlockText(clsProtected),
+          indentBlock(protectedMembers.map((m) => _memberDefinition(m)).join('\n'))])),
+    _wrapInAccess(private,
+        combine([
+          _codeBlockText(clsPrivate),
+          indentBlock(privateMembers.map((m) => _memberDefinition(m)).join('\n'))])),
     _classCloser,
   ];
 
   get _enumDecls => enums.map((e) => e.decl);
   get _enumStreamers => enums.map((e) => e.streamSupport);
+
+  _wrapInAccess(CppAccess access, String txt) {
+    return (txt != null && txt.length > 0)? '''
+$access:
+${txt}
+''' : null;
+  }
 
   _codeBlockText(ClassCodeBlock cb) {
     final codeBlock = _codeBlocks[cb];
@@ -158,7 +168,7 @@ members.map((m) => "out << '\\n' << ${quote(m.name + ':')} << item.${m.vname}").
   get _classOpener => '''
 $classStyle $className$_baseDecl
 {
-public:''';
+''';
   get _classCloser => '};';
 
   get _opEqual {

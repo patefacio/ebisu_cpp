@@ -50,18 +50,28 @@ class Lib extends Entity {
 
   Namespace namespace = new Namespace();
   List<Header> headers = [];
+  Installation installation;
 
   // custom <class Lib>
 
   Lib(Id id) : super(id);
 
   generate() {
+    final cpp = installation.paths["cpp"];
     headers.forEach((Header header) {
-      print('********* Generating header $id *********');
       header.namespace = namespace;
-      header.generate();
+      final headerPath = '${installation.cppPath}/${namespace.asPath}';
+      final headerFile = new CppFile(header.id, headerPath,
+          header.contents(), namespace)
+        ..codeBlocks = header.codeBlocks;
+      headerFile.generate();
     });
   }
+
+  String toString() => '''
+    lib($id)
+      headers:\n${headers.map((h) => h.toString()).join('\n')}
+''';
 
   // end <class Lib>
 }
@@ -70,19 +80,25 @@ class Header extends Entity {
 
   Namespace namespace = new Namespace();
   List<Class> classes = [];
+  Map<FileCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
 
   // custom <class Header>
 
   Header(Id id) : super(id);
 
-  generate() {
-    classes.forEach((Class cls) {
-      print('**** Generating class ${cls.id} ****');
-      print(namespace.wrap(cls.definition));
-    });
-  }
+  contents() =>
+      namespace.wrap(
+        combine([
+          classes.map((Class cls) => cls.definition),
+                ]));
+
+  String toString() => '''
+        header($id)
+          classes:[${classes.map((cls) => cls.className).join(', ')}]
+''';
 
   // end <class Header>
+  Map<FileCodeBlock, CodeBlock> _codeBlocks = {};
 }
 // custom <part lib>
 
