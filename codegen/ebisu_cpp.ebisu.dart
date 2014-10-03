@@ -202,9 +202,6 @@ void main() {
           ..isAbstract = true
           ..members = [
             member('parent')..type = 'Class'..access = RO,
-            member('name'),
-            member('args')..type = 'List<String>'..classInit = [],
-            member('opt_args')..type = 'List<String>'..classInit = [],
             member('log')..doc = 'If true add logging'..classInit = false,
             member('template')..type = 'Template'..access = RO,
           ],
@@ -226,6 +223,22 @@ void main() {
           class_('assign_copy')..extend = 'DefaultMethod',
           class_('assign_move')..extend = 'DefaultMethod',
           class_('dtor')..extend = 'DefaultMethod',
+          class_('member_ctor')
+          ..extend = 'ClassMethod'
+          ..ctorSansNew = true
+          ..members = [
+            member('member_args')
+            ..doc = 'List of members that are passed as arguments for initialization'
+            ..type = 'List<String>'
+            ..ctors = ['']
+            ..classInit = [],
+            member('opt_init')
+            ..doc = 'Map member name to text for initialization'
+            ..type = 'Map<String, String>'..classInit = {}
+            ..ctorsOpt = [''],
+            member('has_custom')
+            ..doc = 'Has custom code, so needs protect block'..classInit = false,
+          ],
           class_('op_equal')..extend = 'ClassMethod',
           class_('op_less')..extend = 'ClassMethod',
           class_('op_out')..extend = 'ClassMethod',
@@ -243,6 +256,7 @@ void main() {
             member('assign_copy')..type = 'AssignCopy'..access = IA,
             member('assign_move')..type = 'AssignMove'..access = IA,
             member('dtor')..type = 'Dtor'..access = IA,
+            member('member_ctors')..type = 'List<MemberCtor>'..classInit = [],
             member('op_equal')..type = 'OpEqual'..access = IA,
             member('op_less')..type = 'OpLess'..access = IA,
             member('op_out')..type = 'OpOut'..access = IA,

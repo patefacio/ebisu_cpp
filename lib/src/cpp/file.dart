@@ -28,7 +28,7 @@ abstract class CppFile extends Entity {
   }
 
   String _contentsWithBlocks(String original) {
-    customBlocks.forEach((cb) => getCodeBlock(cb).tag = '$cb $id');
+    customBlocks.forEach((cb) => getCodeBlock(cb).tag = '$cb ${id.snake}');
 
     return combine([
       br(_headers.includes),

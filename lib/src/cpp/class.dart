@@ -53,9 +53,6 @@ class ClassCodeBlock implements Comparable<ClassCodeBlock> {
 abstract class ClassMethod {
 
   Class get parent => _parent;
-  String name;
-  List<String> args = [];
-  List<String> optArgs = [];
   /// If true add logging
   bool log = false;
   Template get template => _template;
@@ -183,6 +180,54 @@ class Dtor extends DefaultMethod {
   // end <class Dtor>
 }
 
+class MemberCtor extends ClassMethod {
+
+  MemberCtor(this.memberArgs, [ this.optInit ]);
+
+  /// List of members that are passed as arguments for initialization
+  List<String> memberArgs = [];
+  /// Map member name to text for initialization
+  Map<String, String> optInit = {};
+  /// Has custom code, so needs protect block
+  bool hasCustom = false;
+
+  // custom <class MemberCtor>
+
+  String get definition {
+    List<String> argDecls = [];
+    List<String> initializers = [];
+    memberArgs.forEach((String arg) {
+      final member = members.singleWhere((m) => m.id.snake == arg);
+      var decl = member.passDecl;
+      final init = optInit[arg];
+      if(init != null)
+        decl += ' = $init';
+
+      argDecls.add(decl);
+      initializers.add('${member.vname} { $arg }');
+    });
+    return '''
+${className}(
+${indentBlock(argDecls.join(',\n'))}) :
+${indentBlock(initializers.join(',\n'))}) {
+${indentBlock(_protectBlock)}}''';
+  }
+
+  get _protectBlock => hasCustom?
+    customBlock('${className}($memberArgs)') : '';
+
+  // end <class MemberCtor>
+}
+
+/// Create a MemberCtor sans new, for more declarative construction
+MemberCtor
+memberCtor(List<String> memberArgs,
+    [
+      Map<String, String> optInit
+    ]) =>
+  new MemberCtor(memberArgs,
+      optInit);
+
 class OpEqual extends ClassMethod {
 
 
@@ -236,6 +281,7 @@ class Class extends Entity {
   bool struct = false;
   Template get template => _template;
   List<Base> bases = [];
+  List<MemberCtor> memberCtors = [];
   List<PtrType> forwardPtrs = [];
   List<Enum> enumsForward = [];
   List<Enum> enums = [];
@@ -277,7 +323,7 @@ class Class extends Entity {
   Iterable<Base> get basesProtected => bases.where((b) => b.access == protected);
   Iterable<Base> get basesPrivate => bases.where((b) => b.access == private);
 
-  set template(Object t) => _makeTemplate(t);
+  set template(Object t) => _template = _makeTemplate(t);
 
   List<String> get _baseDecls => []
     ..addAll(basesPublic.map((b) => b.decl))
@@ -300,6 +346,7 @@ class Class extends Entity {
     if(_definition == null) {
       enums.forEach((e) => e.isNested = true);
       _methods.forEach((m) { if(m != null) m._parent = this; });
+      memberCtors.forEach((m) { if(m != null) m._parent = this; });
       customBlocks.forEach((ClassCodeBlock cb) {
         getCodeBlock(cb).tag = '$cb $className';
       });
@@ -332,6 +379,7 @@ class Class extends Entity {
         indentBlock(
           combine([
             br([_enumDecls, _enumStreamers]),
+            br(memberCtors.map((m) => m.definition)),
             br(_methods.map((m) => m == null? m : m.definition)),
             _codeBlockText(clsPublic),
             br(publicMembers.map((m) => _memberDefinition(m))),

@@ -36,7 +36,20 @@ class Member extends Entity {
     _init = txt;
   }
 
+  get isRefType => refType != value;
+
+  get passDecl =>
+    refType == value? '$type $name' :
+    refType == ref? '$type & $name' :
+    refType == cref? '$type const & $name' :
+    refType == vref? '$type volatile & $name' :
+    refType == cvref? '$type const volatile & $name' :
+    throw '$id has invalid refType $refType';
+
   set init(Object init_) {
+    if(isRefType)
+      throw '$id can not have an init since it is a reference type ($refType)';
+
     if(type == null) {
       if(init_ is double) {
         type = 'double';
@@ -52,7 +65,7 @@ class Member extends Entity {
 
   //  String get _initValue => init is! String? init.toString() : init;
   String get initializer =>
-    noInit? '' :
+    noInit || isRefType ? '' :
     init==null? ' {}' :
     ' { $init }';
   String get name => '${id.snake}';

@@ -231,7 +231,7 @@ class Template {
   Template(Iterable<String> decls_) : decls = new List<String>.from(decls_);
 
   String get decl => '''
-template< ${decls.join(', ')} >''';
+template< ${decls.join(',\n          ')} >''';
 
 
   // end <class Template>
