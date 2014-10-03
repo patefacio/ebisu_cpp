@@ -35,7 +35,7 @@ class Headers {
   // custom <class Headers>
 
   Headers([ Iterable<String> from ]) :
-    _headers = new Set.from(from);
+    _headers = from == null? new Set() : new Set.from(from);
 
   String get includes {
     final boostHeaders = [];

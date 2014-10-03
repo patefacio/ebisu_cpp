@@ -50,6 +50,186 @@ class ClassCodeBlock implements Comparable<ClassCodeBlock> {
 
 }
 
+abstract class ClassMethod {
+
+  Class get parent => _parent;
+  String name;
+  List<String> args = [];
+  List<String> optArgs = [];
+  /// If true add logging
+  bool log = false;
+  Template get template => _template;
+
+  // custom <class ClassMethod>
+
+  String get definition;
+  String get className => _parent.className;
+  List<Member> get members => _parent.members;
+
+  // end <class ClassMethod>
+  Class _parent;
+  Template _template;
+}
+
+abstract class DefaultMethod extends ClassMethod {
+
+  /// Has custom code, so needs protect block
+  bool hasCustom = false;
+  bool useDefault = false;
+  bool delete = false;
+
+  // custom <class DefaultMethod>
+
+  String get customDefinition;
+  String get prototype;
+
+  String get definition =>
+    useDefault? '$prototype = default;' :
+    delete? '$prototype = delete;' :
+    customDefinition;
+
+  // end <class DefaultMethod>
+}
+
+/// Default ctor, autoinitialized on read
+class DefaultCtor extends DefaultMethod {
+
+
+  // custom <class DefaultCtor>
+
+  String get prototype =>
+    '${className}(${className} const& other)';
+
+  String get customDefinition {
+    final cb = customBlock('${className} defaultCtor');
+    var result = '''
+${className}() {
+${hasCustom? indentBlock(cb) : ''}}''';
+    return result;
+  }
+
+  // end <class DefaultCtor>
+}
+
+/// Copy ctor, autoinitialized on read
+class CopyCtor extends DefaultMethod {
+
+
+  // custom <class CopyCtor>
+
+  String get prototype =>
+    '${className}(${className} const& other)';
+
+  String get customDefinition {
+    final cb = customBlock('${className} copyCtor');
+    var result = '''
+${className}(${className} const& other) {
+${hasCustom? indentBlock(cb) : ''}}''';
+    return result;
+  }
+
+  // end <class CopyCtor>
+}
+
+/// Move ctor, autoinitialized on read
+class MoveCtor extends DefaultMethod {
+
+
+  // custom <class MoveCtor>
+
+  String get prototype =>
+    '${className}(${className} && other)';
+
+  String get customDefinition => 'Move Ctor';
+
+  // end <class MoveCtor>
+}
+
+class AssignCopy extends DefaultMethod {
+
+
+  // custom <class AssignCopy>
+
+  String get prototype => '${className}& operator=(${className} const&)';
+  String get customDefinition =>
+    throw 'AssignCopy not generated - specify useDefault or delete for ${className}';
+
+  // end <class AssignCopy>
+}
+
+class AssignMove extends DefaultMethod {
+
+
+  // custom <class AssignMove>
+
+
+  String get prototype => '${className}& operator=(${className} &&)';
+  String get customDefinition =>
+    throw 'AssignMove not generated - specify useDefault or delete for ${className}';
+
+  // end <class AssignMove>
+}
+
+class Dtor extends DefaultMethod {
+
+
+  // custom <class Dtor>
+
+  String get definition =>
+    delete? throw "Don't delete the destructor for $className" : super.definition;
+  String get prototype => '~${className}()';
+  String get customDefinition => '~${className}() {}';
+
+  // end <class Dtor>
+}
+
+class OpEqual extends ClassMethod {
+
+
+  // custom <class OpEqual>
+
+  String get definition => '''bool operator==(${className} const& rhs) {
+  return this == &rhs ||
+    (${
+members.map((m) => '${m.vname} == rhs.${m.vname}').join(' &&\n    ')
+});
+}''';
+
+
+  // end <class OpEqual>
+}
+
+class OpLess extends ClassMethod {
+
+
+  // custom <class OpLess>
+
+  String get definition {
+    List pairs = [];
+    pairs.addAll(members.map((m) => [ m.vname, 'rhs.${m.vname}' ]));
+    return '''
+bool operator<($className const& rhs) {
+  return ${
+pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
+}
+    false${pairs.map((_) => ')').join()};
+}
+''';
+  }
+
+  // end <class OpLess>
+}
+
+class OpOut extends ClassMethod {
+
+
+  // custom <class OpOut>
+
+  String get definition => 'operator<<(TBD)';
+
+  // end <class OpOut>
+}
+
 class Class extends Entity {
 
   /// Is this definition a *struct*
@@ -60,9 +240,6 @@ class Class extends Entity {
   List<Enum> enumsForward = [];
   List<Enum> enums = [];
   List<Member> members = [];
-  List<Method> methods = [];
-  Headers get headers => _headers;
-  Headers get implHeaders => _implHeaders;
   List<ClassCodeBlock> customBlocks = [];
   Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
   /// If true adds streaming support
@@ -74,15 +251,33 @@ class Class extends Entity {
 
   String get classStyle => struct? 'struct' : 'class';
 
+  //! Accessing auto-initilizes
+  DefaultCtor get defaultCtor => _defaultCtor = _defaultCtor == null? new DefaultCtor() : _defaultCtor;
+  CopyCtor get copyCtor => _copyCtor = _copyCtor == null? new CopyCtor() : _copyCtor;
+  MoveCtor get moveCtor => _moveCtor = _moveCtor == null? new MoveCtor() : _moveCtor;
+  AssignCopy get assignCopy => _assignCopy = _assignCopy == null? new AssignCopy() : _assignCopy;
+  AssignMove get assignMove => _assignMove = _assignMove == null? new AssignMove() : _assignMove;
+  Dtor get dtor => _dtor = _dtor == null? new Dtor() : _dtor;
+  OpEqual get opEqual => _opEqual = _opEqual == null? new OpEqual() : _opEqual;
+  OpLess get opLess => _opLess = _opLess == null? new OpLess() : _opLess;
+  OpOut get opOut => _opOut = _opOut == null? new OpOut() : _opOut;
+
+
+  set defaultCtor(DefaultCtor defaultCtor) =>  _defaultCtor = defaultCtor;
+  set copyCtor(CopyCtor copyCtor) => _copyCtor = copyCtor;
+  set moveCtor(MoveCtor moveCtor) => _moveCtor = moveCtor;
+  set assignCopy(AssignCopy assignCopy) => _assignCopy = assignCopy;
+  set assignMove(AssignMove assignMove) => _assignMove = assignMove;
+  set dtor(Dtor dtor) => _dtor = dtor;
+  set opEqual(OpEqual opEqual) => _opEqual = opEqual;
+  set opLess(OpLess opLess) => _opLess = opLess;
+  set opOut(OpOut opOut) => _opOut = opOut;
+
   Iterable<Base> get basesPublic => bases.where((b) => b.access == public);
   Iterable<Base> get basesProtected => bases.where((b) => b.access == protected);
   Iterable<Base> get basesPrivate => bases.where((b) => b.access == private);
 
-  set template(Object t) =>
-    _template =
-    t is Iterable? new Template(t) :
-    t is String? new Template([t]) :
-    t as Template;
+  set template(Object t) => _makeTemplate(t);
 
   List<String> get _baseDecls => []
     ..addAll(basesPublic.map((b) => b.decl))
@@ -104,6 +299,7 @@ class Class extends Entity {
   String get definition {
     if(_definition == null) {
       enums.forEach((e) => e.isNested = true);
+      _methods.forEach((m) { if(m != null) m._parent = this; });
       customBlocks.forEach((ClassCodeBlock cb) {
         getCodeBlock(cb).tag = '$cb $className';
       });
@@ -119,6 +315,10 @@ class Class extends Entity {
   Iterable<Member> get privateMembers =>
     members.where((m) => m.cppAccess == private);
 
+  get _ctorMethods => [ _defaultCtor, _copyCtor, _moveCtor ];
+  get _opMethods => [ _assignCopy, _assignMove, _dtor, _opEqual, _opLess, _opOut ];
+  get _methods => []..addAll(_ctorMethods)..addAll(_opMethods);
+
   get _parts => [
     _forwardPtrs,
     enumsForward.map((e) => e.toString()).join('\n'),
@@ -127,26 +327,32 @@ class Class extends Entity {
     _codeBlockText(clsPreDecl),
     _templateDecl,
     _classOpener,
-    indentBlock(combine(_enumDecls)),
-    indentBlock(combine(_enumStreamers)),
-    _operatorMethods,
+
     _wrapInAccess(public,
         indentBlock(
           combine([
-          _codeBlockText(clsPublic),
-          br(publicMembers.map((m) => _memberDefinition(m))),
-          members.map((m) => br([m.getter, m.setter])),
-          streamable? outStreamer : null]))),
+            br([_enumDecls, _enumStreamers]),
+            br(_methods.map((m) => m == null? m : m.definition)),
+            _codeBlockText(clsPublic),
+            br(publicMembers.map((m) => _memberDefinition(m))),
+            members.map((m) => br([m.getter, m.setter])),
+            streamable? outStreamer : null
+          ]))),
+
     _wrapInAccess(protected,
         indentBlock(
           combine([
             _codeBlockText(clsProtected),
-            protectedMembers.map((m) => _memberDefinition(m)).join('\n')]))),
+            br(protectedMembers.map((m) => _memberDefinition(m)))
+          ]))),
+
     _wrapInAccess(private,
         indentBlock(
           combine([
             _codeBlockText(clsPrivate),
-            privateMembers.map((m) => _memberDefinition(m)).join('\n')]))),
+            br(privateMembers.map((m) => _memberDefinition(m)))
+          ]))),
+
     _classCloser,
     _codeBlockText(clsPostDecl),
   ];
@@ -158,8 +364,7 @@ class Class extends Entity {
   _wrapInAccess(CppAccess access, String txt) {
     return (txt != null && txt.length > 0)? '''
 $access:
-${txt}
-''' : null;
+${txt}''' : null;
   }
 
   _codeBlockText(ClassCodeBlock cb) {
@@ -169,7 +374,7 @@ ${txt}
 
   _memberDefinition(Member m) => m.toString();
 
-  get className => id.capSnake;
+  String get className => id.capSnake;
 
   get outStreamer => '''
   friend inline std::ostream& operator<<(std::ostream& out, $className const& item) {
@@ -182,43 +387,8 @@ members.map((m) => "out << '\\n' << ${quote(m.name + ':')} << item.${m.vname}").
 
   get _classOpener => '''
 $classStyle $className$_baseDecl
-{
-''';
+{''';
   get _classCloser => '};';
-
-  get _opEqual {
-    return '''
-bool operator==($className const& rhs) {
-  return this == &rhs ||
-    (${
-members.map((m) => '${m.vname} == rhs.${m.vname}').join(' &&\n    ')
-});
-}''';
-  }
-
-  get _opLessThan {
-    List pairs = [];
-    pairs.addAll(members.map((m) => [ m.vname, 'rhs.${m.vname}' ]));
-    return '''
-bool operator<($className const& rhs) {
-  return ${
-pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
-}
-    false${pairs.map((_) => ')').join()};
-}
-''';
-  }
-
-  get _operatorMethods {
-    List parts = [];
-    if(methods.contains(equal)) {
-      parts.add(indentBlock(_opEqual));
-    }
-    if(methods.contains(less)) {
-      parts.add(indentBlock(_opLessThan));
-    }
-    return combine(parts);
-  }
 
   get _forwardPtrs {
     if(forwardPtrs.length > 0) {
@@ -232,20 +402,18 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
     return null;
   }
 
-  _makeHeaders(Object h) =>
-    h is Iterable? new Headers(h) :
-    h is String? new Headers([h]) :
-    h is Headers? h :
-    throw 'Headers must be String, List<String> or Headers';
-
-  set headers(Object h) => _headers = _makeHeaders(h);
-  set implHeaders(Object h) => _implHeaders = _makeHeaders(h);
-
   // end <class Class>
   String _definition;
   Template _template;
-  Headers _headers;
-  Headers _implHeaders;
+  DefaultCtor _defaultCtor;
+  CopyCtor _copyCtor;
+  MoveCtor _moveCtor;
+  AssignCopy _assignCopy;
+  AssignMove _assignMove;
+  Dtor _dtor;
+  OpEqual _opEqual;
+  OpLess _opLess;
+  OpOut _opOut;
   Map<ClassCodeBlock, CodeBlock> _codeBlocks = {};
 }
 // custom <part class>
@@ -263,5 +431,21 @@ const clsProtected = ClassCodeBlock.CLS_PROTECTED;
 const clsPrivate = ClassCodeBlock.CLS_PRIVATE;
 const clsPreDecl = ClassCodeBlock.CLS_PRE_DECL;
 const clsPostDecl = ClassCodeBlock.CLS_POST_DECL;
+
+Template _makeTemplate(Object t) =>
+  t is Iterable? new Template(t) :
+  t is String? new Template([t]) :
+  t as Template;
+
+defaultCtor() => new DefaultCtor();
+copyCtor() => new CopyCtor();
+moveCtor() => new MoveCtor();
+assignCopy() => new AssignCopy();
+assignMove() =>  new AssignMove();
+dtor() => new Dtor();
+opEqual() => new OpEqual();
+opLess() => new OpLess();
+opOut() => new OpOut();
+
 
 // end <part class>

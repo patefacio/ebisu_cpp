@@ -55,15 +55,6 @@ void main() {
         ..values = [
           id('sptr'), id('uptr'), id('scptr'), id('ucptr'),
         ],
-        enum_('method')
-        ..values = [
-          id('equal'), id('less_than'),
-          id('default_ctor'),
-          id('copy_ctor'),
-          id('move'),
-          id('assign_copy'),
-          id('assign_ctor'),
-        ]
       ]
       ..classes = [
         class_('entity')
@@ -79,7 +70,7 @@ void main() {
         class_('template')
         ..members = [
           member('decls')..type = 'List<String>',
-        ]
+        ],
       ]
       ..parts = [
         part('utils')
@@ -129,9 +120,11 @@ void main() {
           ..isAbstract = true
           ..extend = 'Entity'
           ..members = [
+            member('namespace')..type = 'Namespace',
             member('custom_blocks')..type = 'List<FileCodeBlock>'..classInit = [],
             member('code_blocks')
             ..type = 'Map<FileCodeBlock, CodeBlock>'..access = IA..classInit = {},
+            member('headers')..type = 'Headers'..access = RO..classInit = 'new Headers()',
           ],
         ],
         part('enum')
@@ -205,6 +198,37 @@ void main() {
           ]
         ]
         ..classes = [
+          class_('class_method')
+          ..isAbstract = true
+          ..members = [
+            member('parent')..type = 'Class'..access = RO,
+            member('name'),
+            member('args')..type = 'List<String>'..classInit = [],
+            member('opt_args')..type = 'List<String>'..classInit = [],
+            member('log')..doc = 'If true add logging'..classInit = false,
+            member('template')..type = 'Template'..access = RO,
+          ],
+          class_('default_method')
+          ..isAbstract = true
+          ..extend = 'ClassMethod'
+          ..members = [
+            member('has_custom')
+            ..doc = 'Has custom code, so needs protect block'..classInit = false,
+            member('use_default')..classInit = false,
+            member('delete')..classInit = false,
+          ],
+          class_('default_ctor')
+          ..doc = 'Default ctor, autoinitialized on read'..extend = 'DefaultMethod',
+          class_('copy_ctor')
+          ..doc = 'Copy ctor, autoinitialized on read'..extend = 'DefaultMethod',
+          class_('move_ctor')
+          ..doc = 'Move ctor, autoinitialized on read'..extend = 'DefaultMethod',
+          class_('assign_copy')..extend = 'DefaultMethod',
+          class_('assign_move')..extend = 'DefaultMethod',
+          class_('dtor')..extend = 'DefaultMethod',
+          class_('op_equal')..extend = 'ClassMethod',
+          class_('op_less')..extend = 'ClassMethod',
+          class_('op_out')..extend = 'ClassMethod',
           class_('class')
           ..extend = 'Entity'
           ..members = [
@@ -213,13 +237,19 @@ void main() {
             ..classInit = false,
             member('template')..type = 'Template'..access = RO,
             member('bases')..type = 'List<Base>'..classInit = [],
+            member('default_ctor')..type = 'DefaultCtor'..access = IA,
+            member('copy_ctor')..type = 'CopyCtor'..access = IA,
+            member('move_ctor')..type = 'MoveCtor'..access = IA,
+            member('assign_copy')..type = 'AssignCopy'..access = IA,
+            member('assign_move')..type = 'AssignMove'..access = IA,
+            member('dtor')..type = 'Dtor'..access = IA,
+            member('op_equal')..type = 'OpEqual'..access = IA,
+            member('op_less')..type = 'OpLess'..access = IA,
+            member('op_out')..type = 'OpOut'..access = IA,
             member('forward_ptrs')..type = 'List<PtrType>'..classInit = [],
             member('enums_forward')..type = 'List<Enum>'..classInit = [],
             member('enums')..type = 'List<Enum>'..classInit = [],
             member('members')..type = 'List<Member>'..classInit = [],
-            member('methods')..type = 'List<Method>'..classInit = [],
-            member('headers')..type = 'Headers'..access = RO,
-            member('impl_headers')..type = 'Headers'..access = RO,
             member('custom_blocks')..type = 'List<ClassCodeBlock>'..classInit = [],
             member('code_blocks')
             ..access = RO
@@ -249,14 +279,13 @@ void main() {
           class_('header')
           ..extend = 'CppFile'
           ..members = [
-            member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
+            member('namespace')..type = 'Namespace',
             member('file_path')..access = RO,
             member('classes')..type = 'List<Class>'..classInit = [],
           ],
           class_('impl')
           ..extend = 'CppFile'
           ..members = [
-            member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('file_path')..access = RO,
             member('classes')..type = 'List<Class>'..classInit = [],
           ]
@@ -264,11 +293,13 @@ void main() {
         part('installation')
         ..classes = [
           class_('app')
+          ..extend = 'Entity'
           ..members = [
             member('installation')..type = 'Installation',
             member('classes')..type = 'List<Class>'..classInit = [],
           ],
           class_('script')
+          ..extend = 'Entity'
           ..members = [
             member('installation')..type = 'Installation',
           ],

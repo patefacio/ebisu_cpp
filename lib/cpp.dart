@@ -202,64 +202,6 @@ class PtrType implements Comparable<PtrType> {
 
 }
 
-class Method implements Comparable<Method> {
-  static const EQUAL = const Method._(0);
-  static const LESS_THAN = const Method._(1);
-  static const DEFAULT_CTOR = const Method._(2);
-  static const COPY_CTOR = const Method._(3);
-  static const MOVE = const Method._(4);
-  static const ASSIGN_COPY = const Method._(5);
-  static const ASSIGN_CTOR = const Method._(6);
-
-  static get values => [
-    EQUAL,
-    LESS_THAN,
-    DEFAULT_CTOR,
-    COPY_CTOR,
-    MOVE,
-    ASSIGN_COPY,
-    ASSIGN_CTOR
-  ];
-
-  final int value;
-
-  int get hashCode => value;
-
-  const Method._(this.value);
-
-  copy() => this;
-
-  int compareTo(Method other) => value.compareTo(other.value);
-
-  String toString() {
-    switch(this) {
-      case EQUAL: return "Equal";
-      case LESS_THAN: return "LessThan";
-      case DEFAULT_CTOR: return "DefaultCtor";
-      case COPY_CTOR: return "CopyCtor";
-      case MOVE: return "Move";
-      case ASSIGN_COPY: return "AssignCopy";
-      case ASSIGN_CTOR: return "AssignCtor";
-    }
-    return null;
-  }
-
-  static Method fromString(String s) {
-    if(s == null) return null;
-    switch(s) {
-      case "Equal": return EQUAL;
-      case "LessThan": return LESS_THAN;
-      case "DefaultCtor": return DEFAULT_CTOR;
-      case "CopyCtor": return COPY_CTOR;
-      case "Move": return MOVE;
-      case "AssignCopy": return ASSIGN_COPY;
-      case "AssignCtor": return ASSIGN_CTOR;
-      default: return null;
-    }
-  }
-
-}
-
 class Entity {
 
   Entity(this.id);
@@ -317,14 +259,6 @@ const uptr = PtrType.UPTR;
 const scptr = PtrType.SCPTR;
 const ucptr = PtrType.UCPTR;
 
-const equal = Method.EQUAL;
-const less = Method.LESS_THAN;
-const default_ctor = Method.DEFAULT_CTOR;
-const copy_ctor = Method.COPY_CTOR;
-const move = Method.MOVE;
-const assignCopy = Method.ASSIGN_COPY;
-const assignCtor = Method.ASSIGN_CTOR;
-
 const Map _ptrSuffixMap = const {
   sptr : 'sptr',
   uptr : 'uptr',
@@ -347,13 +281,20 @@ ptrType(PtrType ptrType, String t) =>
 String br(Object o) =>
   o == null? null :
   o is Iterable? br(combine(o)) :
-  (o is String && o.length > 0) ? '$o\n' : null;
+  (o is String && o.length > 0) ? '$o\n' : '';
 
-String combine(Iterable<Object> parts) =>
-  parts
-  .where((Object o) => o != null && (o is! String || (o as String).length > 0))
-  .map((Object o) => (o is Iterable)? combine(o) : o.toString())
-  .join('\n');
+bool ignored(Object o) =>
+  o == null || (o is String && (o as String).length == 0);
+
+String combine(Iterable<Object> parts) {
+  final result =
+    parts
+    .map((o) => (o is Iterable)? combine(o) : o)
+    .where((o) => !ignored(o))
+    .join('\n');
+  return result;
+  //return result == '' ? null : result;
+}
 
 String quote(String s) => '"$s"';
 

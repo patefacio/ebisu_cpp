@@ -146,4 +146,6 @@ Enum
 enum_(Object id) =>
   new Enum(id is Id? id : new Id(id));
 
+main() => print('goo');
+
 // end <part enum>

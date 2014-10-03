@@ -76,7 +76,7 @@ class Lib extends Entity {
 
 class Header extends CppFile {
 
-  Namespace namespace = new Namespace();
+  Namespace namespace;
   String get filePath => _filePath;
   List<Class> classes = [];
 
@@ -102,6 +102,7 @@ class Header extends CppFile {
   String _wrapIncludeGuard(String text) =>'''
 #ifndef $_includeGuard
 #define $_includeGuard
+
 $text
 #endif // $_includeGuard
 ''';
@@ -112,11 +113,17 @@ $text
 
 class Impl extends CppFile {
 
-  Namespace namespace = new Namespace();
   String get filePath => _filePath;
   List<Class> classes = [];
 
   // custom <class Impl>
+  
+  Impl(Id id) : super(id);
+
+  String get contents =>
+    _contentsWithBlocks(
+      combine(classes.map((Class cls) => cls.definition)));
+ 
   // end <class Impl>
   String _filePath;
 }

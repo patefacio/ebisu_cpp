@@ -1,19 +1,27 @@
 part of ebisu_cpp.cpp;
 
-class App {
+class App extends Entity {
 
   Installation installation;
   List<Class> classes = [];
 
   // custom <class App>
+
+  App(Id id) : super(id);
+
+  generate() => print('Generating app $id');
+
   // end <class App>
 }
 
-class Script {
+class Script extends Entity {
 
   Installation installation;
 
   // custom <class Script>
+
+  Script(Id id) : super(id);
+
   // end <class Script>
 }
 
@@ -53,8 +61,8 @@ Installation($root)
   addApp(App app) => apps.add(app..installation = this);
 
   generateItems() {
-    print('Generating items for $this');
-    libs.forEach((l) => l.generate());
+    libs..forEach((l) => l.generate())..clear();
+    apps..forEach((a) => a.generate())..clear();
   }
 
   set root(String root) {
@@ -73,5 +81,8 @@ Installation($root)
   Map<String, String> _paths = {};
 }
 // custom <part installation>
+
+App app(Object id) => new App(id is Id? id : new Id(id));
+Script script(Object id) => new Script(id is Id? id : new Id(id));
 
 // end <part installation>

@@ -18,7 +18,8 @@ main() {
       lib('lib1')
       ..namespace = namespace(['foo','bar'])
       ..headers = [
-        header('guts')
+        header('guts')    
+        ..headers = [ 'cmath', 'boost/filesystem.hpp' ]
         ..classes = [
           class_('c_1')
           ..streamable = true
@@ -45,8 +46,6 @@ main() {
           ..getCodeBlock(clsProtected).snippets.addAll(['//Sample code block stuff...'])
           ..methods = [ equal, less ]
           ..customBlocks = [ clsPublic, clsPrivate ]
-          ..headers = [ 'cmath', 'boost/filesystem.hpp' ]
-          ..implHeaders = [ 'cmath', 'boost/filesystem.hpp' ]
           ..forwardPtrs = [ sptr, uptr, scptr, ucptr ]
         ]
       ];

@@ -2,7 +2,9 @@ part of ebisu_cpp.cpp;
 
 abstract class CppFile extends Entity {
 
+  Namespace namespace;
   List<FileCodeBlock> customBlocks = [];
+  Headers get headers => _headers;
 
   // custom <class CppFile>
 
@@ -10,7 +12,13 @@ abstract class CppFile extends Entity {
 
   String get contents;
   String get filePath;
-  Namespace get namespace;
+
+  set headers(Object h) => _headers = _makeHeaders(h);
+  _makeHeaders(Object h) =>
+    h is Iterable? new Headers(h) :
+    h is String? new Headers([h]) :
+    h is Headers? h :
+    throw 'Headers must be String, List<String> or Headers';
 
   generate() => mergeWithFile(contents, filePath);
 
@@ -23,6 +31,7 @@ abstract class CppFile extends Entity {
     customBlocks.forEach((cb) => getCodeBlock(cb).tag = '$cb $id');
 
     return combine([
+      br(_headers.includes),
       _codeBlockText(FileCodeBlock.FCB_PRE_NAMESPACE),
       namespace.wrap(
         combine([
@@ -41,6 +50,7 @@ abstract class CppFile extends Entity {
 
   // end <class CppFile>
   Map<FileCodeBlock, CodeBlock> _codeBlocks = {};
+  Headers _headers = new Headers();
 }
 // custom <part file>
 
