@@ -236,6 +236,10 @@ void main() {
             ..doc = 'Map member name to text for initialization'
             ..type = 'Map<String, String>'..classInit = {}
             ..ctorsOpt = [''],
+            member('decls')
+            ..doc = 'List of additional decls ["Type Argname", ...]'
+            ..type = 'List<String>'..classInit = []
+            ..ctorsOpt = [''],
             member('has_custom')
             ..doc = 'Has custom code, so needs protect block'..classInit = false,
           ],
@@ -249,6 +253,7 @@ void main() {
             member('struct')..doc = 'Is this definition a *struct*'
             ..classInit = false,
             member('template')..type = 'Template'..access = RO,
+            member('usings')..type = 'List<String>'..classInit = [],
             member('bases')..type = 'List<Base>'..classInit = [],
             member('default_ctor')..type = 'DefaultCtor'..access = IA,
             member('copy_ctor')..type = 'CopyCtor'..access = IA,

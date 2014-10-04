@@ -62,6 +62,7 @@ abstract class ClassMethod {
   String get definition;
   String get className => _parent.className;
   List<Member> get members => _parent.members;
+  set template(Object t) => _template = _makeTemplate(t);
 
   // end <class ClassMethod>
   Class _parent;
@@ -182,19 +183,23 @@ class Dtor extends DefaultMethod {
 
 class MemberCtor extends ClassMethod {
 
-  MemberCtor(this.memberArgs, [ this.optInit ]);
+  MemberCtor(this.memberArgs, [ this.optInit, this.decls ]);
 
   /// List of members that are passed as arguments for initialization
   List<String> memberArgs = [];
   /// Map member name to text for initialization
   Map<String, String> optInit = {};
+  /// List of additional decls ["Type Argname", ...]
+  List<String> decls = [];
   /// Has custom code, so needs protect block
   bool hasCustom = false;
 
   // custom <class MemberCtor>
 
+  String get _templateDecl => _template == null? '' : br(_template.decl);
+
   String get definition {
-    List<String> argDecls = [];
+    List<String> argDecls = decls == null? [] : new List<String>.from(decls);
     List<String> initializers = [];
     memberArgs.forEach((String arg) {
       final member = members.singleWhere((m) => m.id.snake == arg);
@@ -207,14 +212,14 @@ class MemberCtor extends ClassMethod {
       initializers.add('${member.vname} { $arg }');
     });
     return '''
-${className}(
+$_templateDecl${className}(
 ${indentBlock(argDecls.join(',\n'))}) :
-${indentBlock(initializers.join(',\n'))}) {
+${indentBlock(initializers.join(',\n'))} {
 ${indentBlock(_protectBlock)}}''';
   }
 
   get _protectBlock => hasCustom?
-    customBlock('${className}($memberArgs)') : '';
+    customBlock('${className}(${decls.join(", ")} + ${memberArgs.join(", ")}') : '';
 
   // end <class MemberCtor>
 }
@@ -223,10 +228,12 @@ ${indentBlock(_protectBlock)}}''';
 MemberCtor
 memberCtor(List<String> memberArgs,
     [
-      Map<String, String> optInit
+      Map<String, String> optInit,
+      List<String> decls
     ]) =>
   new MemberCtor(memberArgs,
-      optInit);
+      optInit,
+      decls);
 
 class OpEqual extends ClassMethod {
 
@@ -270,7 +277,20 @@ class OpOut extends ClassMethod {
 
   // custom <class OpOut>
 
-  String get definition => 'operator<<(TBD)';
+  String get definition => '''
+friend inline
+std::ostream& operator<<(std::ostream &out, $className const& item) {
+  using fcs::utils::streamers::operator<<;
+  fcs::utils::Block_indenter indenter;
+  char const* indent(indenter.current_indentation_text());
+  out << \'\\n\' << indent << "$className(" << &item << ") {";
+${
+combine(members.map((m) =>
+'  out << \'\\n\' << indent << "  ${m.name}:" << item.${m.vname};'))
+}
+  out << \'\\n\' << indent << "}\\n";
+  return out;
+}''';
 
   // end <class OpOut>
 }
@@ -280,6 +300,7 @@ class Class extends Entity {
   /// Is this definition a *struct*
   bool struct = false;
   Template get template => _template;
+  List<String> usings = [];
   List<Base> bases = [];
   List<MemberCtor> memberCtors = [];
   List<PtrType> forwardPtrs = [];
@@ -378,6 +399,7 @@ class Class extends Entity {
     _wrapInAccess(public,
         indentBlock(
           combine([
+            usings.map((u) => br('using $u;')),
             br([_enumDecls, _enumStreamers]),
             br(memberCtors.map((m) => m.definition)),
             br(_methods.map((m) => m == null? m : m.definition)),

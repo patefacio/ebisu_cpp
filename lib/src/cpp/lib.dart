@@ -88,7 +88,7 @@ class Header extends CppFile {
     _wrapIncludeGuard(
       _contentsWithBlocks(
         combine([
-          classes.map((Class cls) => cls.definition),
+          classes.map((Class cls) => br(cls.definition)),
         ])));
 
   String toString() => '''
@@ -117,13 +117,13 @@ class Impl extends CppFile {
   List<Class> classes = [];
 
   // custom <class Impl>
-  
+
   Impl(Id id) : super(id);
 
   String get contents =>
     _contentsWithBlocks(
-      combine(classes.map((Class cls) => cls.definition)));
- 
+      combine(classes.map((Class cls) => br(cls.definition))));
+
   // end <class Impl>
   String _filePath;
 }
