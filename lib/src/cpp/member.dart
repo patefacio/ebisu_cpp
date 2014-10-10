@@ -18,6 +18,8 @@ class Member extends Entity {
   bool static = false;
   /// Is the member mutable
   bool mutable = false;
+  /// Is the member const
+  bool isConst = false;
   /// If set will not initialize variable - use sparingly
   bool noInit = false;
 
@@ -105,8 +107,9 @@ void $name($_argType $name) { $vname = $name; }''' : null;
 
   get _static => static? 'static ' : '';
   get _mutable => mutable? 'mutable ' : '';
+  get _constDecl => isConst? 'const ' : '';
   //  get _init => initializer;
-  get _decl => '$_static$_mutable$_refType $vname$initializer;';
+  get _decl => '$_static$_mutable$_refType $_constDecl$vname$initializer;';
   // end <class Member>
   String _init;
   CppAccess _cppAccess;

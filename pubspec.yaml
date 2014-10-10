@@ -11,6 +11,7 @@ dependencies:
 # custom <ebisu_cpp dependencies>
 
   quiver: ">=0.18.2"
+  ini: ">=1.0.0"
 
 # end <ebisu_cpp dependencies>
 

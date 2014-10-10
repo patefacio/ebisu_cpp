@@ -19,7 +19,8 @@ void main(List<String> args) {
         "test/test_cpp_enum.dart",
         "test/test_cpp_member.dart",
         "test/test_cpp_class.dart",
-        "test/test_cpp_utils.dart"
+        "test/test_cpp_utils.dart",
+        "test/test_cpp_schema.dart"
       ]));
 
   addTask('test', createUnitTestTask(runner.testCore));

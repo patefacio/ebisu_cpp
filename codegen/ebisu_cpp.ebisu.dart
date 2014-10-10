@@ -25,8 +25,60 @@ void main() {
       library('test_cpp_member'),
       library('test_cpp_class'),
       library('test_cpp_utils'),
+      library('test_cpp_schema'),
     ]
     ..libraries = [
+      library('db_schema')
+      ..imports = [
+        'dart:io',
+        "'package:path/path.dart' as path",
+        'package:ini/ini.dart',
+      ]
+      ..doc = 'Reads schema and stores tables/column field types'
+      ..parts = [
+        part('meta')
+        ..classes = [
+          class_('schema')
+          ..members = [
+            member('tables')..type = 'List<Table>'..classInit = []..ctors = [''],
+          ],
+          class_('query'),
+          class_('table')
+          ..members = [
+            member('columns')..type = 'Column'..classInit = [],
+            member('pkey')..type = 'Column'..classInit = [],
+          ],
+          class_('db_type'),
+          class_('column')
+          ..members = [
+            member('name'),
+            member('db_type')..type = 'DbType',
+          ]
+        ],
+        part('reader')
+        ..classes = [
+          class_('odbc_ini')
+          ..defaultMemberAccess = RO
+          ..members = [
+            member('entries')..type = 'Map<String, OdbcIniEntry>'..classInit = {}
+          ],
+          class_('odbc_ini_entry')
+          ..defaultMemberAccess = RO
+          ..members = [
+            member('user')..ctors = [''],
+            member('password')..ctors = [''],
+            member('server')..ctors = [''],
+          ]
+        ],
+        part('generator')
+        ..classes = [
+          class_('generator')
+          ..members = [
+            member('schema')..type = 'Schema',
+            member('queries')..type = 'List<Query>'..classInit = [],
+          ],
+        ],
+      ],
       library('cpp')
       ..imports = [
         'package:id/id.dart',
@@ -181,6 +233,8 @@ void main() {
             ..classInit = false,
             member('mutable')..doc = 'Is the member mutable'
             ..classInit = false,
+            member('is_const')..doc = 'Is the member const'
+            ..classInit = false,
             member('no_init')
             ..doc = 'If set will not initialize variable - use sparingly'
             ..classInit = false,
@@ -270,6 +324,7 @@ void main() {
             member('enums')..type = 'List<Enum>'..classInit = [],
             member('members')..type = 'List<Member>'..classInit = [],
             member('custom_blocks')..type = 'List<ClassCodeBlock>'..classInit = [],
+            member('is_singleton')..classInit = false,
             member('code_blocks')
             ..access = RO
             ..type = 'Map<ClassCodeBlock, CodeBlock>'..classInit = {},

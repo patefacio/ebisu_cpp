@@ -308,6 +308,7 @@ class Class extends Entity {
   List<Enum> enums = [];
   List<Member> members = [];
   List<ClassCodeBlock> customBlocks = [];
+  bool isSingleton = false;
   Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
   /// If true adds streaming support
   bool streamable = false;
@@ -403,6 +404,7 @@ class Class extends Entity {
             br([_enumDecls, _enumStreamers]),
             br(memberCtors.map((m) => m.definition)),
             br(_methods.map((m) => m == null? m : m.definition)),
+            br(_singleton),
             _codeBlockText(clsPublic),
             br(publicMembers.map((m) => _memberDefinition(m))),
             members.map((m) => br([m.getter, m.setter])),
@@ -426,6 +428,12 @@ class Class extends Entity {
     _classCloser,
     _codeBlockText(clsPostDecl),
   ];
+
+  get _singleton => isSingleton? '''
+static $className & instance() {
+  static $className instance_s;
+  return instance_s;
+}''' : null;
 
   get _templateDecl => _template != null? _template.decl : null;
   get _enumDecls => enums.map((e) => e.decl);

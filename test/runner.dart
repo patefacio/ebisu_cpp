@@ -4,6 +4,7 @@ import 'test_cpp_enum.dart' as test_cpp_enum;
 import 'test_cpp_member.dart' as test_cpp_member;
 import 'test_cpp_class.dart' as test_cpp_class;
 import 'test_cpp_utils.dart' as test_cpp_utils;
+import 'test_cpp_schema.dart' as test_cpp_schema;
 
 void testCore(Configuration config) {
   unittestConfiguration = config;
@@ -20,5 +21,6 @@ main() {
   test_cpp_member.main();
   test_cpp_class.main();
   test_cpp_utils.main();
+  test_cpp_schema.main();
 }
 
