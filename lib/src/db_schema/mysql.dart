@@ -83,7 +83,7 @@ Future<Schema> readMysqlSchema(String dsn) {
                   )))
     .then((futures) => Future.wait(futures))
     .then((List tableData) {
-      tableData.forEach((Iterable tableData) {
+      tableData.forEach((List tableData) {
         tables.add(new Table()
             ..name = tableData[0]
             ..columns = tableData[1].toList());

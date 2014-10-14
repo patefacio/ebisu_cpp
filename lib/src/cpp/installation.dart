@@ -1,8 +1,18 @@
 part of ebisu_cpp.cpp;
 
-class App extends Entity {
+class CodeGenerator {
 
   Installation installation;
+
+  // custom <class CodeGenerator>
+
+  void generate();
+
+  // end <class CodeGenerator>
+}
+
+class App extends Entity with CodeGenerator {
+
   List<Class> classes = [];
 
   // custom <class App>
@@ -14,9 +24,8 @@ class App extends Entity {
   // end <class App>
 }
 
-class Script extends Entity {
+class Script extends Entity with CodeGenerator {
 
-  Installation installation;
 
   // custom <class Script>
 
@@ -25,9 +34,8 @@ class Script extends Entity {
   // end <class Script>
 }
 
-class Test {
+class Test extends Entity with CodeGenerator {
 
-  Installation installation;
 
   // custom <class Test>
   // end <class Test>
@@ -43,6 +51,7 @@ class Installation {
   Map<String, String> get paths => _paths;
   List<App> apps = [];
   List<Script> scripts = [];
+  List<CodeGenerator> schemaCodeGenerators = [];
   List<Lib> libs = [];
   List<Test> tests = [];
 
@@ -59,10 +68,13 @@ Installation($root)
 
   addLib(Lib lib) => libs.add(lib..installation = this);
   addApp(App app) => apps.add(app..installation = this);
+  addSchemaCodeGenerator(CodeGenerator scg) =>
+    schemaCodeGenerators.add(scg..installation = this);
 
   generateItems() {
     libs..forEach((l) => l.generate())..clear();
     apps..forEach((a) => a.generate())..clear();
+    schemaCodeGenerators..forEach((scg) => scg.generate())..clear();
   }
 
   set root(String root) {

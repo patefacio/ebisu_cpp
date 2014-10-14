@@ -3,6 +3,7 @@ library ebisu_cpp.db_schema;
 
 import 'dart:async';
 import 'dart:io';
+import 'package:ebisu_cpp/cpp.dart';
 import 'package:ini/ini.dart';
 import 'package:path/path.dart' as path;
 import 'package:sqljocky/sqljocky.dart';

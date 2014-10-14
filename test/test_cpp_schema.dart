@@ -21,6 +21,16 @@ main() {
       .then((s) => print(s));
   });
 
+  test('table_filter', () {
+    final f = readMysqlSchema('code_metrics')
+      .then((Schema s) {
+        final g = new SchemaCodeGenerator(s)
+          ..tableFilter = TableNameFilter(['rusage_delta'])
+          ..generate();
+        print('done');
+      });
+  });
+
 // end <main>
 
 }

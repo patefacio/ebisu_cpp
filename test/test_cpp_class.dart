@@ -18,7 +18,7 @@ main() {
       lib('lib1')
       ..namespace = namespace(['foo','bar'])
       ..headers = [
-        header('guts')    
+        header('guts')
         ..headers = [ 'cmath', 'boost/filesystem.hpp' ]
         ..classes = [
           class_('c_1')
@@ -44,7 +44,7 @@ main() {
             member('letters')..type = 'Letters'..init = 'C_1::B_e',
           ]
           ..getCodeBlock(clsProtected).snippets.addAll(['//Sample code block stuff...'])
-          ..methods = [ equal, less ]
+          ..opEqual..opLess
           ..customBlocks = [ clsPublic, clsPrivate ]
           ..forwardPtrs = [ sptr, uptr, scptr, ucptr ]
         ]

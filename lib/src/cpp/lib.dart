@@ -57,6 +57,10 @@ class Lib extends Entity {
   Lib(Id id) : super(id);
 
   generate() {
+    if(installation == null) {
+      installation = new Installation(new Id('tmp'))
+        ..root = '/tmp';
+    }
     final cpp = installation.paths["cpp"];
     headers.forEach((Header header) {
       header

@@ -34,6 +34,7 @@ void main() {
         "'package:path/path.dart' as path",
         'package:ini/ini.dart',
         'package:sqljocky/sqljocky.dart',
+        'package:ebisu_cpp/cpp.dart',
         'dart:async',
       ]
       ..doc = 'Reads schema and stores tables/column field types'
@@ -97,11 +98,19 @@ void main() {
         ],
         part('generator')
         ..classes = [
-          class_('generator')
+          class_('schema_code_generator')
+          ..mixins = [ 'CodeGenerator' ]
+          ..doc = 'Given a schema generates code to support accessing tables and configured queries'
           ..members = [
             member('schema')..type = 'Schema',
             member('queries')..type = 'List<Query>'..classInit = [],
+            member('table_filter')..type = 'TableFilter'..classInit = '(Table t) => true',
           ],
+          class_('table_gateway_generator')
+          ..members = [
+            member('table')..type = 'Table'..ctors = [''],
+
+          ]
         ],
       ],
       library('cpp')
@@ -391,20 +400,25 @@ void main() {
         ],
         part('installation')
         ..classes = [
-          class_('app')
-          ..extend = 'Entity'
+          class_('code_generator')
           ..members = [
             member('installation')..type = 'Installation',
+          ],
+          class_('app')
+          ..extend = 'Entity'
+          ..mixins = [ 'CodeGenerator' ]
+          ..members = [
             member('classes')..type = 'List<Class>'..classInit = [],
           ],
           class_('script')
           ..extend = 'Entity'
+          ..mixins = [ 'CodeGenerator' ]
           ..members = [
-            member('installation')..type = 'Installation',
           ],
           class_('test')
+          ..extend = 'Entity'
+          ..mixins = [ 'CodeGenerator' ]
           ..members = [
-            member('installation')..type = 'Installation',
           ],
           class_('installation')
           ..members = [
@@ -413,6 +427,7 @@ void main() {
             member('paths')..type = 'Map<String, String>'..classInit = {}..access = RO,
             member('apps')..type = 'List<App>'..classInit = [],
             member('scripts')..type = 'List<Script>'..classInit = [],
+            member('schema_code_generators')..type = 'List<CodeGenerator>'..classInit = [],
             member('libs')..type = 'List<Lib>'..classInit = [],
             member('tests')..type = 'List<Test>'..classInit = [],
           ]
