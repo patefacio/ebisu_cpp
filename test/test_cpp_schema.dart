@@ -10,13 +10,15 @@ import 'package:ebisu_cpp/db_schema.dart';
 main() {
 // custom <main>
 
+
   test('read_ini', () {
     final odbcIni = new OdbcIni();
     print(odbcIni);
   });
 
-  test('get_schema', () {
-    final schema = new Schema.fromDatabase('code_metrics');
+  test('read_mysql_schema', () {
+    final f = readMysqlSchema('code_metrics')
+      .then((s) => print(s));
   });
 
 // end <main>

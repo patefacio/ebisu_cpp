@@ -12,6 +12,7 @@ dependencies:
 
   quiver: ">=0.18.2"
   ini: ">=1.0.0"
+  sqljocky: "any"
 
 # end <ebisu_cpp dependencies>
 

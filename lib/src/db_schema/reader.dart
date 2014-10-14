@@ -53,6 +53,8 @@ ${_entries[section]}''').join('\n');
 
   OdbcIni._(this._entries);
 
+  OdbcIniEntry getEntry(String dsn) => _entries[dsn];
+
   static RegExp _userRe = new RegExp('user', caseSensitive:false);
   static RegExp _passwordRe = new RegExp('pwd', caseSensitive:false);
   static RegExp _databaseRe = new RegExp('database', caseSensitive:false);

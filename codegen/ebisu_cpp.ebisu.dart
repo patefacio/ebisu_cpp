@@ -33,6 +33,8 @@ void main() {
         'dart:io',
         "'package:path/path.dart' as path",
         'package:ini/ini.dart',
+        'package:sqljocky/sqljocky.dart',
+        'dart:async',
       ]
       ..doc = 'Reads schema and stores tables/column field types'
       ..parts = [
@@ -45,15 +47,38 @@ void main() {
           class_('query'),
           class_('table')
           ..members = [
-            member('columns')..type = 'Column'..classInit = [],
-            member('pkey')..type = 'Column'..classInit = [],
+            member('name'),
+            member('columns')..type = 'List<Column>'..classInit = [],
+            member('pkey')..type = 'List<Column>'..classInit = [],
           ],
-          class_('db_type'),
+          class_('data_type')
+          ..ctorConst = ['']
+          ..members = [
+            member('db_type')..isFinal = true..ctors = [''],
+            member('cpp_type')..isFinal = true..ctors = [''],
+          ],
+          class_('fixed_varchar')
+          ..extend = 'DataType'
+          ..members = [
+            member('size')..type = 'int'
+          ],
+          class_('db_type')
+          ..members = [
+            member('type')..ctors = ['']
+          ],
           class_('column')
           ..members = [
             member('name'),
-            member('db_type')..type = 'DbType',
+            member('type')..type = 'DataType',
+            member('is_null')..classInit = false,
+            member('key'),
+            member('default_value'),
+            member('extra')
           ]
+        ],
+        part('mysql')
+        ..classes = [
+
         ],
         part('reader')
         ..classes = [
