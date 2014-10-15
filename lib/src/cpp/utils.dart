@@ -1,5 +1,15 @@
 part of ebisu_cpp.cpp;
 
+abstract class CodeGenerator {
+
+
+  // custom <class CodeGenerator>
+  
+  void generate();
+  
+  // end <class CodeGenerator>
+}
+
 class Namespace {
 
   List<String> names = [];

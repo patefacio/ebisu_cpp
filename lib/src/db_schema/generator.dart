@@ -1,7 +1,7 @@
 part of ebisu_cpp.db_schema;
 
 /// Given a schema generates code to support accessing tables and configured queries
-class SchemaCodeGenerator extends Object with CodeGenerator {
+class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
 
   Schema schema;
   List<Query> queries = [];

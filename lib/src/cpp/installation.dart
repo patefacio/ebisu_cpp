@@ -1,17 +1,15 @@
 part of ebisu_cpp.cpp;
 
-class CodeGenerator {
+/// A CodeGenerator tied to a c++ installation
+abstract class InstallationCodeGenerator implements CodeGenerator {
 
   Installation installation;
 
-  // custom <class CodeGenerator>
-
-  void generate();
-
-  // end <class CodeGenerator>
+  // custom <class InstallationCodeGenerator>
+  // end <class InstallationCodeGenerator>
 }
 
-class App extends Entity with CodeGenerator {
+class App extends Entity with InstallationCodeGenerator {
 
   List<Class> classes = [];
 
@@ -24,24 +22,33 @@ class App extends Entity with CodeGenerator {
   // end <class App>
 }
 
-class Script extends Entity with CodeGenerator {
+class Script extends Entity with InstallationCodeGenerator {
 
 
   // custom <class Script>
 
   Script(Id id) : super(id);
+  void generate() {
+    print('Generating script $id');
+  }
 
   // end <class Script>
 }
 
-class Test extends Entity with CodeGenerator {
+class Test extends Entity with InstallationCodeGenerator {
 
 
   // custom <class Test>
+  
+  Test(Id id) : super(id);
+  void generate() {
+    print('Generating test $id');
+  }
+  
   // end <class Test>
 }
 
-class Installation {
+class Installation implements CodeGenerator {
 
   Installation(this.id);
 
@@ -51,7 +58,7 @@ class Installation {
   Map<String, String> get paths => _paths;
   List<App> apps = [];
   List<Script> scripts = [];
-  List<CodeGenerator> schemaCodeGenerators = [];
+  List<InstallationCodeGenerator> schemaCodeGenerators = [];
   List<Lib> libs = [];
   List<Test> tests = [];
 
@@ -68,10 +75,10 @@ Installation($root)
 
   addLib(Lib lib) => libs.add(lib..installation = this);
   addApp(App app) => apps.add(app..installation = this);
-  addSchemaCodeGenerator(CodeGenerator scg) =>
+  addSchemaCodeGenerator(InstallationCodeGenerator scg) =>
     schemaCodeGenerators.add(scg..installation = this);
 
-  generateItems() {
+  generate() {
     libs..forEach((l) => l.generate())..clear();
     apps..forEach((a) => a.generate())..clear();
     schemaCodeGenerators..forEach((scg) => scg.generate())..clear();

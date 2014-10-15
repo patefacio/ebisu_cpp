@@ -99,7 +99,7 @@ void main() {
         part('generator')
         ..classes = [
           class_('schema_code_generator')
-          ..mixins = [ 'CodeGenerator' ]
+          ..mixins = [ 'InstallationCodeGenerator' ]
           ..doc = 'Given a schema generates code to support accessing tables and configured queries'
           ..members = [
             member('schema')..type = 'Schema',
@@ -161,6 +161,7 @@ void main() {
       ..parts = [
         part('utils')
         ..classes = [
+          class_('code_generator')..isAbstract = true,
           class_('namespace')
           ..members = [
             member('names')..type = 'List<String>'..classInit = [],
@@ -379,10 +380,10 @@ void main() {
         ..classes = [
           class_('lib')
           ..extend = 'Entity'
+          ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('headers')..type = 'List<Header>'..classInit = [],
-            member('installation')..type = 'Installation',
           ],
           class_('header')
           ..extend = 'CppFile'
@@ -400,34 +401,38 @@ void main() {
         ],
         part('installation')
         ..classes = [
-          class_('code_generator')
+          class_('installation_code_generator')
+          ..isAbstract = true
+          ..implement = [ 'CodeGenerator' ]
+          ..doc = 'A CodeGenerator tied to a c++ installation'
           ..members = [
             member('installation')..type = 'Installation',
           ],
           class_('app')
           ..extend = 'Entity'
-          ..mixins = [ 'CodeGenerator' ]
+          ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
             member('classes')..type = 'List<Class>'..classInit = [],
           ],
           class_('script')
           ..extend = 'Entity'
-          ..mixins = [ 'CodeGenerator' ]
+          ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
           ],
           class_('test')
           ..extend = 'Entity'
-          ..mixins = [ 'CodeGenerator' ]
+          ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
           ],
           class_('installation')
+          ..implement = [ 'CodeGenerator' ]
           ..members = [
             member('id')..type = 'Id'..ctors = [''],
             member('root')..doc = 'Fully qualified path to installation'..access = RO,
             member('paths')..type = 'Map<String, String>'..classInit = {}..access = RO,
             member('apps')..type = 'List<App>'..classInit = [],
             member('scripts')..type = 'List<Script>'..classInit = [],
-            member('schema_code_generators')..type = 'List<CodeGenerator>'..classInit = [],
+            member('schema_code_generators')..type = 'List<InstallationCodeGenerator>'..classInit = [],
             member('libs')..type = 'List<Lib>'..classInit = [],
             member('tests')..type = 'List<Test>'..classInit = [],
           ]

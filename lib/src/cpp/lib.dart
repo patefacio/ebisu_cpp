@@ -46,11 +46,10 @@ class FileCodeBlock implements Comparable<FileCodeBlock> {
 
 }
 
-class Lib extends Entity {
+class Lib extends Entity with InstallationCodeGenerator {
 
   Namespace namespace = new Namespace();
   List<Header> headers = [];
-  Installation installation;
 
   // custom <class Lib>
 
