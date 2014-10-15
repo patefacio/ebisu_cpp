@@ -2,8 +2,9 @@ part of ebisu_cpp.db_schema;
 
 class Schema {
 
-  Schema(this.tables);
+  Schema(this.name, this.tables);
 
+  String name;
   List<Table> tables = [];
 
   // custom <class Schema>
@@ -27,7 +28,6 @@ class Table {
 
   String name;
   List<Column> columns = [];
-  List<Column> pkey = [];
 
   // custom <class Table>
 
@@ -35,6 +35,9 @@ class Table {
 Table($name)
     ${columns.map((c) => c.toString()).join(',\n    ')}
 ''';
+
+  Iterable get pkeyColumns => columns.where((c) => c.isPrimaryKey);
+  Iterable get valueColumns => columns.where((c) => !c.isPrimaryKey);
 
   // end <class Table>
 }
@@ -62,32 +65,21 @@ class FixedVarchar extends DataType {
   // end <class FixedVarchar>
 }
 
-class DbType {
-
-  DbType(this.type);
-
-  String type;
-
-  // custom <class DbType>
-
-  String toString() => type;
-
-  // end <class DbType>
-}
-
 class Column {
 
   String name;
   DataType type;
   bool isNull = false;
-  String key;
+  bool isPrimaryKey = false;
   String defaultValue;
   String extra;
 
   // custom <class Column>
 
+  get cppType => type.cppType;
+
   String toString() => '''
-$name ${type.dbType} ${isNull? 'NULL' : 'NOT NULL'}''';
+$name ${type.dbType} ${isNull? 'NULL' : 'NOT NULL'} ${isPrimaryKey? "PRI":""}''';
 
   // end <class Column>
 }

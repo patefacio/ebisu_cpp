@@ -31,6 +31,7 @@ void main() {
       library('db_schema')
       ..imports = [
         'dart:io',
+        'package:id/id.dart',
         "'package:path/path.dart' as path",
         'package:ini/ini.dart',
         'package:sqljocky/sqljocky.dart',
@@ -43,6 +44,7 @@ void main() {
         ..classes = [
           class_('schema')
           ..members = [
+            member('name')..ctors = [''],
             member('tables')..type = 'List<Table>'..classInit = []..ctors = [''],
           ],
           class_('query'),
@@ -50,7 +52,6 @@ void main() {
           ..members = [
             member('name'),
             member('columns')..type = 'List<Column>'..classInit = [],
-            member('pkey')..type = 'List<Column>'..classInit = [],
           ],
           class_('data_type')
           ..ctorConst = ['']
@@ -63,16 +64,12 @@ void main() {
           ..members = [
             member('size')..type = 'int'
           ],
-          class_('db_type')
-          ..members = [
-            member('type')..ctors = ['']
-          ],
           class_('column')
           ..members = [
             member('name'),
             member('type')..type = 'DataType',
             member('is_null')..classInit = false,
-            member('key'),
+            member('is_primary_key')..classInit = false,
             member('default_value'),
             member('extra')
           ]
@@ -81,7 +78,7 @@ void main() {
         ..classes = [
 
         ],
-        part('reader')
+        part('odbc_ini')
         ..classes = [
           class_('odbc_ini')
           ..defaultMemberAccess = RO
@@ -93,7 +90,7 @@ void main() {
           ..members = [
             member('user')..ctors = [''],
             member('password')..ctors = [''],
-            member('server')..ctors = [''],
+            member('database')..ctors = [''],
           ]
         ],
         part('generator')
@@ -108,8 +105,8 @@ void main() {
           ],
           class_('table_gateway_generator')
           ..members = [
+            member('schema')..type = 'Schema'..ctors = [''],
             member('table')..type = 'Table'..ctors = [''],
-
           ]
         ],
       ],
@@ -388,7 +385,6 @@ void main() {
           class_('header')
           ..extend = 'CppFile'
           ..members = [
-            member('namespace')..type = 'Namespace',
             member('file_path')..access = RO,
             member('classes')..type = 'List<Class>'..classInit = [],
           ],

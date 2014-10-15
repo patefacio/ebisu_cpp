@@ -455,12 +455,12 @@ ${txt}''' : null;
   String get className => id.capSnake;
 
   get outStreamer => '''
-  friend inline std::ostream& operator<<(std::ostream& out, $className const& item) {
-    ${
-members.map((m) => "out << '\\n' << ${quote(m.name + ':')} << item.${m.vname}").join(';\n    ')
+friend inline std::ostream& operator<<(std::ostream& out, $className const& item) {
+  ${
+members.map((m) => "out << '\\n' << ${quote(m.name + ':')} << item.${m.vname}").join(';\n  ')
 };
-    return out;
-  }
+  return out;
+}
 ''';
 
   get _classOpener => '''

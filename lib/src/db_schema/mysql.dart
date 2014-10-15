@@ -54,44 +54,48 @@ DataType mapDataType(String typeSpec) {
 }
 
 Future<Schema> readMysqlSchema(String dsn) {
-  final ini = new OdbcIni();
-  final entry = ini.getEntry(dsn);
-  final pool = new ConnectionPool(user: entry.user,
-      password: entry.password, db: dsn);
-  final tables = [];
-  return pool
-    .query('show tables')
-    .then((var tableNames) => tableNames.map((t) => t[0]).toList())
-    .then((var tableNames) =>
-        tableNames.map((var t) =>
-            pool
-            .query('describe $t')
-            .then((_) => _.toList())
-            .then((var describe) =>
-                [
-                  t,
-                  describe.map(
-                    (row) =>
-                    new Column()
-                    ..name = row[0]
-                    ..type = mapDataType(row[1].toString())
-                    ..isNull = row[2] != 'NO'
-                    ..key = row[3]
-                    ..defaultValue = row[4]
-                    ..extra = row[5]
-                               )]
-                  )))
-    .then((futures) => Future.wait(futures))
-    .then((List tableData) {
-      tableData.forEach((List tableData) {
-        tables.add(new Table()
-            ..name = tableData[0]
-            ..columns = tableData[1].toList());
+  try {
+    final ini = new OdbcIni();
+    final entry = ini.getEntry(dsn);
+    final pool = new ConnectionPool(user: entry.user,
+        password: entry.password, db: dsn);
+    final tables = [];
+    return pool
+      .query('show tables')
+      .then((var tableNames) => tableNames.map((t) => t[0]).toList())
+      .then((var tableNames) =>
+          tableNames.map((var t) =>
+              pool
+              .query('describe $t')
+              .then((_) => _.toList())
+              .then((var describe) =>
+                  [
+                    t,
+                    describe.map(
+                      (row) =>
+                      new Column()
+                      ..name = row[0]
+                      ..type = mapDataType(row[1].toString())
+                      ..isNull = row[2] != 'NO'
+                      ..isPrimaryKey = row[3] == 'PRI'
+                      ..defaultValue = row[4]
+                      ..extra = row[5]
+                                 )]
+                    )))
+      .then((futures) => Future.wait(futures))
+      .then((List tableData) {
+        tableData.forEach((List tableData) {
+          tables.add(new Table()
+              ..name = tableData[0]
+              ..columns = tableData[1].toList());
+        });
+        pool.close();
+        print('Connection pool has closed');
+        return new Schema(entry.database, tables);
       });
-      pool.close();
-      print('Connection pool has closed');
-      return new Schema(tables);
-    });
+  } catch(e) {
+    print('Caught $e');
+  }
 }
 
 

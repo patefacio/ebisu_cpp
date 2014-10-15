@@ -79,13 +79,14 @@ class Lib extends Entity with InstallationCodeGenerator {
 
 class Header extends CppFile {
 
-  Namespace namespace;
   String get filePath => _filePath;
   List<Class> classes = [];
 
   // custom <class Header>
 
   Header(Id id) : super(id);
+
+  Namespace get namespace => super.namespace;
 
   String get contents =>
     _wrapIncludeGuard(
@@ -122,6 +123,8 @@ class Impl extends CppFile {
   // custom <class Impl>
 
   Impl(Id id) : super(id);
+
+  Namespace get namespace => super.namespace;
 
   String get contents =>
     _contentsWithBlocks(

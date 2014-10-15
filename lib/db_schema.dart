@@ -4,6 +4,7 @@ library ebisu_cpp.db_schema;
 import 'dart:async';
 import 'dart:io';
 import 'package:ebisu_cpp/cpp.dart';
+import 'package:id/id.dart';
 import 'package:ini/ini.dart';
 import 'package:path/path.dart' as path;
 import 'package:sqljocky/sqljocky.dart';
@@ -12,7 +13,7 @@ import 'package:sqljocky/sqljocky.dart';
 
 part 'src/db_schema/meta.dart';
 part 'src/db_schema/mysql.dart';
-part 'src/db_schema/reader.dart';
+part 'src/db_schema/odbc_ini.dart';
 part 'src/db_schema/generator.dart';
 
 // custom <library db_schema>

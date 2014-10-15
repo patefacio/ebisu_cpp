@@ -59,30 +59,29 @@ ${_entries[section]}''').join('\n');
   static RegExp _passwordRe = new RegExp('pwd', caseSensitive:false);
   static RegExp _databaseRe = new RegExp('database', caseSensitive:false);
 
-
   // end <class OdbcIni>
   Map<String, OdbcIniEntry> _entries = {};
 }
 
 class OdbcIniEntry {
 
-  OdbcIniEntry(this._user, this._password, this._server);
+  OdbcIniEntry(this._user, this._password, this._database);
 
   String get user => _user;
   String get password => _password;
-  String get server => _server;
+  String get database => _database;
 
   // custom <class OdbcIniEntry>
 
   toString() => '''
 user: $_user
-server: $_server
+database: $_database
 ''';
 
   // end <class OdbcIniEntry>
   String _user;
   String _password;
-  String _server;
+  String _database;
 }
-// custom <part reader>
-// end <part reader>
+// custom <part odbc_ini>
+// end <part odbc_ini>
