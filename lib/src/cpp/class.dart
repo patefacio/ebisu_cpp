@@ -400,14 +400,14 @@ class Class extends Entity {
     _wrapInAccess(public,
         indentBlock(
           combine([
-            usings.map((u) => br('using $u;')),
+            br(usings.map((u) => 'using $u;')),
             br([_enumDecls, _enumStreamers]),
             br(memberCtors.map((m) => m.definition)),
-            br(_methods.map((m) => m == null? m : m.definition)),
+            chomp(combine(_methods.map((m) => m == null? m : br(m.definition)))),
             br(_singleton),
             _codeBlockText(clsPublic),
             br(publicMembers.map((m) => _memberDefinition(m))),
-            members.map((m) => br([m.getter, m.setter])),
+            chomp(combine(members.map((m) => br([m.getter, m.setter])))),
             streamable? outStreamer : null
           ]))),
 
@@ -425,7 +425,7 @@ class Class extends Entity {
             br(privateMembers.map((m) => _memberDefinition(m)))
           ]))),
 
-    _classCloser,
+    br(_classCloser),
     _codeBlockText(clsPostDecl),
   ];
 
@@ -450,7 +450,7 @@ ${txt}''' : null;
     return codeBlock != null? codeBlock.toString() : null;
   }
 
-  _memberDefinition(Member m) => m.toString();
+  _memberDefinition(Member m) => '$m';
 
   String get className => id.capSnake;
 

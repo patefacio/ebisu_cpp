@@ -32,6 +32,7 @@ void main() {
       ..imports = [
         'dart:io',
         'package:id/id.dart',
+        'package:ebisu/ebisu.dart',
         "'package:path/path.dart' as path",
         'package:ini/ini.dart',
         'package:sqljocky/sqljocky.dart',
@@ -70,6 +71,7 @@ void main() {
             member('type')..type = 'DataType',
             member('is_null')..classInit = false,
             member('is_primary_key')..classInit = false,
+            member('is_auto_increment')..classInit = false,
             member('default_value'),
             member('extra')
           ]
@@ -94,10 +96,33 @@ void main() {
           ]
         ],
         part('generator')
+        ..enums = [
+          enum_('bind_data_type')
+          ..libraryScopedValues = true
+          ..values = [
+            id('bdt_int'),
+            id('bdt_short'),
+            id('bdt_double'),
+            id('bdt_bigint'),
+            id('bdt_sized_char'),
+            id('bdt_unsized_char'),
+            id('bdt_varchar_long'),
+            id('bdt_timestamp'),
+          ]
+        ]
         ..classes = [
+          class_('otl_bind_variable')
+          ..members = [
+            member('name'),
+            member('data_type')..type = 'BindDataType',
+            member('size')..classInit = 0,
+          ],
           class_('schema_code_generator')
           ..mixins = [ 'InstallationCodeGenerator' ]
-          ..doc = 'Given a schema generates code to support accessing tables and configured queries'
+          ..doc = '''
+Given a schema generates code to support accessing tables and configured
+queries. Makes use of the otl c++ library.
+'''
           ..members = [
             member('schema')..type = 'Schema',
             member('queries')..type = 'List<Query>'..classInit = [],
@@ -105,8 +130,10 @@ void main() {
           ],
           class_('table_gateway_generator')
           ..members = [
-            member('schema')..type = 'Schema'..ctors = [''],
-            member('table')..type = 'Table'..ctors = [''],
+            member('schema')..type = 'Schema',
+            member('table')..type = 'Table',
+            member('table_id')..type = 'Id',
+            member('table_name'),
           ]
         ],
       ],

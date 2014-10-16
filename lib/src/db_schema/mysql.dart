@@ -80,15 +80,13 @@ Future<Schema> readMysqlSchema(String dsn) {
                       ..isPrimaryKey = row[3] == 'PRI'
                       ..defaultValue = row[4]
                       ..extra = row[5]
+                      ..isAutoIncrement = row[5] == 'auto_increment'
                                  )]
                     )))
       .then((futures) => Future.wait(futures))
       .then((List tableData) {
-        tableData.forEach((List tableData) {
-          tables.add(new Table()
-              ..name = tableData[0]
-              ..columns = tableData[1].toList());
-        });
+        tableData.forEach((List tableData) =>
+            tables.add(new Table(tableData[0], tableData[1].toList())));
         pool.close();
         print('Connection pool has closed');
         return new Schema(entry.database, tables);

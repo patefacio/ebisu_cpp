@@ -3,6 +3,7 @@ library ebisu_cpp.db_schema;
 
 import 'dart:async';
 import 'dart:io';
+import 'package:ebisu/ebisu.dart';
 import 'package:ebisu_cpp/cpp.dart';
 import 'package:id/id.dart';
 import 'package:ini/ini.dart';
