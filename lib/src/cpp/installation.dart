@@ -17,9 +17,83 @@ class App extends Entity with InstallationCodeGenerator {
 
   App(Id id) : super(id);
 
-  generate() => print('Generating app $id');
+  get appPath => path.join(installation.root, 'apps', id.snake);
+
+  generate() {
+    print('Generating app $id');
+    new JamAppBuilder(this).generate();
+  }
 
   // end <class App>
+}
+
+/// Creates builder for an application
+abstract class AppBuilder implements CodeGenerator {
+
+  AppBuilder(this.app);
+
+  App app;
+
+  // custom <class AppBuilder>
+  // end <class AppBuilder>
+}
+
+class JamAppBuilder extends AppBuilder {
+
+
+  // custom <class JamAppBuilder>
+
+  get app => super.app;
+
+  JamAppBuilder(App app) : super(app);
+
+  void generate() {
+    final targetFile = path.join(app.appPath, 'Jamfile.v2');
+    mergeBlocksWithFile('''
+import os ;
+project date_time_converter
+    :
+    :
+    ;
+ENV_CXXFLAGS = [ os.environ CXXFLAGS ] ;
+ENV_LINKFLAGS = [ os.environ LINKFLAGS ] ;
+SOURCES =
+     date_time_converter_program_options
+;
+
+exe date_time_converter
+    : date_time_converter.cpp
+      \$(SOURCES).cpp
+      /site-config//boost_program_options
+      /site-config//boost_date_time
+      /site-config//boost_regex
+      \$(PANTHEIOS_LIBS)
+    : <define>DEBUG_FCS_STARTUP
+      <cxxflags>\$(ENV_CXXFLAGS)
+      <linkflags>\$(ENV_LINKFLAGS)
+      <variant>debug:<define>DEBUG
+      <variant>release:<define>NDEBUG
+    ;
+
+install install_app : date_time_converter :
+   <link>static
+      <variant>debug:<location>\$(FCS_INSTALL_PATH)/static/debug
+      <variant>release:<location>\$(FCS_INSTALL_PATH)/static/release
+;
+
+install install_app : date_time_converter :
+   <link>shared
+      <variant>debug:<location>\$(FCS_INSTALL_PATH)/shared/debug
+      <variant>release:<location>\$(FCS_INSTALL_PATH)/shared/release
+;
+
+explicit install_app ;
+
+''', targetFile);
+    print('...Generating Jamfile for ${app.id} at $targetFile');
+  }
+
+  // end <class JamAppBuilder>
 }
 
 class Script extends Entity with InstallationCodeGenerator {
@@ -39,12 +113,12 @@ class Test extends Entity with InstallationCodeGenerator {
 
 
   // custom <class Test>
-  
+
   Test(Id id) : super(id);
   void generate() {
     print('Generating test $id');
   }
-  
+
   // end <class Test>
 }
 

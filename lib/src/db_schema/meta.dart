@@ -78,10 +78,20 @@ class DataType {
 
   const DataType(this.dbType, this.cppType);
 
+  bool operator==(DataType other) =>
+    identical(this, other) ||
+    dbType == other.dbType &&
+    cppType == other.cppType;
+
+  int get hashCode => hash2(dbType, cppType);
+
   final String dbType;
   final String cppType;
 
   // custom <class DataType>
+
+  toString() => 'Db($dbType) <=> C++($cppType)';
+
   // end <class DataType>
 }
 

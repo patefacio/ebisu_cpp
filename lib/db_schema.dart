@@ -8,6 +8,7 @@ import 'package:ebisu_cpp/cpp.dart';
 import 'package:id/id.dart';
 import 'package:ini/ini.dart';
 import 'package:path/path.dart' as path;
+import 'package:quiver/core.dart';
 import 'package:sqljocky/sqljocky.dart';
 // custom <additional imports>
 // end <additional imports>

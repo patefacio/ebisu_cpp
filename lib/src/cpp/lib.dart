@@ -64,7 +64,7 @@ class Lib extends Entity with InstallationCodeGenerator {
     headers.forEach((Header header) {
       header
         ..namespace = namespace
-        .._filePath = '${installation.cppPath}/${namespace.asPath}/${header.id.snake}.hpp'
+        ..setFilePathFromRoot(installation.cppPath)
         ..generate();
     });
   }
@@ -87,6 +87,9 @@ class Header extends CppFile {
   Header(Id id) : super(id);
 
   Namespace get namespace => super.namespace;
+
+  setFilePathFromRoot(String root) =>
+    _filePath = path.join(root, namespace.asPath, '${id.snake}.hpp');
 
   String get contents =>
     _wrapIncludeGuard(

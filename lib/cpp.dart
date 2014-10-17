@@ -2,6 +2,7 @@ library ebisu_cpp.cpp;
 
 import 'package:ebisu/ebisu.dart';
 import 'package:id/id.dart';
+import 'package:path/path.dart' as path;
 import 'package:quiver/iterables.dart';
 // custom <additional imports>
 // end <additional imports>

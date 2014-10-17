@@ -56,6 +56,7 @@ void main() {
           ],
           class_('data_type')
           ..ctorConst = ['']
+          ..opEquals = true
           ..members = [
             member('db_type')..isFinal = true..ctors = [''],
             member('cpp_type')..isFinal = true..ctors = [''],
@@ -142,6 +143,7 @@ queries. Makes use of the otl c++ library.
         'package:id/id.dart',
         'package:ebisu/ebisu.dart',
         'package:quiver/iterables.dart',
+        "'package:path/path.dart' as path",
       ]
       ..enums = [
         enum_('access')
@@ -437,6 +439,15 @@ queries. Makes use of the otl c++ library.
           ..members = [
             member('classes')..type = 'List<Class>'..classInit = [],
           ],
+          class_('app_builder')
+          ..isAbstract = true
+          ..implement = [ 'CodeGenerator' ]
+          ..doc = 'Creates builder for an application'
+          ..members = [
+            member('app')..type = 'App'..ctors = ['']
+          ],
+          class_('jam_app_builder')
+          ..extend = 'AppBuilder',
           class_('script')
           ..extend = 'Entity'
           ..mixins = [ 'InstallationCodeGenerator' ]

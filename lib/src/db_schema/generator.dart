@@ -82,14 +82,19 @@ class OtlBindVariable {
   OtlBindVariable.fromDataType(this.name, DataType cppDataType) {
     dataType = cppTypeMapping[cppDataType];
     if(dataType == null) {
-      throw 'DataType $cppDataType has no mapping';
+      if(cppDataType is FixedVarchar) {
+        dataType = BDT_SIZED_CHAR;
+        size = cppDataType.size;
+      } else {
+        throw 'DataType $cppDataType which is a ${dataType.runtimeType} has no mapping';
+      }
     }
   }
 
   toString() => dataType == BDT_SIZED_CHAR?
     ':$name<char[$size]>' : ':$name<${typeMapping[dataType]}>';
 
-  static const Map<BindDataType, String> typeMapping = const {
+  static Map<BindDataType, String> typeMapping = {
     BDT_INT : 'int',
     BDT_SHORT : 'short',
     BDT_DOUBLE : 'double',
@@ -99,7 +104,7 @@ class OtlBindVariable {
     BDT_TIMESTAMP : 'timestamp',
   };
 
-  static const Map<DataType, BindDataType> cppTypeMapping = const {
+  static Map<DataType, BindDataType> cppTypeMapping = {
     Int : BDT_INT,
     TinyInt : BDT_SHORT,
     SmallInt : BDT_SHORT,
@@ -134,7 +139,9 @@ class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
   void generate() {
     tables.forEach((Table t) {
       final tgg = new TableGatewayGenerator(schema, t);
-      print(tgg.header.contents);
+      tgg.header
+        ..setFilePathFromRoot(installation.cppPath)
+        ..generate();
     });
   }
 
@@ -206,7 +213,6 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
     final pkeyColumns = table.pkeyColumns;
     final valueColumns = table.valueColumns;
     final ns = namespace(['fcs','orm', tableName, 'table']);
-    print('Generating ${table.name} in schema ${schema.name}');
     final result = new Header(tableId)
     ..headers = [
       'cstdint',
@@ -232,7 +238,7 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
         'Value_t = $valueClassType',
         'Pkey_list_t = PKEY_LIST_TYPE',
         'Value_list_t = VALUE_LIST_TYPE',
-        'Row_t = std::pair< Rusage_delta_pkey, Rusage_delta_value >',
+        'Row_t = std::pair< PKey_t, Value_t >',
         'Row_list_t = std::vector< Row_t >',
       ]
       ..getCodeBlock(clsPublic).snippets.add(_gateway_support),
@@ -260,13 +266,9 @@ static void print_values_as_table(Value_list_t const& values, std::ostream &out)
   fcs::orm::print_values_as_table< Code_locations >(values, out);
 }
 
-static bool has_auto_id() {
-  return true;
-}
-
 int select_last_insert_id() {
-  int result(0);
-  otl_stream stream(1, "SELECT LAST_INSERT_ID()", *connection_);
+  int result {};
+  otl_stream stream { 1, "SELECT LAST_INSERT_ID()", *connection_ };
   if(!stream.eof()) {
     stream >> result;
   }
@@ -274,8 +276,8 @@ int select_last_insert_id() {
 }
 
 int select_affected_row_count() {
-  int result(0);
-  otl_stream stream(1, "SELECT ROW_COUNT()", *connection_);
+  int result {};
+  otl_stream stream { 1, "SELECT ROW_COUNT()", *connection_ };
   if(!stream.eof()) {
     int signed_result(0);
     stream >> signed_result;
@@ -286,24 +288,23 @@ int select_affected_row_count() {
 
 int select_table_row_count() {
   int result(0);
-  otl_stream stream(1, "SELECT COUNT(*) FROM $tableName", *connection_);
+  otl_stream stream { 1, "SELECT COUNT(*) FROM $tableName", *connection_ };
   if(!stream.eof()) {
     stream >> result;
   }
   return result;
 }
 
-inline
 void select_all_rows(Row_list_t &found, std::string const& where_clause = "") {
   char const* select_stmt = R"(
 ${indentBlock(chomp(table.selectAll), '    ')}
   )";
 
-  otl_stream stream(50,
+  otl_stream stream { 50,
     where_clause.empty()?
       select_stmt :
       (std::string(select_stmt) + where_clause).c_str(),
-    *connection_);
+    *connection_ };
 
   while(!stream.eof()) {
     Row_t row;
@@ -312,15 +313,14 @@ ${indentBlock(chomp(table.selectAll), '    ')}
   }
 }
 
-inline
-bool find_row_by_key(Rusage_delta_pkey const& desideratum, Rusage_delta_value & found) {
+bool find_row_by_key(Pkey_t const& desideratum, Value_t & found) {
   char const* select_stmt = R"(
 ${indentBlock(chomp(table.selectValues), '    ')}
     where
 ${indentBlock(chomp(_bindingWhereClause(table.pkeyColumns)), '      ')}
   )";
 
-  otl_stream stream(50, select_stmt);
+  otl_stream stream { 50, select_stmt, *connection_ };
   stream << desideratum;
   if(!stream.eof()) {
     stream >> found;
@@ -329,14 +329,13 @@ ${indentBlock(chomp(_bindingWhereClause(table.pkeyColumns)), '      ')}
   return false;
 }
 
-inline
 bool find_row_by_value(Row_t & desideratum) {
   char const* select_stmt = R"(
 ${indentBlock(chomp(table.selectKey), '    ')}
     where
 ${indentBlock(chomp(_bindingWhereClause(table.valueColumns)), '      ')}
   )";
-  otl_stream stream(50, select_stmt);
+  otl_stream stream { 50, select_stmt, *connection_ };
   stream << desideratum.second;
   if(!stream.eof()) {
     stream >> desideratum.first;
@@ -345,7 +344,6 @@ ${indentBlock(chomp(_bindingWhereClause(table.valueColumns)), '      ')}
   return false;
 }
 
-inline
 void insert(Row_list_t const& nascent, int stream_buffer_size = 1) {
   if(nascent.empty()) {
     return;
@@ -358,6 +356,30 @@ ${indentBlock(table.nonAutoColumnsJoined, '      ')}
 ${indentBlock(chomp(_bindingValueClause(table.nonAutoColumns)), '      ')}
     )
   )";
+
+  for(auto const& row : nascent) {
+${
+table.hasAutoIncrement?
+'    stream << row.second;' :
+'    stream << row.first << row.second;'
+}
+  }
+}
+
+void delete_row(Pkey_t const& moribund) {
+  char const * delete_stmt = R"(
+    delete
+    from ${tableName}
+    where
+${indentBlock(_bindingWhereClause(table.pkeyColumns))}
+  )";
+  otl_stream stream { 50, delete_stmt, *connection_ };
+  stream << moribund;
+}
+
+size_t delete_all_rows() {
+  long rows_deleted { otl_cursor::direct_exec(*connection_, "DELETE FROM $tableName") };
+  return size_t(rows_deleted);
 }
 ''';
 
