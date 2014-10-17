@@ -4,9 +4,9 @@ abstract class CodeGenerator {
 
 
   // custom <class CodeGenerator>
-  
+
   void generate();
-  
+
   // end <class CodeGenerator>
 }
 
@@ -18,6 +18,8 @@ class Namespace {
 
   String wrap(String txt) =>
     _helper(names.iterator, txt);
+
+  String get using => 'using $this';
 
   String _helper(Iterator<String> it, String txt) {
     if(it.moveNext()) {

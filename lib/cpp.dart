@@ -13,6 +13,8 @@ part 'src/cpp/enum.dart';
 part 'src/cpp/member.dart';
 part 'src/cpp/class.dart';
 part 'src/cpp/lib.dart';
+part 'src/cpp/app.dart';
+part 'src/cpp/script.dart';
 part 'src/cpp/installation.dart';
 
 /// Access for member variable - ia - inaccessible, ro - read/only, rw read/write

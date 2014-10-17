@@ -424,20 +424,32 @@ queries. Makes use of the otl c++ library.
             member('classes')..type = 'List<Class>'..classInit = [],
           ]
         ],
-        part('installation')
+        part('app')
+        ..enums = [
+          enum_('arg_type')
+          ..values = [
+            id('int'),
+            id('double'),
+            id('string'),
+          ]
+        ]
         ..classes = [
-          class_('installation_code_generator')
-          ..isAbstract = true
-          ..implement = [ 'CodeGenerator' ]
-          ..doc = 'A CodeGenerator tied to a c++ installation'
+          class_('app_arg')
+          ..extend = 'Entity'
           ..members = [
-            member('installation')..type = 'Installation',
+            member('type')..type = 'ArgType',
+            member('short_name'),
+            member('is_multiple')..classInit = false,
+            member('is_required')..classInit = false,
+            member('default_value')..type = 'Object'..access = RO,
           ],
           class_('app')
           ..extend = 'Entity'
           ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
+            member('args')..type = 'List<AppArg>'..classInit = [],
             member('classes')..type = 'List<Class>'..classInit = [],
+            member('namespace')..type = 'Namespace'..access = IA,
           ],
           class_('app_builder')
           ..isAbstract = true
@@ -448,10 +460,23 @@ queries. Makes use of the otl c++ library.
           ],
           class_('jam_app_builder')
           ..extend = 'AppBuilder',
+        ],
+        part('script')
+        ..classes = [
           class_('script')
           ..extend = 'Entity'
           ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
+          ],
+        ],
+        part('installation')
+        ..classes = [
+          class_('installation_code_generator')
+          ..isAbstract = true
+          ..implement = [ 'CodeGenerator' ]
+          ..doc = 'A CodeGenerator tied to a c++ installation'
+          ..members = [
+            member('installation')..type = 'Installation',
           ],
           class_('test')
           ..extend = 'Entity'
