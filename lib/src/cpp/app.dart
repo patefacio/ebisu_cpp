@@ -4,11 +4,13 @@ class ArgType implements Comparable<ArgType> {
   static const INT = const ArgType._(0);
   static const DOUBLE = const ArgType._(1);
   static const STRING = const ArgType._(2);
+  static const FLAG = const ArgType._(3);
 
   static get values => [
     INT,
     DOUBLE,
-    STRING
+    STRING,
+    FLAG
   ];
 
   final int value;
@@ -26,6 +28,7 @@ class ArgType implements Comparable<ArgType> {
       case INT: return "Int";
       case DOUBLE: return "Double";
       case STRING: return "String";
+      case FLAG: return "Flag";
     }
     return null;
   }
@@ -36,6 +39,7 @@ class ArgType implements Comparable<ArgType> {
       case "Int": return INT;
       case "Double": return DOUBLE;
       case "String": return STRING;
+      case "Flag": return FLAG;
       default: return null;
     }
   }
@@ -44,7 +48,7 @@ class ArgType implements Comparable<ArgType> {
 
 class AppArg extends Entity {
 
-  ArgType type;
+  ArgType type = ArgType.STRING;
   String shortName;
   bool isMultiple = false;
   bool isRequired = false;
@@ -65,6 +69,20 @@ class AppArg extends Entity {
     }
     _defaultValue = defaultValue;
   }
+
+  get cppType =>
+    type == ArgType.INT ? 'int' :
+    type == ArgType.DOUBLE ? 'double' :
+    type == ArgType.STRING ? 'std::string' : 'bool';
+
+  get flagDecl =>
+    shortName == null?
+    '"${id.emacs}"' : '"${id.emacs},$shortName"';
+
+  get addOptionDecl =>
+    type == ArgType.FLAG? '($flagDecl, "$descr")' :
+    isMultiple? '($flagDecl, value< std::vector< $cppType > >(),\n  "${descr}")' :
+    '($flagDecl, value< $cppType >(),\n  "${descr}")';
 
   // end <class AppArg>
   Object _defaultValue;
@@ -89,18 +107,59 @@ class App extends Entity with InstallationCodeGenerator {
       ..namespace = _namespace
       ..setAppFilePathFromRoot(installation.root)
       ..getCodeBlock(fcbPostNamespace).snippets.add(_cppContents)
+      ..classes = [
+        _programOptions
+      ]
       ..generate();
 
     new JamAppBuilder(this).generate();
   }
 
+  get _programOptions =>
+    class_('program_options')
+    ..struct = true
+    ..members = [
+    ]
+    ..getCodeBlock(clsPublic).snippets.add(_argvCtor);
+
+  get _argvCtor => '''
+Program_options(int argc, char** argv) {
+  using namespace boost::program_options;
+  static option_description options {
+    R"(
+${descr}
+
+Allowed Options:
+)"
+  };
+  if(options.options.empty()) {
+    options.add_options()
+${
+  indentBlock(combine(args.map((a) => a.addOptionDecl)), '    ')
+}
+  }
+  variables_map parsed_options;
+  store(parse_command_line(argc, argv, options), parsed_options);
+}
+
+
+''';
+
   get _cppContents => '''
 
 int main(int argc, char** argv) {
-  ${_namespace.using};
-
+${
+  combine([
+    indentBlock(_namespace.using) + ';',
+    indentBlock(_readProgramOptions)
+  ])
+}
   return 0;
 }
+''';
+
+  get _readProgramOptions => args.isEmpty? null : '''
+Program_options options = { argc, argv };
 ''';
 
   // end <class App>

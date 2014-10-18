@@ -74,7 +74,7 @@ void main() {
             member('is_primary_key')..classInit = false,
             member('is_auto_increment')..classInit = false,
             member('default_value'),
-            member('extra')
+            member('extra'),
           ]
         ],
         part('mysql')
@@ -431,13 +431,14 @@ queries. Makes use of the otl c++ library.
             id('int'),
             id('double'),
             id('string'),
+            id('flag'),
           ]
         ]
         ..classes = [
           class_('app_arg')
           ..extend = 'Entity'
           ..members = [
-            member('type')..type = 'ArgType',
+            member('type')..type = 'ArgType'..classInit = 'ArgType.STRING',
             member('short_name'),
             member('is_multiple')..classInit = false,
             member('is_required')..classInit = false,
