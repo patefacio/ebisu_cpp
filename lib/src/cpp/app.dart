@@ -61,19 +61,24 @@ class AppArg extends Entity {
   AppArg(Id id) : super(id);
 
   set defaultValue(Object defaultValue) {
-    if(type == null) {
-      type =
-        defaultValue is String? String :
-        defaultValue is double? Double :
-        defaultValue is int? Int;
-    }
+    type =
+      defaultValue is String? ArgType.STRING :
+      defaultValue is double? ArgType.DOUBLE :
+      defaultValue is int? ArgType.INT :
+      defaultValue is bool? ArgType.FLAG : null;
+
     _defaultValue = defaultValue;
   }
 
+  get vname => '${name}_';
+
   get cppType =>
-    type == ArgType.INT ? 'int' :
-    type == ArgType.DOUBLE ? 'double' :
-    type == ArgType.STRING ? 'std::string' : 'bool';
+    isMultiple ? (type == ArgType.INT ? 'std::vector< int >' :
+        type == ArgType.DOUBLE ? 'std::vector< double >' :
+        type == ArgType.STRING ? 'std::vector< std::string >' : 'std::vector< bool >') :
+    (type == ArgType.INT ? 'int' :
+        type == ArgType.DOUBLE ? 'double' :
+        type == ArgType.STRING ? 'std::string' : 'bool');
 
   get flagDecl =>
     shortName == null?
@@ -81,7 +86,6 @@ class AppArg extends Entity {
 
   get addOptionDecl =>
     type == ArgType.FLAG? '($flagDecl, "$descr")' :
-    isMultiple? '($flagDecl, value< std::vector< $cppType > >(),\n  "${descr}")' :
     '($flagDecl, value< $cppType >(),\n  "${descr}")';
 
   // end <class AppArg>
@@ -102,7 +106,13 @@ class App extends Entity with InstallationCodeGenerator {
 
   generate() {
     _namespace = namespace([ 'fcs', 'app', id.snake ]);
-    print('Generating app $id');
+    if(!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {
+      args.insert(0,
+          new AppArg(new Id('help'))
+          ..shortName = 'h'
+          ..defaultValue = false
+          ..descr = 'Display help information');
+    }
     final cppMain = new Impl(id)
       ..namespace = _namespace
       ..setAppFilePathFromRoot(installation.root)
@@ -140,10 +150,38 @@ ${
   }
   variables_map parsed_options;
   store(parse_command_line(argc, argv, options), parsed_options);
-}
+${
+indentBlock(combine(_orderedArgs.map((a) => br(_pullOption(a)))))
+}''';
 
+  get _orderedArgs =>
+    concat([
+      args.where((a) => _isHelpArg(a)),
+      args.where((a) => !_isHelpArg(a))]);
 
-''';
+  bool _isHelpArg(AppArg arg) => arg.name == 'help';
+  get _helpArg => args.where((a) => _isHelpArg(a));
+
+  _pullOption(AppArg arg) => _isHelpArg(arg)?
+    '''
+if(parsed_options.count("${arg.name}") > 0) {
+  help_ = true;
+  return;
+}''' : arg == null? null :
+    '''
+if(parsed_options.count("${arg.name}") > 0) {
+  ${arg.vname} = parsed_options["${arg.name}"]
+    .as< ${arg.cppType} >();
+}${_failIfRequired(arg)}''';
+
+  String _failIfRequired(AppArg arg) =>
+    arg.isRequired ? '''
+ else {
+  std::ostringstream msg;
+  msg << "$id option '${arg.name}' is required";
+  throw std::runtime_error(msg.str());
+}''' : '';
+
 
   get _cppContents => '''
 
