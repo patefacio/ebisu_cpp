@@ -19,7 +19,7 @@ class Namespace {
   String wrap(String txt) =>
     _helper(names.iterator, txt);
 
-  String get using => 'using $this';
+  String get using => 'using namespace $this';
 
   String _helper(Iterator<String> it, String txt) {
     if(it.moveNext()) {

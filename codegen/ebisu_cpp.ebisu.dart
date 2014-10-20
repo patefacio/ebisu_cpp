@@ -391,6 +391,9 @@ queries. Makes use of the otl c++ library.
             ..type = 'Map<ClassCodeBlock, CodeBlock>'..classInit = {},
             member('streamable')
             ..doc = 'If true adds streaming support'..classInit = false,
+            member('uses_streamers')
+            ..doc = 'If true adds {using fcs::utils::streamers::operator<<} to streamer'
+            ..classInit = false,
           ],
         ],
         part('lib')

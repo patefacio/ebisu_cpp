@@ -114,45 +114,70 @@ class App extends Entity with InstallationCodeGenerator {
           ..descr = 'Display help information');
     }
     final cppMain = new Impl(id)
+      ..headers = [ 'boost/program_options.hpp' ]
       ..namespace = _namespace
       ..setAppFilePathFromRoot(installation.root)
       ..getCodeBlock(fcbPostNamespace).snippets.add(_cppContents)
       ..classes = [
         _programOptions
-      ]
-      ..generate();
+      ];
+
+    if(_hasMultiple) {
+      cppMain.headers.addAll(['vector', 'fcs/utils/streamers/containers.hpp']);
+    }
+
+    if(_hasString)
+      cppMain.headers.add('string');
+
+    cppMain.generate();
 
     new JamAppBuilder(this).generate();
   }
 
+  get _hasMultiple => args.any((a) => a.isMultiple);
+  get _hasString => args.any((a) => ArgType.STRING == a.type);
+  get _hasHelp => args.any((a) => _isHelpArg(a));
+
   get _programOptions =>
     class_('program_options')
     ..struct = true
-    ..members = [
-    ]
+    ..streamable = true
+    ..usesStreamers = _hasMultiple
+    ..members = args.map((a) => member(a.id)..type = a.cppType..access = ro).toList()
     ..getCodeBlock(clsPublic).snippets.add(_argvCtor);
 
   get _argvCtor => '''
 Program_options(int argc, char** argv) {
   using namespace boost::program_options;
-  static option_description options {
+  variables_map parsed_options;
+  store(parse_command_line(argc, argv, description()), parsed_options);
+${
+indentBlock(combine(_orderedArgs.map((a) => br(_pullOption(a)))))
+}
+}
+
+static boost::program_options::options_description const& description() {
+  using namespace boost::program_options;
+  static options_description options {
     R"(
 ${descr}
 
-Allowed Options:
-)"
+Allowed Options)"
   };
-  if(options.options.empty()) {
+  if(options.options().empty()) {
     options.add_options()
 ${
   indentBlock(combine(args.map((a) => a.addOptionDecl)), '    ')
-}
+};
   }
-  variables_map parsed_options;
-  store(parse_command_line(argc, argv, options), parsed_options);
-${
-indentBlock(combine(_orderedArgs.map((a) => br(_pullOption(a)))))
-}''';
+  return options;
+}
+
+static void show_help(std::ostream& out) {
+  out << description();
+  out.flush();
+}
+''';
 
   get _orderedArgs =>
     concat([
@@ -189,16 +214,34 @@ int main(int argc, char** argv) {
 ${
   combine([
     indentBlock(_namespace.using) + ';',
-    indentBlock(_readProgramOptions)
+    indentBlock('''
+try{
+${indentBlock(_readProgramOptions)}
+} catch(std::exception const& e) {
+  std::cout << "Caught exception: " << e.what() << std::endl;
+  Program_options::show_help(std::cout);
+  return -1;
+}
+'''),
   ])
 }
   return 0;
 }
 ''';
 
-  get _readProgramOptions => args.isEmpty? null : '''
-Program_options options = { argc, argv };
-''';
+  get _showHelp => _hasHelp? '''
+if(options.help()) {
+  Program_options::show_help(std::cout);
+  return 0;
+}
+''' : null;
+
+  get _readProgramOptions => args.isEmpty? null :
+    combine([
+      'Program_options options = { argc, argv };',
+      _showHelp,
+      'std::cout << options << std::endl;',
+    ]);
 
   // end <class App>
   Namespace _namespace;

@@ -312,6 +312,8 @@ class Class extends Entity {
   Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
   /// If true adds streaming support
   bool streamable = false;
+  /// If true adds {using fcs::utils::streamers::operator<<} to streamer
+  bool usesStreamers = false;
 
   // custom <class Class>
 
@@ -454,14 +456,16 @@ ${txt}''' : null;
 
   String get className => id.capSnake;
 
-  get outStreamer => '''
-friend inline std::ostream& operator<<(std::ostream& out, $className const& item) {
+  get outStreamer => combine([
+    'friend inline std::ostream& operator<<(std::ostream& out, $className const& item) {',
+    usesStreamers? '  using fcs::utils::streamers::operator<<;' : null,
+    '''
   ${
 members.map((m) => "out << '\\n' << ${quote(m.name + ':')} << item.${m.vname}").join(';\n  ')
 };
   return out;
 }
-''';
+''']);
 
   get _classOpener => '''
 $classStyle $className$_baseDecl
