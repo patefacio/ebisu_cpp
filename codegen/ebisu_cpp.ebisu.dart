@@ -401,6 +401,7 @@ queries. Makes use of the otl c++ library.
         ..enums = [
           enum_('file_code_block')
           ..values = [
+            id('fcb_custom_includes'),
             id('fcb_pre_namespace'),
             id('fcb_post_namespace'),
             id('fcb_begin_namespace'),
@@ -449,10 +450,9 @@ queries. Makes use of the otl c++ library.
             member('default_value')..type = 'Object'..access = RO,
           ],
           class_('app')
-          ..extend = 'Entity'
+          ..extend = 'Impl'
           ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
-            //member('headers')..type = 'List<Header>'..classInit = [],
             member('args')..type = 'List<AppArg>'..classInit = [],
             member('classes')..type = 'List<Class>'..classInit = [],
             member('namespace')..type = 'Namespace'..access = IA,

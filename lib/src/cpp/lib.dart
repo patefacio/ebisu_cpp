@@ -1,12 +1,14 @@
 part of ebisu_cpp.cpp;
 
 class FileCodeBlock implements Comparable<FileCodeBlock> {
-  static const FCB_PRE_NAMESPACE = const FileCodeBlock._(0);
-  static const FCB_POST_NAMESPACE = const FileCodeBlock._(1);
-  static const FCB_BEGIN_NAMESPACE = const FileCodeBlock._(2);
-  static const FCB_END_NAMESPACE = const FileCodeBlock._(3);
+  static const FCB_CUSTOM_INCLUDES = const FileCodeBlock._(0);
+  static const FCB_PRE_NAMESPACE = const FileCodeBlock._(1);
+  static const FCB_POST_NAMESPACE = const FileCodeBlock._(2);
+  static const FCB_BEGIN_NAMESPACE = const FileCodeBlock._(3);
+  static const FCB_END_NAMESPACE = const FileCodeBlock._(4);
 
   static get values => [
+    FCB_CUSTOM_INCLUDES,
     FCB_PRE_NAMESPACE,
     FCB_POST_NAMESPACE,
     FCB_BEGIN_NAMESPACE,
@@ -25,6 +27,7 @@ class FileCodeBlock implements Comparable<FileCodeBlock> {
 
   String toString() {
     switch(this) {
+      case FCB_CUSTOM_INCLUDES: return "FcbCustomIncludes";
       case FCB_PRE_NAMESPACE: return "FcbPreNamespace";
       case FCB_POST_NAMESPACE: return "FcbPostNamespace";
       case FCB_BEGIN_NAMESPACE: return "FcbBeginNamespace";
@@ -36,6 +39,7 @@ class FileCodeBlock implements Comparable<FileCodeBlock> {
   static FileCodeBlock fromString(String s) {
     if(s == null) return null;
     switch(s) {
+      case "FcbCustomIncludes": return FCB_CUSTOM_INCLUDES;
       case "FcbPreNamespace": return FCB_PRE_NAMESPACE;
       case "FcbPostNamespace": return FCB_POST_NAMESPACE;
       case "FcbBeginNamespace": return FCB_BEGIN_NAMESPACE;
@@ -147,6 +151,7 @@ class Impl extends CppFile {
 Lib lib(Object id) => new Lib(id is Id? id : new Id(id));
 Header header(Object id) => new Header(id is Id? id : new Id(id));
 
+const fcbCustomIncludes = FileCodeBlock.FCB_CUSTOM_INCLUDES;
 const fcbPreNamespace = FileCodeBlock.FCB_PRE_NAMESPACE;
 const fcbPostNamespace = FileCodeBlock.FCB_POST_NAMESPACE;
 const fcbBeginNamespace = FileCodeBlock.FCB_BEGIN_NAMESPACE;

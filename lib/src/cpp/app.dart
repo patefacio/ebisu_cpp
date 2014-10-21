@@ -93,7 +93,7 @@ class AppArg extends Entity {
   Object _defaultValue;
 }
 
-class App extends Entity with InstallationCodeGenerator {
+class App extends Impl with InstallationCodeGenerator {
 
   List<AppArg> args = [];
   List<Class> classes = [];
@@ -104,9 +104,10 @@ class App extends Entity with InstallationCodeGenerator {
 
   get name => id.snake;
   get appPath => path.join(installation.root, 'app', name);
+  get namespace => super.namespace;
 
   generate() {
-    _namespace = namespace([ 'fcs', 'app', id.snake ]);
+    namespace = new Namespace()..names = [ 'fcs', 'app', id.snake ];
     if(!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {
       args.insert(0,
           new AppArg(new Id('help'))
@@ -114,23 +115,19 @@ class App extends Entity with InstallationCodeGenerator {
           ..defaultValue = false
           ..descr = 'Display help information');
     }
-    final cppMain = new Impl(id)
-      ..headers = [ 'boost/program_options.hpp' ]
-      ..namespace = _namespace
-      ..setAppFilePathFromRoot(installation.root)
-      ..getCodeBlock(fcbPostNamespace).snippets.add(_cppContents)
-      ..classes = [
-        _programOptions
-      ];
+    _headers.add('boost/program_options.hpp');
+    setAppFilePathFromRoot(installation.root);
+    getCodeBlock(fcbPostNamespace).snippets.add(_cppContents);
+    classes.add(_programOptions);
 
     if(_hasMultiple) {
-      cppMain.headers.addAll(['vector', 'fcs/utils/streamers/containers.hpp']);
+      _headers.addAll(['vector', 'fcs/utils/streamers/containers.hpp']);
     }
 
     if(_hasString)
-      cppMain.headers.add('string');
+      _headers.add('string');
 
-    cppMain.generate();
+    super.generate();
 
     new JamAppBuilder(this).generate();
   }
@@ -218,7 +215,7 @@ if(parsed_options.count("${arg.name}") > 0) {
 int main(int argc, char** argv) {
 ${
   combine([
-    indentBlock(_namespace.using) + ';',
+    indentBlock(namespace.using) + ';',
     indentBlock('''
 try{
 ${indentBlock(_readProgramOptions)}

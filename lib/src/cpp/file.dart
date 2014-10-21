@@ -13,6 +13,7 @@ abstract class CppFile extends Entity {
 
   String get contents;
   String get filePath;
+  List<Class> get classes;
 
   set headers(Object h) => _headers = _makeHeaders(h);
   _makeHeaders(Object h) =>
@@ -29,10 +30,14 @@ abstract class CppFile extends Entity {
   }
 
   String _contentsWithBlocks(String original) {
+    if(classes.any((c) => c._opMethods.any((m) => m is OpOut))) {
+      _headers.add('fcs/utils/block_indenter.hpp');
+    }
     customBlocks.forEach((cb) => getCodeBlock(cb).tag = '$cb ${id.snake}');
 
     return combine([
       br(_headers.includes),
+      _codeBlockText(FileCodeBlock.FCB_CUSTOM_INCLUDES),
       _codeBlockText(FileCodeBlock.FCB_PRE_NAMESPACE),
       namespace.wrap(
         combine([
