@@ -238,6 +238,7 @@ queries. Makes use of the otl c++ library.
             member('code_blocks')
             ..type = 'Map<FileCodeBlock, CodeBlock>'..access = IA..classInit = {},
             member('headers')..type = 'Headers'..access = RO..classInit = 'new Headers()',
+            member('usings')..type = 'List<String>'..classInit = [],
           ],
         ],
         part('enum')
@@ -451,6 +452,7 @@ queries. Makes use of the otl c++ library.
           ..extend = 'Entity'
           ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
+            //member('headers')..type = 'List<Header>'..classInit = [],
             member('args')..type = 'List<AppArg>'..classInit = [],
             member('classes')..type = 'List<Class>'..classInit = [],
             member('namespace')..type = 'Namespace'..access = IA,

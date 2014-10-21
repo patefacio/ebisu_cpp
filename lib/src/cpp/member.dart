@@ -72,9 +72,11 @@ class Member extends Entity {
     ' { $init }';
   String get name => '${id.snake}';
   String get vname => '${id.snake}_';
-  String get getter => (access == ro || access == rw)? '''
+  String get getter =>
+    access == ro || access == rw ? '''
 //! getter for ${vname} (access is $access)
-$_argType $name() const { return $vname; }''' : null;
+$_constAccess $name() const { return $vname; }''' :
+    null;
 
   String get setter => access == rw? '''
 //! setter for ${vname} (access is $access)
@@ -86,6 +88,7 @@ void $name($_argType $name) { $vname = $name; }''' : null;
     public;
 
   get _argType => byRef? '$type &' : type;
+  get _constAccess => byRef? '$type const&' : type;
 
   get _parts => [
     briefComment,

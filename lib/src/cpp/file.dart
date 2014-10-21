@@ -5,6 +5,7 @@ abstract class CppFile extends Entity {
   Namespace namespace;
   List<FileCodeBlock> customBlocks = [];
   Headers get headers => _headers;
+  List<String> usings = [];
 
   // custom <class CppFile>
 
@@ -36,6 +37,7 @@ abstract class CppFile extends Entity {
       namespace.wrap(
         combine([
           _codeBlockText(FileCodeBlock.FCB_BEGIN_NAMESPACE),
+          br(usings.map((u) => 'using $u;')),
           original,
           _codeBlockText(FileCodeBlock.FCB_END_NAMESPACE)
         ])),

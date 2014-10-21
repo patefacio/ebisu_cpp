@@ -48,6 +48,7 @@ Installation($root)
 ''';
 
   addLib(Lib lib) => libs.add(lib..installation = this);
+  addLibs(Iterable<Lib> libs) => libs.forEach((l) => addLib(l));
   addApp(App app) => apps.add(app..installation = this);
   addSchemaCodeGenerator(InstallationCodeGenerator scg) =>
     schemaCodeGenerators.add(scg..installation = this);

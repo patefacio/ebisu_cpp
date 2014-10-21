@@ -71,6 +71,7 @@ class AppArg extends Entity {
   }
 
   get vname => '${name}_';
+  get isString => type == ArgType.STRING;
 
   get cppType =>
     isMultiple ? (type == ArgType.INT ? 'std::vector< int >' :
@@ -143,7 +144,11 @@ class App extends Entity with InstallationCodeGenerator {
     ..struct = true
     ..streamable = true
     ..usesStreamers = _hasMultiple
-    ..members = args.map((a) => member(a.id)..type = a.cppType..access = ro).toList()
+    ..members = args.map((a) =>
+        member(a.id)
+        ..byRef = a.isMultiple || a.isString
+        ..type = a.cppType
+        ..access = ro).toList()
     ..getCodeBlock(clsPublic).snippets.add(_argvCtor);
 
   get _argvCtor => '''
@@ -217,6 +222,7 @@ ${
     indentBlock('''
 try{
 ${indentBlock(_readProgramOptions)}
+${indentBlock(customBlock('main'))}
 } catch(std::exception const& e) {
   std::cout << "Caught exception: " << e.what() << std::endl;
   Program_options::show_help(std::cout);
