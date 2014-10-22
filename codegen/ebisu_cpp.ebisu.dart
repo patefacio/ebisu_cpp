@@ -192,10 +192,10 @@ queries. Makes use of the otl c++ library.
           ..members = [
             member('names')..type = 'List<String>'..classInit = [],
           ],
-          class_('headers')
-          ..doc = 'Collection of headers to be included'
+          class_('includes')
+          ..doc = 'Collection of header includes'
           ..members = [
-            member('headers')
+            member('included')
             ..access = RO
             ..type = 'Set<String>'
           ],
@@ -237,7 +237,7 @@ queries. Makes use of the otl c++ library.
             member('custom_blocks')..type = 'List<FileCodeBlock>'..classInit = [],
             member('code_blocks')
             ..type = 'Map<FileCodeBlock, CodeBlock>'..access = IA..classInit = {},
-            member('headers')..type = 'Headers'..access = RO..classInit = 'new Headers()',
+            member('includes')..type = 'Includes'..access = RO..classInit = 'new Includes()',
             member('usings')..type = 'List<String>'..classInit = [],
           ],
         ],
@@ -456,6 +456,9 @@ queries. Makes use of the otl c++ library.
             member('args')..type = 'List<AppArg>'..classInit = [],
             member('classes')..type = 'List<Class>'..classInit = [],
             member('namespace')..type = 'Namespace'..access = IA,
+            member('headers')..type = 'List<Header>'..classInit = [],
+            member('impls')..type = 'List<Impl>'..classInit = [],
+            member('required_libs')..type = 'List<String>'..classInit = [],
           ],
           class_('app_builder')
           ..isAbstract = true

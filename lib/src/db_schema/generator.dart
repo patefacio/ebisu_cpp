@@ -214,7 +214,7 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
     final valueColumns = table.valueColumns;
     final ns = namespace(['fcs','orm', tableName, 'table']);
     final result = new Header(tableId)
-    ..headers = [
+    ..includes = [
       'cstdint',
       'sstream',
       'vector',

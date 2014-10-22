@@ -97,6 +97,9 @@ class App extends Impl with InstallationCodeGenerator {
 
   List<AppArg> args = [];
   List<Class> classes = [];
+  List<Header> headers = [];
+  List<Impl> impls = [];
+  List<String> requiredLibs = [];
 
   // custom <class App>
 
@@ -105,6 +108,11 @@ class App extends Impl with InstallationCodeGenerator {
   get name => id.snake;
   get appPath => path.join(installation.root, 'app', name);
   get namespace => super.namespace;
+  get sources => [ id.snake ]..addAll(impls.map((i) => i.id.snake));
+  get allIncludes =>
+    new Includes(_includes.includeEntries)
+    ..addAll(concat(headers.map((h) => h.includeEntries)))
+    ..addAll(concat(impls.map((i) => i.includes.includeEntries)));
 
   generate() {
     namespace = new Namespace()..names = [ 'fcs', 'app', id.snake ];
@@ -115,17 +123,19 @@ class App extends Impl with InstallationCodeGenerator {
           ..defaultValue = false
           ..descr = 'Display help information');
     }
-    _headers.add('boost/program_options.hpp');
+    if(args.isNotEmpty)
+      _includes.add('boost/program_options.hpp');
+
     setAppFilePathFromRoot(installation.root);
     getCodeBlock(fcbPostNamespace).snippets.add(_cppContents);
     classes.add(_programOptions);
 
     if(_hasMultiple) {
-      _headers.addAll(['vector', 'fcs/utils/streamers/containers.hpp']);
+      _includes.addAll(['vector', 'fcs/utils/streamers/containers.hpp']);
     }
 
     if(_hasString)
-      _headers.add('string');
+      _includes.add('string');
 
     super.generate();
 
@@ -271,6 +281,37 @@ class JamAppBuilder extends AppBuilder {
 
   JamAppBuilder(App app) : super(app);
 
+  static const Map _headerToJamRequirement = const {
+    'boost/program_options.hpp' : '/site-config//boost_program_options',
+    'boost/date_time' : '/site-config//boost_date_time',
+    'boost/regex' : '/site-config//boost_regex',
+  };
+
+  static const Map _libToJamRequirement = const {
+    'boost_program_options' : '/site-config//boost_program_options',
+    'boost_date_time' : '/site-config//boost_date_time',
+    'boost_regex' : '/site-config//boost_regex',
+  };
+
+  get jamRequirements {
+    final found = new Set();
+
+    app.requiredLibs.forEach((String lib) {
+      final requirement = _libToJamRequirement[lib];
+      if(requirement == null)
+        throw "Unkown lib requirement $lib";
+      found.add(requirement);
+    });
+
+    app.allIncludes.includeEntries.forEach((String include) {
+      _headerToJamRequirement.forEach((String header, String requirement) {
+        if(include.contains(header))
+          found.add(requirement);
+      });
+    });
+    return found;
+  }
+
   void generate() {
     final targetFile = path.join(app.appPath, 'Jamfile.v2');
     mergeBlocksWithFile('''
@@ -282,16 +323,13 @@ project $appName
 ENV_CXXFLAGS = [ os.environ CXXFLAGS ] ;
 ENV_LINKFLAGS = [ os.environ LINKFLAGS ] ;
 SOURCES =
-     date_time_converter_program_options
+     ${app.sources.join('\n     ')}
 ;
 
 exe date_time_converter
     : $appName.cpp
       \$(SOURCES).cpp
-      /site-config//boost_program_options
-      /site-config//boost_date_time
-      /site-config//boost_regex
-      \$(PANTHEIOS_LIBS)
+      ${jamRequirements.join('\n      ')}
     : <define>DEBUG_FCS_STARTUP
       <cxxflags>\$(ENV_CXXFLAGS)
       <linkflags>\$(ENV_LINKFLAGS)
@@ -314,7 +352,6 @@ install install_app : $appName :
 explicit install_app ;
 
 ''', targetFile);
-    print('...Generating Jamfile for ${app.id} at $targetFile');
   }
 
   // end <class JamAppBuilder>

@@ -4,7 +4,7 @@ abstract class CppFile extends Entity {
 
   Namespace namespace;
   List<FileCodeBlock> customBlocks = [];
-  Headers get headers => _headers;
+  Includes get includes => _includes;
   List<String> usings = [];
 
   // custom <class CppFile>
@@ -15,12 +15,13 @@ abstract class CppFile extends Entity {
   String get filePath;
   List<Class> get classes;
 
-  set headers(Object h) => _headers = _makeHeaders(h);
-  _makeHeaders(Object h) =>
-    h is Iterable? new Headers(h) :
-    h is String? new Headers([h]) :
-    h is Headers? h :
-    throw 'Headers must be String, List<String> or Headers';
+  set includes(Object h) => _includes = _makeIncludes(h);
+
+  _makeIncludes(Object h) =>
+    h is Iterable? new Includes(h) :
+    h is String? new Includes([h]) :
+    h is Includes? h :
+    throw 'Includes must be String, List<String> or Includes';
 
   generate() => mergeWithFile(contents, filePath);
 
@@ -31,12 +32,12 @@ abstract class CppFile extends Entity {
 
   String _contentsWithBlocks(String original) {
     if(classes.any((c) => c._opMethods.any((m) => m is OpOut))) {
-      _headers.add('fcs/utils/block_indenter.hpp');
+      _includes.add('fcs/utils/block_indenter.hpp');
     }
     customBlocks.forEach((cb) => getCodeBlock(cb).tag = '$cb ${id.snake}');
 
     return combine([
-      br(_headers.includes),
+      br(_includes.includes),
       _codeBlockText(FileCodeBlock.FCB_CUSTOM_INCLUDES),
       _codeBlockText(FileCodeBlock.FCB_PRE_NAMESPACE),
       namespace.wrap(
@@ -57,7 +58,7 @@ abstract class CppFile extends Entity {
 
   // end <class CppFile>
   Map<FileCodeBlock, CodeBlock> _codeBlocks = {};
-  Headers _headers = new Headers();
+  Includes _includes = new Includes();
 }
 // custom <part file>
 

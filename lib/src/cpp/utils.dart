@@ -39,44 +39,46 @@ ${_helper(it, txt)}
   // end <class Namespace>
 }
 
-/// Collection of headers to be included
-class Headers {
+/// Collection of header includes
+class Includes {
 
-  Set<String> get headers => _headers;
+  Set<String> get included => _included;
 
-  // custom <class Headers>
+  // custom <class Includes>
 
-  Headers([ Iterable<String> from ]) :
-    _headers = from == null? new Set() : new Set.from(from);
+  Includes([ Iterable<String> from ]) :
+    _included = from == null? new Set() : new Set.from(from);
 
-  String get includes {
+  Iterable<String> get includeEntries {
     final boostHeaders = [];
     final systemHeaders = [];
     final rest = [];
-    _headers.forEach((String header) {
-      if(header.contains('boost/')) {
-        boostHeaders.add(_sysInclude(header));
-      } else if(isSystemHeader(header)) {
-        systemHeaders.add(_sysInclude(header));
+    _included.forEach((String include) {
+      if(include.contains('boost/')) {
+        boostHeaders.add(_sysInclude(include));
+      } else if(isSystemHeader(include)) {
+        systemHeaders.add(_sysInclude(include));
       } else {
-        rest.add(_include(header));
+        rest.add(_include(include));
       }
     });
-    return
-    concat([rest..sort(), boostHeaders..sort(), systemHeaders..sort()])
-    .map((h) => h).join('\n');
+    return concat([
+      rest..sort(), boostHeaders..sort(), systemHeaders..sort()]);
   }
 
-  add(String header) => _headers.add(header);
-  addAll(Iterable<String> more) => _headers.addAll(more);
+  String get includes =>
+    includeEntries.map((h) => h).join('\n');
+
+  add(String include) => _included.add(include);
+  addAll(Iterable<String> more) => _included.addAll(more);
 
   String toString() => includes;
 
-  static _sysInclude(String header) => '#include <$header>';
-  static _include(String header) => '#include "$header"';
+  static _sysInclude(String include) => '#include <$include>';
+  static _include(String include) => '#include "$include"';
 
-  // end <class Headers>
-  Set<String> _headers;
+  // end <class Includes>
+  Set<String> _included;
 }
 
 /// Wraps an optional protection block with optional code injection
@@ -142,7 +144,7 @@ base([String className]) =>
 Namespace namespace(List<String> ns) =>
   new Namespace()..names = ns;
 
-Headers headers([ List<String> headers ]) =>
-  new Headers(headers);
+Includes includes([ List<String> includes ]) =>
+  new Includes(includes);
 
 // end <part utils>

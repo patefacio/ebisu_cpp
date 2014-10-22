@@ -150,6 +150,7 @@ class Impl extends CppFile {
 
 Lib lib(Object id) => new Lib(id is Id? id : new Id(id));
 Header header(Object id) => new Header(id is Id? id : new Id(id));
+Impl impl(Object id) => new Impl(id is Id? id : new Id(id));
 
 const fcbCustomIncludes = FileCodeBlock.FCB_CUSTOM_INCLUDES;
 const fcbPreNamespace = FileCodeBlock.FCB_PRE_NAMESPACE;
