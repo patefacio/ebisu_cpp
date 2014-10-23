@@ -467,8 +467,21 @@ queries. Makes use of the otl c++ library.
           ..members = [
             member('app')..type = 'App'..ctors = ['']
           ],
+        ],
+        part('jam_support')
+        ..classes = [
           class_('jam_app_builder')
           ..extend = 'AppBuilder',
+          class_('site_config')
+          ..implement = [ 'CodeGenerator' ]
+          ..members = [
+            member('installation')..type = 'Installation'..ctors = [''],
+          ],
+          class_('user_config')
+          ..implement = [ 'CodeGenerator' ]
+          ..members = [
+            member('installation')..type = 'Installation'..ctors = [''],
+          ],
         ],
         part('script')
         ..classes = [
@@ -498,11 +511,13 @@ queries. Makes use of the otl c++ library.
             member('id')..type = 'Id'..ctors = [''],
             member('root')..doc = 'Fully qualified path to installation'..access = RO,
             member('paths')..type = 'Map<String, String>'..classInit = {}..access = RO,
+            member('libs')..type = 'List<Lib>'..classInit = [],
             member('apps')..type = 'List<App>'..classInit = [],
             member('scripts')..type = 'List<Script>'..classInit = [],
             member('schema_code_generators')..type = 'List<InstallationCodeGenerator>'..classInit = [],
-            member('libs')..type = 'List<Lib>'..classInit = [],
             member('tests')..type = 'List<Test>'..classInit = [],
+            member('generated_libs')..type = 'List<Lib>'..classInit = []..access = RO,
+            member('generated_apps')..type = 'List<App>'..classInit = []..access = RO,
           ]
         ],
       ]

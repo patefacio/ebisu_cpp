@@ -30,11 +30,13 @@ class Installation implements CodeGenerator {
   /// Fully qualified path to installation
   String get root => _root;
   Map<String, String> get paths => _paths;
+  List<Lib> libs = [];
   List<App> apps = [];
   List<Script> scripts = [];
   List<InstallationCodeGenerator> schemaCodeGenerators = [];
-  List<Lib> libs = [];
   List<Test> tests = [];
+  List<Lib> get generatedLibs => _generatedLibs;
+  List<App> get generatedApps => _generatedApps;
 
   // custom <class Installation>
 
@@ -53,10 +55,14 @@ Installation($root)
   addSchemaCodeGenerator(InstallationCodeGenerator scg) =>
     schemaCodeGenerators.add(scg..installation = this);
 
-  generate() {
-    libs..forEach((l) => l.generate())..clear();
-    apps..forEach((a) => a.generate())..clear();
+  generate([bool generateJamConfigs = false]) {
+    libs..forEach((l) => _generatedLibs.add(l..generate()))..clear();
+    apps..forEach((a) => _generatedApps.add(a..generate()))..clear();
     schemaCodeGenerators..forEach((scg) => scg.generate())..clear();
+    if(generateJamConfigs) {
+      new SiteConfig(this).generate();
+      new UserConfig(this).generate();
+    }
   }
 
   set root(String root) {
@@ -73,6 +79,8 @@ Installation($root)
   // end <class Installation>
   String _root;
   Map<String, String> _paths = {};
+  List<Lib> _generatedLibs = [];
+  List<App> _generatedApps = [];
 }
 // custom <part installation>
 
