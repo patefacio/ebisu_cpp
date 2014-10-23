@@ -62,6 +62,8 @@ Installation($root)
     if(generateJamConfigs) {
       new SiteConfig(this).generate();
       new UserConfig(this).generate();
+      new JamRoot(this).generate();
+      new JamFileTop(this).generate();
     }
   }
 

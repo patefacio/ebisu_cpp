@@ -95,7 +95,12 @@ class SiteConfig implements CodeGenerator {
   // custom <class SiteConfig>
 
   void generate() {
-    final filePath = path.join(installation.root, 'config', 'site-config.jam');
+    final boostPath = Platform.environment['BOOST_INSTALL_PATH'];
+
+    if(boostPath == null)
+      throw 'To generate site-config.jam you must set BOOST_INSTALL_PATH';
+
+    final filePath = path.join(installation.root, 'config', 'site-config.jammed');
     mergeBlocksWithFile('''
 import project ;
 import feature ;
@@ -103,8 +108,23 @@ import os ;
 
 project site-config ;
 
+path-constant BOOST_INCLUDE_PATH : $boostPath/include ;
+path-constant BOOST_LIB_PATH : $boostPath/lib ;
+
+${
+combine(_boostLibsUnique.map((String l) =>
+combine([
+_boostMtStatics.contains(l) ?
+'lib boost_$l : : <file>\$(BOOST_LIB_PATH)/libboost_$l-mt.a <variant>release ;' : null
+])))
+}
+
 ''', filePath);
   }
+
+  get _boostLibs => [];
+
+
 
   // end <class SiteConfig>
 }
@@ -125,5 +145,193 @@ class UserConfig implements CodeGenerator {
 
   // end <class UserConfig>
 }
+
+class JamFileTop implements CodeGenerator {
+
+  JamFileTop(this.installation);
+
+  Installation installation;
+
+  // custom <class JamFileTop>
+
+  void generate() {
+    final filePath = path.join(installation.root, 'cpp', 'Jamfiled');
+    mergeBlocksWithFile('''
+''', filePath);
+  }
+
+  // end <class JamFileTop>
+}
+
+class JamRoot implements CodeGenerator {
+
+  JamRoot(this.installation);
+
+  Installation installation;
+
+  // custom <class JamRoot>
+
+  void generate() {
+    final filePath = path.join(installation.root, 'cpp', 'Jamrooted');
+    mergeBlocksWithFile('''
+''', filePath);
+  }
+
+  // end <class JamRoot>
+}
 // custom <part jam_support>
+
+final _boostLibs = [
+  'atomic-mt.a',
+  'atomic-mt.dylib',
+  'chrono-mt.a',
+  'chrono-mt.dylib',
+  'chrono.a',
+  'chrono.dylib',
+  'context-mt.a',
+  'context-mt.dylib',
+  'context.a',
+  'context.dylib',
+  'coroutine-mt.a',
+  'coroutine-mt.dylib',
+  'coroutine.a',
+  'coroutine.dylib',
+  'date_time-mt.a',
+  'date_time-mt.dylib',
+  'date_time.a',
+  'date_time.dylib',
+  'exception-mt.a',
+  'exception.a',
+  'filesystem-mt.a',
+  'filesystem-mt.dylib',
+  'filesystem.a',
+  'filesystem.dylib',
+  'graph-mt.a',
+  'graph-mt.dylib',
+  'graph.a',
+  'graph.dylib',
+  'iostreams-mt.a',
+  'iostreams-mt.dylib',
+  'iostreams.a',
+  'iostreams.dylib',
+  'locale-mt.a',
+  'locale-mt.dylib',
+  'log-mt.a',
+  'log-mt.dylib',
+  'log.a',
+  'log.dylib',
+  'log_setup-mt.a',
+  'log_setup-mt.dylib',
+  'log_setup.a',
+  'log_setup.dylib',
+  'math_c99-mt.a',
+  'math_c99-mt.dylib',
+  'math_c99.a',
+  'math_c99.dylib',
+  'math_c99f-mt.a',
+  'math_c99f-mt.dylib',
+  'math_c99f.a',
+  'math_c99f.dylib',
+  'math_c99l-mt.a',
+  'math_c99l-mt.dylib',
+  'math_c99l.a',
+  'math_c99l.dylib',
+  'math_tr1-mt.a',
+  'math_tr1-mt.dylib',
+  'math_tr1.a',
+  'math_tr1.dylib',
+  'math_tr1f-mt.a',
+  'math_tr1f-mt.dylib',
+  'math_tr1f.a',
+  'math_tr1f.dylib',
+  'math_tr1l-mt.a',
+  'math_tr1l-mt.dylib',
+  'math_tr1l.a',
+  'math_tr1l.dylib',
+  'prg_exec_monitor-mt.a',
+  'prg_exec_monitor-mt.dylib',
+  'prg_exec_monitor.a',
+  'prg_exec_monitor.dylib',
+  'program_options-mt.a',
+  'program_options-mt.dylib',
+  'program_options.a',
+  'program_options.dylib',
+  'python-mt.a',
+  'python-mt.dylib',
+  'python.a',
+  'python.dylib',
+  'random-mt.a',
+  'random-mt.dylib',
+  'random.a',
+  'random.dylib',
+  'regex-mt.a',
+  'regex-mt.dylib',
+  'regex.a',
+  'regex.dylib',
+  'serialization-mt.a',
+  'serialization-mt.dylib',
+  'serialization.a',
+  'serialization.dylib',
+  'signals-mt.a',
+  'signals-mt.dylib',
+  'signals.a',
+  'signals.dylib',
+  'system-mt.a',
+  'system-mt.dylib',
+  'system.a',
+  'system.dylib',
+  'test_exec_monitor-mt.a',
+  'test_exec_monitor.a',
+  'thread-mt.a',
+  'thread-mt.dylib',
+  'timer-mt.a',
+  'timer-mt.dylib',
+  'timer.a',
+  'timer.dylib',
+  'unit_test_framework-mt.a',
+  'unit_test_framework-mt.dylib',
+  'unit_test_framework.a',
+  'unit_test_framework.dylib',
+  'wave-mt.a',
+  'wave-mt.dylib',
+  'wave.a',
+  'wave.dylib',
+  'wserialization-mt.a',
+  'wserialization-mt.dylib',
+  'wserialization.a',
+  'wserialization.dylib',
+];
+
+final _boostMtStatics = new Set();
+final _boostStStatics = new Set();
+final _boostMtDynamics = new Set();
+final _boostStDynamics = new Set();
+
+final _boostLibsUnique = () {
+  final result = new Set();
+  _boostLibs.forEach((String l) {
+    addLib(Set s, l) {
+      result.add(l);
+      s.add(l);
+    }
+    if(l.endsWith('-mt.a')) {
+      final base = l.substring(0, l.indexOf('-mt.a'));
+      addLib(_boostMtStatics, base);
+    } else if(l.endsWith('-mt.dylib')) {
+      final base = l.substring(0, l.indexOf('-mt.dylib'));
+      addLib(_boostMtDynamics, base);
+    } else if(l.endsWith('.a')) {
+      final base = l.substring(0, l.indexOf('.a'));
+      addLib(_boostStStatics, base);
+    } else if(l.endsWith('.dylib')) {
+      final base = l.substring(0, l.indexOf('.dylib'));
+      addLib(_boostMtStatics, base);
+    } else {
+      throw "Unknown lib type $l";
+    }
+  });
+  return result;
+}();
+
+
 // end <part jam_support>

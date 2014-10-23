@@ -144,6 +144,7 @@ queries. Makes use of the otl c++ library.
         'package:ebisu/ebisu.dart',
         'package:quiver/iterables.dart',
         "'package:path/path.dart' as path",
+        'dart:io',
       ]
       ..enums = [
         enum_('access')
@@ -478,6 +479,16 @@ queries. Makes use of the otl c++ library.
             member('installation')..type = 'Installation'..ctors = [''],
           ],
           class_('user_config')
+          ..implement = [ 'CodeGenerator' ]
+          ..members = [
+            member('installation')..type = 'Installation'..ctors = [''],
+          ],
+          class_('jam_file_top')
+          ..implement = [ 'CodeGenerator' ]
+          ..members = [
+            member('installation')..type = 'Installation'..ctors = [''],
+          ],
+          class_('jam_root')
           ..implement = [ 'CodeGenerator' ]
           ..members = [
             member('installation')..type = 'Installation'..ctors = [''],
