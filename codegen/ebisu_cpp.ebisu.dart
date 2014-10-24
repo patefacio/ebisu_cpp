@@ -422,6 +422,14 @@ queries. Makes use of the otl c++ library.
           ..members = [
             member('file_path')..access = RO,
             member('classes')..type = 'List<Class>'..classInit = [],
+            member('is_api_header')
+            ..doc = '''
+If true marks this header as special to the set of headers in its library in that:
+(1) It will be automatically included by all other headers
+(2) For windows systems it will be the place to provide the api decl support
+(3) Will have code that initializes the api
+'''
+            ..classInit = false,
           ],
           class_('impl')
           ..extend = 'CppFile'

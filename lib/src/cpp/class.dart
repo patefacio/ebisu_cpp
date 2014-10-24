@@ -204,7 +204,7 @@ class MemberCtor extends ClassMethod {
     memberArgs.forEach((String arg) {
       final member = members.singleWhere((m) => m.id.snake == arg);
       var decl = member.passDecl;
-      final init = optInit[arg];
+      final init = optInit == null? null : optInit[arg];
       if(init != null)
         decl += ' = $init';
 

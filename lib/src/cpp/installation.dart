@@ -40,6 +40,9 @@ class Installation implements CodeGenerator {
 
   // custom <class Installation>
 
+  get name => id.snake;
+  get nameShout => id.shout;
+
   String toString() => '''
 Installation($root)
   libs: =>\n${libs.map((l) => l.toString()).join('')}

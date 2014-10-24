@@ -64,12 +64,27 @@ class Lib extends Entity with InstallationCodeGenerator {
       installation = new Installation(new Id('tmp'))
         ..root = '/tmp';
     }
+
+    final apiHeaders = headers.where((h) => h.isApiHeader);
+    Header apiHeader;
+
+    if(apiHeaders.length > 1) {
+      throw '''A library may have only one api header:
+[ ${apiHeaders.map((h)=>h.id).join(', ')} ]''';
+    } else if(apiHeaders.isNotEmpty) {
+      apiHeader = apiHeaders[0];
+    }
+
     final cpp = installation.paths["cpp"];
     headers.forEach((Header header) {
       header
         ..namespace = namespace
-        ..setFilePathFromRoot(installation.cppPath)
-        ..generate();
+        ..setFilePathFromRoot(installation.cppPath);
+
+      if(apiHeader != null)
+        header.includes.add(header.includeFilePath);
+
+      header.generate();
     });
   }
 
@@ -85,6 +100,11 @@ class Header extends CppFile {
 
   String get filePath => _filePath;
   List<Class> classes = [];
+  /// If true marks this header as special to the set of headers in its library in that:
+  /// (1) It will be automatically included by all other headers
+  /// (2) For windows systems it will be the place to provide the api decl support
+  /// (3) Will have code that initializes the api
+  bool isApiHeader = false;
 
   // custom <class Header>
 
@@ -92,8 +112,10 @@ class Header extends CppFile {
 
   Namespace get namespace => super.namespace;
 
+  get includeFilePath => path.join(namespace.asPath, '${id.snake}.hpp');
+
   setFilePathFromRoot(String root) =>
-    _filePath = path.join(root, namespace.asPath, '${id.snake}.hpp');
+    _filePath = path.join(root, includeFilePath);
 
   String get contents =>
     _wrapIncludeGuard(
