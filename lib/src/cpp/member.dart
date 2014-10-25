@@ -70,8 +70,14 @@ class Member extends Entity {
     noInit || isRefType ? '' :
     init==null? ' {}' :
     ' { $init }';
-  String get name => '${id.snake}';
-  String get vname => '${id.snake}_';
+
+  set isStatic(bool v) => static = v;
+  bool get isStatic => static;
+  bool get isStaticConst => isConst && isStatic;
+  set isStaticConst(bool v) => isConst = isStatic = v;
+
+  String get name => isStaticConst? id.shout : id.snake;
+  String get vname => isStaticConst? name : '${name}_';
   String get getter =>
     access == ro || access == rw ? '''
 //! getter for ${vname} (access is $access)
