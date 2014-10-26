@@ -3,13 +3,24 @@ part of ebisu_cpp.cpp;
 class Test extends Impl with InstallationCodeGenerator {
 
   String get filePath => _filePath;
+  Header headerUnderTest;
   List<Header> headers = [];
   List<Impl> impls = [];
+  List<String> testFunctions = [];
   List<String> requiredLibs = [];
 
   // custom <class Test>
 
-  Test(Id id) : super(id);
+  Test(Header header) : super(header.id),
+                        headerUnderTest = header,
+                        testFunctions = header.testFunctions
+  {
+    namespace = header.namespace;
+    _includes.addAll([
+      'boost/test/included/unit_test.hpp',
+      header.includeFilePath,
+    ]);
+  }
 
   Namespace get namespace => super.namespace;
 
@@ -24,20 +35,22 @@ class Test extends Impl with InstallationCodeGenerator {
 boost::unit_test::test_suite* init_unit_test_suite(int , char*[]) {
   ${namespace.using};
   using namespace boost::unit_test;
-  test_suite* test= BOOST_TEST_SUITE( "Unit test <${id.snake}>" );
-  test->add( BOOST_TEST_CASE( &test_api_initializer ) );
+  test_suite* test= BOOST_TEST_SUITE( "<${id.snake}>" );
+${
+indentBlock(
+  combine(
+    testFunctions.map((f) => 'test->add( BOOST_TEST_CASE( &test_$f ) );')))
+}
   return test;
 }
 ''');
 
     return _contentsWithBlocks(
-      combine([
-        '''
-void ${id.snake}() {
+      combine(testFunctions.map((f) => '''
+void test_$f() {
+${chomp(indentBlock(customBlock(f)))}
 }
-
-
-''']));
+''')));
   }
 
   generate() {

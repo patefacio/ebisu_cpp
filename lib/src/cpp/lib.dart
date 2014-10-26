@@ -95,8 +95,6 @@ class Lib extends Entity with InstallationCodeGenerator {
       .where((header) => header.hasTest)
       .forEach((header) {
          header.test
-           .._includes.add('boost/test/included/unit_test.hpp')
-           ..namespace = header.namespace
            ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'))
            ..generate();
        });
@@ -125,8 +123,10 @@ class Header extends CppFile {
 
   Namespace get namespace => super.namespace;
 
-  Test get test => _test == null? (_test = new Test(id)) : _test;
-  bool get hasTest => includeTest || _test != null;
+  Test get test => _test == null? (_test = new Test(this)) : _test;
+  bool get hasTest => includeTest || _test != null || classes.any((c) => c.includeTest);
+  Iterable get testFunctions => (includeTest? [ id.snake ] : [])
+    ..addAll(classes.where((c) => c.includeTest).map((c) => c.id.snake));
 
   get includeFilePath => path.join(namespace.asPath, '${id.snake}.hpp');
 

@@ -397,6 +397,9 @@ queries. Makes use of the otl c++ library.
             member('uses_streamers')
             ..doc = 'If true adds {using fcs::utils::streamers::operator<<} to streamer'
             ..classInit = false,
+            member('include_test')
+            ..doc = 'If true adds test function to tests of the header it belongs to'
+            ..classInit = false,
           ],
         ],
         part('lib')
@@ -517,8 +520,10 @@ If true marks this header as special to the set of headers in its library in tha
           ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
             member('file_path')..access = RO,
+            member('header_under_test')..type = 'Header',
             member('headers')..type = 'List<Header>'..classInit = [],
             member('impls')..type = 'List<Impl>'..classInit = [],
+            member('test_functions')..type = 'List<String>'..classInit = [],
             member('required_libs')..type = 'List<String>'..classInit = [],
           ],
         ],

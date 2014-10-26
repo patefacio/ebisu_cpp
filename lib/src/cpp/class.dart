@@ -314,6 +314,8 @@ class Class extends Entity {
   bool streamable = false;
   /// If true adds {using fcs::utils::streamers::operator<<} to streamer
   bool usesStreamers = false;
+  /// If true adds test function to tests of the header it belongs to
+  bool includeTest = false;
 
   // custom <class Class>
 
