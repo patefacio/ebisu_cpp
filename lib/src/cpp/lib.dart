@@ -95,6 +95,7 @@ class Lib extends Entity with InstallationCodeGenerator {
       .where((header) => header.hasTest)
       .forEach((header) {
          header.test
+           ..namespace = header.namespace
            ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'))
            ..generate();
        });

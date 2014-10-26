@@ -6,19 +6,16 @@ class Test extends Impl with InstallationCodeGenerator {
   Header headerUnderTest;
   List<Header> headers = [];
   List<Impl> impls = [];
-  List<String> testFunctions = [];
+  List<String> get testFunctions => _testFunctions;
   List<String> requiredLibs = [];
 
   // custom <class Test>
 
   Test(Header header) : super(header.id),
-                        headerUnderTest = header,
-                        testFunctions = header.testFunctions
+                        headerUnderTest = header
   {
-    namespace = header.namespace;
     _includes.addAll([
       'boost/test/included/unit_test.hpp',
-      header.includeFilePath,
     ]);
   }
 
@@ -30,6 +27,8 @@ class Test extends Impl with InstallationCodeGenerator {
     _filePath = path.join(root, testFilePath);
 
   String get contents {
+    _includes.add(headerUnderTest.includeFilePath);
+    _testFunctions = headerUnderTest.testFunctions.toList();
     getCodeBlock(fcbPostNamespace).snippets.add('''
 
 boost::unit_test::test_suite* init_unit_test_suite(int , char*[]) {
@@ -59,6 +58,7 @@ ${chomp(indentBlock(customBlock(f)))}
 
   // end <class Test>
   String _filePath;
+  List<String> _testFunctions = [];
 }
 // custom <part test>
 // end <part test>
