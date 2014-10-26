@@ -9,19 +9,6 @@ abstract class InstallationCodeGenerator implements CodeGenerator {
   // end <class InstallationCodeGenerator>
 }
 
-class Test extends Entity with InstallationCodeGenerator {
-
-
-  // custom <class Test>
-
-  Test(Id id) : super(id);
-  void generate() {
-    print('Generating test $id');
-  }
-
-  // end <class Test>
-}
-
 class Installation implements CodeGenerator {
 
   Installation(this.id);

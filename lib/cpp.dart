@@ -17,6 +17,7 @@ part 'src/cpp/lib.dart';
 part 'src/cpp/app.dart';
 part 'src/cpp/jam_support.dart';
 part 'src/cpp/script.dart';
+part 'src/cpp/test.dart';
 part 'src/cpp/installation.dart';
 
 /// Access for member variable - ia - inaccessible, ro - read/only, rw read/write

@@ -86,7 +86,20 @@ class Lib extends Entity with InstallationCodeGenerator {
 
       header.generate();
     });
+
+    generateTests();
   }
+
+  generateTests() =>
+    headers
+      .where((header) => header.hasTest)
+      .forEach((header) {
+         header.test
+           .._includes.add('boost/test/included/unit_test.hpp')
+           ..namespace = header.namespace
+           ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'))
+           ..generate();
+       });
 
   String toString() => '''
     lib($id)
@@ -99,7 +112,7 @@ class Lib extends Entity with InstallationCodeGenerator {
 class Header extends CppFile {
 
   String get filePath => _filePath;
-  List<Class> classes = [];
+  bool includeTest = false;
   /// If true marks this header as special to the set of headers in its library in that:
   /// (1) It will be automatically included by all other headers
   /// (2) For windows systems it will be the place to provide the api decl support
@@ -111,6 +124,9 @@ class Header extends CppFile {
   Header(Id id) : super(id);
 
   Namespace get namespace => super.namespace;
+
+  Test get test => _test == null? (_test = new Test(id)) : _test;
+  bool get hasTest => includeTest || _test != null;
 
   get includeFilePath => path.join(namespace.asPath, '${id.snake}.hpp');
 
@@ -142,12 +158,12 @@ $text
 
   // end <class Header>
   String _filePath;
+  Test _test;
 }
 
 class Impl extends CppFile {
 
   String get filePath => _filePath;
-  List<Class> classes = [];
 
   // custom <class Impl>
 

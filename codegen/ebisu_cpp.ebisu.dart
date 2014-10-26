@@ -238,6 +238,7 @@ queries. Makes use of the otl c++ library.
             member('custom_blocks')..type = 'List<FileCodeBlock>'..classInit = [],
             member('code_blocks')
             ..type = 'Map<FileCodeBlock, CodeBlock>'..access = IA..classInit = {},
+            member('classes')..type = 'List<Class>'..classInit = [],
             member('includes')..type = 'Includes'..access = RO..classInit = 'new Includes()',
             member('usings')..type = 'List<String>'..classInit = [],
           ],
@@ -421,7 +422,8 @@ queries. Makes use of the otl c++ library.
           ..extend = 'CppFile'
           ..members = [
             member('file_path')..access = RO,
-            member('classes')..type = 'List<Class>'..classInit = [],
+            member('include_test')..classInit = false,
+            member('test')..type = 'Test'..access = IA,
             member('is_api_header')
             ..doc = '''
 If true marks this header as special to the set of headers in its library in that:
@@ -435,7 +437,6 @@ If true marks this header as special to the set of headers in its library in tha
           ..extend = 'CppFile'
           ..members = [
             member('file_path')..access = RO,
-            member('classes')..type = 'List<Class>'..classInit = [],
           ]
         ],
         part('app')
@@ -463,7 +464,6 @@ If true marks this header as special to the set of headers in its library in tha
           ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
             member('args')..type = 'List<AppArg>'..classInit = [],
-            member('classes')..type = 'List<Class>'..classInit = [],
             member('namespace')..type = 'Namespace'..access = IA,
             member('headers')..type = 'List<Header>'..classInit = [],
             member('impls')..type = 'List<Impl>'..classInit = [],
@@ -510,6 +510,18 @@ If true marks this header as special to the set of headers in its library in tha
           ..members = [
           ],
         ],
+        part('test')
+        ..classes = [
+          class_('test')
+          ..extend = 'Impl'
+          ..mixins = [ 'InstallationCodeGenerator' ]
+          ..members = [
+            member('file_path')..access = RO,
+            member('headers')..type = 'List<Header>'..classInit = [],
+            member('impls')..type = 'List<Impl>'..classInit = [],
+            member('required_libs')..type = 'List<String>'..classInit = [],
+          ],
+        ],
         part('installation')
         ..classes = [
           class_('installation_code_generator')
@@ -518,11 +530,6 @@ If true marks this header as special to the set of headers in its library in tha
           ..doc = 'A CodeGenerator tied to a c++ installation'
           ..members = [
             member('installation')..type = 'Installation',
-          ],
-          class_('test')
-          ..extend = 'Entity'
-          ..mixins = [ 'InstallationCodeGenerator' ]
-          ..members = [
           ],
           class_('installation')
           ..implement = [ 'CodeGenerator' ]

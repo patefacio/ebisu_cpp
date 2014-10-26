@@ -4,6 +4,7 @@ abstract class CppFile extends Entity {
 
   Namespace namespace;
   List<FileCodeBlock> customBlocks = [];
+  List<Class> classes = [];
   Includes get includes => _includes;
   List<String> usings = [];
 
@@ -13,7 +14,6 @@ abstract class CppFile extends Entity {
 
   String get contents;
   String get filePath;
-  List<Class> get classes;
 
   set includes(Object h) => _includes = _makeIncludes(h);
 

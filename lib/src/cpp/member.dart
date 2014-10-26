@@ -74,6 +74,7 @@ class Member extends Entity {
   set isStatic(bool v) => static = v;
   bool get isStatic => static;
   bool get isStaticConst => isConst && isStatic;
+  bool get isPublicStaticConst => isConst && isStatic && cppAccess == public;
   set isStaticConst(bool v) => isConst = isStatic = v;
 
   String get name => isStaticConst? id.shout : id.snake;

@@ -404,11 +404,14 @@ class Class extends Entity {
           combine([
             br(usings.map((u) => 'using $u;')),
             br([_enumDecls, _enumStreamers]),
+            br(publicMembers
+                .where((m) => m.isPublicStaticConst).map((m) => _memberDefinition(m))),
             br(memberCtors.map((m) => m.definition)),
             chomp(combine(_methods.map((m) => m == null? m : br(m.definition)))),
             br(_singleton),
             _codeBlockText(clsPublic),
-            br(publicMembers.map((m) => _memberDefinition(m))),
+            br(publicMembers
+                .where((m) => !m.isPublicStaticConst).map((m) => _memberDefinition(m))),
             chomp(combine(members.map((m) => br([m.getter, m.setter])))),
             streamable? outStreamer : null
           ]))),

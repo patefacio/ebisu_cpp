@@ -96,7 +96,6 @@ class AppArg extends Entity {
 class App extends Impl with InstallationCodeGenerator {
 
   List<AppArg> args = [];
-  List<Class> classes = [];
   List<Header> headers = [];
   List<Impl> impls = [];
   List<String> requiredLibs = [];
