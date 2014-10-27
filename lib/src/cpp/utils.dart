@@ -35,6 +35,7 @@ ${_helper(it, txt)}
 
   String toString() => names.join('::');
   String get asPath => names.join('/');
+  String get snake => names.join('_');
 
   // end <class Namespace>
 }

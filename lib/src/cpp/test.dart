@@ -20,11 +20,15 @@ class Test extends Impl with InstallationCodeGenerator {
   }
 
   Namespace get namespace => super.namespace;
+  get basename => id.snake;
+  get name => 'test_$basename';
+  get testCppFile => '$name.cpp';
+  get cppFiles => [ testCppFile ];
 
-  get testFilePath => path.join(namespace.asPath, 'test_${id.snake}.cpp');
+  get testFilePathFromRoot => path.join(namespace.asPath, testCppFile);
 
   setFilePathFromRoot(String root) =>
-    _filePath = path.join(root, testFilePath);
+    _filePath = path.join(root, testFilePathFromRoot);
 
   String get contents {
     _includes.add(headerUnderTest.includeFilePath);
@@ -59,6 +63,20 @@ ${chomp(indentBlock(customBlock(f)))}
   // end <class Test>
   String _filePath;
   List<String> _testFunctions = [];
+}
+
+/// Creates builder for test folder
+abstract class TestBuilder implements CodeGenerator {
+
+  TestBuilder(this.lib, this.directory, this.tests);
+
+  Lib lib;
+  String directory;
+  List<Test> tests;
+
+  // custom <class TestBuilder>
+
+  // end <class TestBuilder>
 }
 // custom <part test>
 // end <part test>

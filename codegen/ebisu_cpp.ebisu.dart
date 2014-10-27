@@ -484,6 +484,8 @@ If true marks this header as special to the set of headers in its library in tha
         ..classes = [
           class_('jam_app_builder')
           ..extend = 'AppBuilder',
+          class_('jam_test_builder')
+          ..extend = 'TestBuilder',
           class_('site_config')
           ..implement = [ 'CodeGenerator' ]
           ..members = [
@@ -525,6 +527,15 @@ If true marks this header as special to the set of headers in its library in tha
             member('impls')..type = 'List<Impl>'..classInit = [],
             member('test_functions')..type = 'List<String>'..classInit = []..access = RO,
             member('required_libs')..type = 'List<String>'..classInit = [],
+          ],
+          class_('test_builder')
+          ..isAbstract = true
+          ..implement = [ 'CodeGenerator' ]
+          ..doc = 'Creates builder for test folder'
+          ..members = [
+            member('lib')..type = 'Lib'..ctors = [''],
+            member('directory')..ctors = [''],
+            member('tests')..type = 'List<Test>'..ctors = ['']
           ],
         ],
         part('installation')

@@ -86,6 +86,44 @@ explicit install_app ;
   // end <class JamAppBuilder>
 }
 
+class JamTestBuilder extends TestBuilder {
+
+
+  // custom <class JamTestBuilder>
+
+  get lib => super.lib;
+
+  JamTestBuilder(Lib lib, String directory, List<Test> tests) :
+    super(lib, directory, tests);
+
+  _testRuleAddition(Test test) => '''
+rule ${test.name}
+{
+  all_rules += [ run ${test.cppFiles.join('\n    ')}
+  :
+  : # test-files
+  : # requirements
+  ] ;
+}
+test-suite ${test.basename} : [ ${test.name} ] ;
+''';
+
+  void generate() {
+    final targetFile = path.join(directory, 'Jamfile.v2');
+    mergeBlocksWithFile('''
+project test_${lib.snake}
+    :
+    :
+    ;
+
+import testing ;
+
+${chomp(br(tests.map((t) => _testRuleAddition(t))))}''', targetFile);
+  }
+
+  // end <class JamTestBuilder>
+}
+
 class SiteConfig implements CodeGenerator {
 
   SiteConfig(this.installation);

@@ -58,6 +58,7 @@ class Lib extends Entity with InstallationCodeGenerator {
   // custom <class Lib>
 
   Lib(Id id) : super(id);
+  get snake => '${namespace.snake}';
 
   generate() {
     if(installation == null) {
@@ -90,7 +91,8 @@ class Lib extends Entity with InstallationCodeGenerator {
     generateTests();
   }
 
-  generateTests() =>
+  generateTests() {
+    Map pathToTests = {};
     headers
       .where((header) => header.hasTest)
       .forEach((header) {
@@ -98,7 +100,20 @@ class Lib extends Entity with InstallationCodeGenerator {
            ..namespace = header.namespace
            ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'))
            ..generate();
+
+         final test = header.test;
+         final directory = path.dirname(test.filePath);
+         var tests = pathToTests[directory];
+         if(tests == null)
+           tests = (pathToTests[directory] = []);
+         tests.add(test);
        });
+
+    pathToTests.forEach((directory, tests) {
+      new JamTestBuilder(this, directory, tests)
+        .generate();
+    });
+  }
 
   String toString() => '''
     lib($id)
