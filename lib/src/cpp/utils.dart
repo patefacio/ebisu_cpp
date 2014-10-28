@@ -16,6 +16,9 @@ class Namespace {
 
   // custom <class Namespace>
 
+  Namespace([Iterable<String> n]) :
+    this.names = n == null? [] : new List.from(n);
+
   String wrap(String txt) =>
     _helper(names.iterator, txt);
 

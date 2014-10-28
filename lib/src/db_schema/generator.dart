@@ -138,8 +138,8 @@ class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
 
   void generate() {
     tables.forEach((Table t) {
-      final tgg = new TableGatewayGenerator(schema, t);
-      tgg.header
+      final tgg = new TableGatewayGenerator(installation, schema, t);
+      tgg
         ..setFilePathFromRoot(installation.cppPath)
         ..generate();
     });
@@ -150,6 +150,7 @@ class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
 
 class TableGatewayGenerator {
 
+  Installation installation;
   Schema schema;
   Table table;
   Id tableId;
@@ -157,7 +158,7 @@ class TableGatewayGenerator {
 
   // custom <class TableGatewayGenerator>
 
-  TableGatewayGenerator(this.schema, this.table) {
+  TableGatewayGenerator(this.installation, this.schema, this.table) {
     tableId = idFromString(table.name);
     tableName = tableId.snake;
   }
@@ -205,14 +206,34 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
       .add(_otlStreamSupport(result));
   }
 
+  setFilePathFromRoot(String root) =>
+    header.setFilePathFromRoot(root);
+
+  void generate() => lib.generate();
+
+  Lib get lib =>
+    new Lib(tableId)
+    ..installation = installation
+    ..namespace = namespace
+    ..headers = [ header ];
+
   Header get header {
+    if(_header == null) {
+      _header = _makeHeader();
+    }
+    return _header;
+  }
+
+  Namespace get namespace => new Namespace(['fcs','orm', tableName, 'table']);
+
+  Header _makeHeader() {
     final keyClass = '${tableName}_pkey';
     final keyClassType = idFromString(keyClass).capCamel;
     final valueClass = '${tableName}_value';
     final valueClassType = idFromString(valueClass).capCamel;
     final pkeyColumns = table.pkeyColumns;
     final valueColumns = table.valueColumns;
-    final ns = namespace(['fcs','orm', tableName, 'table']);
+    final ns = namespace;
     final result = new Header(tableId)
     ..includes = [
       'cstdint',
@@ -228,6 +249,7 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
       _makeClass(keyClass, pkeyColumns),
       _makeClass(valueClass, valueColumns),
       class_('${tableName}')
+      ..includeTest = true
       ..isSingleton = true
       ..template = [
         'typename PKEY_LIST_TYPE = std::vector< $keyClassType >',
@@ -384,6 +406,7 @@ size_t delete_all_rows() {
 ''';
 
   // end <class TableGatewayGenerator>
+  Header _header;
 }
 // custom <part generator>
 

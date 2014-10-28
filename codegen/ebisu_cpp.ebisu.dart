@@ -131,10 +131,12 @@ queries. Makes use of the otl c++ library.
           ],
           class_('table_gateway_generator')
           ..members = [
+            member('installation')..type = 'Installation',
             member('schema')..type = 'Schema',
             member('table')..type = 'Table',
             member('table_id')..type = 'Id',
             member('table_name'),
+            member('header')..type = 'Header'..access = IA,
           ]
         ],
       ],
