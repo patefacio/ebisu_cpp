@@ -73,7 +73,7 @@ class Lib extends Entity with InstallationCodeGenerator {
       throw '''A library may have only one api header:
 [ ${apiHeaders.map((h)=>h.id).join(', ')} ]''';
     } else if(apiHeaders.isNotEmpty) {
-      apiHeader = apiHeaders[0];
+      apiHeader = apiHeaders.first;
     }
 
     final cpp = installation.paths["cpp"];
@@ -82,8 +82,8 @@ class Lib extends Entity with InstallationCodeGenerator {
         ..namespace = namespace
         ..setFilePathFromRoot(installation.cppPath);
 
-      if(apiHeader != null)
-        header.includes.add(header.includeFilePath);
+      if(apiHeader != null && apiHeader != header)
+        header.includes.add(apiHeader.includeFilePath);
 
       header.generate();
     });
