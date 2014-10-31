@@ -226,6 +226,23 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
 
   Namespace get namespace => new Namespace(['fcs','orm', tableName, 'table']);
 
+  get _testCreateRows => '''
+// testing creation
+''';
+
+  get _testInsertRows => '''
+// testing insertion
+''';
+
+  get _testUpdateRows => '''
+// testing update
+''';
+
+  get _testDeleteRows => '''
+// testing delete
+''';
+
+
   Header _makeHeader() {
     final keyClass = '${tableName}_pkey';
     final keyClassType = idFromString(keyClass).capCamel;
@@ -235,6 +252,11 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
     final valueColumns = table.valueColumns;
     final ns = namespace;
     final result = new Header(tableId)
+    ..test.addTestImplementations({
+      'create_rows' : _testCreateRows,
+      'insert_rows' : _testInsertRows,
+      'update_rows' : _testUpdateRows,
+      'delete_rows' : _testDeleteRows})
     ..includes = [
       'cstdint',
       'sstream',

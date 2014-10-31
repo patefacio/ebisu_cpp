@@ -528,6 +528,7 @@ If true marks this header as special to the set of headers in its library in tha
             member('headers')..type = 'List<Header>'..classInit = [],
             member('impls')..type = 'List<Impl>'..classInit = [],
             member('test_functions')..type = 'List<String>'..classInit = []..access = RO,
+            member('test_implementations')..type = 'Map<String, String>'..classInit = {}..access = RO,
             member('required_libs')..type = 'List<String>'..classInit = [],
           ],
           class_('test_builder')

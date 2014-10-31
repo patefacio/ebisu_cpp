@@ -7,6 +7,7 @@ class Test extends Impl with InstallationCodeGenerator {
   List<Header> headers = [];
   List<Impl> impls = [];
   List<String> get testFunctions => _testFunctions;
+  Map<String, String> get testImplementations => _testImplementations;
   List<String> requiredLibs = [];
 
   // custom <class Test>
@@ -24,15 +25,21 @@ class Test extends Impl with InstallationCodeGenerator {
   get name => 'test_$basename';
   get testCppFile => '$name.cpp';
   get cppFiles => [ testCppFile ];
-
   get testFilePathFromRoot => path.join(namespace.asPath, testCppFile);
+
+  addTestFunctions(Iterable<String> testFunction) =>
+    _testFunctions.addAll(testFunction);
+
+  addTestImplementations(Map<String, String> impls) =>
+    _testImplementations.addAll(impls);
 
   setFilePathFromRoot(String root) =>
     _filePath = path.join(root, testFilePathFromRoot);
 
+  get testNames => concat([testFunctions, testImplementations.keys]);
   String get contents {
     _includes.add(headerUnderTest.includeFilePath);
-    _testFunctions = headerUnderTest.testFunctions.toList();
+    _testFunctions.addAll(headerUnderTest.testFunctions);
     getCodeBlock(fcbPostNamespace).snippets.add('''
 
 boost::unit_test::test_suite* init_unit_test_suite(int , char*[]) {
@@ -42,18 +49,24 @@ boost::unit_test::test_suite* init_unit_test_suite(int , char*[]) {
 ${
 indentBlock(
   combine(
-    testFunctions.map((f) => 'test->add( BOOST_TEST_CASE( &test_$f ) );')))
+    testNames.map((f) => 'test->add( BOOST_TEST_CASE( &test_$f ) );')))
 }
   return test;
 }
 ''');
 
     return _contentsWithBlocks(
-      combine(testFunctions.map((f) => '''
+      combine([
+        testFunctions.map((f) => '''
 void test_$f() {
 ${chomp(indentBlock(customBlock(f)))}
 }
-''')));
+'''),
+        testImplementations.keys.map((t) => '''
+void test_$t() {
+${chomp(indentBlock(testImplementations[t]))}
+}
+''')]));
   }
 
   generate() {
@@ -63,6 +76,7 @@ ${chomp(indentBlock(customBlock(f)))}
   // end <class Test>
   String _filePath;
   List<String> _testFunctions = [];
+  Map<String, String> _testImplementations = {};
 }
 
 /// Creates builder for test folder
