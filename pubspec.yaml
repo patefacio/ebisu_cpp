@@ -4,14 +4,14 @@ author: Daniel Davidson <dbdavidson@yahoo.com>
 description: >
   A library that supports code generation of cpp and others
 dependencies:
-  ebisu:
-      path: /Users/dbdavidson/dev/open_source/ebisu
+  ebisu: ">=0.0.11"
   path: ">=1.2.2 < 1.10.0"
 
 # custom <ebisu_cpp dependencies>
 
   quiver: ">=0.18.2"
   ini: ">=1.0.0"
+  github: ">=2.1.2"
   sqljocky: "any"
 
 # end <ebisu_cpp dependencies>
