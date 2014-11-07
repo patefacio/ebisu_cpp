@@ -228,6 +228,7 @@ project ${id}_projects
           <linkflags>-lpthread
           <include>\$(BOOST_INCLUDE_PATH)
           <include>\$(CPP_INCLUDE_PATH)
+          <include>/usr/local/include
           <tag>@\$(__name__).tag
           <include>.
           <toolset>intel:<cxxflags>-std=c++0x

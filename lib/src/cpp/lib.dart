@@ -78,9 +78,10 @@ class Lib extends Entity with InstallationCodeGenerator {
 
     final cpp = installation.paths["cpp"];
     headers.forEach((Header header) {
-      header
-        ..namespace = namespace
-        ..setFilePathFromRoot(installation.cppPath);
+      if(header.namespace == null) {
+        header.namespace = namespace;
+      }
+      header.setFilePathFromRoot(installation.cppPath);
 
       if(apiHeader != null && apiHeader != header)
         header.includes.add(apiHeader.includeFilePath);

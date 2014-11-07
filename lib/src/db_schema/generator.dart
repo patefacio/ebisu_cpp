@@ -127,38 +127,65 @@ class OtlBindVariable {
 class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
 
   Schema schema;
+  Id get id => _id;
   List<Query> queries = [];
   TableFilter tableFilter = (Table t) => true;
 
   // custom <class SchemaCodeGenerator>
 
-  SchemaCodeGenerator(this.schema);
+  SchemaCodeGenerator(this.schema) {
+    _id = idFromString(schema.name);
+  }
 
   get tables => schema.tables.where((t) => tableFilter(t));
 
+  get namespace => new Namespace(['fcs','orm', id.snake ]);
+
   void generate() {
-    tables.forEach((Table t) {
-      final tgg = new TableGatewayGenerator(installation, schema, t);
-      tgg
+
+    final ns = namespace;
+    final connectionClass = 'connection_${id.snake}';
+
+    final lib = new Lib(id)
+      ..installation = installation
+      ..namespace = ns
+      ..headers = [
+        new Header(id)
+        ..includes = [
+          'boost/thread/tss.hpp',
+        ]
+        ..isApiHeader = true
+        ..namespace = ns
+        ..classes = [
+          class_(connectionClass)
+          ..isSingleton = true,
+        ]
         ..setFilePathFromRoot(installation.cppPath)
-        ..generate();
+      ];
+
+    tables.forEach((Table t) {
+      lib.headers.add(
+        new TableGatewayGenerator(installation, this, t).header);
     });
+
+    lib.generate();
   }
 
   // end <class SchemaCodeGenerator>
+  Id _id;
 }
 
 class TableGatewayGenerator {
 
   Installation installation;
-  Schema schema;
+  SchemaCodeGenerator schemaCodeGenerator;
   Table table;
   Id tableId;
   String tableName;
 
   // custom <class TableGatewayGenerator>
 
-  TableGatewayGenerator(this.installation, this.schema, this.table) {
+  TableGatewayGenerator(this.installation, this.schemaCodeGenerator, this.table) {
     tableId = idFromString(table.name);
     tableName = tableId.snake;
   }
@@ -184,10 +211,12 @@ void to_string_list(String_list_t &out) const {
   _otlStreamSupport(Class cls) => '''
 inline otl_stream& operator<<(otl_stream &out, ${cls.className} const& value) {
   out ${cls.members.map((m) => '<< value.${m.vname}').join('\n    ')};
+  return out;
 }
 
 inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
   out ${cls.members.map((m) => '>> value.${m.vname}').join('\n    ')};
+  return out;
 }
 ''';
 
@@ -209,14 +238,6 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
   setFilePathFromRoot(String root) =>
     header.setFilePathFromRoot(root);
 
-  void generate() => lib.generate();
-
-  Lib get lib =>
-    new Lib(tableId)
-    ..installation = installation
-    ..namespace = namespace
-    ..headers = [ header ];
-
   Header get header {
     if(_header == null) {
       _header = _makeHeader();
@@ -224,7 +245,10 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
     return _header;
   }
 
-  Namespace get namespace => new Namespace(['fcs','orm', tableName, 'table']);
+  Namespace get namespace => new Namespace(
+    []
+    ..addAll(schemaCodeGenerator.namespace.names)
+    ..addAll(['table']));
 
   get _testCreateRows => '''
 // testing creation
@@ -245,13 +269,13 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
 
   Header _makeHeader() {
     final keyClass = '${tableName}_pkey';
-    final keyClassType = idFromString(keyClass).capCamel;
+    final keyClassType = idFromString(keyClass).capSnake;
     final valueClass = '${tableName}_value';
-    final valueClassType = idFromString(valueClass).capCamel;
+    final valueClassType = idFromString(valueClass).capSnake;
     final pkeyColumns = table.pkeyColumns;
     final valueColumns = table.valueColumns;
-    final ns = namespace;
     final result = new Header(tableId)
+    ..namespace = namespace
     ..test.addTestImplementations({
       'create_rows' : _testCreateRows,
       'insert_rows' : _testInsertRows,
@@ -262,11 +286,9 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
       'sstream',
       'vector',
       'boost/any.hpp',
-      'fcs/orm/otl_config.hpp',
       'fcs/orm/otl_utils.hpp',
       'fcs/orm/orm_to_string_table.hpp',
     ]
-    ..namespace = ns
     ..classes = [
       _makeClass(keyClass, pkeyColumns),
       _makeClass(valueClass, valueColumns),
@@ -282,8 +304,11 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
         'Value_t = $valueClassType',
         'Pkey_list_t = PKEY_LIST_TYPE',
         'Value_list_t = VALUE_LIST_TYPE',
-        'Row_t = std::pair< PKey_t, Value_t >',
+        'Row_t = std::pair< Pkey_t, Value_t >',
         'Row_list_t = std::vector< Row_t >',
+      ]
+      ..members = [
+        member('connection')..type = 'otl_connect *'..access = ia
       ]
       ..getCodeBlock(clsPublic).snippets.add(_gateway_support),
     ];
@@ -303,11 +328,11 @@ ${cols.map((col) => '${_bindingVariableText(col)}').join(',\n')}
 
   get _gateway_support => '''
 static void print_recordset_as_table(Row_list_t const& recordset, std::ostream &out) {
-  fcs::orm::print_recordset_as_table< Code_locations >(recordset, out);
+  fcs::orm::print_recordset_as_table< ${tableId.capSnake} >(recordset, out);
 }
 
 static void print_values_as_table(Value_list_t const& values, std::ostream &out) {
-  fcs::orm::print_values_as_table< Code_locations >(values, out);
+  fcs::orm::print_values_as_table< ${tableId.capSnake} >(values, out);
 }
 
 int select_last_insert_id() {
@@ -400,7 +425,7 @@ ${indentBlock(table.nonAutoColumnsJoined, '      ')}
 ${indentBlock(chomp(_bindingValueClause(table.nonAutoColumns)), '      ')}
     )
   )";
-
+  otl_stream stream { 50, insert_stmt, *connection_ };
   for(auto const& row : nascent) {
 ${
 table.hasAutoIncrement?

@@ -126,13 +126,14 @@ queries. Makes use of the otl c++ library.
 '''
           ..members = [
             member('schema')..type = 'Schema',
+            member('id')..type = 'Id'..access = RO,
             member('queries')..type = 'List<Query>'..classInit = [],
             member('table_filter')..type = 'TableFilter'..classInit = '(Table t) => true',
           ],
           class_('table_gateway_generator')
           ..members = [
             member('installation')..type = 'Installation',
-            member('schema')..type = 'Schema',
+            member('schema_code_generator')..type = 'SchemaCodeGenerator',
             member('table')..type = 'Table',
             member('table_id')..type = 'Id',
             member('table_name'),
