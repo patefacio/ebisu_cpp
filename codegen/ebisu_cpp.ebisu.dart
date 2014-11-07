@@ -141,6 +141,7 @@ queries. Makes use of the otl c++ library.
         ],
       ],
       library('cpp')
+      ..includeLogger = true
       ..imports = [
         'package:id/id.dart',
         'package:ebisu/ebisu.dart',
@@ -563,7 +564,17 @@ If true marks this header as special to the set of headers in its library in tha
             member('tests')..type = 'List<Test>'..classInit = [],
             member('generated_libs')..type = 'List<Lib>'..classInit = []..access = RO,
             member('generated_apps')..type = 'List<App>'..classInit = []..access = RO,
-          ]
+          ],
+          class_('path_locator')
+          ..members = [
+            member('env_var')
+            ..doc = 'Environment variable specifying location of path, if set this path is used'
+            ..isFinal = true,
+            member('default_path')
+            ..doc = 'Default path for the item in question'
+            ..isFinal = true,
+            member('path')..access = RO,
+          ],
         ],
       ]
     ];

@@ -6,6 +6,7 @@ description: >
 dependencies:
   ebisu: ">=0.0.11"
   path: ">=1.2.2 < 1.10.0"
+  logging: ">=0.9.2 <0.10.0"
 
 # custom <ebisu_cpp dependencies>
 

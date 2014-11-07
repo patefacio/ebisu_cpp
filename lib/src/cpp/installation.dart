@@ -66,7 +66,20 @@ Installation($root)
     };
   }
 
-  get cppPath => _paths['cpp'];
+  String path(String key) {
+    var result = getPath(key);
+
+    if(result == null) {
+      result = _paths[key];
+    }
+
+    if(result == null) {
+      _logger.warning('Do not recognize path $key');
+    }
+    return result;
+  }
+
+  get cppPath => path('cpp');
 
   // end <class Installation>
   String _root;
@@ -74,9 +87,61 @@ Installation($root)
   List<Lib> _generatedLibs = [];
   List<App> _generatedApps = [];
 }
+
+class PathLocator {
+
+  /// Environment variable specifying location of path, if set this path is used
+  final String envVar;
+  /// Default path for the item in question
+  final String defaultPath;
+  String get path => _path;
+
+  // custom <class PathLocator>
+
+  PathLocator(this.envVar, this.defaultPath) {
+    if(envVar == null && defaultPath == null)
+      throw 'Valid PathLocator requires envVar and/or defaultPath';
+
+    if(envVar != null) {
+      _path = Platform.environment[envVar];
+    }
+
+    if(_path == null) {
+      _path = defaultPath;
+    }
+
+    var fileType = FileSystemEntity.typeSync(path);
+    if(fileType == FileSystemEntityType.NOT_FOUND) {
+      _logger.warning('Required path ($envVar, $defaultPath, $path) not found');
+    }
+  }
+
+  // end <class PathLocator>
+  String _path;
+}
 // custom <part installation>
 
 App app(Object id) => new App(id is Id? id : new Id(id));
 Script script(Object id) => new Script(id is Id? id : new Id(id));
+
+get _home => Platform.environment["HOME"];
+
+var _locatorPaths = {
+  'boost_build' : new PathLocator('BOOST_BUILD_PATH',
+      path.join(_home, 'install', 'boost-build')).path,
+  'boost_install' : new PathLocator('BOOST_INSTALL_PATH', null).path,
+  'cpp_install' : new PathLocator('CPP_INSTALL_PATH',
+      path.join(_home, 'install', 'cpp')).path,
+};
+
+var _functorPaths = {
+  'cpp_include' : path.join(_locatorPaths['cpp_install'], 'include'),
+};
+
+String getPath(String key) {
+  var result = _locatorPaths.containsKey(key)? _locatorPaths[key] :
+    _functorPaths.containsKey(key)? _functorPaths[key] : null;
+  return result;
+}
 
 // end <part installation>

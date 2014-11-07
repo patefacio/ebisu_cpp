@@ -133,7 +133,8 @@ class SiteConfig implements CodeGenerator {
   // custom <class SiteConfig>
 
   void generate() {
-    final boostPath = Platform.environment['BOOST_INSTALL_PATH'];
+    final boostPath = installation.path('boost_install');
+    final cppIncludePath = installation.path('cpp_include');
 
     if(boostPath == null)
       throw 'To generate site-config.jam you must set BOOST_INSTALL_PATH';
@@ -148,6 +149,7 @@ project site-config ;
 
 path-constant BOOST_INCLUDE_PATH : $boostPath/include ;
 path-constant BOOST_LIB_PATH : $boostPath/lib ;
+path-constant CPP_INCLUDE_PATH : $cppIncludePath ;
 
 ${
 combine(_boostLibsUnique.map((String l) =>
@@ -225,6 +227,7 @@ project ${id}_projects
           <toolset>darwin:<cxxflags>-std=c++11
           <linkflags>-lpthread
           <include>\$(BOOST_INCLUDE_PATH)
+          <include>\$(CPP_INCLUDE_PATH)
           <tag>@\$(__name__).tag
           <include>.
           <toolset>intel:<cxxflags>-std=c++0x

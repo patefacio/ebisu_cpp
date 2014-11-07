@@ -3,6 +3,7 @@ library ebisu_cpp.cpp;
 import 'dart:io';
 import 'package:ebisu/ebisu.dart';
 import 'package:id/id.dart';
+import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:quiver/iterables.dart';
 // custom <additional imports>
@@ -19,6 +20,8 @@ part 'src/cpp/jam_support.dart';
 part 'src/cpp/script.dart';
 part 'src/cpp/test.dart';
 part 'src/cpp/installation.dart';
+
+final _logger = new Logger('cpp');
 
 /// Access for member variable - ia - inaccessible, ro - read/only, rw read/write
 class Access implements Comparable<Access> {
