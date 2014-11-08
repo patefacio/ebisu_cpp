@@ -238,7 +238,8 @@ project ${id}_projects
           <toolset>intel:<linkflags>-i-static
           <library>/site-config//boost_thread
           <library>/site-config//boost_system
-        :
+          <library>/usr/local/lib/libodbc.2.dylib
+       :
         : build-dir ../../build-dir
         ;
 

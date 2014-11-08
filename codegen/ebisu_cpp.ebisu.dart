@@ -127,6 +127,8 @@ queries. Makes use of the otl c++ library.
           ..members = [
             member('schema')..type = 'Schema',
             member('id')..type = 'Id'..access = RO,
+            member('connection_class_id')..type = 'Id'..access = RO,
+            member('connection_class_name')..access = RO,
             member('queries')..type = 'List<Query>'..classInit = [],
             member('table_filter')..type = 'TableFilter'..classInit = '(Table t) => true',
           ],

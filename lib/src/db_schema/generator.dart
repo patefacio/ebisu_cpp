@@ -128,6 +128,8 @@ class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
 
   Schema schema;
   Id get id => _id;
+  Id get connectionClassId => _connectionClassId;
+  String get connectionClassName => _connectionClassName;
   List<Query> queries = [];
   TableFilter tableFilter = (Table t) => true;
 
@@ -135,37 +137,60 @@ class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
 
   SchemaCodeGenerator(this.schema) {
     _id = idFromString(schema.name);
+    _connectionClassId = new Id('connection_${id.snake}');
+    _connectionClassName = _connectionClassId.capSnake;
   }
 
   get tables => schema.tables.where((t) => tableFilter(t));
 
   get namespace => new Namespace(['fcs','orm', id.snake ]);
 
+  get _connectionSingletonPrivate => '''
+$connectionClassName() {
+  otl_connect *connection = new otl_connect;
+  connection->rlogon("DSN=${id.snake}", 0);
+  tss_connection_.reset(connection);
+}
+
+''';
+
+  get _connectionSingletonPublic => '''
+otl_connect * connection() {
+  return tss_connection_.get();
+}
+''';
+
   void generate() {
 
     final ns = namespace;
     final connectionClass = 'connection_${id.snake}';
 
+    final apiHeader = new Header(id)
+      ..includes = [
+        'fcs/orm/orm.hpp',
+      ]
+      ..isApiHeader = true
+      ..namespace = ns
+      ..classes = [
+        class_(connectionClassId)
+        ..getCodeBlock(clsPrivate).snippets = [_connectionSingletonPrivate]
+        ..getCodeBlock(clsPublic).snippets = [_connectionSingletonPublic]
+        ..isSingleton = true
+        ..members = [
+          member('tss_connection')..type = 'boost::thread_specific_ptr< otl_connect >',
+        ],
+      ]
+      ..setFilePathFromRoot(installation.cppPath);
+
     final lib = new Lib(id)
       ..installation = installation
       ..namespace = ns
-      ..headers = [
-        new Header(id)
-        ..includes = [
-          'boost/thread/tss.hpp',
-        ]
-        ..isApiHeader = true
-        ..namespace = ns
-        ..classes = [
-          class_(connectionClass)
-          ..isSingleton = true,
-        ]
-        ..setFilePathFromRoot(installation.cppPath)
-      ];
+      ..headers = [ apiHeader ];
 
     tables.forEach((Table t) {
-      lib.headers.add(
-        new TableGatewayGenerator(installation, this, t).header);
+      final header = new TableGatewayGenerator(installation, this, t).header;
+      header.includes.add(apiHeader.includeFilePath);
+      lib.headers.add(header);
     });
 
     lib.generate();
@@ -173,6 +198,8 @@ class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
 
   // end <class SchemaCodeGenerator>
   Id _id;
+  Id _connectionClassId;
+  String _connectionClassName;
 }
 
 class TableGatewayGenerator {
@@ -190,6 +217,8 @@ class TableGatewayGenerator {
     tableName = tableId.snake;
   }
 
+  get className => tableId.capSnake;
+
   _makeMember(c) =>
     member(c.name)
     ..cppAccess = public
@@ -199,7 +228,7 @@ class TableGatewayGenerator {
   _stringListSupport(Iterable<Member> members) => '''
 static inline
 void member_names_list(String_list_t &out) {
-  ${members.map((m) => 'out.push_back("${m.vname}");').join('\n  ')}
+  ${members.map((m) => 'out.push_back("${m.name}");').join('\n  ')}
 }
 
 inline
@@ -250,6 +279,13 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
     ..addAll(schemaCodeGenerator.namespace.names)
     ..addAll(['table']));
 
+  get _testQueryRows => '''
+// test queries
+auto gw = $className<>::instance();
+auto rows = gw.select_all_rows();
+$className<>::print_recordset_as_table(rows, std::cout);
+''';
+
   get _testCreateRows => '''
 // testing creation
 ''';
@@ -277,6 +313,7 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
     final result = new Header(tableId)
     ..namespace = namespace
     ..test.addTestImplementations({
+      'query_rows' : _testQueryRows,
       'create_rows' : _testCreateRows,
       'insert_rows' : _testInsertRows,
       'update_rows' : _testUpdateRows,
@@ -308,7 +345,9 @@ inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
         'Row_list_t = std::vector< Row_t >',
       ]
       ..members = [
-        member('connection')..type = 'otl_connect *'..access = ia
+        member('connection')..type = 'otl_connect *'
+        ..access = ia
+        ..initText = 'Connection_code_metrics::instance().connection()',
       ]
       ..getCodeBlock(clsPublic).snippets.add(_gateway_support),
     ];
@@ -328,11 +367,11 @@ ${cols.map((col) => '${_bindingVariableText(col)}').join(',\n')}
 
   get _gateway_support => '''
 static void print_recordset_as_table(Row_list_t const& recordset, std::ostream &out) {
-  fcs::orm::print_recordset_as_table< ${tableId.capSnake} >(recordset, out);
+  fcs::orm::print_recordset_as_table< $className >(recordset, out);
 }
 
 static void print_values_as_table(Value_list_t const& values, std::ostream &out) {
-  fcs::orm::print_values_as_table< ${tableId.capSnake} >(values, out);
+  fcs::orm::print_values_as_table< $className >(values, out);
 }
 
 int select_last_insert_id() {
@@ -364,7 +403,8 @@ int select_table_row_count() {
   return result;
 }
 
-void select_all_rows(Row_list_t &found, std::string const& where_clause = "") {
+Row_list_t select_all_rows(std::string const& where_clause = "") {
+  Row_list_t found;
   char const* select_stmt = R"(
 ${indentBlock(chomp(table.selectAll), '    ')}
   )";
@@ -380,6 +420,7 @@ ${indentBlock(chomp(table.selectAll), '    ')}
     stream >> row.first >> row.second;
     found.push_back(row);
   }
+  return found;
 }
 
 bool find_row_by_key(Pkey_t const& desideratum, Value_t & found) {
