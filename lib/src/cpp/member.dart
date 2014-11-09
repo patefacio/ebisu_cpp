@@ -74,11 +74,12 @@ class Member extends Entity {
   set isStatic(bool v) => static = v;
   bool get isStatic => static;
   bool get isStaticConst => isConst && isStatic;
-  bool get isPublicStaticConst => isConst && isStatic && cppAccess == public;
+  bool get isPublic => cppAccess == public;
+  bool get isPublicStaticConst => isConst && isStatic && isPublic;
   set isStaticConst(bool v) => isConst = isStatic = v;
 
   String get name => isStaticConst? id.shout : id.snake;
-  String get vname => isStaticConst? name : '${name}_';
+  String get vname => (isStaticConst || isPublic)? name : '${name}_';
   String get getter =>
     access == ro || access == rw ? '''
 //! getter for ${vname} (access is $access)

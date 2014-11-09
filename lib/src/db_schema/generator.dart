@@ -243,9 +243,9 @@ inline otl_stream& operator<<(otl_stream &out, ${cls.className} const& value) {
   return out;
 }
 
-inline otl_stream& operator>>(otl_stream &out, ${cls.className} & value) {
-  out ${cls.members.map((m) => '>> value.${m.vname}').join('\n    ')};
-  return out;
+inline otl_stream& operator>>(otl_stream &src, ${cls.className} & value) {
+  src ${cls.members.map((m) => '>> value.${m.vname}').join('\n    ')};
+  return src;
 }
 ''';
 
@@ -286,22 +286,13 @@ auto rows = gw.select_all_rows();
 $className<>::print_recordset_as_table(rows, std::cout);
 ''';
 
-  get _testCreateRows => '''
-// testing creation
-''';
-
-  get _testInsertRows => '''
-// testing insertion
+  get _testInsertDeleteRows => '''
+// testing insertion and deletion
 ''';
 
   get _testUpdateRows => '''
 // testing update
 ''';
-
-  get _testDeleteRows => '''
-// testing delete
-''';
-
 
   Header _makeHeader() {
     final keyClass = '${tableName}_pkey';
@@ -313,11 +304,10 @@ $className<>::print_recordset_as_table(rows, std::cout);
     final result = new Header(tableId)
     ..namespace = namespace
     ..test.addTestImplementations({
+      'insert_delete_rows' : _testInsertDeleteRows,
       'query_rows' : _testQueryRows,
-      'create_rows' : _testCreateRows,
-      'insert_rows' : _testInsertRows,
       'update_rows' : _testUpdateRows,
-      'delete_rows' : _testDeleteRows})
+    })
     ..includes = [
       'cstdint',
       'sstream',
