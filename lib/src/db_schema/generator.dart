@@ -209,12 +209,20 @@ class TableGatewayGenerator {
   Table table;
   Id tableId;
   String tableName;
+  Id keyClassId;
+  Class keyClass;
+  Id valueClassId;
+  Class valueClass;
 
   // custom <class TableGatewayGenerator>
 
   TableGatewayGenerator(this.installation, this.schemaCodeGenerator, this.table) {
     tableId = idFromString(table.name);
     tableName = tableId.snake;
+    keyClassId = idFromString('${tableId.snake}_pkey');
+    keyClass = _makeClass(keyClassId.snake, table.pkeyColumns);
+    valueClassId = idFromString('${tableId.snake}_value');
+    valueClass = _makeClass(valueClassId.snake, table.valueColumns);
   }
 
   get className => tableId.capSnake;
@@ -274,6 +282,39 @@ inline otl_stream& operator>>(otl_stream &src, ${cls.className} & value) {
     return _header;
   }
 
+  _classRandomRow(Class cls) => '''
+  template< >
+  inline Random_source & operator>>
+    (Random_source &source,
+     ${cls.className} &obj) {
+    source ${cls.members.map((m) => '>> obj.${m.vname}').join('\n      ')};
+    return source;
+  }
+''';
+
+  get _randomRow => '''
+namespace fcs {
+namespace utils {
+namespace streamers {
+  // random row generation
+  using namespace $namespace;
+
+${_classRandomRow(keyClass)}
+${_classRandomRow(valueClass)}
+
+  template< >
+  inline Random_source & operator>>
+    (Random_source &source,
+     $className<>::Row_t &row) {
+    source >> row.first >> row.second;
+    return source;
+  }
+
+}
+}
+}
+''';
+
   Namespace get namespace => new Namespace(
     []
     ..addAll(schemaCodeGenerator.namespace.names)
@@ -295,52 +336,57 @@ $className<>::print_recordset_as_table(rows, std::cout);
 ''';
 
   Header _makeHeader() {
-    final keyClass = '${tableName}_pkey';
-    final keyClassType = idFromString(keyClass).capSnake;
-    final valueClass = '${tableName}_value';
-    final valueClassType = idFromString(valueClass).capSnake;
+    final keyClassType = keyClass.className;
+    final valueClassType = valueClass.className;
     final pkeyColumns = table.pkeyColumns;
     final valueColumns = table.valueColumns;
     final result = new Header(tableId)
-    ..namespace = namespace
-    ..test.addTestImplementations({
-      'insert_delete_rows' : _testInsertDeleteRows,
-      'query_rows' : _testQueryRows,
-      'update_rows' : _testUpdateRows,
-    })
-    ..includes = [
-      'cstdint',
-      'sstream',
-      'vector',
-      'boost/any.hpp',
-      'fcs/orm/otl_utils.hpp',
-      'fcs/orm/orm_to_string_table.hpp',
-    ]
-    ..classes = [
-      _makeClass(keyClass, pkeyColumns),
-      _makeClass(valueClass, valueColumns),
-      class_('${tableName}')
-      ..includeTest = true
-      ..isSingleton = true
-      ..template = [
-        'typename PKEY_LIST_TYPE = std::vector< $keyClassType >',
-        'typename VALUE_LIST_TYPE = std::vector< $valueClassType >',
+      ..namespace = namespace
+      ..includes = [
+        'cstdint',
+        'sstream',
+        'vector',
+        'boost/any.hpp',
+        'fcs/orm/otl_utils.hpp',
+        'fcs/orm/orm_to_string_table.hpp',
       ]
-      ..usings = [
-        'Pkey_t = $keyClassType',
-        'Value_t = $valueClassType',
-        'Pkey_list_t = PKEY_LIST_TYPE',
-        'Value_list_t = VALUE_LIST_TYPE',
-        'Row_t = std::pair< Pkey_t, Value_t >',
-        'Row_list_t = std::vector< Row_t >',
-      ]
-      ..members = [
-        member('connection')..type = 'otl_connect *'
-        ..access = ia
-        ..initText = 'Connection_code_metrics::instance().connection()',
-      ]
-      ..getCodeBlock(clsPublic).snippets.add(_gateway_support),
-    ];
+      ..classes = [
+        keyClass,
+        valueClass,
+        class_('${tableName}')
+        ..includeTest = true
+        ..isSingleton = true
+        ..template = [
+          'typename PKEY_LIST_TYPE = std::vector< $keyClassType >',
+          'typename VALUE_LIST_TYPE = std::vector< $valueClassType >',
+        ]
+        ..usings = [
+          'Pkey_t = $keyClassType',
+          'Value_t = $valueClassType',
+          'Pkey_list_t = PKEY_LIST_TYPE',
+          'Value_list_t = VALUE_LIST_TYPE',
+          'Row_t = std::pair< Pkey_t, Value_t >',
+          'Row_list_t = std::vector< Row_t >',
+        ]
+        ..members = [
+          member('connection')..type = 'otl_connect *'
+          ..access = ia
+          ..initText = 'Connection_code_metrics::instance().connection()',
+        ]
+        ..getCodeBlock(clsPublic).snippets.add(_gateway_support),
+      ];
+
+    final test = result.test;
+    test
+      ..getCodeBlock(fcbPreNamespace).tag = 'random record generation'
+      ..includes.add('fcs/utils/streamers/random.hpp')
+      ..addTestImplementations({
+        'insert_delete_rows' : _testInsertDeleteRows,
+        'query_rows' : _testQueryRows,
+        'update_rows' : _testUpdateRows,
+      })
+      ..getCodeBlock(fcbPreNamespace).snippets.add(_randomRow);
+
     return result;
   }
 

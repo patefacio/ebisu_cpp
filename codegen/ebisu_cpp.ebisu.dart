@@ -139,6 +139,10 @@ queries. Makes use of the otl c++ library.
             member('table')..type = 'Table',
             member('table_id')..type = 'Id',
             member('table_name'),
+            member('key_class_id')..type = 'Id',
+            member('key_class')..type = 'Class',
+            member('value_class_id')..type = 'Id',
+            member('value_class')..type = 'Class',
             member('header')..type = 'Header'..access = IA,
           ]
         ],
