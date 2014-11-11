@@ -293,11 +293,15 @@ inline otl_stream& operator>>(otl_stream &src, ${cls.className} & value) {
 ''';
 
   get _randomRow => '''
+
+using namespace $namespace;
+using namespace fcs::utils::streamers;
+using fcs::utils::streamers::operator<<;
+
 namespace fcs {
 namespace utils {
 namespace streamers {
   // random row generation
-  using namespace $namespace;
 
 ${_classRandomRow(keyClass)}
 ${_classRandomRow(valueClass)}
@@ -324,11 +328,57 @@ ${_classRandomRow(valueClass)}
 // test queries
 auto gw = $className<>::instance();
 auto rows = gw.select_all_rows();
-$className<>::print_recordset_as_table(rows, std::cout);
 ''';
 
-  get _testInsertDeleteRows => '''
+  get _testInsertUpdateDeleteRows => '''
 // testing insertion and deletion
+auto gw = $className<>::instance();
+// first clear out any existing rows and ensure empty
+gw.delete_all_rows();
+auto all_rows = gw.select_all_rows();
+BOOST_REQUIRE(all_rows.empty());
+
+// create some records with random data
+int const num_rows = 20;
+Random_source random_source;
+$className<>::Row_t row;
+for(int i=0; i<num_rows; ++i) {
+  random_source >> row;
+  all_rows.push_back(row);
+}
+
+// insert those records, select back and validate
+gw.insert(all_rows);
+{
+  auto again = gw.select_all_rows();
+  BOOST_REQUIRE(again.size() == num_rows);
+  for(size_t i=0; i<num_rows; i++) {
+    BOOST_REQUIRE(again[i].second == all_rows[i].second);
+${table.hasAutoIncrement? '' :'    BOOST_REQUIRE(again[i].first == all_rows[i].first)'}
+  }
+${table.hasAutoIncrement? '  std::swap(again, all_rows);' : ''}
+}
+
+// now update all values in memory with new random data
+auto updated_rows = all_rows;
+BOOST_REQUIRE(updated_rows == all_rows);
+for(auto & row : updated_rows) {
+  size_t index = std::distance(&updated_rows.front(), &row);
+  random_source >> row.second;
+  BOOST_REQUIRE(row.second != all_rows[index].second);
+}
+$className<>::print_recordset_as_table(updated_rows, std::cout);
+// push updates to database via update
+gw.update(updated_rows);
+{
+  for(size_t i=0; i<num_rows; i++) {
+    $className<>::Value_t value;
+    bool found = gw.find_row_by_key(updated_rows[i].first, value);
+    BOOST_REQUIRE(found);
+    BOOST_REQUIRE(value == updated_rows[i].second);
+  }
+}
+
 ''';
 
   get _testUpdateRows => '''
@@ -340,10 +390,13 @@ $className<>::print_recordset_as_table(rows, std::cout);
     final valueClassType = valueClass.className;
     final pkeyColumns = table.pkeyColumns;
     final valueColumns = table.valueColumns;
+    final hasForeignKey  = table.hasForeignKey;
+
     final result = new Header(tableId)
       ..namespace = namespace
       ..includes = [
         'cstdint',
+        'utility',
         'sstream',
         'vector',
         'boost/any.hpp',
@@ -354,7 +407,7 @@ $className<>::print_recordset_as_table(rows, std::cout);
         keyClass,
         valueClass,
         class_('${tableName}')
-        ..includeTest = true
+        ..includeTest = !hasForeignKey
         ..isSingleton = true
         ..template = [
           'typename PKEY_LIST_TYPE = std::vector< $keyClassType >',
@@ -376,16 +429,17 @@ $className<>::print_recordset_as_table(rows, std::cout);
         ..getCodeBlock(clsPublic).snippets.add(_gateway_support),
       ];
 
-    final test = result.test;
-    test
-      ..getCodeBlock(fcbPreNamespace).tag = 'random record generation'
-      ..includes.add('fcs/utils/streamers/random.hpp')
-      ..addTestImplementations({
-        'insert_delete_rows' : _testInsertDeleteRows,
-        'query_rows' : _testQueryRows,
-        'update_rows' : _testUpdateRows,
-      })
-      ..getCodeBlock(fcbPreNamespace).snippets.add(_randomRow);
+    if(!hasForeignKey) {
+      final test = result.test;
+      test
+        ..includes.add('fcs/utils/streamers/random.hpp')
+        ..addTestImplementations({
+          'insert_update_delete_rows' : _testInsertUpdateDeleteRows,
+          'query_rows' : _testQueryRows,
+          'update_rows' : _testUpdateRows,
+        })
+        ..getCodeBlock(fcbPreNamespace).snippets.add(_randomRow);
+    }
 
     return result;
   }
@@ -395,6 +449,10 @@ $className<>::print_recordset_as_table(rows, std::cout);
 
   String _bindingWhereClause(Iterable<Column> cols) => '''
 ${cols.map((col) => '${col.name}=${_bindingVariableText(col)}').join(' AND\n')}
+''';
+
+  String _bindingUpdateClause(Iterable<Column> cols) => '''
+${cols.map((col) => '${col.name}=${_bindingVariableText(col)}').join(',\n')}
 ''';
 
   String _bindingValueClause(Iterable<Column> cols) => '''
@@ -510,6 +568,26 @@ table.hasAutoIncrement?
 '    stream << row.first << row.second;'
 }
   }
+}
+
+void update(Row_list_t const& changing) {
+  if(changing.empty()) {
+    return;
+  }
+
+  char const* update_stmt = R"(
+    update $tableName
+    set
+${indentBlock(chomp(_bindingUpdateClause(table.valueColumns)), '      ')}
+    where
+${indentBlock(chomp(_bindingWhereClause(table.pkeyColumns)), '      ')}
+  )";
+
+  otl_stream stream(1, update_stmt, *connection_);
+  for(auto const& row : changing) {
+    stream << row.second << row.first;
+  }
+
 }
 
 void delete_row(Pkey_t const& moribund) {

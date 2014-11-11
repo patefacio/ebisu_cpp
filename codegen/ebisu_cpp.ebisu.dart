@@ -72,6 +72,7 @@ void main() {
             member('type')..type = 'DataType',
             member('is_null')..classInit = false,
             member('is_primary_key')..classInit = false,
+            member('is_foreign_key')..classInit = false,
             member('is_auto_increment')..classInit = false,
             member('default_value'),
             member('extra'),

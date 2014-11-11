@@ -78,6 +78,7 @@ Future<Schema> readMysqlSchema(String dsn) {
                       ..type = mapDataType(row[1].toString())
                       ..isNull = row[2] != 'NO'
                       ..isPrimaryKey = row[3] == 'PRI'
+                      ..isForeignKey = row[3] == 'MUL'
                       ..defaultValue = row[4]
                       ..extra = row[5]
                       ..isAutoIncrement = row[5] == 'auto_increment'

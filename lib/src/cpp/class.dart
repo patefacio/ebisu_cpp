@@ -240,11 +240,15 @@ class OpEqual extends ClassMethod {
 
   // custom <class OpEqual>
 
-  String get definition => '''bool operator==(${className} const& rhs) {
+  String get definition => '''bool operator==(${className} const& rhs) const {
   return this == &rhs ||
     (${
 members.map((m) => '${m.vname} == rhs.${m.vname}').join(' &&\n    ')
 });
+}
+
+bool operator!=($className const& rhs) const {
+  return !(*this == rhs);
 }''';
 
 
@@ -260,7 +264,7 @@ class OpLess extends ClassMethod {
     List pairs = [];
     pairs.addAll(members.map((m) => [ m.vname, 'rhs.${m.vname}' ]));
     return '''
-bool operator<($className const& rhs) {
+bool operator<($className const& rhs) const {
   return ${
 pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
 }

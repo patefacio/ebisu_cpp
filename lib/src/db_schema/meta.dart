@@ -35,6 +35,8 @@ class Table {
 
   get hasAutoIncrement => columns.any((c) => c.isAutoIncrement);
 
+  get hasForeignKey => columns.any((c) => c.isForeignKey);
+
   String toString() => '''
 Table($name)
     ${columns.map((c) => c.toString()).join(',\n    ')}
@@ -113,6 +115,7 @@ class Column {
   DataType type;
   bool isNull = false;
   bool isPrimaryKey = false;
+  bool isForeignKey = false;
   bool isAutoIncrement = false;
   String defaultValue;
   String extra;
