@@ -1,12 +1,10 @@
 part of ebisu_cpp.db_schema;
 
 class Schema {
-
   Schema(this.name, this.tables);
 
   String name;
   List<Table> tables = [];
-
   // custom <class Schema>
 
   String toString() => '''
@@ -18,17 +16,13 @@ Schema(todo)
 }
 
 class Query {
-
-
   // custom <class Query>
   // end <class Query>
 }
 
 class Table {
-
   String name;
   List<Column> columns = [];
-
   // custom <class Table>
 
   Table(this.name, this.columns);
@@ -77,7 +71,6 @@ from
 }
 
 class DataType {
-
   const DataType(this.dbType, this.cppType);
 
   bool operator==(DataType other) =>
@@ -89,7 +82,6 @@ class DataType {
 
   final String dbType;
   final String cppType;
-
   // custom <class DataType>
 
   toString() => 'Db($dbType) <=> C++($cppType)';
@@ -98,9 +90,7 @@ class DataType {
 }
 
 class FixedVarchar extends DataType {
-
   int size;
-
   // custom <class FixedVarchar>
 
   FixedVarchar(this.size, dbType, cppType) :
@@ -110,7 +100,6 @@ class FixedVarchar extends DataType {
 }
 
 class Column {
-
   String name;
   DataType type;
   bool isNull = false;
@@ -119,7 +108,6 @@ class Column {
   bool isAutoIncrement = false;
   String defaultValue;
   String extra;
-
   // custom <class Column>
 
   get cppType => type.cppType;

@@ -51,12 +51,10 @@ class ClassCodeBlock implements Comparable<ClassCodeBlock> {
 }
 
 abstract class ClassMethod {
-
   Class get parent => _parent;
   /// If true add logging
   bool log = false;
   Template get template => _template;
-
   // custom <class ClassMethod>
 
   String get definition;
@@ -70,12 +68,10 @@ abstract class ClassMethod {
 }
 
 abstract class DefaultMethod extends ClassMethod {
-
   /// Has custom code, so needs protect block
   bool hasCustom = false;
   bool useDefault = false;
   bool delete = false;
-
   // custom <class DefaultMethod>
 
   String get customDefinition;
@@ -91,8 +87,6 @@ abstract class DefaultMethod extends ClassMethod {
 
 /// Default ctor, autoinitialized on read
 class DefaultCtor extends DefaultMethod {
-
-
   // custom <class DefaultCtor>
 
   String get prototype =>
@@ -111,8 +105,6 @@ ${hasCustom? indentBlock(cb) : ''}}''';
 
 /// Copy ctor, autoinitialized on read
 class CopyCtor extends DefaultMethod {
-
-
   // custom <class CopyCtor>
 
   String get prototype =>
@@ -131,8 +123,6 @@ ${hasCustom? indentBlock(cb) : ''}}''';
 
 /// Move ctor, autoinitialized on read
 class MoveCtor extends DefaultMethod {
-
-
   // custom <class MoveCtor>
 
   String get prototype =>
@@ -144,8 +134,6 @@ class MoveCtor extends DefaultMethod {
 }
 
 class AssignCopy extends DefaultMethod {
-
-
   // custom <class AssignCopy>
 
   String get prototype => '${className}& operator=(${className} const&)';
@@ -156,8 +144,6 @@ class AssignCopy extends DefaultMethod {
 }
 
 class AssignMove extends DefaultMethod {
-
-
   // custom <class AssignMove>
 
 
@@ -169,8 +155,6 @@ class AssignMove extends DefaultMethod {
 }
 
 class Dtor extends DefaultMethod {
-
-
   // custom <class Dtor>
 
   String get definition =>
@@ -182,7 +166,6 @@ class Dtor extends DefaultMethod {
 }
 
 class MemberCtor extends ClassMethod {
-
   MemberCtor(this.memberArgs, [ this.optInit, this.decls ]);
 
   /// List of members that are passed as arguments for initialization
@@ -193,7 +176,6 @@ class MemberCtor extends ClassMethod {
   List<String> decls = [];
   /// Has custom code, so needs protect block
   bool hasCustom = false;
-
   // custom <class MemberCtor>
 
   String get _templateDecl => _template == null? '' : br(_template.decl);
@@ -236,8 +218,6 @@ memberCtor(List<String> memberArgs,
       decls);
 
 class OpEqual extends ClassMethod {
-
-
   // custom <class OpEqual>
 
   String get definition => '''bool operator==(${className} const& rhs) const {
@@ -256,8 +236,6 @@ bool operator!=($className const& rhs) const {
 }
 
 class OpLess extends ClassMethod {
-
-
   // custom <class OpLess>
 
   String get definition {
@@ -277,8 +255,6 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
 }
 
 class OpOut extends ClassMethod {
-
-
   // custom <class OpOut>
 
   String get definition => '''
@@ -300,7 +276,6 @@ combine(members.map((m) =>
 }
 
 class Class extends Entity {
-
   /// Is this definition a *struct*
   bool struct = false;
   Template get template => _template;
@@ -320,7 +295,6 @@ class Class extends Entity {
   bool usesStreamers = false;
   /// If true adds test function to tests of the header it belongs to
   bool includeTest = false;
-
   // custom <class Class>
 
   Class(Id id) : super(id);

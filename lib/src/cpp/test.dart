@@ -1,7 +1,6 @@
 part of ebisu_cpp.cpp;
 
 class Test extends Impl with InstallationCodeGenerator {
-
   String get filePath => _filePath;
   Header headerUnderTest;
   List<Header> headers = [];
@@ -9,7 +8,6 @@ class Test extends Impl with InstallationCodeGenerator {
   List<String> get testFunctions => _testFunctions;
   Map<String, String> get testImplementations => _testImplementations;
   List<String> requiredLibs = [];
-
   // custom <class Test>
 
   Test(Header header) : super(header.id),
@@ -80,14 +78,13 @@ ${chomp(indentBlock(testImplementations[t]))}
 }
 
 /// Creates builder for test folder
-abstract class TestBuilder implements CodeGenerator {
-
+abstract class TestBuilder
+  implements CodeGenerator {
   TestBuilder(this.lib, this.directory, this.tests);
 
   Lib lib;
   String directory;
   List<Test> tests;
-
   // custom <class TestBuilder>
 
   // end <class TestBuilder>

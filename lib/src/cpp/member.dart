@@ -1,7 +1,6 @@
 part of ebisu_cpp.cpp;
 
 class Member extends Entity {
-
   /// Type of member
   String type;
   /// Initialization of member (if type is null and Dart type is key in { int:int, double:double }, cpp type is set to value type)
@@ -22,7 +21,6 @@ class Member extends Entity {
   bool isConst = false;
   /// If set will not initialize variable - use sparingly
   bool noInit = false;
-
   // custom <class Member>
 
   Member(Id id) : super(id);

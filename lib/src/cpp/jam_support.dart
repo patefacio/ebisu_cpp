@@ -1,8 +1,6 @@
 part of ebisu_cpp.cpp;
 
 class JamAppBuilder extends AppBuilder {
-
-
   // custom <class JamAppBuilder>
 
   get app => super.app;
@@ -87,8 +85,6 @@ explicit install_app ;
 }
 
 class JamTestBuilder extends TestBuilder {
-
-
   // custom <class JamTestBuilder>
 
   get lib => super.lib;
@@ -124,12 +120,11 @@ ${chomp(br(tests.map((t) => _testRuleAddition(t))))}''', targetFile);
   // end <class JamTestBuilder>
 }
 
-class SiteConfig implements CodeGenerator {
-
+class SiteConfig
+  implements CodeGenerator {
   SiteConfig(this.installation);
 
   Installation installation;
-
   // custom <class SiteConfig>
 
   void generate() {
@@ -169,12 +164,11 @@ _boostMtStatics.contains(l) ?
   // end <class SiteConfig>
 }
 
-class UserConfig implements CodeGenerator {
-
+class UserConfig
+  implements CodeGenerator {
   UserConfig(this.installation);
 
   Installation installation;
-
   // custom <class UserConfig>
 
   void generate() {
@@ -186,12 +180,11 @@ class UserConfig implements CodeGenerator {
   // end <class UserConfig>
 }
 
-class JamFileTop implements CodeGenerator {
-
+class JamFileTop
+  implements CodeGenerator {
   JamFileTop(this.installation);
 
   Installation installation;
-
   // custom <class JamFileTop>
 
   get id => installation.id;
@@ -249,12 +242,11 @@ project ${id}_projects
   // end <class JamFileTop>
 }
 
-class JamRoot implements CodeGenerator {
-
+class JamRoot
+  implements CodeGenerator {
   JamRoot(this.installation);
 
   Installation installation;
-
   // custom <class JamRoot>
 
   void generate() {

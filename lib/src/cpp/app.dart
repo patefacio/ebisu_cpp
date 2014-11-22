@@ -47,13 +47,11 @@ class ArgType implements Comparable<ArgType> {
 }
 
 class AppArg extends Entity {
-
   ArgType type = ArgType.STRING;
   String shortName;
   bool isMultiple = false;
   bool isRequired = false;
   Object get defaultValue => _defaultValue;
-
   // custom <class AppArg>
 
   get name => id.snake;
@@ -94,12 +92,10 @@ class AppArg extends Entity {
 }
 
 class App extends Impl with InstallationCodeGenerator {
-
   List<AppArg> args = [];
   List<Header> headers = [];
   List<Impl> impls = [];
   List<String> requiredLibs = [];
-
   // custom <class App>
 
   App(Id id) : super(id);
@@ -261,12 +257,11 @@ if(options.help()) {
 }
 
 /// Creates builder for an application
-abstract class AppBuilder implements CodeGenerator {
-
+abstract class AppBuilder
+  implements CodeGenerator {
   AppBuilder(this.app);
 
   App app;
-
   // custom <class AppBuilder>
   // end <class AppBuilder>
 }

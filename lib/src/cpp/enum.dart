@@ -1,7 +1,6 @@
 part of ebisu_cpp.cpp;
 
 class Enum extends Entity {
-
   /// Strings for the values of the enum
   List<String> get values => _values;
   /// String value, numeric value pairs
@@ -18,7 +17,6 @@ class Enum extends Entity {
   bool isMask = false;
   /// If true is nested in class and requires *friend* stream support
   bool isNested = false;
-
   // custom <class Enum>
 
   Enum(Id id) : super(id);

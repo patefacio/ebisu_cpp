@@ -1,16 +1,15 @@
 part of ebisu_cpp.cpp;
 
 /// A CodeGenerator tied to a c++ installation
-abstract class InstallationCodeGenerator implements CodeGenerator {
-
+abstract class InstallationCodeGenerator
+  implements CodeGenerator {
   Installation installation;
-
   // custom <class InstallationCodeGenerator>
   // end <class InstallationCodeGenerator>
 }
 
-class Installation implements CodeGenerator {
-
+class Installation
+  implements CodeGenerator {
   Installation(this.id);
 
   Id id;
@@ -24,7 +23,6 @@ class Installation implements CodeGenerator {
   List<Test> tests = [];
   List<Lib> get generatedLibs => _generatedLibs;
   List<App> get generatedApps => _generatedApps;
-
   // custom <class Installation>
 
   get name => id.snake;
@@ -89,13 +87,11 @@ Installation($root)
 }
 
 class PathLocator {
-
   /// Environment variable specifying location of path, if set this path is used
   final String envVar;
   /// Default path for the item in question
   final String defaultPath;
   String get path => _path;
-
   // custom <class PathLocator>
 
   PathLocator(this.envVar, this.defaultPath) {

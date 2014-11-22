@@ -72,11 +72,9 @@ const BDT_VARCHAR_LONG = BindDataType.BDT_VARCHAR_LONG;
 const BDT_TIMESTAMP = BindDataType.BDT_TIMESTAMP;
 
 class OtlBindVariable {
-
   String name;
   BindDataType dataType;
   int size = 0;
-
   // custom <class OtlBindVariable>
 
   OtlBindVariable.fromDataType(this.name, DataType cppDataType) {
@@ -125,14 +123,12 @@ class OtlBindVariable {
 /// queries. Makes use of the otl c++ library.
 ///
 class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
-
   Schema schema;
   Id get id => _id;
   Id get connectionClassId => _connectionClassId;
   String get connectionClassName => _connectionClassName;
   List<Query> queries = [];
   TableFilter tableFilter = (Table t) => true;
-
   // custom <class SchemaCodeGenerator>
 
   SchemaCodeGenerator(this.schema) {
@@ -203,7 +199,6 @@ otl_connect * connection() {
 }
 
 class TableGatewayGenerator {
-
   Installation installation;
   SchemaCodeGenerator schemaCodeGenerator;
   Table table;
@@ -213,7 +208,6 @@ class TableGatewayGenerator {
   Class keyClass;
   Id valueClassId;
   Class valueClass;
-
   // custom <class TableGatewayGenerator>
 
   TableGatewayGenerator(this.installation, this.schemaCodeGenerator, this.table) {

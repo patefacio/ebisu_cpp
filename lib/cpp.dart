@@ -212,7 +212,6 @@ class PtrType implements Comparable<PtrType> {
 }
 
 class Entity {
-
   Entity(this.id);
 
   /// Id for the entity
@@ -221,7 +220,6 @@ class Entity {
   String brief;
   /// Description of entity
   String descr;
-
   // custom <class Entity>
 
   String get briefComment => brief != null? '//! $brief' : null;
@@ -232,9 +230,7 @@ class Entity {
 }
 
 class Template {
-
   List<String> decls;
-
   // custom <class Template>
 
   Template(Iterable<String> decls_) : decls = new List<String>.from(decls_);

@@ -1,8 +1,6 @@
 part of ebisu_cpp.cpp;
 
 abstract class CodeGenerator {
-
-
   // custom <class CodeGenerator>
 
   void generate();
@@ -11,9 +9,7 @@ abstract class CodeGenerator {
 }
 
 class Namespace {
-
   List<String> names = [];
-
   // custom <class Namespace>
 
   Namespace([Iterable<String> n]) :
@@ -45,9 +41,7 @@ ${_helper(it, txt)}
 
 /// Collection of header includes
 class Includes {
-
   Set<String> get included => _included;
-
   // custom <class Includes>
 
   Includes([ Iterable<String> from ]) :
@@ -87,14 +81,12 @@ class Includes {
 
 /// Wraps an optional protection block with optional code injection
 class CodeBlock {
-
   CodeBlock(this.tag);
 
   /// Tag for protect block. If present includes protect block
   String tag;
   List<String> snippets = [];
   bool hasSnippetsFirst = false;
-
   // custom <class CodeBlock>
 
   bool get hasTag => tag != null && tag.length > 0;
@@ -118,7 +110,6 @@ codeBlock([String tag]) =>
 
 /// Base class
 class Base {
-
   Base(this.className);
 
   String className;
@@ -130,7 +121,6 @@ class Base {
   bool virtual = false;
   /// If true and streamers are being provided, base is streamed first
   bool streamable = false;
-
   // custom <class Base>
 
   String get decl => '$access $_virtual$className';

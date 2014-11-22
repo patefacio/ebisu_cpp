@@ -51,10 +51,8 @@ class FileCodeBlock implements Comparable<FileCodeBlock> {
 }
 
 class Lib extends Entity with InstallationCodeGenerator {
-
   Namespace namespace = new Namespace();
   List<Header> headers = [];
-
   // custom <class Lib>
 
   Lib(Id id) : super(id);
@@ -125,7 +123,6 @@ class Lib extends Entity with InstallationCodeGenerator {
 }
 
 class Header extends CppFile {
-
   String get filePath => _filePath;
   bool includeTest = false;
   /// If true marks this header as special to the set of headers in its library in that:
@@ -133,7 +130,6 @@ class Header extends CppFile {
   /// (2) For windows systems it will be the place to provide the api decl support
   /// (3) Will have code that initializes the api
   bool isApiHeader = false;
-
   // custom <class Header>
 
   Header(Id id) : super(id);
@@ -179,9 +175,7 @@ $text
 }
 
 class Impl extends CppFile {
-
   String get filePath => _filePath;
-
   // custom <class Impl>
 
   Impl(Id id) : super(id);

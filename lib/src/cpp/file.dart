@@ -1,13 +1,11 @@
 part of ebisu_cpp.cpp;
 
 abstract class CppFile extends Entity {
-
   Namespace namespace;
   List<FileCodeBlock> customBlocks = [];
   List<Class> classes = [];
   Includes get includes => _includes;
   List<String> usings = [];
-
   // custom <class CppFile>
 
   CppFile(Id id) : super(id);

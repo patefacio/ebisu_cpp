@@ -79,7 +79,7 @@ Future<Schema> readMysqlSchema(String dsn) {
                       ..isNull = row[2] != 'NO'
                       ..isPrimaryKey = row[3] == 'PRI'
                       ..isForeignKey = row[3] == 'MUL'
-                      ..defaultValue = row[4]
+                      ..defaultValue = row[4].toString()
                       ..extra = row[5]
                       ..isAutoIncrement = row[5] == 'auto_increment'
                                  )]
