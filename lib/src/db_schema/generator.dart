@@ -77,14 +77,39 @@ class OtlBindVariable {
   int size = 0;
   // custom <class OtlBindVariable>
 
-  OtlBindVariable.fromDataType(this.name, DataType cppDataType) {
-    dataType = cppTypeMapping[cppDataType];
-    if(dataType == null) {
-      if(cppDataType is FixedVarchar) {
-        dataType = BDT_SIZED_CHAR;
-        size = cppDataType.size;
-      } else {
-        throw 'DataType $cppDataType which is a ${dataType.runtimeType} has no mapping';
+  OtlBindVariable.fromDataType(this.name, SqlType sqlType) {
+    switch(sqlType.runtimeType) {
+      case SqlString: {
+        final str = sqlType as SqlString;
+        if(str.length > 0) {
+          dataType = BDT_SIZED_CHAR;
+          size = str.length;
+        } else {
+          dataType = BDT_VARCHAR_LONG;
+        }
+        break;
+      }
+      case SqlInt: {
+        dataType = sqlType.length <= 4? BDT_INT : BDT_BIGINT;
+        break;
+      }
+      case SqlDecimal: {
+        throw 'Add support for SqlDecimal';
+        break;
+      }
+      case SqlBinary: {
+        throw 'Add support for SqlDecimal';
+        break;
+      }
+      case SqlFloat: {
+        dataType = BDT_DOUBLE;
+        break;
+      }
+      case SqlDate:
+      case SqlTime:
+      case SqlTimestamp: {
+        dataType = BDT_TIMESTAMP;
+        break;
       }
     }
   }
@@ -100,20 +125,6 @@ class OtlBindVariable {
     BDT_UNSIZED_CHAR : 'char[]',
     BDT_VARCHAR_LONG : 'varchar_long',
     BDT_TIMESTAMP : 'timestamp',
-  };
-
-  static Map<DataType, BindDataType> cppTypeMapping = {
-    Int : BDT_INT,
-    TinyInt : BDT_SHORT,
-    SmallInt : BDT_SHORT,
-    BigInt : BDT_BIGINT,
-    Time : BDT_TIMESTAMP,
-    Timestamp : BDT_TIMESTAMP,
-    DateTime : BDT_TIMESTAMP,
-    Date : BDT_TIMESTAMP,
-    Text : BDT_VARCHAR_LONG,
-    VarChar : BDT_VARCHAR_LONG,
-    Double : BDT_DOUBLE,
   };
 
   // end <class OtlBindVariable>
@@ -224,7 +235,7 @@ class TableGatewayGenerator {
   _makeMember(c) =>
     member(c.name)
     ..cppAccess = public
-    ..type = c.cppType
+    ..type = _cppType(c.type)
     ..noInit = true;
 
   _stringListSupport(Iterable<Member> members) => '''
@@ -494,7 +505,7 @@ int select_table_row_count() {
 Row_list_t select_all_rows(std::string const& where_clause = "") {
   Row_list_t found;
   char const* select_stmt = R"(
-${indentBlock(chomp(table.selectAll), '    ')}
+${indentBlock(chomp(_selectAll(table)), '    ')}
   )";
 
   otl_stream stream { 50,
@@ -513,7 +524,7 @@ ${indentBlock(chomp(table.selectAll), '    ')}
 
 bool find_row_by_key(Pkey_t const& desideratum, Value_t & found) {
   char const* select_stmt = R"(
-${indentBlock(chomp(table.selectValues), '    ')}
+${indentBlock(chomp(_selectValues(table)), '    ')}
     where
 ${indentBlock(chomp(_bindingWhereClause(table.pkeyColumns)), '      ')}
   )";
@@ -529,7 +540,7 @@ ${indentBlock(chomp(_bindingWhereClause(table.pkeyColumns)), '      ')}
 
 bool find_row_by_value(Row_t & desideratum) {
   char const* select_stmt = R"(
-${indentBlock(chomp(table.selectKey), '    ')}
+${indentBlock(chomp(_selectKey(table)), '    ')}
     where
 ${indentBlock(chomp(_bindingWhereClause(table.valueColumns)), '      ')}
   )";
@@ -548,10 +559,10 @@ void insert(Row_list_t const& nascent, int stream_buffer_size = 1) {
   }
   char const* insert_stmt = R"(
     insert into ${tableName} (
-${indentBlock(table.nonAutoColumnsJoined, '      ')}
+${indentBlock(_joined(_nonAutoColumns(table)), '      ')}
     )
     values (
-${indentBlock(chomp(_bindingValueClause(table.nonAutoColumns)), '      ')}
+${indentBlock(chomp(_bindingValueClause(_nonAutoColumns(table))), '      ')}
     )
   )";
   otl_stream stream { 50, insert_stmt, *connection_ };
@@ -610,5 +621,65 @@ typedef bool TableFilter(Table);
 
 TableFilter TableNameFilter(Iterable<String> tableNames) =>
   (Table t) => tableNames.contains(t.name);
+
+_nonAutoColumns(Table table) => table.columns.where((c) => !c.autoIncrement);
+_joined(Iterable<Column> cols) => cols.map((c) => c.name).join(',\n');
+
+_selectKey(Table table) {
+  final name = table.name;
+  final keyColumnsJoined = table.pkeyColumns.map((c) => c.name).join(',\n');
+  return '''
+select
+${indentBlock(keyColumnsJoined)}
+from
+  $name
+''';
+}
+
+_selectValues(Table table) {
+  final name = table.name;
+  final valueColumnsJoined = _joined(table.valueColumns);
+  return '''
+select
+${indentBlock(valueColumnsJoined)}
+from
+  $name
+''';
+}
+
+_selectAll(Table table) {
+  final name = table.name;
+  final allColumnsJoined = _joined(table.columns);
+  return '''
+select
+${indentBlock(allColumnsJoined)}
+from
+  $name
+''';
+}
+
+String _cppType(SqlType sqlType) {
+    switch(sqlType.runtimeType) {
+      case SqlString: {
+        final str = sqlType as SqlString;
+        if(str.length > 0) {
+          return 'fcs::utils::Fixed_size_char_array< ${str.length} >';
+        } else {
+          return 'std::string';
+        }
+      }
+      case SqlInt: return sqlType.length <= 4? 'int32_t' : 'int64_t';
+      case SqlDecimal: return 'decimal';
+      case SqlBinary: {
+        throw 'Add support for SqlDecimal';
+        break;
+      }
+      case SqlFloat: return 'double';
+      case SqlDate:
+      case SqlTime:
+      case SqlTimestamp: return 'otl_datetime';
+    }
+    throw 'SqlType $sqlType not supported';
+}
 
 // end <part generator>

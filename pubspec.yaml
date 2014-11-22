@@ -10,10 +10,15 @@ dependencies:
 
 # custom <ebisu_cpp dependencies>
 
+  magus:
+   git: git://github.com/patefacio/magus
   quiver: ">=0.18.2"
   ini: ">=1.0.0"
   github: ">=2.1.2"
   sqljocky: "any"
+  ebisu:
+   git: git://github.com/patefacio/ebisu
+
 
 # end <ebisu_cpp dependencies>
 

@@ -1,73 +1,8 @@
 part of ebisu_cpp.db_schema;
 
-class Schema {
-  Schema(this.name, this.tables);
-
-  String name;
-  List<Table> tables = [];
-  // custom <class Schema>
-
-  String toString() => '''
-Schema(todo)
-  ${tables.map((t) => t.toString()).join('\n  ')}
-''';
-
-  // end <class Schema>
-}
-
 class Query {
   // custom <class Query>
   // end <class Query>
-}
-
-class Table {
-  String name;
-  List<Column> columns = [];
-  // custom <class Table>
-
-  Table(this.name, this.columns);
-
-  get hasAutoIncrement => columns.any((c) => c.isAutoIncrement);
-
-  get hasForeignKey => columns.any((c) => c.isForeignKey);
-
-  String toString() => '''
-Table($name)
-    ${columns.map((c) => c.toString()).join(',\n    ')}
-''';
-
-  Iterable get pkeyColumns => columns.where((c) => c.isPrimaryKey);
-  Iterable get valueColumns => columns.where((c) => !c.isPrimaryKey);
-  Iterable get nonAutoColumns => columns.where((c) => !c.isAutoIncrement);
-
-  get allColumnsJoined => columns.map((c) => c.name).join(',\n');
-  get pkeyColumnsJoined => pkeyColumns.map((c) => c.name).join(',\n');
-  get valueColumnsJoined => valueColumns.map((c) => c.name).join(',\n');
-  get nonAutoColumnsJoined => hasAutoIncrement?
-    valueColumnsJoined : allColumnsJoined;
-
-  get selectAll => '''
-select
-${indentBlock(allColumnsJoined)}
-from
-  $name
-''';
-
-  get selectValues => '''
-select
-${indentBlock(valueColumnsJoined)}
-from
-  $name
-''';
-
-  get selectKey => '''
-select
-${indentBlock(pkeyColumnsJoined)}
-from
-  $name
-''';
-
-  // end <class Table>
 }
 
 class DataType {
@@ -97,25 +32,6 @@ class FixedVarchar extends DataType {
     super(dbType, cppType);
 
   // end <class FixedVarchar>
-}
-
-class Column {
-  String name;
-  DataType type;
-  bool isNull = false;
-  bool isPrimaryKey = false;
-  bool isForeignKey = false;
-  bool isAutoIncrement = false;
-  String defaultValue;
-  String extra;
-  // custom <class Column>
-
-  get cppType => type.cppType;
-
-  String toString() => '''
-$name ${type.dbType} ${isNull? 'NULL' : 'NOT NULL'} ${isPrimaryKey? "PRI":""} $extra''';
-
-  // end <class Column>
 }
 // custom <part meta>
 

@@ -37,23 +37,14 @@ void main() {
         'package:ini/ini.dart',
         'package:sqljocky/sqljocky.dart',
         'package:ebisu_cpp/cpp.dart',
+        'package:magus/schema.dart',
         'dart:async',
       ]
       ..doc = 'Reads schema and stores tables/column field types'
       ..parts = [
         part('meta')
         ..classes = [
-          class_('schema')
-          ..members = [
-            member('name')..ctors = [''],
-            member('tables')..type = 'List<Table>'..classInit = []..ctors = [''],
-          ],
           class_('query'),
-          class_('table')
-          ..members = [
-            member('name'),
-            member('columns')..type = 'List<Column>'..classInit = [],
-          ],
           class_('data_type')
           ..ctorConst = ['']
           ..opEquals = true
@@ -66,36 +57,6 @@ void main() {
           ..members = [
             member('size')..type = 'int'
           ],
-          class_('column')
-          ..members = [
-            member('name'),
-            member('type')..type = 'DataType',
-            member('is_null')..classInit = false,
-            member('is_primary_key')..classInit = false,
-            member('is_foreign_key')..classInit = false,
-            member('is_auto_increment')..classInit = false,
-            member('default_value'),
-            member('extra'),
-          ]
-        ],
-        part('mysql')
-        ..classes = [
-
-        ],
-        part('odbc_ini')
-        ..classes = [
-          class_('odbc_ini')
-          ..defaultMemberAccess = RO
-          ..members = [
-            member('entries')..type = 'Map<String, OdbcIniEntry>'..classInit = {}
-          ],
-          class_('odbc_ini_entry')
-          ..defaultMemberAccess = RO
-          ..members = [
-            member('user')..ctors = [''],
-            member('password')..ctors = [''],
-            member('database')..ctors = [''],
-          ]
         ],
         part('generator')
         ..enums = [
