@@ -194,6 +194,7 @@ ${indentBlock(combine(gateways.map((gw) => gw.print(gw.updatedRows))))}
 // push updates to database via update
 ${combine(gateways.map((gw) => gw.updateRows))}
 
+// verify the updates
 for(size_t i=0; i<num_rows; i++) {
 ${indentBlock(combine(gateways.map((gw) => gw.checkUpdate)))}
 }

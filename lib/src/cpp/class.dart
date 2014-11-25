@@ -259,7 +259,8 @@ class OpOut extends ClassMethod {
 
   String get definition => '''
 friend inline
-std::ostream& operator<<(std::ostream &out, $className const& item) {
+std::ostream& operator<<(std::ostream &out,
+                         $className const& item) {
   using fcs::utils::streamers::operator<<;
   fcs::utils::Block_indenter indenter;
   char const* indent(indenter.current_indentation_text());
@@ -440,7 +441,10 @@ ${txt}''' : null;
   String get className => id.capSnake;
 
   get outStreamer => combine([
-    'friend inline std::ostream& operator<<(std::ostream& out, $className const& item) {',
+    '''
+friend inline
+std::ostream& operator<<(std::ostream& out,
+                         $className const& item) {''',
     usesStreamers? '  using fcs::utils::streamers::operator<<;' : null,
     '''
   ${

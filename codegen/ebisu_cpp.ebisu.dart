@@ -124,6 +124,7 @@ queries. Makes use of the otl c++ library.
             member('class_name'),
             member('key_class_id')..type = 'Id',
             member('value_class_id')..type = 'Id',
+            member('fkey_children')..type = 'List<TableDetails>',
           ],
           class_('table_gateway_generator')
           ..members = [

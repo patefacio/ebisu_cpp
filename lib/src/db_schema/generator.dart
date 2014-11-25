@@ -211,7 +211,7 @@ otl_connect * connection() {
 
 class TableDetails {
   const TableDetails(this.schema, this.table, this.tableId, this.tableName,
-    this.className, this.keyClassId, this.valueClassId);
+    this.className, this.keyClassId, this.valueClassId, this.fkeyChildren);
 
   final Schema schema;
   final Table table;
@@ -220,22 +220,30 @@ class TableDetails {
   final String className;
   final Id keyClassId;
   final Id valueClassId;
+  final List<TableDetails> fkeyChildren;
   // custom <class TableDetails>
 
   factory TableDetails.fromTable(Schema schema, Table table) {
     final tableId = idFromString(table.name);
+    List<TableDetails> fkeyChildren = [];
+    schema.getDfsPath(table.name).forEach((FkeyPathEntry fpe) {
+      fkeyChildren.add(
+        new TableDetails.fromTable(schema, fpe.refTable));
+    });
     return new TableDetails(schema,
-      table, tableId, table.name, tableId.capSnake,
-      idFromString('${tableId.snake}_pkey'),
-      idFromString('${tableId.snake}_value'));
+        table, tableId, table.name, tableId.capSnake,
+        idFromString('${tableId.snake}_pkey'),
+        idFromString('${tableId.snake}_value'),
+        fkeyChildren);
   }
 
   get columnIds => table.columns.map((c) => idFromString(c.name));
   get keyClassName => keyClassId.capSnake;
   get valueClassName => valueClassId.capSnake;
-  get keyColumns => table.pkeyColumns;
+  get keyColumns => table.primaryKey;
   get valueColumns => table.valueColumns;
   get fkeyPath => schema.getDfsPath(table.name);
+  get rowType => '$className<>::Row_t';
 
   // end <class TableDetails>
 }
@@ -249,7 +257,7 @@ class TableGatewayGenerator {
 
   TableGatewayGenerator(this.installation, this.schemaCodeGenerator, Table table) {
     _tableDetails = new TableDetails.fromTable(schemaCodeGenerator.schema, table);
-    keyClass = _makeClass(keyClassId.snake, table.pkeyColumns);
+    keyClass = _makeClass(keyClassId.snake, table.primaryKey);
     valueClass = _makeClass(valueClassId.snake, table.valueColumns);
   }
 
@@ -257,8 +265,10 @@ class TableGatewayGenerator {
   get tableId => _tableDetails.tableId;
   get tableName => _tableDetails.tableName;
   get className => _tableDetails.className;
+  get rowType => _tableDetails.rowType;
   get keyClassId => _tableDetails.keyClassId;
   get valueClassId => _tableDetails.valueClassId;
+  get fkeyChildren => _tableDetails.fkeyChildren;
 
   _makeMember(c) =>
     member(c.name)
@@ -266,25 +276,40 @@ class TableGatewayGenerator {
     ..type = _cppType(c.type)
     ..noInit = true;
 
+  _linkToMethod(TableDetails td) => '''
+// Link to ${td.className}
+inline void
+link_rows($rowType & from_row,
+          ${td.rowType} const& to_row) {
+
+}
+''';
+
+  get _foreignLinks => combine(fkeyChildren.map((TableDetails td) => _linkToMethod(td)));
+
   _stringListSupport(Iterable<Member> members) => '''
 static inline
 void member_names_list(String_list_t &out) {
   ${members.map((m) => 'out.push_back("${m.name}");').join('\n  ')}
 }
 
-inline
-void to_string_list(String_list_t &out) const {
+inline void
+to_string_list(String_list_t &out) const {
   ${members.map((m) => 'out.push_back(boost::lexical_cast< std::string >(${m.vname}));').join('\n  ')}
 }
 ''';
 
   _otlStreamSupport(Class cls) => '''
-inline otl_stream& operator<<(otl_stream &out, ${cls.className} const& value) {
+inline otl_stream&
+operator<<(otl_stream &out,
+           ${cls.className} const& value) {
   out ${cls.members.map((m) => '<< value.${m.vname}').join('\n    ')};
   return out;
 }
 
-inline otl_stream& operator>>(otl_stream &src, ${cls.className} & value) {
+inline otl_stream&
+operator>>(otl_stream &src,
+           ${cls.className} & value) {
   src ${cls.members.map((m) => '>> value.${m.vname}').join('\n    ')};
   return src;
 }
@@ -323,7 +348,6 @@ inline otl_stream& operator>>(otl_stream &src, ${cls.className} & value) {
   Header _makeHeader() {
     final keyClassType = keyClass.className;
     final valueClassType = valueClass.className;
-    final pkeyColumns = table.pkeyColumns;
     final valueColumns = table.valueColumns;
     final hasForeignKey  = table.hasForeignKey;
 
@@ -361,7 +385,8 @@ inline otl_stream& operator>>(otl_stream &src, ${cls.className} & value) {
           ..access = ia
           ..initText = 'Connection_code_metrics::instance().connection()',
         ]
-        ..getCodeBlock(clsPublic).snippets.add(_gateway_support),
+        ..getCodeBlock(clsPublic).snippets.add(_gatewaySupport)
+        ..getCodeBlock(clsPostDecl).snippets.add(_foreignLinks),
       ];
 
     //    if(!hasForeignKey) {
@@ -386,12 +411,16 @@ ${cols.map((col) => '${col.name}=${_bindingVariableText(col)}').join(',\n')}
 ${cols.map((col) => '${_bindingVariableText(col)}').join(',\n')}
 ''';
 
-  get _gateway_support => '''
-static void print_recordset_as_table(Row_list_t const& recordset, std::ostream &out) {
+  get _gatewaySupport => '''
+static void
+print_recordset_as_table(Row_list_t const& recordset,
+                         std::ostream &out) {
   fcs::orm::print_recordset_as_table< $className >(recordset, out);
 }
 
-static void print_values_as_table(Value_list_t const& values, std::ostream &out) {
+static void
+print_values_as_table(Value_list_t const& values,
+                      std::ostream &out) {
   fcs::orm::print_values_as_table< $className >(values, out);
 }
 
@@ -448,7 +477,7 @@ bool find_row_by_key(Pkey_t const& desideratum, Value_t & found) {
   char const* select_stmt = R"(
 ${indentBlock(chomp(_selectValues(table)), '    ')}
     where
-${indentBlock(chomp(_bindingWhereClause(table.pkeyColumns)), '      ')}
+${indentBlock(chomp(_bindingWhereClause(table.primaryKey)), '      ')}
   )";
 
   otl_stream stream { 50, select_stmt, *connection_ };
@@ -507,7 +536,7 @@ void update(Row_list_t const& changing) {
     set
 ${indentBlock(chomp(_bindingUpdateClause(table.valueColumns)), '      ')}
     where
-${indentBlock(chomp(_bindingWhereClause(table.pkeyColumns)), '      ')}
+${indentBlock(chomp(_bindingWhereClause(table.primaryKey)), '      ')}
   )";
 
   otl_stream stream(1, update_stmt, *connection_);
@@ -522,14 +551,16 @@ void delete_row(Pkey_t const& moribund) {
     delete
     from ${tableName}
     where
-${indentBlock(_bindingWhereClause(table.pkeyColumns))}
+${indentBlock(_bindingWhereClause(table.primaryKey))}
   )";
   otl_stream stream { 50, delete_stmt, *connection_ };
   stream << moribund;
 }
 
 size_t delete_all_rows() {
-  long rows_deleted { otl_cursor::direct_exec(*connection_, "DELETE FROM $tableName") };
+  long rows_deleted {
+    otl_cursor::direct_exec(*connection_, "DELETE FROM $tableName")
+  };
   return size_t(rows_deleted);
 }
 ''';
@@ -550,7 +581,7 @@ _joined(Iterable<Column> cols) => cols.map((c) => c.name).join(',\n');
 
 _selectKey(Table table) {
   final name = table.name;
-  final keyColumnsJoined = table.pkeyColumns.map((c) => c.name).join(',\n');
+  final keyColumnsJoined = table.primaryKey.map((c) => c.name).join(',\n');
   return '''
 select
 ${indentBlock(keyColumnsJoined)}
