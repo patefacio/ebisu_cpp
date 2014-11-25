@@ -58,6 +58,26 @@ void main() {
             member('size')..type = 'int'
           ],
         ],
+        part('test_support')
+        ..classes = [
+          class_('gateway')
+          ..immutable = true
+          ..members = [
+            member('table_details')..type = 'TableDetails',
+          ],
+          class_('gateway_test_generator')
+          ..doc = 'Class to generate test code to exercise the table gateway'
+          ..ctorCustoms = ['']
+          ..members = [
+            member('test')..type = 'Test'..ctors = [''],
+            member('table_details')..type = 'TableDetails'..ctors = [''],
+            member('namespace')..type = 'Namespace'..ctors = [''],
+            member('gateways')
+            ..doc = 'Table details for transitive closure by foreign keys'
+            ..type = 'List<Gateway>'
+            ..classInit = [],
+          ],
+        ],
         part('generator')
         ..enums = [
           enum_('bind_data_type')
@@ -94,16 +114,23 @@ queries. Makes use of the otl c++ library.
             member('queries')..type = 'List<Query>'..classInit = [],
             member('table_filter')..type = 'TableFilter'..classInit = '(Table t) => true',
           ],
+          class_('table_details')
+          ..immutable = true
+          ..members = [
+            member('schema')..type = 'Schema',
+            member('table')..type = 'Table',
+            member('table_id')..type = 'Id',
+            member('table_name'),
+            member('class_name'),
+            member('key_class_id')..type = 'Id',
+            member('value_class_id')..type = 'Id',
+          ],
           class_('table_gateway_generator')
           ..members = [
             member('installation')..type = 'Installation',
             member('schema_code_generator')..type = 'SchemaCodeGenerator',
-            member('table')..type = 'Table',
-            member('table_id')..type = 'Id',
-            member('table_name'),
-            member('key_class_id')..type = 'Id',
+            member('table_details')..type = 'TableDetails'..access = IA,
             member('key_class')..type = 'Class',
-            member('value_class_id')..type = 'Id',
             member('value_class')..type = 'Class',
             member('header')..type = 'Header'..access = IA,
           ]

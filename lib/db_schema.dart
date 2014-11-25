@@ -15,6 +15,7 @@ import 'package:sqljocky/sqljocky.dart';
 // end <additional imports>
 
 part 'src/db_schema/meta.dart';
+part 'src/db_schema/test_support.dart';
 part 'src/db_schema/generator.dart';
 
 // custom <library db_schema>

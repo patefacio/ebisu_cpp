@@ -209,28 +209,56 @@ otl_connect * connection() {
   String _connectionClassName;
 }
 
+class TableDetails {
+  const TableDetails(this.schema, this.table, this.tableId, this.tableName,
+    this.className, this.keyClassId, this.valueClassId);
+
+  final Schema schema;
+  final Table table;
+  final Id tableId;
+  final String tableName;
+  final String className;
+  final Id keyClassId;
+  final Id valueClassId;
+  // custom <class TableDetails>
+
+  factory TableDetails.fromTable(Schema schema, Table table) {
+    final tableId = idFromString(table.name);
+    return new TableDetails(schema,
+      table, tableId, table.name, tableId.capSnake,
+      idFromString('${tableId.snake}_pkey'),
+      idFromString('${tableId.snake}_value'));
+  }
+
+  get columnIds => table.columns.map((c) => idFromString(c.name));
+  get keyClassName => keyClassId.capSnake;
+  get valueClassName => valueClassId.capSnake;
+  get keyColumns => table.pkeyColumns;
+  get valueColumns => table.valueColumns;
+  get fkeyPath => schema.getDfsPath(table.name);
+
+  // end <class TableDetails>
+}
+
 class TableGatewayGenerator {
   Installation installation;
   SchemaCodeGenerator schemaCodeGenerator;
-  Table table;
-  Id tableId;
-  String tableName;
-  Id keyClassId;
   Class keyClass;
-  Id valueClassId;
   Class valueClass;
   // custom <class TableGatewayGenerator>
 
-  TableGatewayGenerator(this.installation, this.schemaCodeGenerator, this.table) {
-    tableId = idFromString(table.name);
-    tableName = tableId.snake;
-    keyClassId = idFromString('${tableId.snake}_pkey');
+  TableGatewayGenerator(this.installation, this.schemaCodeGenerator, Table table) {
+    _tableDetails = new TableDetails.fromTable(schemaCodeGenerator.schema, table);
     keyClass = _makeClass(keyClassId.snake, table.pkeyColumns);
-    valueClassId = idFromString('${tableId.snake}_value');
     valueClass = _makeClass(valueClassId.snake, table.valueColumns);
   }
 
-  get className => tableId.capSnake;
+  get table => _tableDetails.table;
+  get tableId => _tableDetails.tableId;
+  get tableName => _tableDetails.tableName;
+  get className => _tableDetails.className;
+  get keyClassId => _tableDetails.keyClassId;
+  get valueClassId => _tableDetails.valueClassId;
 
   _makeMember(c) =>
     member(c.name)
@@ -287,108 +315,10 @@ inline otl_stream& operator>>(otl_stream &src, ${cls.className} & value) {
     return _header;
   }
 
-  _classRandomRow(Class cls) => '''
-  template< >
-  inline Random_source & operator>>
-    (Random_source &source,
-     ${cls.className} &obj) {
-    source ${cls.members.map((m) => '>> obj.${m.vname}').join('\n      ')};
-    return source;
-  }
-''';
-
-  get _randomRow => '''
-
-using namespace $namespace;
-using namespace fcs::utils::streamers;
-using fcs::utils::streamers::operator<<;
-
-namespace fcs {
-namespace utils {
-namespace streamers {
-  // random row generation
-
-${_classRandomRow(keyClass)}
-${_classRandomRow(valueClass)}
-
-  template< >
-  inline Random_source & operator>>
-    (Random_source &source,
-     $className<>::Row_t &row) {
-    source >> row.first >> row.second;
-    return source;
-  }
-
-}
-}
-}
-''';
-
   Namespace get namespace => new Namespace(
     []
     ..addAll(schemaCodeGenerator.namespace.names)
     ..addAll(['table']));
-
-  get _testQueryRows => '''
-// test queries
-auto gw = $className<>::instance();
-auto rows = gw.select_all_rows();
-''';
-
-  get _testInsertUpdateDeleteRows => '''
-// testing insertion and deletion
-auto gw = $className<>::instance();
-// first clear out any existing rows and ensure empty
-gw.delete_all_rows();
-auto all_rows = gw.select_all_rows();
-BOOST_REQUIRE(all_rows.empty());
-
-// create some records with random data
-int const num_rows = 20;
-Random_source random_source;
-$className<>::Row_t row;
-for(int i=0; i<num_rows; ++i) {
-  random_source >> row;
-  all_rows.push_back(row);
-}
-
-// insert those records, select back and validate
-gw.insert(all_rows);
-{
-  auto again = gw.select_all_rows();
-  BOOST_REQUIRE(again.size() == num_rows);
-  for(size_t i=0; i<num_rows; i++) {
-    BOOST_REQUIRE(again[i].second == all_rows[i].second);
-${table.hasAutoIncrement? '' :'    BOOST_REQUIRE(again[i].first == all_rows[i].first)'}
-  }
-${table.hasAutoIncrement? '  std::swap(again, all_rows);' : ''}
-}
-
-// now update all values in memory with new random data
-auto updated_rows = all_rows;
-BOOST_REQUIRE(updated_rows == all_rows);
-for(auto & row : updated_rows) {
-  size_t index = std::distance(&updated_rows.front(), &row);
-  random_source >> row.second;
-  BOOST_REQUIRE(row.second != all_rows[index].second);
-}
-$className<>::print_recordset_as_table(updated_rows, std::cout);
-// push updates to database via update
-gw.update(updated_rows);
-{
-  for(size_t i=0; i<num_rows; i++) {
-    $className<>::Value_t value;
-    bool found = gw.find_row_by_key(updated_rows[i].first, value);
-    BOOST_REQUIRE(found);
-    BOOST_REQUIRE(value == updated_rows[i].second);
-  }
-}
-
-''';
-
-  get _testUpdateRows => '''
-// testing update
-''';
 
   Header _makeHeader() {
     final keyClassType = keyClass.className;
@@ -434,17 +364,9 @@ gw.update(updated_rows);
         ..getCodeBlock(clsPublic).snippets.add(_gateway_support),
       ];
 
-    if(!hasForeignKey) {
-      final test = result.test;
-      test
-        ..includes.add('fcs/utils/streamers/random.hpp')
-        ..addTestImplementations({
-          'insert_update_delete_rows' : _testInsertUpdateDeleteRows,
-          'query_rows' : _testQueryRows,
-          'update_rows' : _testUpdateRows,
-        })
-        ..getCodeBlock(fcbPreNamespace).snippets.add(_randomRow);
-    }
+    //    if(!hasForeignKey) {
+    new GatewayTestGenerator(result.test, _tableDetails, namespace);
+      //    }
 
     return result;
   }
@@ -613,6 +535,7 @@ size_t delete_all_rows() {
 ''';
 
   // end <class TableGatewayGenerator>
+  TableDetails _tableDetails;
   Header _header;
 }
 // custom <part generator>
@@ -662,17 +585,14 @@ String _cppType(SqlType sqlType) {
     switch(sqlType.runtimeType) {
       case SqlString: {
         final str = sqlType as SqlString;
-        if(str.length > 0) {
-          return 'fcs::utils::Fixed_size_char_array< ${str.length} >';
-        } else {
-          return 'std::string';
-        }
+        return (str.length > 0)?
+          'fcs::utils::Fixed_size_char_array< ${str.length} >' :
+          'std::string';
       }
-      case SqlInt: return sqlType.length <= 4? 'int32_t' : 'int64_t';
+      case SqlInt: return (sqlType as SqlInt).length <= 4? 'int32_t' : 'int64_t';
       case SqlDecimal: return 'decimal';
       case SqlBinary: {
         throw 'Add support for SqlDecimal';
-        break;
       }
       case SqlFloat: return 'double';
       case SqlDate:
