@@ -211,7 +211,7 @@ otl_connect * connection() {
 
 class TableDetails {
   const TableDetails(this.schema, this.table, this.tableId, this.tableName,
-    this.className, this.keyClassId, this.valueClassId, this.fkeyChildren);
+    this.className, this.keyClassId, this.valueClassId);
 
   final Schema schema;
   final Table table;
@@ -220,21 +220,14 @@ class TableDetails {
   final String className;
   final Id keyClassId;
   final Id valueClassId;
-  final List<TableDetails> fkeyChildren;
   // custom <class TableDetails>
 
   factory TableDetails.fromTable(Schema schema, Table table) {
     final tableId = idFromString(table.name);
-    List<TableDetails> fkeyChildren = [];
-    schema.getDfsPath(table.name).forEach((FkeyPathEntry fpe) {
-      fkeyChildren.add(
-        new TableDetails.fromTable(schema, fpe.refTable));
-    });
     return new TableDetails(schema,
         table, tableId, table.name, tableId.capSnake,
         idFromString('${tableId.snake}_pkey'),
-        idFromString('${tableId.snake}_value'),
-        fkeyChildren);
+        idFromString('${tableId.snake}_value'));
   }
 
   get columnIds => table.columns.map((c) => idFromString(c.name));
@@ -261,6 +254,7 @@ class TableGatewayGenerator {
     valueClass = _makeClass(valueClassId.snake, table.valueColumns);
   }
 
+  get schema => _tableDetails.schema;
   get table => _tableDetails.table;
   get tableId => _tableDetails.tableId;
   get tableName => _tableDetails.tableName;
@@ -268,7 +262,6 @@ class TableGatewayGenerator {
   get rowType => _tableDetails.rowType;
   get keyClassId => _tableDetails.keyClassId;
   get valueClassId => _tableDetails.valueClassId;
-  get fkeyChildren => _tableDetails.fkeyChildren;
 
   _makeMember(c) =>
     member(c.name)
@@ -276,16 +269,30 @@ class TableGatewayGenerator {
     ..type = _cppType(c.type)
     ..noInit = true;
 
-  _linkToMethod(TableDetails td) => '''
-// Link to ${td.className}
+  _colInRow(Table table, Column c) =>
+    table.isPrimaryKeyColumn(c) ?
+    'first.${c.name}' : 'second.${c.name}';
+
+  _linkToMethod(ForeignKey fk) {
+    final ref = new TableDetails.fromTable(schema, fk.refTable);
+    return '''
+// Establish link from $className to ${ref.className}
+// across foreign key $tableName.`${fk.name}`
 inline void
 link_rows($rowType & from_row,
-          ${td.rowType} const& to_row) {
+          ${ref.rowType} const& to_row) {
+  ${
+fk.columnPairs.map((l) =>
+  'from_row.${_colInRow(table, l[0])} = to_row.${_colInRow(ref.table, l[1])}').join(';\n  ')};
+}''';
+  }
 
-}
-''';
-
-  get _foreignLinks => combine(fkeyChildren.map((TableDetails td) => _linkToMethod(td)));
+  get _foreignLinks => combine(
+    table
+    .foreignKeys
+    .values
+    //.where((ForeignKey fk) => td.table == table)
+    .map((ForeignKey fk) => _linkToMethod(fk)));
 
   _stringListSupport(Iterable<Member> members) => '''
 static inline
@@ -350,18 +357,25 @@ operator>>(otl_stream &src,
     final valueClassType = valueClass.className;
     final valueColumns = table.valueColumns;
     final hasForeignKey  = table.hasForeignKey;
+    var fkeyIncludes = [];
+    table.foreignKeys.values.forEach((ForeignKey fk) {
+      final refTableId = idFromString(fk.refTable.name);
+      fkeyIncludes.add('${refTableId.snake}.hpp');
+    });
 
     final result = new Header(tableId)
       ..namespace = namespace
-      ..includes = [
-        'cstdint',
-        'utility',
-        'sstream',
-        'vector',
-        'boost/any.hpp',
-        'fcs/orm/otl_utils.hpp',
-        'fcs/orm/orm_to_string_table.hpp',
-      ]
+      ..includes = (
+        [
+          'cstdint',
+          'utility',
+          'sstream',
+          'vector',
+          'boost/any.hpp',
+          'fcs/orm/otl_utils.hpp',
+          'fcs/orm/orm_to_string_table.hpp',
+        ]..addAll(fkeyIncludes)
+                    )
       ..classes = [
         keyClass,
         valueClass,

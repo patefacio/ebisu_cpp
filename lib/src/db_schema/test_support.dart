@@ -7,6 +7,7 @@ class Gateway {
   // custom <class Gateway>
 
   get table => tableDetails.table;
+  get foreignKeys => table.foreignKeys;
   get className => tableDetails.className;
   get rowType => '$className<>::Row_t';
   get rowListType => '$className<>::Row_list_t';
@@ -32,7 +33,7 @@ random_source >> $row;
 ''';
 
   get randomizeUpdated => '''
-ramdon_source >> $updatedRows[i].second;
+random_source >> $updatedRows[i].second;
 BOOST_REQUIRE($updatedRows[i].second !=
               $rowList[i].second);
 ''';
@@ -52,7 +53,7 @@ BOOST_REQUIRE($postInsertRows.size() == num_rows);
     'BOOST_REQUIRE($rowList[i].first == $postInsertRows[i].first)';
   get compareValues => '''
 BOOST_REQUIRE($rowList[i].second ==
-              $postInsertRows[i].second)''';
+              $postInsertRows[i].second);''';
 
   get swap => table.hasAutoIncrement? 'std::swap($rowList, $postInsertRows);' : '';
   get compareRows => combine([ compareKeys, compareValues, swap ]);
@@ -153,6 +154,18 @@ ${gateways.map((gw) => _tableRandomSupport(gw.tableDetails)).join('\n')}
   }
 ''';
 
+  get _linkUp {
+    var parts = [];
+    for(var gw in gateways) {
+      final table = gw.table;
+      for(var fk in gw.foreignKeys.values) {
+        final refGw = gateways.firstWhere((gw) => gw.table == fk.refTable);
+        parts.add('link_rows(${gw.row}, ${refGw.row});');
+      }
+    }
+    return parts.join('\n');
+  }
+
   get _testInsertUpdateDeleteRows => '''
 // testing insertion and deletion
 ${gateways.map((gw) => gw.declareAndCleanup).join('\n')}
@@ -170,6 +183,7 @@ for(int i=0; i<num_rows; ++i) {
 ${gateways.map((gw) => indentBlock(gw.randomize)).join()}
 
   // Link up reference ids
+${indentBlock(_linkUp)}
 
   // Push related records
 ${gateways.map((gw) => indentBlock(gw.pushRecord)).join()}
