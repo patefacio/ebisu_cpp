@@ -16,61 +16,37 @@ class Gateway {
   get rowDecl => '$rowType $row;';
   get rowList => '${row}s';
   get postInsertRows => 'post_insert_${row}s';
-  get updatedRows => 'updated_${row}s';
-  get updatedRowsDecl => 'auto $updatedRows = $rowList;';
   get rowsListDecl => '$rowListType $rowList;';
+  get finalCleanup => '''
+delete_rows($gw);
+''';
+
   get declareAndCleanup => '''
 auto $gw = $className<>::instance();
-$rowsListDecl
-{
-  $gw.delete_all_rows();
-  auto rows = $gw.select_all_rows();
-  BOOST_REQUIRE(rows.empty());
-}''';
+delete_rows($gw);
+$rowsListDecl''';
 
-  get randomize => '''
-random_source >> $row;
+  get randomizePatchAndInsert => foreignKeys.isEmpty? '''
+random_rows($rowList);
+insert_rows($gw, $rowList);
+''' : '''
+random_rows($rowList);
+patch_rows($rowList);
+insert_rows($gw, $rowList);
 ''';
 
-  get randomizeUpdated => '''
-random_source >> $updatedRows[i].second;
-BOOST_REQUIRE($updatedRows[i].second !=
-              $rowList[i].second);
+  get randomizePatchAndUpdate => foreignKeys.isEmpty? '''
+randomize_row_values($rowList);
+update_rows($gw, $rowList);
+''' : '''
+randomize_row_values($rowList);
+patch_rows($rowList);
+update_rows($gw, $rowList);
 ''';
-
-  get pushRecord => '''
-$rowList.push_back($row);
-''';
-
-  get insertRows => '''
-$gw.insert($rowList);
-auto $postInsertRows =
-  $gw.select_all_rows();
-BOOST_REQUIRE($postInsertRows.size() == num_rows);
-''';
-
-  get compareKeys => table.hasAutoIncrement? '' :
-    'BOOST_REQUIRE($rowList[i].first == $postInsertRows[i].first)';
-  get compareValues => '''
-BOOST_REQUIRE($rowList[i].second ==
-              $postInsertRows[i].second);''';
-
-  get swap => table.hasAutoIncrement? 'std::swap($rowList, $postInsertRows);' : '';
-  get compareRows => combine([ compareKeys, compareValues, swap ]);
 
   print(String vname) => '''
 $className<>::print_recordset_as_table(
   $vname, std::cout);''';
-
-  get updateRows => '$gw.update($updatedRows);';
-  get checkUpdate => '''
-{
-  $className<>::Value_t value;
-  bool found = $gw.find_row_by_key(
-    $updatedRows[i].first, value);
-  BOOST_REQUIRE(found);
-  BOOST_REQUIRE(value == $updatedRows[i].second);
-}''';
 
   // end <class Gateway>
 }
@@ -114,6 +90,8 @@ class GatewayTestGenerator {
   get valueColumns => tableDetails.valueColumns;
   get fkeyPath => tableDetails.fkeyPath;
 
+  get swapPostInsert => table.hasAutoIncrement?
+    'std::swap(${gateways.last.rowList}, ${gateways.last.postInsertRows});' : '';
 
   _tableRandomSupport(TableDetails tableDetails) => '''
 ${_classRandomRow(tableDetails.keyClassName, tableDetails.keyColumns)}
@@ -132,6 +110,66 @@ ${_classRandomRow(tableDetails.valueClassName, tableDetails.valueColumns)}
 using namespace $namespace;
 using namespace fcs::utils::streamers;
 using fcs::utils::streamers::operator<<;
+
+int const num_rows = 20;
+Random_source random_source;
+
+template< typename GW >
+void delete_rows(GW &gw) {
+  gw.delete_all_rows();
+  auto rows = gw.select_all_rows();
+  BOOST_REQUIRE(rows.empty());
+}
+
+template< typename Row_list_t >
+void random_rows(Row_list_t &rows) {
+  rows.reserve(num_rows);
+  rows.clear();
+  for(int i=0; i<num_rows; ++i) {
+    typename Row_list_t::value_type row;
+    random_source >> row;
+    rows.push_back(row);
+  }
+}
+
+template< typename Row_list_t >
+void randomize_row_values(Row_list_t &rows) {
+  for(int i=0; i<num_rows; ++i) {
+    random_source >> rows[i].second;
+  }
+}
+
+template< typename GW >
+void insert_rows(GW &gw, typename GW::Row_list_t & rows) {
+  gw.insert(rows);
+  auto again = gw.select_all_rows();
+  BOOST_REQUIRE(again.size() == rows.size());
+  for(int i=0; i<rows.size(); ++i) {
+    BOOST_REQUIRE(again[i].second == rows[i].second);
+  }
+  std::swap(again, rows);
+}
+
+template< typename GW >
+void update_rows(GW &gw, typename GW::Row_list_t const& rows) {
+  gw.update(rows);
+  auto again = gw.select_all_rows();
+  BOOST_REQUIRE(again.size() == rows.size());
+  for(int i=0; i<rows.size(); ++i) {
+    BOOST_REQUIRE(again[i].second == rows[i].second);
+  }
+}
+
+template< typename GW >
+void find_by_key_check(GW &gw, typename GW::Row_list_t const& rows) {
+  typename GW::Value_t value;
+  for(int i=0; i<rows.size(); ++i) {
+    gw.find_row_by_key(rows[i].first, value);
+    BOOST_REQUIRE(rows[i].second == value);
+  }
+}
+
+${_linkUp}
 
 namespace fcs {
 namespace utils {
@@ -160,7 +198,15 @@ ${gateways.map((gw) => _tableRandomSupport(gw.tableDetails)).join('\n')}
       final table = gw.table;
       for(var fk in gw.foreignKeys.values) {
         final refGw = gateways.firstWhere((gw) => gw.table == fk.refTable);
-        parts.add('link_rows(${gw.row}, ${refGw.row});');
+        parts.add('''
+void patch_rows(${gw.rowListType} & rows) {
+  auto ${refGw.rowList} = ${refGw.className}<>::instance().select_all_rows();
+  BOOST_ASSERT(${refGw.rowList}.size() == num_rows);
+  for(int i=0; i<num_rows; ++i) {
+    link_rows(rows[i], ${refGw.rowList}[i]);
+  }
+}
+''');
       }
     }
     return parts.join('\n');
@@ -168,50 +214,19 @@ ${gateways.map((gw) => _tableRandomSupport(gw.tableDetails)).join('\n')}
 
   get _testInsertUpdateDeleteRows => '''
 // testing insertion and deletion
-${gateways.map((gw) => gw.declareAndCleanup).join('\n')}
+${gateways.reversed.map((gw) => gw.declareAndCleanup).join('\n')}
 
-// create some records with random data
-int const num_rows = 20;
-Random_source random_source;
+${gateways.map((gw) => gw.randomizePatchAndInsert).join()}
 
-for(int i=0; i<num_rows; ++i) {
+${gateways.map((gw) => gw.randomizePatchAndUpdate).join()}
 
-  // Declare all rows
-  ${gateways.map((gw) => gw.rowDecl).join('\n  ')}
-
-  // Generate random data for all rows
-${gateways.map((gw) => indentBlock(gw.randomize)).join()}
-
-  // Link up reference ids
-${indentBlock(_linkUp)}
-
-  // Push related records
-${gateways.map((gw) => indentBlock(gw.pushRecord)).join()}
-}
-
-// insert those records, select back and validate
-${gateways.map((gw) => gw.insertRows).join()}
-for(size_t i=0; i<num_rows; i++) {
-${indentBlock(combine(gateways.map((gw) => gw.compareRows)))}
-}
-
-// now update all values in memory with new random data
-${combine(gateways.map((gw) => gw.updatedRowsDecl))}
-for(size_t i=0; i<num_rows; i++) {
-${indentBlock(gateways.map((gw) => gw.randomizeUpdated).join())}
-}
+${gateways.map((gw) => 'find_by_key_check(${gw.gw}, ${gw.rowList});').join('\n')}
 
 if(false) {
-${indentBlock(combine(gateways.map((gw) => gw.print(gw.updatedRows))))}
+${indentBlock(combine(gateways.map((gw) => gw.print(gw.rowList))))}
 }
 
-// push updates to database via update
-${combine(gateways.map((gw) => gw.updateRows))}
-
-// verify the updates
-for(size_t i=0; i<num_rows; i++) {
-${indentBlock(combine(gateways.map((gw) => gw.checkUpdate)))}
-}
+${gateways.reversed.map((gw) => gw.finalCleanup).join('\n')}
 
 ''';
 
