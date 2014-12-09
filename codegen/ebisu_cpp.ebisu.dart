@@ -291,6 +291,12 @@ queries. Makes use of the otl c++ library.
           ..members = [
             member('type')..doc = 'Type of member',
             member('init')..doc = 'Initialization of member (if type is null and Dart type is key in { int:int, double:double }, cpp type is set to value type)'..access = RO,
+            member('ctor_init')
+            ..doc = '''
+Rare usage - member b depends on member a (e.g. b is just a string rep of a
+which is int), a is passed in for construction but b can be initialized directly
+from a. If ctorInit is set on a member, any memberCtor will include this text to
+initialize it''',
             member('access')
             ..doc = 'Idiomatic access of member'..type = 'Access'..classInit = 'ia',
             member('cpp_access')

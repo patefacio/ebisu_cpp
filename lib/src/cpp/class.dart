@@ -192,16 +192,26 @@ class MemberCtor extends ClassMethod {
   String get definition {
     List<String> argDecls = decls == null? [] : new List<String>.from(decls);
     List<String> initializers = [];
-    memberArgs.forEach((String arg) {
-      final member = members.singleWhere((m) => m.id.snake == arg);
-      var decl = member.passDecl;
-      final init = optInit == null? null : optInit[arg];
-      if(init != null)
-        decl += ' = $init';
 
-      argDecls.add(decl);
-      initializers.add('${member.vname} { $arg }');
+    parent.bases
+    .where((b) => b.init != null)
+    .forEach((b) => initializers.add(b.init));
+
+    parent.members.forEach((Member member) {
+      final arg = member.name;
+      if(memberArgs.indexOf(member.name) >= 0) {
+        var decl = member.passDecl;
+        final init = optInit == null? null : optInit[arg];
+        if(init != null)
+          decl += ' = $init';
+
+        argDecls.add(decl);
+        initializers.add('${member.vname} { $arg }');
+      } else if(member.ctorInit != null) {
+        initializers.add('${member.vname} { ${member.ctorInit} }');
+      }
     });
+
     return '''
 $_templateDecl${className}(
 ${indentBlock(argDecls.join(',\n'))}) :
@@ -397,9 +407,9 @@ class Class extends Entity {
   get _parts => [
     _forwardPtrs,
     enumsForward.map((e) => e.toString()).join('\n'),
+    _codeBlockText(clsPreDecl),
     briefComment,
     detailedComment,
-    _codeBlockText(clsPreDecl),
     _templateDecl,
     _classOpener,
 

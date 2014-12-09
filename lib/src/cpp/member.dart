@@ -5,6 +5,11 @@ class Member extends Entity {
   String type;
   /// Initialization of member (if type is null and Dart type is key in { int:int, double:double }, cpp type is set to value type)
   String get init => _init;
+  /// Rare usage - member b depends on member a (e.g. b is just a string rep of a
+  /// which is int), a is passed in for construction but b can be initialized directly
+  /// from a. If ctorInit is set on a member, any memberCtor will include this text to
+  /// initialize it
+  String ctorInit;
   /// Idiomatic access of member
   Access access = ia;
   /// C++ style access of member
