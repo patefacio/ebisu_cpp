@@ -146,12 +146,23 @@ class Header extends CppFile {
   setFilePathFromRoot(String root) =>
     _filePath = path.join(root, includeFilePath);
 
-  String get contents =>
-    _wrapIncludeGuard(
+  String get contents {
+    if(classes.any((c) => c.streamable) &&
+        !this.includes.contains('iostream')) {
+      this.includes.add('iosfwd');
+    }
+
+    addIncludesForCommonTypes(
+      concat(classes.map((c) => c.typesReferenced)),
+      this.includes);
+
+    return _wrapIncludeGuard(
       _contentsWithBlocks(
         combine([
+          enums.map((Enum e) => br(e.decl)),
           classes.map((Class cls) => br(cls.definition)),
         ])));
+  }
 
   String toString() => '''
         header($id)
@@ -184,7 +195,9 @@ class Impl extends CppFile {
 
   String get contents =>
     _contentsWithBlocks(
-      combine(classes.map((Class cls) => br(cls.definition))));
+      combine([
+        enums.map((Enum e) => br(e.decl)),
+        classes.map((Class cls) => br(cls.definition))]));
 
   setLibFilePathFromRoot(String root) =>
     _filePath = path.join(root, 'lib', namespace.asPath, '${id.snake}.cpp');

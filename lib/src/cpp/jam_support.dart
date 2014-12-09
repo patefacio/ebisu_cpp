@@ -180,21 +180,37 @@ class UserConfig
   // end <class UserConfig>
 }
 
+class JamConstant {
+  String constant;
+  String value;
+  // custom <class JamConstant>
+
+  toString() => 'constant $constant : $value ;'
+
+  // end <class JamConstant>
+}
+
 class JamFileTop
   implements CodeGenerator {
   JamFileTop(this.installation);
 
   Installation installation;
+  List<String> includePaths = [];
+  List<JamConstant> constants = [];
   // custom <class JamFileTop>
 
   get id => installation.id;
   get name => installation.name;
   get nameShout => installation.nameShout;
 
+  get _moreIncludes => includePaths.isEmpty? '' : '''
+<include>${includePaths.join('\n          <include>')}
+''';
+
   void generate() {
     final filePath = path.join(installation.root, 'cpp', 'Jamfile');
 
-    mergeBlocksWithFile('''
+    scriptMergeWithFile('''
 import package ;
 import common ;
 import os ;
@@ -222,8 +238,9 @@ project ${id}_projects
           <include>\$(BOOST_INCLUDE_PATH)
           <include>\$(CPP_INCLUDE_PATH)
           <include>/usr/local/include
-          <tag>@\$(__name__).tag
           <include>.
+${scriptCustomBlock('additional_includes')}
+          $_moreIncludes<tag>@\$(__name__).tag
           <toolset>intel:<cxxflags>-std=c++0x
           <toolset>intel:<cxxflags>-Qoption,cpp,--rvalue_ctor_is_not_copy_ctor
           <toolset>intel:<define>BOOST_CALLBACK_EXPLICIT_COPY_CONSTRUCTOR

@@ -1,5 +1,32 @@
 part of ebisu_cpp.cpp;
 
+class ForwardDecl {
+  ForwardDecl(this.type, [ this.namespace ]);
+
+  String type;
+  Namespace namespace;
+  // custom <class ForwardDecl>
+
+  toString() =>
+    namespace == null || namespace.length == 0?
+    'class $type;' :
+    namespace
+    .names
+    .reversed
+    .fold('class $type;', (prev, n) => 'namespace $n { $prev }' );
+
+  // end <class ForwardDecl>
+}
+
+/// Create a ForwardDecl sans new, for more declarative construction
+ForwardDecl
+forwardDecl(String type,
+    [
+      Namespace namespace
+    ]) =>
+  new ForwardDecl(type,
+      namespace);
+
 abstract class CodeGenerator {
   // custom <class CodeGenerator>
 
@@ -32,6 +59,7 @@ ${_helper(it, txt)}
     }
   }
 
+  get length => names.length;
   String toString() => names.join('::');
   String get asPath => names.join('/');
   String get snake => names.join('_');
@@ -69,6 +97,7 @@ class Includes {
 
   add(String include) => _included.add(include);
   addAll(Iterable<String> more) => _included.addAll(more);
+  contains(String include) => _included.contains(include);
 
   String toString() => includes;
 
@@ -140,5 +169,21 @@ Namespace namespace(List<String> ns) =>
 
 Includes includes([ List<String> includes ]) =>
   new Includes(includes);
+
+final _commonTypes = const {
+  'std::string' : 'string',
+  'std::vector' : 'vector',
+  'std::set' : 'set',
+  'std::map' : 'map',
+  'std::pair' : 'utility',
+};
+
+addIncludesForCommonTypes(Iterable<String> types, Includes includes) {
+  types.forEach((String type) {
+    if(_commonTypes.containsKey(type)) {
+      includes.add(_commonTypes[type]);
+    }
+  });
+}
 
 // end <part utils>

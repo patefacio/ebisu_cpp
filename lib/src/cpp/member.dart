@@ -12,7 +12,7 @@ class Member extends Entity {
   /// Ref type of member
   RefType refType = value;
   /// Pass member around by reference
-  bool byRef = false;
+  set byRef(bool byRef) => _byRef = byRef;
   /// Is the member static
   bool static = false;
   /// Is the member mutable
@@ -32,14 +32,15 @@ class Member extends Entity {
     return combine(_parts);
   }
 
-  set initText(String txt) {
-    _init = txt;
-  }
+  get byRef =>
+    _byRef == null?
+    (type == 'std::string'? true : false) : _byRef;
 
+  set initText(String txt) => _init = txt;
   get isRefType => refType != value;
 
   get passDecl =>
-    refType == value? '$type $name' :
+    refType == value? (byRef? '$type const & $name' : '$type $name') :
     refType == ref? '$type & $name' :
     refType == cref? '$type const & $name' :
     refType == vref? '$type volatile & $name' :
@@ -122,6 +123,7 @@ void $name($_argType $name) { $vname = $name; }''' : null;
   // end <class Member>
   String _init;
   CppAccess _cppAccess;
+  bool _byRef;
 }
 // custom <part member>
 

@@ -169,6 +169,8 @@ otl_connect * connection() {
 
   void generate() {
 
+    final queryVisitor = schema.engine.queryVisitor;
+    print('All queries are ${queries.map((q) => queryVisitor.select(q))}');
     final ns = namespace;
     final connectionClass = 'connection_${id.snake}';
 

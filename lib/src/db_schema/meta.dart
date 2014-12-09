@@ -1,10 +1,5 @@
 part of ebisu_cpp.db_schema;
 
-class Query {
-  // custom <class Query>
-  // end <class Query>
-}
-
 class DataType {
   const DataType(this.dbType, this.cppType);
 

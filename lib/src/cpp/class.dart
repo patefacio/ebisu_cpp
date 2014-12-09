@@ -90,7 +90,7 @@ class DefaultCtor extends DefaultMethod {
   // custom <class DefaultCtor>
 
   String get prototype =>
-    '${className}(${className} const& other)';
+    '${className}()';
 
   String get customDefinition {
     final cb = customBlock('${className} defaultCtor');
@@ -155,28 +155,37 @@ class AssignMove extends DefaultMethod {
 }
 
 class Dtor extends DefaultMethod {
+  bool abstract = false;
   // custom <class Dtor>
 
   String get definition =>
     delete? throw "Don't delete the destructor for $className" : super.definition;
   String get prototype => '~${className}()';
-  String get customDefinition => '~${className}() {}';
+  String get customDefinition =>
+    abstract?
+    'virtual ~${className}() {}' :
+    '~${className}() {}';
 
   // end <class Dtor>
 }
 
 class MemberCtor extends ClassMethod {
-  MemberCtor(this.memberArgs, [ this.optInit, this.decls ]);
-
   /// List of members that are passed as arguments for initialization
   List<String> memberArgs = [];
   /// Map member name to text for initialization
-  Map<String, String> optInit = {};
+  Map<String, String> optInit;
   /// List of additional decls ["Type Argname", ...]
-  List<String> decls = [];
+  List<String> decls;
   /// Has custom code, so needs protect block
-  bool hasCustom = false;
+  set hasCustom(bool hasCustom) => _hasCustom = hasCustom;
+  /// Label for custom protect block if desired
+  set customLabel(String customLabel) => _customLabel = customLabel;
   // custom <class MemberCtor>
+
+  MemberCtor(this.memberArgs, [ this.optInit, this.decls ]) {
+    if(optInit == null) optInit = {};
+    if(decls == null) decls = [];
+  }
 
   String get _templateDecl => _template == null? '' : br(_template.decl);
 
@@ -200,22 +209,18 @@ ${indentBlock(initializers.join(',\n'))} {
 ${indentBlock(_protectBlock)}}''';
   }
 
+  get hasCustom => _hasCustom || _customLabel != null;
+
+  get customLabel =>
+    _customLabel != null? _customLabel : decls.join(', ');
+
   get _protectBlock => hasCustom?
-    customBlock('${className}(${decls.join(", ")} + ${memberArgs.join(", ")}') : '';
+    customBlock('${className}($customLabel)') : '';
 
   // end <class MemberCtor>
+  bool _hasCustom = false;
+  String _customLabel;
 }
-
-/// Create a MemberCtor sans new, for more declarative construction
-MemberCtor
-memberCtor(List<String> memberArgs,
-    [
-      Map<String, String> optInit,
-      List<String> decls
-    ]) =>
-  new MemberCtor(memberArgs,
-      optInit,
-      decls);
 
 class OpEqual extends ClassMethod {
   // custom <class OpEqual>
@@ -296,6 +301,8 @@ class Class extends Entity {
   bool usesStreamers = false;
   /// If true adds test function to tests of the header it belongs to
   bool includeTest = false;
+  /// If true makes members const provides single ctor
+  bool immutable = false;
   // custom <class Class>
 
   Class(Id id) : super(id);
@@ -330,6 +337,9 @@ class Class extends Entity {
 
   set template(Object t) => _template = _makeTemplate(t);
 
+  usesType(String type) => members.any((m) => m.type == type);
+  get typesReferenced => members.map((m) => m.type);
+
   List<String> get _baseDecls => []
     ..addAll(basesPublic.map((b) => b.decl))
     ..addAll(basesProtected.map((b) => b.decl))
@@ -349,6 +359,19 @@ class Class extends Entity {
 
   String get definition {
     if(_definition == null) {
+      if(immutable) {
+        members.forEach((Member m) {
+          if(_defaultCtor == null) {
+            m.noInit = true;
+          }
+          m.isConst = true;
+          m.access = ro;
+        });
+        if(memberCtors.isEmpty) {
+          memberCtors.add(
+            memberCtor(members.map((m) => m.name).toList()));
+        }
+      }
       enums.forEach((e) => e.isNested = true);
       _methods.forEach((m) { if(m != null) m._parent = this; });
       memberCtors.forEach((m) { if(m != null) m._parent = this; });
@@ -380,7 +403,7 @@ class Class extends Entity {
     _templateDecl,
     _classOpener,
 
-    _wrapInAccess(public,
+    _wrapInAccess(struct? null : public,
         indentBlock(
           combine([
             br(usings.map((u) => 'using $u;')),
@@ -424,11 +447,14 @@ static $className & instance() {
   get _templateDecl => _template != null? _template.decl : null;
   get _enumDecls => enums.map((e) => e.decl);
   get _enumStreamers => enums.map((e) => e.streamSupport);
+  _access(CppAccess access) => access == null? '' : '''
+$access:
+''';
+
 
   _wrapInAccess(CppAccess access, String txt) {
     return (txt != null && txt.length > 0)? '''
-$access:
-${txt}''' : null;
+${_access(access)}${txt}''' : null;
   }
 
   _codeBlockText(ClassCodeBlock cb) {
@@ -515,6 +541,16 @@ dtor() => new Dtor();
 opEqual() => new OpEqual();
 opLess() => new OpLess();
 opOut() => new OpOut();
+
+/// Create a MemberCtor sans new, for more declarative construction
+MemberCtor
+  memberCtor(List<String> memberArgs,    [
+    Map<String, String> optInit,
+    List<String> decls
+  ]) =>
+  new MemberCtor(memberArgs,
+      optInit == null? {} : optInit,
+      decls == null? [] : decls);
 
 
 // end <part class>

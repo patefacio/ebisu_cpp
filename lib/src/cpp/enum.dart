@@ -65,8 +65,8 @@ class Enum extends Entity {
     return result;
   }
 
-  String get name => id.capCamel;
-  String get _classDecl => isClass? 'class $name' : id.capCamel;
+  String get name => id.capSnake;
+  String get _classDecl => isClass? 'class $name' : name;
 
   String get toCString => isMask? _maskToCString : _generalToCString;
   String get _maskToCString => '';

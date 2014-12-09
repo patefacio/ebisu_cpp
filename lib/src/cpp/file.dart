@@ -5,7 +5,9 @@ abstract class CppFile extends Entity {
   List<FileCodeBlock> customBlocks = [];
   List<Class> classes = [];
   Includes get includes => _includes;
+  List<ForwardDecl> forwardDecls = [];
   List<String> usings = [];
+  List<Enum> enums = [];
   // custom <class CppFile>
 
   CppFile(Id id) : super(id);
@@ -41,6 +43,7 @@ abstract class CppFile extends Entity {
       namespace.wrap(
         combine([
           _codeBlockText(FileCodeBlock.FCB_BEGIN_NAMESPACE),
+          forwardDecls,
           br(usings.map((u) => 'using $u;')),
           original,
           _codeBlockText(FileCodeBlock.FCB_END_NAMESPACE)

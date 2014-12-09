@@ -18,8 +18,7 @@ class Gateway {
   get postInsertRows => 'post_insert_${row}s';
   get rowsListDecl => '$rowListType $rowList;';
   get finalCleanup => '''
-delete_rows($gw);
-''';
+delete_rows($gw);''';
 
   get declareAndCleanup => '''
 auto $gw = $className<>::instance();

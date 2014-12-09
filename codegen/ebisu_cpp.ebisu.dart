@@ -44,7 +44,6 @@ void main() {
       ..parts = [
         part('meta')
         ..classes = [
-          class_('query'),
           class_('data_type')
           ..ctorConst = ['']
           ..opEquals = true
@@ -187,6 +186,12 @@ queries. Makes use of the otl c++ library.
       ..parts = [
         part('utils')
         ..classes = [
+          class_('forward_decl')
+          ..ctorSansNew = true
+          ..members = [
+            member('type')..ctors = [''],
+            member('namespace')..type = 'Namespace'..ctorsOpt = [''],
+          ],
           class_('code_generator')..isAbstract = true,
           class_('namespace')
           ..members = [
@@ -239,7 +244,9 @@ queries. Makes use of the otl c++ library.
             ..type = 'Map<FileCodeBlock, CodeBlock>'..access = IA..classInit = {},
             member('classes')..type = 'List<Class>'..classInit = [],
             member('includes')..type = 'Includes'..access = RO..classInit = 'new Includes()',
+            member('forward_decls')..type = 'List<ForwardDecl>'..classInit = [],
             member('usings')..type = 'List<String>'..classInit = [],
+            member('enums')..type = 'List<Enum>'..classInit = [],
           ],
         ],
         part('enum')
@@ -291,7 +298,7 @@ queries. Makes use of the otl c++ library.
             member('ref_type')
             ..doc = 'Ref type of member'..type = 'RefType'..classInit = 'value',
             member('by_ref')
-            ..doc = 'Pass member around by reference'..classInit = false,
+            ..doc = 'Pass member around by reference'..type = 'bool'..access = WO,
             member('static')..doc = 'Is the member static'
             ..classInit = false,
             member('mutable')..doc = 'Is the member mutable'
@@ -339,26 +346,28 @@ queries. Makes use of the otl c++ library.
           ..doc = 'Move ctor, autoinitialized on read'..extend = 'DefaultMethod',
           class_('assign_copy')..extend = 'DefaultMethod',
           class_('assign_move')..extend = 'DefaultMethod',
-          class_('dtor')..extend = 'DefaultMethod',
+          class_('dtor')
+          ..extend = 'DefaultMethod'
+          ..members = [
+            member('abstract')..classInit = false
+          ],
           class_('member_ctor')
           ..extend = 'ClassMethod'
-          ..ctorSansNew = true
           ..members = [
             member('member_args')
             ..doc = 'List of members that are passed as arguments for initialization'
             ..type = 'List<String>'
-            ..ctors = ['']
             ..classInit = [],
             member('opt_init')
             ..doc = 'Map member name to text for initialization'
-            ..type = 'Map<String, String>'..classInit = {}
-            ..ctorsOpt = [''],
+            ..type = 'Map<String, String>',
             member('decls')
             ..doc = 'List of additional decls ["Type Argname", ...]'
-            ..type = 'List<String>'..classInit = []
-            ..ctorsOpt = [''],
+            ..type = 'List<String>',
             member('has_custom')
-            ..doc = 'Has custom code, so needs protect block'..classInit = false,
+            ..doc = 'Has custom code, so needs protect block'..classInit = false..access = WO,
+            member('custom_label')
+            ..doc = 'Label for custom protect block if desired'..access = WO,
           ],
           class_('op_equal')..extend = 'ClassMethod',
           class_('op_less')..extend = 'ClassMethod',
@@ -398,6 +407,9 @@ queries. Makes use of the otl c++ library.
             ..classInit = false,
             member('include_test')
             ..doc = 'If true adds test function to tests of the header it belongs to'
+            ..classInit = false,
+            member('immutable')
+            ..doc = 'If true makes members const provides single ctor'
             ..classInit = false,
           ],
         ],
@@ -495,10 +507,17 @@ If true marks this header as special to the set of headers in its library in tha
           ..members = [
             member('installation')..type = 'Installation'..ctors = [''],
           ],
+          class_('jam_constant')
+          ..members = [
+            member('constant'),
+            member('value'),
+          ],
           class_('jam_file_top')
           ..implement = [ 'CodeGenerator' ]
           ..members = [
             member('installation')..type = 'Installation'..ctors = [''],
+            member('include_paths')..type = 'List<String>'..classInit = [],
+            member('constants')..type = 'List<JamConstant>'..classInit = [],
           ],
           class_('jam_root')
           ..implement = [ 'CodeGenerator' ]
