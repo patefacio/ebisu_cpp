@@ -176,6 +176,7 @@ final _commonTypes = const {
   'std::set' : 'set',
   'std::map' : 'map',
   'std::pair' : 'utility',
+  'std::stringstream' : 'sstream',
 };
 
 addIncludesForCommonTypes(Iterable<String> types, Includes includes) {
