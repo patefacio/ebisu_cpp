@@ -152,6 +152,14 @@ class Header extends CppFile {
       this.includes.add('iosfwd');
     }
 
+    if(classes.any((c) => c.serializers.any((s) => s is Cereal))) {
+      this.includes.addAll([
+        'cereal/cereal.hpp',
+        'fcs/timestamp/cereal.hpp',
+        'cereal/archives/json.hpp',
+      ]);
+    }
+
     addIncludesForCommonTypes(
       concat(classes.map((c) => c.typesReferenced)),
       this.includes);
