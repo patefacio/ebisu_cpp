@@ -53,7 +53,7 @@ SOURCES =
      ${app.sources.join('\n     ')}
 ;
 
-exe date_time_converter
+exe $appName
     : $appName.cpp
       \$(SOURCES).cpp
       ${jamRequirements.join('\n      ')}

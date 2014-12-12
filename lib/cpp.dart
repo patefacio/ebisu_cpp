@@ -14,6 +14,7 @@ part 'src/cpp/file.dart';
 part 'src/cpp/enum.dart';
 part 'src/cpp/member.dart';
 part 'src/cpp/class.dart';
+part 'src/cpp/serializer.dart';
 part 'src/cpp/lib.dart';
 part 'src/cpp/app.dart';
 part 'src/cpp/jam_support.dart';
@@ -224,7 +225,7 @@ class Entity {
 
   String get briefComment => brief != null? '//! $brief' : null;
   String get detailedComment => descr != null?
-    blockComment(descr) : null;
+    blockComment(descr, ' ') : null;
 
   // end <class Entity>
 }

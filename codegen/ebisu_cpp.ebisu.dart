@@ -325,7 +325,7 @@ initialize it''',
             id('cls_private'),
             id('cls_pre_decl'),
             id('cls_post_decl'),
-          ]
+          ],
         ]
         ..classes = [
           class_('class_method')
@@ -417,6 +417,27 @@ initialize it''',
             member('immutable')
             ..doc = 'If true makes members const provides single ctor'
             ..classInit = false,
+            member('serializers')
+            ..doc = 'List of processors supporting flavors of serialization'
+            ..type = 'List<Serializer>'
+            ..classInit = [],
+          ],
+        ],
+        part('serializer')
+        ..enums = [
+          enum_('serialization_style')
+          ..values = [
+            id('json_serialization'),
+            id('xml_serialization'),
+            id('binary_serialization'),
+          ]
+        ]
+        ..classes = [
+          class_('serializer')..isAbstract = true,
+          class_('cereal')
+          ..implement = [ 'Serializer' ]
+          ..members = [
+            member('styles')..type = 'List<SerializationStyle>'..classInit = [],
           ],
         ],
         part('lib')

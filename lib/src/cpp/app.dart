@@ -54,7 +54,11 @@ class AppArg extends Entity {
   Object get defaultValue => _defaultValue;
   // custom <class AppArg>
 
+  // Name as variable
   get name => id.snake;
+
+  // Name as used in command
+  get optName => id.emacs;
 
   AppArg(Id id) : super(id);
 
@@ -83,9 +87,14 @@ class AppArg extends Entity {
     shortName == null?
     '"${id.emacs}"' : '"${id.emacs},$shortName"';
 
+  get _defaultValueSet =>
+    _defaultValue == null?
+    '' :
+    '->default_value($_defaultValue)';
+
   get addOptionDecl =>
     type == ArgType.FLAG? '($flagDecl, "$descr")' :
-    '($flagDecl, value< $cppType >(),\n  "${descr}")';
+    '($flagDecl, value< $cppType >()$_defaultValueSet,\n  "${descr}")';
 
   // end <class AppArg>
   Object _defaultValue;
@@ -192,26 +201,30 @@ static void show_help(std::ostream& out) {
       args.where((a) => _isHelpArg(a)),
       args.where((a) => !_isHelpArg(a))]);
 
-  bool _isHelpArg(AppArg arg) => arg.name == 'help';
+  bool _isHelpArg(AppArg arg) => arg.optName == 'help';
   get _helpArg => args.where((a) => _isHelpArg(a));
 
   _pullOption(AppArg arg) => _isHelpArg(arg)?
     '''
-if(parsed_options.count("${arg.name}") > 0) {
+if(parsed_options.count("${arg.optName}") > 0) {
   help_ = true;
   return;
 }''' : arg == null? null :
+    (arg.defaultValue != null?
     '''
-if(parsed_options.count("${arg.name}") > 0) {
-  ${arg.vname} = parsed_options["${arg.name}"]
+${arg.vname} = parsed_options["${arg.optName}"]
+  .as< ${arg.cppType} >();''' :
+    '''
+if(parsed_options.count("${arg.optName}") > 0) {
+  ${arg.vname} = parsed_options["${arg.optName}"]
     .as< ${arg.cppType} >();
-}${_failIfRequired(arg)}''';
+}${_failIfRequired(arg)}''');
 
   String _failIfRequired(AppArg arg) =>
     arg.isRequired ? '''
  else {
   std::ostringstream msg;
-  msg << "$id option '${arg.name}' is required";
+  msg << "$id option '${arg.optName}' is required";
   throw std::runtime_error(msg.str());
 }''' : '';
 
@@ -249,7 +262,6 @@ if(options.help()) {
     combine([
       'Program_options options = { argc, argv };',
       _showHelp,
-      'std::cout << options << std::endl;',
     ]);
 
   // end <class App>

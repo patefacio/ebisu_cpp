@@ -313,6 +313,8 @@ class Class extends Entity {
   bool includeTest = false;
   /// If true makes members const provides single ctor
   bool immutable = false;
+  /// List of processors supporting flavors of serialization
+  List<Serializer> serializers = [];
   // custom <class Class>
 
   Class(Id id) : super(id);
@@ -427,7 +429,8 @@ class Class extends Entity {
             br(publicMembers
                 .where((m) => !m.isPublicStaticConst).map((m) => _memberDefinition(m))),
             chomp(combine(members.map((m) => br([m.getter, m.setter])))),
-            streamable? outStreamer : null
+            streamable? outStreamer : null,
+            serializers.map((s) => s.serialize(this)),
           ]))),
 
     _wrapInAccess(protected,
@@ -561,6 +564,5 @@ MemberCtor
   new MemberCtor(memberArgs,
       optInit == null? {} : optInit,
       decls == null? [] : decls);
-
 
 // end <part class>
