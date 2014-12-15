@@ -187,4 +187,14 @@ addIncludesForCommonTypes(Iterable<String> types, Includes includes) {
   });
 }
 
+
+String clangFormat(String contents) {
+  final tmpDir = Directory.systemTemp.createTempSync();
+  var tmpFile = new File(path.join(tmpDir.path, 'ebisu_txt.cpp'));
+  tmpFile.writeAsStringSync(contents);
+  final formatted = Process.runSync('clang-format', [tmpFile.path]).stdout;
+  tmpDir.deleteSync(recursive : true);
+  return formatted;
+}
+
 // end <part utils>

@@ -23,7 +23,9 @@ class Member extends Entity {
   /// Is the member mutable
   bool mutable = false;
   /// Is the member const
-  bool isConst = false;
+  set isConst(bool isConst) => _isConst = isConst;
+  /// Is the member a constexprt
+  bool isConstExpr = false;
   /// If set will not initialize variable - use sparingly
   bool noInit = false;
   // custom <class Member>
@@ -76,6 +78,7 @@ class Member extends Entity {
     ' { $init }';
 
   set isStatic(bool v) => static = v;
+  bool get isConst => _isConst || isConstExpr;
   bool get isStatic => static;
   bool get isStaticConst => isConst && isStatic;
   bool get isPublic => cppAccess == public;
@@ -122,13 +125,16 @@ void $name($_argType $name) { $vname = $name; }''' : null;
 
   get _static => static? 'static ' : '';
   get _mutable => mutable? 'mutable ' : '';
-  get _constDecl => isConst? 'const ' : '';
-  //  get _init => initializer;
-  get _decl => '$_static$_mutable$_refType $_constDecl$vname$initializer;';
+  get _constDecl => _isConst? 'const ' : '';
+  get _decl =>
+    isConstExpr? '${_static}constexpr $_mutable$_refType $vname$initializer;' :
+    '$_static$_mutable$_refType $_constDecl$vname$initializer;';
+
   // end <class Member>
   String _init;
   CppAccess _cppAccess;
   bool _byRef;
+  bool _isConst = false;
 }
 // custom <part member>
 

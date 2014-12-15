@@ -83,9 +83,9 @@ class Cereal
       final id = idFromString(style.toString());
       parts.add('''
 
-void serialize_to_${_tag[style]}(std::ostream & out__) {
+void serialize_to_${_tag[style]}(std::ostream & out__) const {
   ${_styleToOutput[style]} ar__(out__);
-  serialize(ar__);
+  const_cast<${cls.className}*>(this)->serialize(ar__);
 }
 
 void serialize_from_${_tag[style]}(std::istream & in__) {

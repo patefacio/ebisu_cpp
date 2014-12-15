@@ -310,6 +310,9 @@ initialize it''',
             member('mutable')..doc = 'Is the member mutable'
             ..classInit = false,
             member('is_const')..doc = 'Is the member const'
+            ..classInit = false
+            ..access = WO,
+            member('is_const_expr')..doc = 'Is the member a constexprt'
             ..classInit = false,
             member('no_init')
             ..doc = 'If set will not initialize variable - use sparingly'

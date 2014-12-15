@@ -74,6 +74,7 @@ class AppArg extends Entity {
 
   get vname => '${name}_';
   get isString => type == ArgType.STRING;
+  get defaultValueLit => isString? quote(defaultValue) : defaultValue;
 
   get cppType =>
     isMultiple ? (type == ArgType.INT ? 'std::vector< int >' :
@@ -90,7 +91,7 @@ class AppArg extends Entity {
   get _defaultValueSet =>
     _defaultValue == null?
     '' :
-    '->default_value($_defaultValue)';
+    '->default_value($defaultValueLit)';
 
   get addOptionDecl =>
     type == ArgType.FLAG? '($flagDecl, "$descr")' :

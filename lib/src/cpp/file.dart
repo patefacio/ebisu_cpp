@@ -23,7 +23,10 @@ abstract class CppFile extends Entity {
     h is Includes? h :
     throw 'Includes must be String, List<String> or Includes';
 
-  generate() => mergeWithFile(contents, filePath);
+  generate() =>
+    (Platform.environment['EBISU_CLANG_FORMAT'] != null || useClangFormatter)?
+    mergeWithFile(clangFormat(contents), filePath) :
+    mergeWithFile(contents, filePath);
 
   CodeBlock getCodeBlock(FileCodeBlock fcb) {
     final result = _codeBlocks[fcb];
@@ -62,5 +65,7 @@ abstract class CppFile extends Entity {
   Includes _includes = new Includes();
 }
 // custom <part file>
+
+bool useClangFormatter = false;
 
 // end <part file>
