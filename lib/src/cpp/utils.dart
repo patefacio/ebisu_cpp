@@ -188,11 +188,11 @@ addIncludesForCommonTypes(Iterable<String> types, Includes includes) {
 }
 
 
-String clangFormat(String contents) {
+String clangFormat(String contents, [String fname = 'ebisu_txt.cpp']) {
   final tmpDir = Directory.systemTemp.createTempSync();
-  var tmpFile = new File(path.join(tmpDir.path, 'ebisu_txt.cpp'));
+  var tmpFile = new File(path.join(tmpDir.path, fname));
   tmpFile.writeAsStringSync(contents);
-  final formatted = Process.runSync('clang-format', [tmpFile.path]).stdout;
+  final formatted = Process.runSync('clang-format', ['--style=Google', tmpFile.path]).stdout;
   tmpDir.deleteSync(recursive : true);
   return formatted;
 }

@@ -373,10 +373,10 @@ String cleanAccess(String txt) {
   result.add(txt.substring(start));
 
   return result.join('');
-  // print(txt.splitMapJoin(_accesRegex,
-  //         onMatch: (Match m) { print('Matched ${m.group(0)}'); return 'foo';},
-  //         onNonMatch: (String nm) { print('Non match <$nm>'); return 'goo';}));
 }
+
+String cppStringLit(String original) =>
+  original.split('\n').map((l) => '"$l\\n"').join('\n');
 
 Template
 template([Iterable<String> decls]) =>

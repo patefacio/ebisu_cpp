@@ -176,12 +176,14 @@ indentBlock(combine(_orderedArgs.map((a) => br(_pullOption(a)))))
 
 static boost::program_options::options_description const& description() {
   using namespace boost::program_options;
-  static options_description options {
-    R"(
-${descr}
+  char const* descr = R"(
+$descr
 
-Allowed Options)"
-  };
+AllowedOptions
+)";
+
+  static options_description options { descr };
+
   if(options.options().empty()) {
     options.add_options()
 ${

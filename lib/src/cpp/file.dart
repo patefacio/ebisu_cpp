@@ -25,7 +25,7 @@ abstract class CppFile extends Entity {
 
   generate() =>
     (Platform.environment['EBISU_CLANG_FORMAT'] != null || useClangFormatter)?
-    mergeWithFile(clangFormat(contents), filePath) :
+    mergeWithFile(clangFormat(contents, '${id.snake}.cpp'), filePath) :
     mergeWithFile(contents, filePath);
 
   CodeBlock getCodeBlock(FileCodeBlock fcb) {
