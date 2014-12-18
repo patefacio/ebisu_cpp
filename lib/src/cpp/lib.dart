@@ -147,6 +147,7 @@ class Header extends CppFile {
     _filePath = path.join(root, includeFilePath);
 
   String get contents {
+
     if(classes.any((c) => c.streamable) &&
         !this.includes.contains('iostream')) {
       this.includes.add('iosfwd');
@@ -157,6 +158,12 @@ class Header extends CppFile {
         'cereal/cereal.hpp',
         'fcs/timestamp/cereal.hpp',
         'cereal/archives/json.hpp',
+      ]);
+    }
+
+    if(classes.any((c) => c.serializers.any((s) => s is DsvSerializer))) {
+      this.includes.addAll([
+        'cppformat/format.h',
       ]);
     }
 

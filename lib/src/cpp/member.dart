@@ -28,6 +28,8 @@ class Member extends Entity {
   bool isConstExpr = false;
   /// If set will not initialize variable - use sparingly
   bool noInit = false;
+  /// Indicates this member is an enum and if serialized should be serialized as int
+  bool serializeInt = false;
   // custom <class Member>
 
   Member(Id id) : super(id);

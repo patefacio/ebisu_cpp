@@ -5,6 +5,7 @@ abstract class CppFile extends Entity {
   List<FileCodeBlock> customBlocks = [];
   List<Class> classes = [];
   Includes get includes => _includes;
+  List<ConstExpr> constExprs = [];
   List<ForwardDecl> forwardDecls = [];
   List<String> usings = [];
   List<Enum> enums = [];
@@ -25,7 +26,8 @@ abstract class CppFile extends Entity {
 
   generate() =>
     (Platform.environment['EBISU_CLANG_FORMAT'] != null || useClangFormatter)?
-    mergeWithFile(clangFormat(contents, '${id.snake}.cpp'), filePath) :
+    mergeWithFile(contents, filePath, customBegin, customEnd,
+        (String txt) => clangFormat(txt, '${id.snake}.cpp')) :
     mergeWithFile(contents, filePath);
 
   CodeBlock getCodeBlock(FileCodeBlock fcb) {
@@ -46,6 +48,7 @@ abstract class CppFile extends Entity {
       namespace.wrap(
         combine([
           _codeBlockText(FileCodeBlock.FCB_BEGIN_NAMESPACE),
+          br(constExprs),
           forwardDecls,
           br(usings.map((u) => 'using $u;')),
           original,

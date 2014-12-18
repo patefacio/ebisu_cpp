@@ -50,6 +50,110 @@ abstract class Serializer {
   // end <class Serializer>
 }
 
+class DsvSerializer
+  implements Serializer {
+  String delimiter = ':';
+  // custom <class DsvSerializer>
+
+  DsvSerializer(this.delimiter);
+
+  String serialize(Class cls) {
+    return '''
+${_out(cls)}
+${cls.immutable? _immutableIn(cls) : _in(cls)}
+''';
+    //TODO: add back
+  }
+
+  String _outMember(Member m) =>
+    m.type == 'Timestamp_t'? 'fcs::timestamp::ticks(${m.vname})' : m.vname;
+
+
+  String _out(Class cls) => '''
+std::string serialize_to_dsv() const {
+  fmt::MemoryWriter w__;
+${
+indentBlock(
+  br([ 'w__ ',
+       cls
+         .members
+         .map((Member m) => "<< ${_outMember(m)} ")
+         .join("<< '$delimiter'"),
+       ';']))
+}
+  return w__.str();
+}
+''';
+
+  String _castMember(Member m) =>
+    m.type == 'Timestamp_t'?
+    '''
+if(!fcs::timestamp::convert_to_timestamp_from_ticks(*it__, ${m.vname})) {
+  std::string msg { "Encountered invalid timestamp ticks:" };
+  msg += *it__;
+  throw std::logic_error(msg);
+}
+''' :
+    m.serializeInt? '${m.vname} = ${m.type}(lexical_cast<int>(*it__));' :
+    '${m.vname} = lexical_cast<${m.type}>(*it__);';
+
+
+  String _readToken(Class cls, Member m) => '''
+if(it__ != tokens__.end()) {
+${indentBlock(_castMember(m))}
+  ++it__;
+} else {
+  throw std::logic_error("Tokenize ${cls.className} failed: expected ${m.vname}");
+}
+''';
+
+  String _in(Class cls) => '''
+void serialize_from_dsv(std::string const& tuple__) {
+  using namespace boost;
+  char_separator<char> const sep__{"$delimiter"};
+  tokenizer<char_separator<char> > tokens__(tuple__, sep__);
+  tokenizer<boost::char_separator<char> >::iterator it__{tokens__.begin()};
+
+${
+indentBlock(
+  br([
+       cls
+         .members
+         .map((Member m) => _readToken(cls, m))
+     ]))
+}
+}
+''';
+
+  String _immutableIn(Class cls) => '''
+static ${cls.className} serialize_from_dsv(std::string const& tuple__) {
+  using namespace boost;
+  char_separator<char> const sep__{"$delimiter"};
+  tokenizer<char_separator<char> > tokens__(tuple__, sep__);
+  tokenizer<boost::char_separator<char> >::iterator it__{tokens__.begin()};
+
+${
+indentBlock(
+  br(cls.members.map((Member m) => '${m.type} ${m.vname};')))
+}
+
+${
+indentBlock(
+  br([
+       cls
+         .members
+         .map((Member m) => _readToken(cls, m))
+     ]))
+}
+
+return ${cls.className}(${cls.members.map((Member m) => m.vname).join(', ')});
+}
+''';
+
+
+  // end <class DsvSerializer>
+}
+
 class Cereal
   implements Serializer {
   List<SerializationStyle> styles = [];
@@ -114,6 +218,11 @@ final binary = SerializationStyle.XML_SERIALIZATION;
 Cereal cereal([ List<SerializationStyle> styles ]) {
   if(styles == null) styles = [ json ];
   return new Cereal(styles);
+}
+
+DsvSerializer dsv([ String delimiter = ':' ]) {
+  assert(delimiter.length == 1);
+  return new DsvSerializer(delimiter);
 }
 
 // end <part serializer>

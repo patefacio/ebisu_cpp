@@ -186,6 +186,14 @@ queries. Makes use of the otl c++ library.
       ..parts = [
         part('utils')
         ..classes = [
+          class_('const_expr')
+          ..extend = 'Entity'
+          ..doc = 'Simple variable constexprs'
+          ..members = [
+            member('type'),
+            member('value')..access = RO,
+            member('namespace')..type = 'Namespace',
+          ],
           class_('forward_decl')
           ..ctorSansNew = true
           ..members = [
@@ -244,6 +252,7 @@ queries. Makes use of the otl c++ library.
             ..type = 'Map<FileCodeBlock, CodeBlock>'..access = IA..classInit = {},
             member('classes')..type = 'List<Class>'..classInit = [],
             member('includes')..type = 'Includes'..access = RO..classInit = 'new Includes()',
+            member('const_exprs')..type = 'List<ConstExpr>'..classInit = [],
             member('forward_decls')..type = 'List<ForwardDecl>'..classInit = [],
             member('usings')..type = 'List<String>'..classInit = [],
             member('enums')..type = 'List<Enum>'..classInit = [],
@@ -316,6 +325,9 @@ initialize it''',
             ..classInit = false,
             member('no_init')
             ..doc = 'If set will not initialize variable - use sparingly'
+            ..classInit = false,
+            member('serialize_int')
+            ..doc = 'Indicates this member is an enum and if serialized should be serialized as int'
             ..classInit = false,
           ],
         ],
@@ -437,6 +449,11 @@ initialize it''',
         ]
         ..classes = [
           class_('serializer')..isAbstract = true,
+          class_('dsv_serializer')
+          ..implement = [ 'Serializer' ]
+          ..members = [
+            member('delimiter')..classInit = ':',
+          ],
           class_('cereal')
           ..implement = [ 'Serializer' ]
           ..members = [

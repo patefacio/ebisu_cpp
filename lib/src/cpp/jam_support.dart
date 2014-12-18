@@ -249,6 +249,7 @@ ${scriptCustomBlock('additional_includes')}
           <library>/site-config//boost_thread
           <library>/site-config//boost_system
           <library>/usr/local/lib/libodbc.2.dylib
+${scriptCustomBlock('additional_libs')}
        :
         : build-dir ../../build-dir
         ;

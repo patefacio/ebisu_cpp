@@ -1,5 +1,43 @@
 part of ebisu_cpp.cpp;
 
+/// Simple variable constexprs
+class ConstExpr extends Entity {
+  String type;
+  String get value => _value;
+  Namespace namespace;
+  // custom <class ConstExpr>
+
+  ConstExpr(Id id, Object value_, [ this.type ]) : super(id) {
+    value = value_;
+  }
+
+  set value(Object value_) {
+    if(type == null) {
+      type =
+        value_ is String? 'char const*' :
+        value_ is int? 'int' :
+        value_ is double? 'double' :
+        throw 'ConstExpr does not infer types from ${value.runtimeType} => $value';
+    }
+    if(value_ is String) {
+      value_ = quote(value_);
+    }
+    _value = value_.toString();
+  }
+
+  set valueText(String txt) => _value = txt;
+
+  get vname => id.capSnake;
+  get unqualDecl => 'constexpr $type $vname { $value };';
+
+  toString() =>
+    namespace == null || namespace.length == 0?
+    unqualDecl : namespace.wrap(unqualDecl);
+
+  // end <class ConstExpr>
+  String _value;
+}
+
 class ForwardDecl {
   ForwardDecl(this.type, [ this.namespace ]);
 
@@ -169,6 +207,18 @@ Namespace namespace(List<String> ns) =>
 
 Includes includes([ List<String> includes ]) =>
   new Includes(includes);
+
+ConstExpr constExpr(Object id, Object value,
+    [ String typeStr,  Namespace namespace ]) {
+  id =
+    id is Id? id :
+    id is String? idFromString(id) :
+    throw 'ConstExpr must be created with an id or string - not $id';
+
+  return new ConstExpr(id, value, typeStr);
+}
+
+
 
 final _commonTypes = const {
   'std::string' : 'string',
