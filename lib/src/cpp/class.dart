@@ -296,6 +296,7 @@ class Class extends Entity {
   bool struct = false;
   Template get template => _template;
   List<String> usings = [];
+  List<String> usingsPostDecl = [];
   List<Base> bases = [];
   List<MemberCtor> memberCtors = [];
   List<PtrType> forwardPtrs = [];
@@ -448,6 +449,7 @@ class Class extends Entity {
           ]))),
 
     br(_classCloser),
+    br(usingsPostDecl.map((u) => 'using $u;')),
     _codeBlockText(clsPostDecl),
   ];
 
