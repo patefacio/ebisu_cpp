@@ -329,6 +329,9 @@ initialize it''',
             member('serialize_int')
             ..doc = 'Indicates this member is an enum and if serialized should be serialized as int'
             ..classInit = false,
+            member('cereal_transient')
+            ..doc = 'Indicates this member should not be serialized via cereal'
+            ..classInit = false,
           ],
         ],
         part('class')
@@ -389,6 +392,9 @@ initialize it''',
             ..doc = 'Has custom code, so needs protect block'..classInit = false..access = WO,
             member('custom_label')
             ..doc = 'Label for custom protect block if desired'..access = WO,
+            member('all_members')
+            ..doc = 'If set automatically includes all members as args'
+            ..classInit = false,
           ],
           class_('op_equal')..extend = 'ClassMethod',
           class_('op_less')..extend = 'ClassMethod',

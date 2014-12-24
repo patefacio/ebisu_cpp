@@ -30,6 +30,8 @@ class Member extends Entity {
   bool noInit = false;
   /// Indicates this member is an enum and if serialized should be serialized as int
   bool serializeInt = false;
+  /// Indicates this member should not be serialized via cereal
+  bool cerealTransient = false;
   // custom <class Member>
 
   Member(Id id) : super(id);
@@ -66,6 +68,8 @@ class Member extends Entity {
       } else if(init_ is String) {
         type = 'std::string';
         init_ = quote(init_);
+      } else if(init_ is bool) {
+        type = 'bool';
       } else {
         type = 'int';
       }

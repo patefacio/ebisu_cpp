@@ -94,7 +94,8 @@ class AppArg extends Entity {
     '->default_value($defaultValueLit)';
 
   get addOptionDecl =>
-    type == ArgType.FLAG? '($flagDecl, "$descr")' :
+    type == ArgType.FLAG?
+    '($flagDecl, "$descr")' :
     '($flagDecl, value< $cppType >()$_defaultValueSet,\n  "${descr}")';
 
   // end <class AppArg>
@@ -207,12 +208,18 @@ static void show_help(std::ostream& out) {
   bool _isHelpArg(AppArg arg) => arg.optName == 'help';
   get _helpArg => args.where((a) => _isHelpArg(a));
 
+  _readFlag(AppArg arg) =>
+    'parsed_options.count("${arg.optName}") > 0';
+
   _pullOption(AppArg arg) => _isHelpArg(arg)?
     '''
 if(parsed_options.count("${arg.optName}") > 0) {
   help_ = true;
   return;
 }''' : arg == null? null :
+    arg.type == ArgType.FLAG? '''
+${arg.vname} = ${_readFlag(arg)};
+''' :
     (arg.defaultValue != null?
     '''
 ${arg.vname} = parsed_options["${arg.optName}"]

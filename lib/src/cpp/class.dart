@@ -180,6 +180,8 @@ class MemberCtor extends ClassMethod {
   set hasCustom(bool hasCustom) => _hasCustom = hasCustom;
   /// Label for custom protect block if desired
   set customLabel(String customLabel) => _customLabel = customLabel;
+  /// If set automatically includes all members as args
+  bool allMembers = false;
   // custom <class MemberCtor>
 
   MemberCtor(this.memberArgs, [ this.optInit, this.decls ]) {
@@ -199,7 +201,7 @@ class MemberCtor extends ClassMethod {
 
     parent.members.forEach((Member member) {
       final arg = member.name;
-      if(memberArgs.indexOf(member.name) >= 0) {
+      if(allMembers || memberArgs.indexOf(member.name) >= 0) {
         var decl = member.passDecl;
         final init = optInit == null? null : optInit[arg];
         if(init != null)
@@ -377,7 +379,7 @@ class Class extends Entity {
           if(_defaultCtor == null) {
             m.noInit = true;
           }
-          m.isConst = true;
+          m.isConst = !m.mutable;
           m.access = ro;
         });
         if(memberCtors.isEmpty) {
@@ -559,11 +561,12 @@ opOut() => new OpOut();
 
 /// Create a MemberCtor sans new, for more declarative construction
 MemberCtor
-  memberCtor(List<String> memberArgs,    [
+  memberCtor([
+    List<String> memberArgs,
     Map<String, String> optInit,
     List<String> decls
   ]) =>
-  new MemberCtor(memberArgs,
+  new MemberCtor(memberArgs == null? [] : memberArgs,
       optInit == null? {} : optInit,
       decls == null? [] : decls);
 
