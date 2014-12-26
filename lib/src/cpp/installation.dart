@@ -106,9 +106,13 @@ class PathLocator {
       _path = defaultPath;
     }
 
-    var fileType = FileSystemEntity.typeSync(path);
-    if(fileType == FileSystemEntityType.NOT_FOUND) {
-      _logger.warning('Required path ($envVar, $defaultPath, $path) not found');
+    if(path == null) {
+      _logger.warning('$envVar must be set as there is no established default!');
+    } else {
+      var fileType = FileSystemEntity.typeSync(path);
+      if(fileType == FileSystemEntityType.NOT_FOUND) {
+        _logger.warning('Required path ($envVar, $defaultPath, $path) not found');
+      }
     }
   }
 
