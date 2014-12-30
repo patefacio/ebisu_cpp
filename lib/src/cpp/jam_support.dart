@@ -177,7 +177,7 @@ class JamConstant {
   String value;
   // custom <class JamConstant>
 
-  toString() => 'constant $constant : $value ;'
+  toString() => 'constant $constant : $value ;';
 
   // end <class JamConstant>
 }

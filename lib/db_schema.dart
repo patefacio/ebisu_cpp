@@ -10,7 +10,7 @@ import 'package:ini/ini.dart';
 import 'package:magus/schema.dart';
 import 'package:path/path.dart' as path;
 import 'package:quiver/core.dart';
-import 'package:sqljocky/sqljocky.dart';
+import 'package:sqljocky/sqljocky.dart' hide Query;
 // custom <additional imports>
 // end <additional imports>
 

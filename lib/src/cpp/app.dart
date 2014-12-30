@@ -302,7 +302,6 @@ abstract class AppBuilder
   get sources => app.sources;
 
   get libs => detectLibsFromIncludes()..addAll(app.requiredLibs);
-  get libPaths;
 
   Set<String> detectLibsFromIncludes() {
     final found = new Set<String>();

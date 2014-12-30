@@ -25,7 +25,6 @@ void main() {
       library('test_cpp_member'),
       library('test_cpp_class'),
       library('test_cpp_utils'),
-      library('test_cpp_schema'),
     ]
     ..libraries = [
       library('db_schema')
@@ -35,7 +34,7 @@ void main() {
         'package:ebisu/ebisu.dart',
         "'package:path/path.dart' as path",
         'package:ini/ini.dart',
-        'package:sqljocky/sqljocky.dart',
+        '"package:sqljocky/sqljocky.dart" hide Query',
         'package:ebisu_cpp/cpp.dart',
         'package:magus/schema.dart',
         'dart:async',

@@ -87,24 +87,18 @@ class OtlBindVariable {
         } else {
           dataType = BDT_VARCHAR_LONG;
         }
-        break;
       }
-      case SqlInt: {
-        dataType = sqlType.length <= 4? BDT_INT : BDT_BIGINT;
+      break;
+      case SqlInt:
+        dataType = (sqlType as SqlInt).length <= 4? BDT_INT : BDT_BIGINT;
         break;
-      }
-      case SqlDecimal: {
+      case SqlDecimal:
         throw 'Add support for SqlDecimal';
-        break;
-      }
-      case SqlBinary: {
+      case SqlBinary:
         throw 'Add support for SqlDecimal';
-        break;
-      }
-      case SqlFloat: {
+      case SqlFloat:
         dataType = BDT_DOUBLE;
         break;
-      }
       case SqlDate:
       case SqlTime:
       case SqlTimestamp: {
@@ -630,17 +624,14 @@ from
 
 String _cppType(SqlType sqlType) {
     switch(sqlType.runtimeType) {
-      case SqlString: {
+      case SqlString:
         final str = sqlType as SqlString;
         return (str.length > 0)?
           'fcs::utils::Fixed_size_char_array< ${str.length} >' :
           'std::string';
-      }
       case SqlInt: return (sqlType as SqlInt).length <= 4? 'int32_t' : 'int64_t';
       case SqlDecimal: return 'decimal';
-      case SqlBinary: {
-        throw 'Add support for SqlDecimal';
-      }
+      case SqlBinary: throw 'Add support for SqlDecimal';
       case SqlFloat: return 'double';
       case SqlDate:
       case SqlTime:

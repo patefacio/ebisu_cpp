@@ -19,7 +19,7 @@ main() {
       ..namespace = namespace(['foo','bar'])
       ..headers = [
         header('guts')
-        ..headers = [ 'cmath', 'boost/filesystem.hpp' ]
+        ..includes = [ 'cmath', 'boost/filesystem.hpp' ]
         ..classes = [
           class_('c_1')
           ..streamable = true
