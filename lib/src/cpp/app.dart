@@ -107,7 +107,7 @@ class App extends Impl with InstallationCodeGenerator {
   List<Header> headers = [];
   List<Impl> impls = [];
   List<String> requiredLibs = [];
-  /// List of builders to generate build scripts of a desired flavor (bjam, cmake)
+  /// List of builders to generate build scripts of a desired flavor (bjam,...)
   List<AppBuilder> builders = [];
   // custom <class App>
 
@@ -149,7 +149,7 @@ class App extends Impl with InstallationCodeGenerator {
 
     super.generate();
 
-    if(builders.isEmpty) {
+    if(installation.wantsJam) {
       builders.add(new JamAppBuilder.fromApp(this));
     }
 

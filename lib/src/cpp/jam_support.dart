@@ -1,5 +1,25 @@
 part of ebisu_cpp.cpp;
 
+/// Effectively just a placeholder, the presence of which in an installation
+/// indicates bjam shoud be set up per app and tests in the installation.
+///
+class JamInstallationBuilder extends InstallationBuilder {
+  // custom <class JamInstallationBuilder>
+
+  JamInstallationBuilder.fromInstallation(installation) :
+    super.fromInstallation(installation);
+  JamInstallationBuilder() : super();
+
+  generate() {
+    new SiteConfig(installation).generate();
+    new UserConfig(installation).generate();
+    new JamRoot(installation).generate();
+    new JamFileTop(installation).generate();
+  }
+
+  // end <class JamInstallationBuilder>
+}
+
 class JamAppBuilder extends AppBuilder {
   // custom <class JamAppBuilder>
 

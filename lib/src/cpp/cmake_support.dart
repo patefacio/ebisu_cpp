@@ -1,29 +1,5 @@
 part of ebisu_cpp.cpp;
 
-class CmakeAppBuilder extends AppBuilder {
-  // custom <class CmakeAppBuilder>
-
-  CmakeAppBuilder.fromApp(App app) : super.fromApp(app);
-  CmakeAppBuilder() : super();
-  void generate() {
-    mergeBlocksWithFile('''
-cmake_minimum_required (VERSION 3.0)
-project ($appName)
-include(\${CMAKE_CURRENT_LIST_DIR}/${path.relative(installationCmakeCommon(installation), from:appPath)})
-
-add_executable($appName
-  ${sources.map((src) => '$src.cpp').join('\n  ')}
-)
-
-TARGET_LINK_LIBRARIES(exch_server
-  ${libs.join('\n  ')}
-)
-''', path.join(appPath, 'CMakeLists.txt'));
-  }
-
-  // end <class CmakeAppBuilder>
-}
-
 class CmakeInstallationBuilder extends InstallationBuilder {
   // custom <class CmakeInstallationBuilder>
 
@@ -130,7 +106,6 @@ cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
 }
 // custom <part cmake_support>
 
-CmakeAppBuilder cmakeAppBuilder() => new CmakeAppBuilder();
 CmakeInstallationBuilder cmakeInstallationBuilder() =>
   new CmakeInstallationBuilder();
 

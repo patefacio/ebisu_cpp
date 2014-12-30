@@ -61,6 +61,7 @@ class Installation
     return result..addAll(tests);
   }
 
+  get wantsJam => builders.any((b) => b is JamInstallationBuilder);
 
   String toString() => '''
 Installation($root)
@@ -82,11 +83,11 @@ Installation($root)
     apps..forEach((a) => _generatedApps.add(a..generate()))..clear();
     schemaCodeGenerators..forEach((scg) => scg.generate())..clear();
     if(generateJamConfigs) {
-      new SiteConfig(this).generate();
-      new UserConfig(this).generate();
-      new JamRoot(this).generate();
-      new JamFileTop(this).generate();
+      if(!builders.any((b) => b is JamInstallationBuilder)) {
+        builders.add(new JamInstallationBuilder.fromInstallation(this));
+      }
     }
+
     for(var builder in builders) {
       builder.generateInstallationBuilder(this);
     }

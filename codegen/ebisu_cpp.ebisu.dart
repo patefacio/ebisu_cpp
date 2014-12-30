@@ -537,7 +537,7 @@ If true marks this header as special to the set of headers in its library in tha
             member('impls')..type = 'List<Impl>'..classInit = [],
             member('required_libs')..type = 'List<String>'..classInit = [],
             member('builders')
-            ..doc = 'List of builders to generate build scripts of a desired flavor (bjam, cmake)'
+            ..doc = 'List of builders to generate build scripts of a desired flavor (bjam,...)'
             ..type = 'List<AppBuilder>'..classInit = [],
           ],
           class_('app_builder')
@@ -550,13 +550,17 @@ If true marks this header as special to the set of headers in its library in tha
         ],
         part('cmake_support')
         ..classes = [
-          class_('cmake_app_builder')
-          ..extend = 'AppBuilder',
           class_('cmake_installation_builder')
           ..extend = 'InstallationBuilder',
         ],
         part('jam_support')
         ..classes = [
+          class_('jam_installation_builder')
+          ..doc = '''
+Effectively just a placeholder, the presence of which in an installation
+indicates bjam shoud be set up per app and tests in the installation.
+'''
+          ..extend = 'InstallationBuilder',
           class_('jam_app_builder')
           ..extend = 'AppBuilder',
           class_('jam_test_builder')

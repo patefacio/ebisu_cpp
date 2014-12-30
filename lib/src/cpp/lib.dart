@@ -107,14 +107,15 @@ class Lib extends Entity with InstallationCodeGenerator {
          if(dirTests == null)
            dirTests = (pathToTests[directory] = []);
          dirTests.add(test);
-         print('Adding test ${test.name}');
          tests.add(test);
        });
 
-    pathToTests.forEach((directory, tests) {
-      new JamTestBuilder(this, directory, tests)
-        .generate();
-    });
+    if(installation.wantsJam) {
+      pathToTests.forEach((directory, tests) {
+        new JamTestBuilder(this, directory, tests)
+          .generate();
+      });
+    }
   }
 
   String toString() => '''
