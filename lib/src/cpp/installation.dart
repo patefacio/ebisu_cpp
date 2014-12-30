@@ -8,6 +8,31 @@ abstract class InstallationCodeGenerator
   // end <class InstallationCodeGenerator>
 }
 
+/// Creates builder for an installation (ie ties together all build artifacts)
+///
+abstract class InstallationBuilder
+  implements CodeGenerator {
+  Installation installation;
+  // custom <class InstallationBuilder>
+
+  get name => installation.id.snake;
+  get rootPath => installation.root;
+  get cppPath => path.join(rootPath, 'cpp');
+  get tests => installation.allTests;
+  get apps => installation._generatedApps;
+  get libs => installation._generatedLibs;
+
+  InstallationBuilder.fromInstallation(this.installation);
+  InstallationBuilder();
+
+  generateInstallationBuilder(Installation installation) {
+    this.installation = installation;
+    generate();
+  }
+
+  // end <class InstallationBuilder>
+}
+
 class Installation
   implements CodeGenerator {
   Installation(this.id);
@@ -23,10 +48,19 @@ class Installation
   List<Test> tests = [];
   List<Lib> get generatedLibs => _generatedLibs;
   List<App> get generatedApps => _generatedApps;
+  /// List of builders for the installation (bjam, cmake)
+  List<InstallationBuilder> builders = [];
   // custom <class Installation>
 
   get name => id.snake;
   get nameShout => id.shout;
+
+  get allTests {
+    final result = _generatedLibs.fold([],
+        (prev, l) => prev..addAll(l.tests));
+    return result..addAll(tests);
+  }
+
 
   String toString() => '''
 Installation($root)
@@ -52,6 +86,9 @@ Installation($root)
       new UserConfig(this).generate();
       new JamRoot(this).generate();
       new JamFileTop(this).generate();
+    }
+    for(var builder in builders) {
+      builder.generateInstallationBuilder(this);
     }
   }
 

@@ -107,6 +107,8 @@ class App extends Impl with InstallationCodeGenerator {
   List<Header> headers = [];
   List<Impl> impls = [];
   List<String> requiredLibs = [];
+  /// List of builders to generate build scripts of a desired flavor (bjam, cmake)
+  List<AppBuilder> builders = [];
   // custom <class App>
 
   App(Id id) : super(id);
@@ -130,6 +132,7 @@ class App extends Impl with InstallationCodeGenerator {
           ..defaultValue = false
           ..descr = 'Display help information');
     }
+    _includes.add('iostream');
     if(args.isNotEmpty)
       _includes.add('boost/program_options.hpp');
 
@@ -146,7 +149,13 @@ class App extends Impl with InstallationCodeGenerator {
 
     super.generate();
 
-    new JamAppBuilder(this).generate();
+    if(builders.isEmpty) {
+      builders.add(new JamAppBuilder.fromApp(this));
+    }
+
+    for(var appBuilder in builders) {
+      appBuilder.generateBuildScripts(this);
+    }
   }
 
   get _hasMultiple => args.any((a) => a.isMultiple);
@@ -281,10 +290,41 @@ if(options.help()) {
 /// Creates builder for an application
 abstract class AppBuilder
   implements CodeGenerator {
-  AppBuilder(this.app);
-
   App app;
   // custom <class AppBuilder>
+
+  AppBuilder();
+  AppBuilder.fromApp(this.app);
+
+  get installation => app.installation;
+  get appName => app.name;
+  get appPath => app.appPath;
+  get sources => app.sources;
+
+  get libs => detectLibsFromIncludes()..addAll(app.requiredLibs);
+  get libPaths;
+
+  Set<String> detectLibsFromIncludes() {
+    final found = new Set<String>();
+    app.allIncludes.includeEntries.forEach((String include) {
+      _headerToLibRequirement.forEach((String header, String requirement) {
+        if(include.contains(header)) found.add(requirement);
+      });
+    });
+    return found;
+  }
+
+  generateBuildScripts(App app) {
+    this.app = app;
+    generate();
+  }
+
+  static const Map _headerToLibRequirement = const {
+    'boost/program_options.hpp' : 'boost_program_options',
+    'boost/date_time' : 'boost_date_time',
+    'boost/regex' : 'boost_regex',
+  };
+
   // end <class AppBuilder>
 }
 // custom <part app>

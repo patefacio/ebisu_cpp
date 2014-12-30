@@ -485,6 +485,7 @@ initialize it''',
           ..members = [
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('headers')..type = 'List<Header>'..classInit = [],
+            member('tests')..type = 'List<Test>'..classInit = [],
           ],
           class_('header')
           ..extend = 'CppFile'
@@ -536,14 +537,24 @@ If true marks this header as special to the set of headers in its library in tha
             member('headers')..type = 'List<Header>'..classInit = [],
             member('impls')..type = 'List<Impl>'..classInit = [],
             member('required_libs')..type = 'List<String>'..classInit = [],
+            member('builders')
+            ..doc = 'List of builders to generate build scripts of a desired flavor (bjam, cmake)'
+            ..type = 'List<AppBuilder>'..classInit = [],
           ],
           class_('app_builder')
           ..isAbstract = true
           ..implement = [ 'CodeGenerator' ]
           ..doc = 'Creates builder for an application'
           ..members = [
-            member('app')..type = 'App'..ctors = ['']
+            member('app')..type = 'App'
           ],
+        ],
+        part('cmake_support')
+        ..classes = [
+          class_('cmake_app_builder')
+          ..extend = 'AppBuilder',
+          class_('cmake_installation_builder')
+          ..extend = 'InstallationBuilder',
         ],
         part('jam_support')
         ..classes = [
@@ -620,6 +631,15 @@ If true marks this header as special to the set of headers in its library in tha
           ..members = [
             member('installation')..type = 'Installation',
           ],
+          class_('installation_builder')
+          ..isAbstract = true
+          ..implement = [ 'CodeGenerator' ]
+          ..doc = '''
+Creates builder for an installation (ie ties together all build artifacts)
+'''
+          ..members = [
+            member('installation')..type = 'Installation'
+          ],
           class_('installation')
           ..implement = [ 'CodeGenerator' ]
           ..members = [
@@ -633,6 +653,9 @@ If true marks this header as special to the set of headers in its library in tha
             member('tests')..type = 'List<Test>'..classInit = [],
             member('generated_libs')..type = 'List<Lib>'..classInit = []..access = RO,
             member('generated_apps')..type = 'List<App>'..classInit = []..access = RO,
+            member('builders')
+            ..doc = 'List of builders for the installation (bjam, cmake)'
+            ..type = 'List<InstallationBuilder>'..classInit = [],
           ],
           class_('path_locator')
           ..members = [

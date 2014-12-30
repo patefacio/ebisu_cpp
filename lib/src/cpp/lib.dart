@@ -53,6 +53,7 @@ class FileCodeBlock implements Comparable<FileCodeBlock> {
 class Lib extends Entity with InstallationCodeGenerator {
   Namespace namespace = new Namespace();
   List<Header> headers = [];
+  List<Test> tests = [];
   // custom <class Lib>
 
   Lib(Id id) : super(id);
@@ -102,9 +103,11 @@ class Lib extends Entity with InstallationCodeGenerator {
 
          final test = header.test;
          final directory = path.dirname(test.filePath);
-         var tests = pathToTests[directory];
-         if(tests == null)
-           tests = (pathToTests[directory] = []);
+         var dirTests = pathToTests[directory];
+         if(dirTests == null)
+           dirTests = (pathToTests[directory] = []);
+         dirTests.add(test);
+         print('Adding test ${test.name}');
          tests.add(test);
        });
 
@@ -117,6 +120,7 @@ class Lib extends Entity with InstallationCodeGenerator {
   String toString() => '''
     lib($id)
       headers:\n${headers.map((h) => h.toString()).join('\n')}
+      tests:\n${tests.map((t) => t.name).join('\n')}
 ''';
 
   // end <class Lib>

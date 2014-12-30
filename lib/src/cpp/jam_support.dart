@@ -4,15 +4,9 @@ class JamAppBuilder extends AppBuilder {
   // custom <class JamAppBuilder>
 
   get app => super.app;
-  get appName => app.name;
 
-  JamAppBuilder(App app) : super(app);
-
-  static const Map _headerToJamRequirement = const {
-    'boost/program_options.hpp' : '/site-config//boost_program_options',
-    'boost/date_time' : '/site-config//boost_date_time',
-    'boost/regex' : '/site-config//boost_regex',
-  };
+  JamAppBuilder.fromApp(App app) : super.fromApp(app);
+  JamAppBuilder() : super();
 
   static const Map _libToJamRequirement = const {
     'boost_program_options' : '/site-config//boost_program_options',
@@ -30,17 +24,15 @@ class JamAppBuilder extends AppBuilder {
       found.add(requirement);
     });
 
-    app.allIncludes.includeEntries.forEach((String include) {
-      _headerToJamRequirement.forEach((String header, String requirement) {
-        if(include.contains(header))
-          found.add(requirement);
-      });
-    });
+    for(var lib in detectLibsFromIncludes()) {
+      found.add('/site-config//$lib');
+    }
+
     return found;
   }
 
   void generate() {
-    final targetFile = path.join(app.appPath, 'Jamfile.v2');
+    final targetFile = path.join(appPath, 'Jamfile.v2');
     mergeBlocksWithFile('''
 import os ;
 project $appName

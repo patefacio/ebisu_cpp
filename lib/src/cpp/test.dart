@@ -23,7 +23,9 @@ class Test extends Impl with InstallationCodeGenerator {
   get name => 'test_$basename';
   get testCppFile => '$name.cpp';
   get cppFiles => [ testCppFile ];
+  get sources => [ name ]..addAll(impls.map((i) => i.id.snake));
   get testFilePathFromRoot => path.join(namespace.asPath, testCppFile);
+  get cppPath => path.dirname(_filePath);
 
   addTestFunctions(Iterable<String> testFunction) =>
     _testFunctions.addAll(testFunction);

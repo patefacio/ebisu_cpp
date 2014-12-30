@@ -17,6 +17,7 @@ part 'src/cpp/class.dart';
 part 'src/cpp/serializer.dart';
 part 'src/cpp/lib.dart';
 part 'src/cpp/app.dart';
+part 'src/cpp/cmake_support.dart';
 part 'src/cpp/jam_support.dart';
 part 'src/cpp/script.dart';
 part 'src/cpp/test.dart';
