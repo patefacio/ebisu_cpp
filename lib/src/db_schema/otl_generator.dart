@@ -385,8 +385,21 @@ operator>>(otl_stream &src,
 }
 ''';
 
-  
-  
+  String _bindingVariableText(Column column) =>
+    new OtlBindVariable.fromDataType(column.name, column.type).toString();
+
+  String _bindingWhereClause(Iterable<Column> cols) => '''
+${cols.map((col) => '${col.name}=${_bindingVariableText(col)}').join(' AND\n')}
+''';
+
+  String _bindingUpdateClause(Iterable<Column> cols) => '''
+${cols.map((col) => '${col.name}=${_bindingVariableText(col)}').join(',\n')}
+''';
+
+  String _bindingValueClause(Iterable<Column> cols) => '''
+${cols.map((col) => '${_bindingVariableText(col)}').join(',\n')}
+''';
+
   // end <class OtlTableGatewayGenerator>
 }
 // custom <part otl_generator>

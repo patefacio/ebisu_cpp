@@ -251,21 +251,6 @@ to_string_list(String_list_t &out) const {
     return result;
   }
 
-  String _bindingVariableText(Column column) =>
-    new OtlBindVariable.fromDataType(column.name, column.type).toString();
-
-  String _bindingWhereClause(Iterable<Column> cols) => '''
-${cols.map((col) => '${col.name}=${_bindingVariableText(col)}').join(' AND\n')}
-''';
-
-  String _bindingUpdateClause(Iterable<Column> cols) => '''
-${cols.map((col) => '${col.name}=${_bindingVariableText(col)}').join(',\n')}
-''';
-
-  String _bindingValueClause(Iterable<Column> cols) => '''
-${cols.map((col) => '${_bindingVariableText(col)}').join(',\n')}
-''';
-
   get _printSupport => '''
 static void
 print_recordset_as_table(Row_list_t const& recordset,
@@ -341,7 +326,7 @@ String _cppType(SqlType sqlType) {
       case SqlFloat: return 'double';
       case SqlDate:
       case SqlTime:
-      case SqlTimestamp: return 'otl_datetime';
+      case SqlTimestamp: return 'Orm_timestamp_t';
     }
     throw 'SqlType $sqlType not supported';
 }
