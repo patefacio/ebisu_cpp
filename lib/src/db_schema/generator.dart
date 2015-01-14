@@ -89,9 +89,6 @@ abstract class TableGatewayGenerator {
     valueClass = _makeClass(valueClassId.snake, table.valueColumns);
   }
 
-  void finishClass(Class cls);
-  void addRequiredIncludes(Header hdr);
-
   get schema => _tableDetails.schema;
   get table => _tableDetails.table;
   get tableId => _tableDetails.tableId;
@@ -100,6 +97,22 @@ abstract class TableGatewayGenerator {
   get rowType => _tableDetails.rowType;
   get keyClassId => _tableDetails.keyClassId;
   get valueClassId => _tableDetails.valueClassId;
+
+  
+  void finishClass(Class cls);
+  void finishGatewayClass(Class cls);
+  void addRequiredIncludes(Header hdr);
+
+  get selectLastInsertId;
+  get selectAffectedRowCount;
+  get selectTableRowCount;
+  get selectAllRows;
+  get findRowByKey;
+  get findRowByValue;
+  get insertRowList;
+  get updateRowList;
+  get deleteRow;
+  get deleteAllRows;
 
   _makeMember(c) =>
     member(c.name)
@@ -181,6 +194,38 @@ to_string_list(String_list_t &out) const {
       fkeyIncludes.add('${refTableId.snake}.hpp');
     });
 
+    final gatewayClass = class_('${tableName}')
+      ..includeTest = !hasForeignKey
+      ..isSingleton = true
+      ..template = [
+        'typename PKEY_LIST_TYPE = std::vector< $keyClassType >',
+        'typename VALUE_LIST_TYPE = std::vector< $valueClassType >',
+      ]
+      ..usings = [
+        'Pkey_t = $keyClassType',
+        'Value_t = $valueClassType',
+        'Pkey_list_t = PKEY_LIST_TYPE',
+        'Value_list_t = VALUE_LIST_TYPE',
+        'Row_t = std::pair< Pkey_t, Value_t >',
+        'Row_list_t = std::vector< Row_t >',
+      ]
+      ..getCodeBlock(clsPublic).snippets.addAll([
+        _printSupport,
+        selectLastInsertId,
+        selectAffectedRowCount,
+        selectTableRowCount,
+        selectAllRows,
+        findRowByKey,
+        findRowByValue,
+        insertRowList,
+        updateRowList,
+        deleteRow,
+        deleteAllRows
+      ])
+      ..getCodeBlock(clsPostDecl).snippets.add(_foreignLinks);
+
+    finishGatewayClass(gatewayClass);
+    
     final result = new Header(tableId)
       ..namespace = namespace
       ..includes = (
@@ -195,28 +240,7 @@ to_string_list(String_list_t &out) const {
       ..classes = [
         keyClass,
         valueClass,
-        class_('${tableName}')
-        ..includeTest = !hasForeignKey
-        ..isSingleton = true
-        ..template = [
-          'typename PKEY_LIST_TYPE = std::vector< $keyClassType >',
-          'typename VALUE_LIST_TYPE = std::vector< $valueClassType >',
-        ]
-        ..usings = [
-          'Pkey_t = $keyClassType',
-          'Value_t = $valueClassType',
-          'Pkey_list_t = PKEY_LIST_TYPE',
-          'Value_list_t = VALUE_LIST_TYPE',
-          'Row_t = std::pair< Pkey_t, Value_t >',
-          'Row_list_t = std::vector< Row_t >',
-        ]
-        ..members = [
-          member('connection')..type = 'otl_connect *'
-          ..access = ia
-          ..initText = 'Connection_code_metrics::instance().connection()',
-        ]
-        ..getCodeBlock(clsPublic).snippets.add(_gatewaySupport)
-        ..getCodeBlock(clsPostDecl).snippets.add(_foreignLinks),
+        gatewayClass
       ];
 
     //    if(!hasForeignKey) {
@@ -242,7 +266,7 @@ ${cols.map((col) => '${col.name}=${_bindingVariableText(col)}').join(',\n')}
 ${cols.map((col) => '${_bindingVariableText(col)}').join(',\n')}
 ''';
 
-  get _gatewaySupport => '''
+  get _printSupport => '''
 static void
 print_recordset_as_table(Row_list_t const& recordset,
                          std::ostream &out) {
@@ -255,147 +279,8 @@ print_values_as_table(Value_list_t const& values,
   fcs::orm::print_values_as_table< $className >(values, out);
 }
 
-int select_last_insert_id() {
-  int result {};
-  otl_stream stream { 1, "SELECT LAST_INSERT_ID()", *connection_ };
-  if(!stream.eof()) {
-    stream >> result;
-  }
-  return result;
-}
-
-int select_affected_row_count() {
-  int result {};
-  otl_stream stream { 1, "SELECT ROW_COUNT()", *connection_ };
-  if(!stream.eof()) {
-    int signed_result(0);
-    stream >> signed_result;
-    result = (signed_result < 0)? 0 : signed_result;
-  }
-  return result;
-}
-
-int select_table_row_count() {
-  int result(0);
-  otl_stream stream { 1, "SELECT COUNT(*) FROM $tableName", *connection_ };
-  if(!stream.eof()) {
-    stream >> result;
-  }
-  return result;
-}
-
-Row_list_t select_all_rows(std::string const& where_clause = "") {
-  Row_list_t found;
-  char const* select_stmt = R"(
-${indentBlock(chomp(_selectAll(table)), '    ')}
-  )";
-
-  otl_stream stream { 50,
-    where_clause.empty()?
-      select_stmt :
-      (std::string(select_stmt) + where_clause).c_str(),
-    *connection_ };
-
-  while(!stream.eof()) {
-    Row_t row;
-    stream >> row.first >> row.second;
-    found.push_back(row);
-  }
-  return found;
-}
-
-bool find_row_by_key(Pkey_t const& desideratum, Value_t & found) {
-  char const* select_stmt = R"(
-${indentBlock(chomp(_selectValues(table)), '    ')}
-    where
-${indentBlock(chomp(_bindingWhereClause(table.primaryKey)), '      ')}
-  )";
-
-  otl_stream stream { 50, select_stmt, *connection_ };
-  stream << desideratum;
-  if(!stream.eof()) {
-    stream >> found;
-    return true;
-  }
-  return false;
-}
-
-bool find_row_by_value(Row_t & desideratum) {
-  char const* select_stmt = R"(
-${indentBlock(chomp(_selectKey(table)), '    ')}
-    where
-${indentBlock(chomp(_bindingWhereClause(table.valueColumns)), '      ')}
-  )";
-  otl_stream stream { 50, select_stmt, *connection_ };
-  stream << desideratum.second;
-  if(!stream.eof()) {
-    stream >> desideratum.first;
-    return true;
-  }
-  return false;
-}
-
-void insert(Row_list_t const& nascent, int stream_buffer_size = 1) {
-  if(nascent.empty()) {
-    return;
-  }
-  char const* insert_stmt = R"(
-    insert into ${tableName} (
-${indentBlock(_joined(_nonAutoColumns(table)), '      ')}
-    )
-    values (
-${indentBlock(chomp(_bindingValueClause(_nonAutoColumns(table))), '      ')}
-    )
-  )";
-  otl_stream stream { 50, insert_stmt, *connection_ };
-  for(auto const& row : nascent) {
-${
-table.hasAutoIncrement?
-'    stream << row.second;' :
-'    stream << row.first << row.second;'
-}
-  }
-}
-
-void update(Row_list_t const& changing) {
-  if(changing.empty()) {
-    return;
-  }
-
-  char const* update_stmt = R"(
-    update $tableName
-    set
-${indentBlock(chomp(_bindingUpdateClause(table.valueColumns)), '      ')}
-    where
-${indentBlock(chomp(_bindingWhereClause(table.primaryKey)), '      ')}
-  )";
-
-  otl_stream stream(1, update_stmt, *connection_);
-  for(auto const& row : changing) {
-    stream << row.second << row.first;
-  }
-
-}
-
-void delete_row(Pkey_t const& moribund) {
-  char const * delete_stmt = R"(
-    delete
-    from ${tableName}
-    where
-${indentBlock(_bindingWhereClause(table.primaryKey))}
-  )";
-  otl_stream stream { 50, delete_stmt, *connection_ };
-  stream << moribund;
-}
-
-size_t delete_all_rows() {
-  long rows_deleted {
-    otl_cursor::direct_exec(*connection_, "DELETE FROM $tableName")
-  };
-  return size_t(rows_deleted);
-}
 ''';
-
+  
   // end <class TableGatewayGenerator>
   TableDetails _tableDetails;
   Header _header;

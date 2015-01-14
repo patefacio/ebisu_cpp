@@ -186,12 +186,189 @@ class OtlTableGatewayGenerator extends TableGatewayGenerator {
     cls.getCodeBlock(clsPostDecl).snippets.add(_otlStreamSupport(cls));
   }
 
+  void finishGatewayClass(Class gatewayClass) {
+    gatewayClass.members.add(
+        member('connection')..type = 'otl_connect *'
+        ..access = ia
+        ..initText = 'Connection_code_metrics::instance().connection()');
+  }
+
   void addRequiredIncludes(Header hdr) =>
     hdr.includes.addAll([
       'fcs/orm/otl_utils.hpp',
       'fcs/orm/orm_to_string_table.hpp',
     ]);
 
+
+  get selectLastInsertId => '''
+int select_last_insert_id() {
+  int result {};
+  otl_stream stream { 1, "SELECT LAST_INSERT_ID()", *connection_ };
+  if(!stream.eof()) {
+    stream >> result;
+  }
+  return result;
+}
+
+''';
+
+  get selectAffectedRowCount => '''
+int select_affected_row_count() {
+  int result {};
+  otl_stream stream { 1, "SELECT ROW_COUNT()", *connection_ };
+  if(!stream.eof()) {
+    int signed_result(0);
+    stream >> signed_result;
+    result = (signed_result < 0)? 0 : signed_result;
+  }
+  return result;
+}
+
+''';
+
+  get selectTableRowCount => '''
+int select_table_row_count() {
+  int result(0);
+  otl_stream stream { 1, "SELECT COUNT(*) FROM $tableName", *connection_ };
+  if(!stream.eof()) {
+    stream >> result;
+  }
+  return result;
+}
+
+''';
+
+  get selectAllRows => '''
+Row_list_t select_all_rows(std::string const& where_clause = "") {
+  Row_list_t found;
+  char const* select_stmt = R"(
+${indentBlock(chomp(_selectAll(table)), '    ')}
+  )";
+
+  otl_stream stream { 50,
+    where_clause.empty()?
+      select_stmt :
+      (std::string(select_stmt) + where_clause).c_str(),
+    *connection_ };
+
+  while(!stream.eof()) {
+    Row_t row;
+    stream >> row.first >> row.second;
+    found.push_back(row);
+  }
+  return found;
+}
+
+''';
+
+  get findRowByKey => '''
+bool find_row_by_key(Pkey_t const& desideratum, Value_t & found) {
+  char const* select_stmt = R"(
+${indentBlock(chomp(_selectValues(table)), '    ')}
+    where
+${indentBlock(chomp(_bindingWhereClause(table.primaryKey)), '      ')}
+  )";
+
+  otl_stream stream { 50, select_stmt, *connection_ };
+  stream << desideratum;
+  if(!stream.eof()) {
+    stream >> found;
+    return true;
+  }
+  return false;
+}
+
+''';
+
+  get findRowByValue => '''
+bool find_row_by_value(Row_t & desideratum) {
+  char const* select_stmt = R"(
+${indentBlock(chomp(_selectKey(table)), '    ')}
+    where
+${indentBlock(chomp(_bindingWhereClause(table.valueColumns)), '      ')}
+  )";
+  otl_stream stream { 50, select_stmt, *connection_ };
+  stream << desideratum.second;
+  if(!stream.eof()) {
+    stream >> desideratum.first;
+    return true;
+  }
+  return false;
+}
+
+''';
+
+  get insertRowList => '''
+void insert(Row_list_t const& nascent, int stream_buffer_size = 1) {
+  if(nascent.empty()) {
+    return;
+  }
+  char const* insert_stmt = R"(
+    insert into ${tableName} (
+${indentBlock(_joined(_nonAutoColumns(table)), '      ')}
+    )
+    values (
+${indentBlock(chomp(_bindingValueClause(_nonAutoColumns(table))), '      ')}
+    )
+  )";
+  otl_stream stream { 50, insert_stmt, *connection_ };
+  for(auto const& row : nascent) {
+${
+table.hasAutoIncrement?
+'    stream << row.second;' :
+'    stream << row.first << row.second;'
+}
+  }
+}
+
+''';
+
+  get updateRowList => '''
+void update(Row_list_t const& changing) {
+  if(changing.empty()) {
+    return;
+  }
+
+  char const* update_stmt = R"(
+    update $tableName
+    set
+${indentBlock(chomp(_bindingUpdateClause(table.valueColumns)), '      ')}
+    where
+${indentBlock(chomp(_bindingWhereClause(table.primaryKey)), '      ')}
+  )";
+
+  otl_stream stream(1, update_stmt, *connection_);
+  for(auto const& row : changing) {
+    stream << row.second << row.first;
+  }
+
+}
+
+''';
+
+  get deleteRow => '''
+void delete_row(Pkey_t const& moribund) {
+  char const * delete_stmt = R"(
+    delete
+    from ${tableName}
+    where
+${indentBlock(_bindingWhereClause(table.primaryKey))}
+  )";
+  otl_stream stream { 50, delete_stmt, *connection_ };
+  stream << moribund;
+}
+
+''';
+
+  get deleteAllRows => '''
+size_t delete_all_rows() {
+  long rows_deleted {
+    otl_cursor::direct_exec(*connection_, "DELETE FROM $tableName")
+  };
+  return size_t(rows_deleted);
+}
+''';
+  
   _otlStreamSupport(Class cls) => '''
 inline otl_stream&
 operator<<(otl_stream &out,
