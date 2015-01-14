@@ -92,21 +92,27 @@ void main() {
           ]
         ]
         ..classes = [
+          class_('schema_code_generator')
+          ..mixins = [ 'InstallationCodeGenerator' ]
+          ..members = [
+            member('schema')..type = 'Schema',
+            member('id')..type = 'Id'..access = RO,
+            member('queries')..type = 'List<Query>'..classInit = [],
+            member('table_filter')..type = 'TableFilter'..classInit = '(Table t) => true',
+          ],
           class_('otl_bind_variable')
           ..members = [
             member('name'),
             member('data_type')..type = 'BindDataType',
             member('size')..classInit = 0,
           ],
-          class_('schema_code_generator')
-          ..mixins = [ 'InstallationCodeGenerator' ]
+          class_('otl_schema_code_generator')
+          ..extend = 'SchemaCodeGenerator'
           ..doc = '''
 Given a schema generates code to support accessing tables and configured
 queries. Makes use of the otl c++ library.
 '''
           ..members = [
-            member('schema')..type = 'Schema',
-            member('id')..type = 'Id'..access = RO,
             member('connection_class_id')..type = 'Id'..access = RO,
             member('connection_class_name')..access = RO,
             member('queries')..type = 'List<Query>'..classInit = [],

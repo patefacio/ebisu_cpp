@@ -71,6 +71,21 @@ const BDT_UNSIZED_CHAR = BindDataType.BDT_UNSIZED_CHAR;
 const BDT_VARCHAR_LONG = BindDataType.BDT_VARCHAR_LONG;
 const BDT_TIMESTAMP = BindDataType.BDT_TIMESTAMP;
 
+class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
+  Schema schema;
+  Id get id => _id;
+  List<Query> queries = [];
+  TableFilter tableFilter = (Table t) => true;
+  // custom <class SchemaCodeGenerator>
+
+  SchemaCodeGenerator(this.schema) {
+    _id = idFromString(schema.name);
+  }
+  
+  // end <class SchemaCodeGenerator>
+  Id _id;
+}
+
 class OtlBindVariable {
   String name;
   BindDataType dataType;
@@ -127,17 +142,14 @@ class OtlBindVariable {
 /// Given a schema generates code to support accessing tables and configured
 /// queries. Makes use of the otl c++ library.
 ///
-class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
-  Schema schema;
-  Id get id => _id;
+class OtlSchemaCodeGenerator extends SchemaCodeGenerator {
   Id get connectionClassId => _connectionClassId;
   String get connectionClassName => _connectionClassName;
   List<Query> queries = [];
   TableFilter tableFilter = (Table t) => true;
-  // custom <class SchemaCodeGenerator>
+  // custom <class OtlSchemaCodeGenerator>
 
-  SchemaCodeGenerator(this.schema) {
-    _id = idFromString(schema.name);
+  OtlSchemaCodeGenerator(Schema schema) : super(schema) {
     _connectionClassId = new Id('connection_${id.snake}');
     _connectionClassName = _connectionClassId.capSnake;
   }
@@ -199,8 +211,7 @@ otl_connect * connection() {
     return result;
   }
 
-  // end <class SchemaCodeGenerator>
-  Id _id;
+  // end <class OtlSchemaCodeGenerator>
   Id _connectionClassId;
   String _connectionClassName;
 }
