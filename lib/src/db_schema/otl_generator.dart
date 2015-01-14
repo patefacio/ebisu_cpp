@@ -136,10 +136,25 @@ class OtlSchemaCodeGenerator extends SchemaCodeGenerator {
     _connectionClassName = _connectionClassId.capSnake;
   }
 
-  get tables => schema.tables.where((t) => tableFilter(t));
+  get namespace => super.namespace;
 
-  get namespace => new Namespace(['fcs','orm', id.snake ]);
+  TableGatewayGenerator createTableGatewayGenerator(Table t) =>
+    new OtlTableGatewayGenerator(installation, this, t);
 
+  finishApiHeader(Header apiHeader) {
+    final connectionClass = 'connection_${id.snake}';
+    apiHeader
+      ..includes.add('fcs/orm/orm.hpp')
+      ..classes.add(
+          class_(connectionClassId)
+          ..getCodeBlock(clsPrivate).snippets = [_connectionSingletonPrivate]
+          ..getCodeBlock(clsPublic).snippets = [_connectionSingletonPublic]
+          ..isSingleton = true
+          ..members = [
+            member('tss_connection')..type = 'boost::thread_specific_ptr< otl_connect >',
+          ]);
+  }
+  
   get _connectionSingletonPrivate => '''
 $connectionClassName() {
   otl_connect *connection = new otl_connect;
@@ -154,44 +169,6 @@ otl_connect * connection() {
   return tss_connection_.get();
 }
 ''';
-
-  Lib get lib {
-
-    final queryVisitor = schema.engine.queryVisitor;
-    print('All queries are ${queries.map((q) => queryVisitor.select(q))}');
-    final ns = namespace;
-    final connectionClass = 'connection_${id.snake}';
-
-    final apiHeader = new Header(id)
-      ..includes = [
-        'fcs/orm/orm.hpp',
-      ]
-      ..isApiHeader = true
-      ..namespace = ns
-      ..classes = [
-        class_(connectionClassId)
-        ..getCodeBlock(clsPrivate).snippets = [_connectionSingletonPrivate]
-        ..getCodeBlock(clsPublic).snippets = [_connectionSingletonPublic]
-        ..isSingleton = true
-        ..members = [
-          member('tss_connection')..type = 'boost::thread_specific_ptr< otl_connect >',
-        ],
-      ]
-      ..setFilePathFromRoot(installation.cppPath);
-
-    final result = new Lib(id)
-      ..installation = installation
-      ..namespace = ns
-      ..headers = [ apiHeader ];
-
-    tables.forEach((Table t) {
-      final header = new OtlTableGatewayGenerator(installation, this, t).header;
-      header.includes.add(apiHeader.includeFilePath);
-      result.headers.add(header);
-    });
-
-    return result;
-  }
 
   // end <class OtlSchemaCodeGenerator>
   Id _connectionClassId;

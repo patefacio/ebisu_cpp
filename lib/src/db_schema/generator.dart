@@ -7,8 +7,37 @@ abstract class SchemaCodeGenerator extends Object with InstallationCodeGenerator
   TableFilter tableFilter = (Table t) => true;
   // custom <class SchemaCodeGenerator>
 
+  get namespace => new Namespace(['fcs','orm', id.snake ]);
+  get tables => schema.tables.where((t) => tableFilter(t));
+  TableGatewayGenerator createTableGatewayGenerator(Table t);
+  finishApiHeader(Header apiHeader);
+  
   SchemaCodeGenerator(this.schema) {
     _id = idFromString(schema.name);
+  }
+
+  Lib get lib {
+
+    final queryVisitor = schema.engine.queryVisitor;
+    print('All queries are ${queries.map((q) => queryVisitor.select(q))}');
+    final ns = namespace;
+
+    final apiHeader = new Header(id)
+      ..isApiHeader = true
+      ..namespace = ns
+      ..setFilePathFromRoot(installation.cppPath);
+
+    finishApiHeader(apiHeader);
+
+    final result = new Lib(id)
+      ..installation = installation
+      ..namespace = ns
+      ..headers = [ apiHeader ];
+
+    tables.forEach((Table t) =>
+        result.headers.add(createTableGatewayGenerator(t).header));
+
+    return result;
   }
   
   // end <class SchemaCodeGenerator>
