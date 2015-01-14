@@ -57,7 +57,7 @@ class Installation
 
   get allTests {
     final result = _generatedLibs.fold([],
-        (prev, l) => prev..addAll(l.tests));
+        (prev, l) => prev..addAll(l.allTests));
     return result..addAll(tests);
   }
 
@@ -79,9 +79,9 @@ Installation($root)
     schemaCodeGenerators.add(scg..installation = this);
 
   generate([bool generateJamConfigs = false]) {
+    schemaCodeGenerators..forEach((scg) => libs.add(scg.lib))..clear();
     libs..forEach((l) => _generatedLibs.add(l..generate()))..clear();
     apps..forEach((a) => _generatedApps.add(a..generate()))..clear();
-    schemaCodeGenerators..forEach((scg) => scg.generate())..clear();
     if(generateJamConfigs) {
       if(!builders.any((b) => b is JamInstallationBuilder)) {
         builders.add(new JamInstallationBuilder.fromInstallation(this));

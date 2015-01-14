@@ -161,7 +161,7 @@ otl_connect * connection() {
 }
 ''';
 
-  void generate() {
+  Lib get lib {
 
     final queryVisitor = schema.engine.queryVisitor;
     print('All queries are ${queries.map((q) => queryVisitor.select(q))}');
@@ -185,7 +185,7 @@ otl_connect * connection() {
       ]
       ..setFilePathFromRoot(installation.cppPath);
 
-    final lib = new Lib(id)
+    final result = new Lib(id)
       ..installation = installation
       ..namespace = ns
       ..headers = [ apiHeader ];
@@ -193,10 +193,10 @@ otl_connect * connection() {
     tables.forEach((Table t) {
       final header = new TableGatewayGenerator(installation, this, t).header;
       header.includes.add(apiHeader.includeFilePath);
-      lib.headers.add(header);
+      result.headers.add(header);
     });
 
-    lib.generate();
+    return result;
   }
 
   // end <class SchemaCodeGenerator>

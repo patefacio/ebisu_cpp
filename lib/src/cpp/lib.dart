@@ -59,6 +59,8 @@ class Lib extends Entity with InstallationCodeGenerator {
   Lib(Id id) : super(id);
   get snake => '${namespace.snake}';
 
+  get allTests => new List.from(tests);
+
   generate() {
     if(installation == null) {
       installation = new Installation(new Id('tmp'))
