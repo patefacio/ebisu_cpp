@@ -77,44 +77,13 @@ void main() {
           ],
         ],
         part('generator')
-        ..enums = [
-          enum_('bind_data_type')
-          ..libraryScopedValues = true
-          ..values = [
-            id('bdt_int'),
-            id('bdt_short'),
-            id('bdt_double'),
-            id('bdt_bigint'),
-            id('bdt_sized_char'),
-            id('bdt_unsized_char'),
-            id('bdt_varchar_long'),
-            id('bdt_timestamp'),
-          ]
-        ]
         ..classes = [
           class_('schema_code_generator')
           ..mixins = [ 'InstallationCodeGenerator' ]
+          ..isAbstract = true          
           ..members = [
             member('schema')..type = 'Schema',
             member('id')..type = 'Id'..access = RO,
-            member('queries')..type = 'List<Query>'..classInit = [],
-            member('table_filter')..type = 'TableFilter'..classInit = '(Table t) => true',
-          ],
-          class_('otl_bind_variable')
-          ..members = [
-            member('name'),
-            member('data_type')..type = 'BindDataType',
-            member('size')..classInit = 0,
-          ],
-          class_('otl_schema_code_generator')
-          ..extend = 'SchemaCodeGenerator'
-          ..doc = '''
-Given a schema generates code to support accessing tables and configured
-queries. Makes use of the otl c++ library.
-'''
-          ..members = [
-            member('connection_class_id')..type = 'Id'..access = RO,
-            member('connection_class_name')..access = RO,
             member('queries')..type = 'List<Query>'..classInit = [],
             member('table_filter')..type = 'TableFilter'..classInit = '(Table t) => true',
           ],
@@ -130,6 +99,7 @@ queries. Makes use of the otl c++ library.
             member('value_class_id')..type = 'Id',
           ],
           class_('table_gateway_generator')
+          ..isAbstract = true
           ..members = [
             member('installation')..type = 'Installation',
             member('schema_code_generator')..type = 'SchemaCodeGenerator',
@@ -139,6 +109,43 @@ queries. Makes use of the otl c++ library.
             member('header')..type = 'Header'..access = IA,
           ]
         ],
+        part('otl_generator')
+        ..enums = [
+          enum_('bind_data_type')
+          ..libraryScopedValues = true
+          ..values = [
+            id('bdt_int'),
+            id('bdt_short'),
+            id('bdt_double'),
+            id('bdt_bigint'),
+            id('bdt_sized_char'),
+            id('bdt_unsized_char'),
+            id('bdt_varchar_long'),
+            id('bdt_timestamp'),
+          ]
+        ]
+        ..classes = [
+          class_('otl_bind_variable')
+          ..members = [
+            member('name'),
+            member('data_type')..type = 'BindDataType',
+            member('size')..classInit = 0,
+          ],
+          class_('otl_schema_code_generator')
+          ..extend = 'SchemaCodeGenerator'
+          ..doc = '''
+Given a schema generates code to support accessing tables and configured
+queries. Makes use of the otl c++ library.
+'''
+          ..members = [
+            member('connection_class_id')..type = 'Id'..access = RO,
+            member('connection_class_name')..access = RO,
+          ],
+          class_('otl_table_gateway_generator')
+          ..extend = 'TableGatewayGenerator'
+          ..members = [
+          ]
+        ]
       ],
       library('cpp')
       ..includeLogger = true
