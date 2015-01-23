@@ -143,8 +143,21 @@ queries. Makes use of the otl c++ library.
           ],
           class_('otl_table_gateway_generator')
           ..extend = 'TableGatewayGenerator'
+        ],
+        part('poco_generator')
+        ..classes = [
+          class_('poco_schema_code_generator')
+          ..extend = 'SchemaCodeGenerator'
+          ..doc = '''
+Given a schema generates code to support accessing tables and configured
+queries. Makes use of the poco c++ library.
+'''
           ..members = [
-          ]
+            member('session_class_id')..type = 'Id'..access = RO,
+            member('session_class_name')..access = RO,
+          ],
+          class_('poco_table_gateway_generator')
+          ..extend = 'TableGatewayGenerator'
         ]
       ],
       library('cpp')

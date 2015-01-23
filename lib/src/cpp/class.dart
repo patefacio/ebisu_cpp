@@ -372,6 +372,9 @@ class Class extends Entity {
       (_codeBlocks[cb] = codeBlock()) : result;
   }
 
+  addFullMemberCtor() => memberCtors.add(
+      memberCtor(members.map((m) => m.name).toList()));
+
   String get definition {
     if(_definition == null) {
       if(immutable) {
@@ -383,8 +386,7 @@ class Class extends Entity {
           m.access = ro;
         });
         if(memberCtors.isEmpty) {
-          memberCtors.add(
-            memberCtor(members.map((m) => m.name).toList()));
+          addFullMemberCtor();
         }
       }
       enums.forEach((e) => e.isNested = true);

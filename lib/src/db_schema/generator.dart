@@ -320,7 +320,7 @@ String _cppType(SqlType sqlType) {
         return (str.length > 0)?
           'fcs::utils::Fixed_size_char_array< ${str.length} >' :
           'std::string';
-      case SqlInt: return (sqlType as SqlInt).length <= 4? 'int32_t' : 'int64_t';
+      case SqlInt: return (sqlType as SqlInt).length <= 4? 'int32_t' : 'Orm_bigint_t';
       case SqlDecimal: return 'decimal';
       case SqlBinary: throw 'Add support for SqlDecimal';
       case SqlFloat: return 'double';

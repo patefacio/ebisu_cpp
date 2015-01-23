@@ -18,6 +18,7 @@ part 'src/db_schema/meta.dart';
 part 'src/db_schema/test_support.dart';
 part 'src/db_schema/generator.dart';
 part 'src/db_schema/otl_generator.dart';
+part 'src/db_schema/poco_generator.dart';
 
 // custom <library db_schema>
 // end <library db_schema>
