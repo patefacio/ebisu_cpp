@@ -8,7 +8,7 @@ class PocoSchemaCodeGenerator extends SchemaCodeGenerator {
   String get sessionClassName => _sessionClassName;
   // custom <class PocoSchemaCodeGenerator>
 
-  OtlSchemaCodeGenerator(Schema schema) : super(schema) {
+  PocoSchemaCodeGenerator(Schema schema) : super(schema) {
     _sessionClassId = new Id('connection_${id.snake}');
     _sessionClassName = _sessionClassId.capSnake;
   }
@@ -17,7 +17,7 @@ class PocoSchemaCodeGenerator extends SchemaCodeGenerator {
 
   TableGatewayGenerator createTableGatewayGenerator(Table t) =>
     new PocoTableGatewayGenerator(installation, this, t);
-  
+
   // end <class PocoSchemaCodeGenerator>
   Id _sessionClassId;
   String _sessionClassName;
@@ -40,8 +40,8 @@ class PocoTableGatewayGenerator extends TableGatewayGenerator {
   void addRequiredIncludes(Header hdr) =>
     hdr.includes.addAll([
     ]);
-  
-  
+
+
   // end <class PocoTableGatewayGenerator>
 }
 // custom <part poco_generator>

@@ -80,7 +80,7 @@ void main() {
         ..classes = [
           class_('schema_code_generator')
           ..mixins = [ 'InstallationCodeGenerator' ]
-          ..isAbstract = true          
+          ..isAbstract = true
           ..members = [
             member('schema')..type = 'Schema',
             member('id')..type = 'Id'..access = RO,
@@ -161,6 +161,13 @@ queries. Makes use of the poco c++ library.
         ]
       ],
       library('cpp')
+      ..doc = '''
+Library to facility generation of c++ code.
+
+The intent is to get as declarative as possible with the specification
+of C++ entities to make code generation as simple and fun as possible.
+
+'''
       ..includeLogger = true
       ..imports = [
         'package:id/id.dart',
@@ -377,6 +384,10 @@ initialize it''',
             member('parent')..type = 'Class'..access = RO,
             member('log')..doc = 'If true add logging'..classInit = false,
             member('template')..type = 'Template'..access = RO,
+            member('cpp_access')
+            ..doc = 'C++ style access of method'
+            ..type = 'CppAccess'
+            ..classInit = 'public',
           ],
           class_('default_method')
           ..isAbstract = true
@@ -400,16 +411,87 @@ initialize it''',
           ..members = [
             member('abstract')..classInit = false
           ],
+          class_('member_ctor_parm')
+          ..members = [
+            member('name')..doc = 'Name of member initialized by argument to member ctor',
+            member('parm_decl')..doc = '''
+*Override* for arguemnt declaration. This is rarely needed. Suppose
+you want to initialize member *Y y* from an input argument *X x* that
+requires a special function *f* to do the conversion:
+
+    Class(X x) : y_(f(x)) {}
+
+The usage would be:
+
+memberCtor([ memberCtorParm("y")..parmDecl = "X x" ])
+
+''',
+            member('init')..doc = '''
+*Override* of initialization text. This is rarely needed since
+initialization of members in a member ctor is straightforward:
+
+This definition:
+
+    memberCtor(['x', 'y'])
+
+would produce the following constructor:
+
+    class Point {
+    public:
+      Point(int x, int y) : x_{x}, y_{y} {}
+    private:
+      int x_;
+      int y_;
+    }
+
+But sometimes you need more:
+
+    class Umask_scoped_set {
+    public:
+      Umask_scoped_set(mode_t new_mode) : previous_mode_{umask(new_mode)}
+    ...
+    }
+
+The usage would be:
+
+    memberCtor([
+      memberCtorParm("previous_mode")
+      ..parmDecl = "mode_t new_mode"
+      ..init = "umask(new_mode)"
+    ])
+
+'''
+            //            member('default')..
+          ],
           class_('member_ctor')
+          ..doc = '''
+Specificication for a member constructor. A member constructor is a constructor
+with the intent of initializing one or more members of a class.
+
+Assumig a class has members *int x* and *int y*
+*memberCtor(["x", "y"])*
+
+would generate the corresponding:
+
+    Class(int x, int y) : x_{x}, y_{y} {}
+
+If custom logic is additionally required, set the *hasCustom* flag to include a
+custom block. In that case the class might look like:
+
+    Class(int x, int y) : x_{x}, y_{y} {
+      // custom <Class>
+      // end <Class>
+    }
+'''
           ..extend = 'ClassMethod'
           ..members = [
             member('member_args')
             ..doc = 'List of members that are passed as arguments for initialization'
             ..type = 'List<String>'
             ..classInit = [],
-            member('opt_init')
-            ..doc = 'Map member name to text for initialization'
-            ..type = 'Map<String, String>',
+            // member('opt_init')
+            // ..doc = 'Map member name to text for initialization'
+            // ..type = 'Map<String, String>',
             member('decls')
             ..doc = 'List of additional decls ["Type Argname", ...]'
             ..type = 'List<String>',

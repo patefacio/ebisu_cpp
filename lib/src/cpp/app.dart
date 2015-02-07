@@ -124,7 +124,7 @@ class App extends Impl with InstallationCodeGenerator {
     ..addAll(concat(impls.map((i) => i.includes.includeEntries)));
 
   generate() {
-    namespace = new Namespace()..names = [ 'fcs', 'app', id.snake ];
+    if(namespace == null) throw Exception('App $id requires a namespace');
     if(!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {
       args.insert(0,
           new AppArg(new Id('help'))
@@ -189,8 +189,7 @@ static boost::program_options::options_description const& description() {
   char const* descr = R"(
 $descr
 
-AllowedOptions
-)";
+AllowedOptions)";
 
   static options_description options { descr };
 

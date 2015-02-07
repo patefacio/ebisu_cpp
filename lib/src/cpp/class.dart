@@ -55,6 +55,8 @@ abstract class ClassMethod {
   /// If true add logging
   bool log = false;
   Template get template => _template;
+  /// C++ style access of method
+  CppAccess cppAccess = public;
   // custom <class ClassMethod>
 
   String get definition;
@@ -169,11 +171,77 @@ class Dtor extends DefaultMethod {
   // end <class Dtor>
 }
 
+class MemberCtorParm {
+  /// Name of member initialized by argument to member ctor
+  String name;
+  /// *Override* for arguemnt declaration. This is rarely needed. Suppose
+  /// you want to initialize member *Y y* from an input argument *X x* that
+  /// requires a special function *f* to do the conversion:
+  ///
+  ///     Class(X x) : y_(f(x)) {}
+  ///
+  /// The usage would be:
+  ///
+  /// memberCtor([ memberCtorParm("y")..parmDecl = "X x" ])
+  String parmDecl;
+  /// *Override* of initialization text. This is rarely needed since
+  /// initialization of members in a member ctor is straightforward:
+  ///
+  /// This definition:
+  ///
+  ///     memberCtor(['x', 'y'])
+  ///
+  /// would produce the following constructor:
+  ///
+  ///     class Point {
+  ///     public:
+  ///       Point(int x, int y) : x_{x}, y_{y} {}
+  ///     private:
+  ///       int x_;
+  ///       int y_;
+  ///     }
+  ///
+  /// But sometimes you need more:
+  ///
+  ///     class Umask_scoped_set {
+  ///     public:
+  ///       Umask_scoped_set(mode_t new_mode) : previous_mode_{umask(new_mode)}
+  ///     ...
+  ///     }
+  ///
+  /// The usage would be:
+  ///
+  ///     memberCtor([
+  ///       memberCtorParm("previous_mode")
+  ///       ..parmDecl = "mode_t new_mode"
+  ///       ..init = "umask(new_mode)"
+  ///     ])
+  String init;
+  // custom <class MemberCtorParm>
+  // end <class MemberCtorParm>
+}
+
+/// Specificication for a member constructor. A member constructor is a constructor
+/// with the intent of initializing one or more members of a class.
+///
+/// Assumig a class has members *int x* and *int y*
+/// *memberCtor(["x", "y"])*
+///
+/// would generate the corresponding:
+///
+///     Class(int x, int y) : x_{x}, y_{y} {}
+///
+/// If custom logic is additionally required, set the *hasCustom* flag to include a
+/// custom block. In that case the class might look like:
+///
+///     Class(int x, int y) : x_{x}, y_{y} {
+///       // custom <Class>
+///       // end <Class>
+///     }
+///
 class MemberCtor extends ClassMethod {
   /// List of members that are passed as arguments for initialization
   List<String> memberArgs = [];
-  /// Map member name to text for initialization
-  Map<String, String> optInit;
   /// List of additional decls ["Type Argname", ...]
   List<String> decls;
   /// Has custom code, so needs protect block
@@ -184,8 +252,7 @@ class MemberCtor extends ClassMethod {
   bool allMembers = false;
   // custom <class MemberCtor>
 
-  MemberCtor(this.memberArgs, [ this.optInit, this.decls ]) {
-    if(optInit == null) optInit = {};
+  MemberCtor(this.memberArgs, [ this.decls ]) {
     if(decls == null) decls = [];
   }
 
@@ -427,7 +494,7 @@ class Class extends Entity {
             br([_enumDecls, _enumStreamers]),
             br(publicMembers
                 .where((m) => m.isPublicStaticConst).map((m) => _memberDefinition(m))),
-            br(memberCtors.map((m) => m.definition)),
+            br(memberCtors.where((m) => m.cppAccess == public).map((m) => m.definition)),
             chomp(combine(_methods.map((m) => m == null? m : br(m.definition)))),
             br(_singleton),
             _codeBlockText(clsPublic),
@@ -442,6 +509,7 @@ class Class extends Entity {
         indentBlock(
           combine([
             _codeBlockText(clsProtected),
+            br(memberCtors.where((m) => m.cppAccess == protected).map((m) => m.definition)),
             br(protectedMembers.map((m) => _memberDefinition(m)))
           ]))),
 
@@ -449,6 +517,7 @@ class Class extends Entity {
         indentBlock(
           combine([
             _codeBlockText(clsPrivate),
+            br(memberCtors.where((m) => m.cppAccess == private).map((m) => m.definition)),
             br(privateMembers.map((m) => _memberDefinition(m)))
           ]))),
 
@@ -565,11 +634,9 @@ opOut() => new OpOut();
 MemberCtor
   memberCtor([
     List<String> memberArgs,
-    Map<String, String> optInit,
     List<String> decls
   ]) =>
   new MemberCtor(memberArgs == null? [] : memberArgs,
-      optInit == null? {} : optInit,
       decls == null? [] : decls);
 
 // end <part class>

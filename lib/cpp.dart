@@ -1,3 +1,9 @@
+/// Library to facility generation of c++ code.
+///
+/// The intent is to get as declarative as possible with the specification
+/// of C++ entities to make code generation as simple and fun as possible.
+///
+///
 library ebisu_cpp.cpp;
 
 import 'dart:io';
