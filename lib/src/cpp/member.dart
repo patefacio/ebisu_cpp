@@ -50,13 +50,15 @@ class Member extends Entity {
   set initText(String txt) => _init = txt;
   get isRefType => refType != value;
 
-  get passDecl =>
-    refType == value? (byRef? '$type const & $name' : '$type $name') :
-    refType == ref? '$type & $name' :
-    refType == cref? '$type const & $name' :
-    refType == vref? '$type volatile & $name' :
-    refType == cvref? '$type const volatile & $name' :
+  get passType =>
+    refType == value? (byRef? '$type const &' : type) :
+    refType == ref? '$type &' :
+    refType == cref? '$type const &' :
+    refType == vref? '$type volatile &' :
+    refType == cvref? '$type const volatile &' :
     throw '$id has invalid refType $refType';
+
+  get passDecl => '$passType $name';
 
   set init(Object init_) {
     if(isRefType)
@@ -95,7 +97,7 @@ class Member extends Entity {
   String get vname => (isStaticConst || isPublic)? name : '${name}_';
   String get getter =>
     access == ro || access == rw ? '''
-//! getter for ${vname} (access is $access)
+//! getter for ${vname} (access is ${evCap(access)})
 $_constAccess $name() const { return $vname; }''' :
     null;
 

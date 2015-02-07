@@ -32,192 +32,56 @@ part 'src/cpp/installation.dart';
 final _logger = new Logger('cpp');
 
 /// Access for member variable - ia - inaccessible, ro - read/only, rw read/write
-class Access implements Comparable<Access> {
-  static const IA = const Access._(0);
-  static const RO = const Access._(1);
-  static const RW = const Access._(2);
-  static const WO = const Access._(3);
-
-  static get values => [
-    IA,
-    RO,
-    RW,
-    WO
-  ];
-
-  final int value;
-
-  int get hashCode => value;
-
-  const Access._(this.value);
-
-  copy() => this;
-
-  int compareTo(Access other) => value.compareTo(other.value);
-
-  String toString() {
-    switch(this) {
-      case IA: return "Ia";
-      case RO: return "Ro";
-      case RW: return "Rw";
-      case WO: return "Wo";
-    }
-    return null;
-  }
-
-  static Access fromString(String s) {
-    if(s == null) return null;
-    switch(s) {
-      case "Ia": return IA;
-      case "Ro": return RO;
-      case "Rw": return RW;
-      case "Wo": return WO;
-      default: return null;
-    }
-  }
-
+enum Access {
+  ia,
+  ro,
+  rw,
+  wo
 }
+const ia = Access.ia;
+const ro = Access.ro;
+const rw = Access.rw;
+const wo = Access.wo;
+
 
 /// Cpp access
-class CppAccess implements Comparable<CppAccess> {
-  static const PUBLIC = const CppAccess._(0);
-  static const PRIVATE = const CppAccess._(1);
-  static const PROTECTED = const CppAccess._(2);
-
-  static get values => [
-    PUBLIC,
-    PRIVATE,
-    PROTECTED
-  ];
-
-  final int value;
-
-  int get hashCode => value;
-
-  const CppAccess._(this.value);
-
-  copy() => this;
-
-  int compareTo(CppAccess other) => value.compareTo(other.value);
-
-  String toString() {
-    switch(this) {
-      case PUBLIC: return "public";
-      case PRIVATE: return "private";
-      case PROTECTED: return "protected";
-    }
-    return null;
-  }
-
-  static CppAccess fromString(String s) {
-    if(s == null) return null;
-    switch(s) {
-      case "public": return PUBLIC;
-      case "private": return PRIVATE;
-      case "protected": return PROTECTED;
-      default: return null;
-    }
-  }
-
+enum CppAccess {
+  public,
+  private,
+  protected
 }
+const public = CppAccess.public;
+const private = CppAccess.private;
+const protected = CppAccess.protected;
+
 
 /// Reference type
-class RefType implements Comparable<RefType> {
-  static const REF = const RefType._(0);
-  static const CREF = const RefType._(1);
-  static const VREF = const RefType._(2);
-  static const CVREF = const RefType._(3);
-  static const VALUE = const RefType._(4);
-
-  static get values => [
-    REF,
-    CREF,
-    VREF,
-    CVREF,
-    VALUE
-  ];
-
-  final int value;
-
-  int get hashCode => value;
-
-  const RefType._(this.value);
-
-  copy() => this;
-
-  int compareTo(RefType other) => value.compareTo(other.value);
-
-  String toString() {
-    switch(this) {
-      case REF: return "Ref";
-      case CREF: return "Cref";
-      case VREF: return "Vref";
-      case CVREF: return "Cvref";
-      case VALUE: return "Value";
-    }
-    return null;
-  }
-
-  static RefType fromString(String s) {
-    if(s == null) return null;
-    switch(s) {
-      case "Ref": return REF;
-      case "Cref": return CREF;
-      case "Vref": return VREF;
-      case "Cvref": return CVREF;
-      case "Value": return VALUE;
-      default: return null;
-    }
-  }
-
+enum RefType {
+  ref,
+  cref,
+  vref,
+  cvref,
+  value
 }
+const ref = RefType.ref;
+const cref = RefType.cref;
+const vref = RefType.vref;
+const cvref = RefType.cvref;
+const value = RefType.value;
+
 
 /// Standard pointer type declaration
-class PtrType implements Comparable<PtrType> {
-  static const SPTR = const PtrType._(0);
-  static const UPTR = const PtrType._(1);
-  static const SCPTR = const PtrType._(2);
-  static const UCPTR = const PtrType._(3);
-
-  static get values => [
-    SPTR,
-    UPTR,
-    SCPTR,
-    UCPTR
-  ];
-
-  final int value;
-
-  int get hashCode => value;
-
-  const PtrType._(this.value);
-
-  copy() => this;
-
-  int compareTo(PtrType other) => value.compareTo(other.value);
-
-  String toString() {
-    switch(this) {
-      case SPTR: return "Sptr";
-      case UPTR: return "Uptr";
-      case SCPTR: return "Scptr";
-      case UCPTR: return "Ucptr";
-    }
-    return null;
-  }
-
-  static PtrType fromString(String s) {
-    if(s == null) return null;
-    switch(s) {
-      case "Sptr": return SPTR;
-      case "Uptr": return UPTR;
-      case "Scptr": return SCPTR;
-      case "Ucptr": return UCPTR;
-      default: return null;
-    }
-  }
-
+enum PtrType {
+  sptr,
+  uptr,
+  scptr,
+  ucptr
 }
+const sptr = PtrType.sptr;
+const uptr = PtrType.uptr;
+const scptr = PtrType.scptr;
+const ucptr = PtrType.ucptr;
+
 
 class Entity {
   Entity(this.id);
@@ -252,26 +116,6 @@ template< ${decls.join(',\n          ')} >''';
 
 // custom <library cpp>
 
-const ia = Access.IA;
-const ro = Access.RO;
-const rw = Access.RW;
-const wo = Access.WO;
-
-const public = CppAccess.PUBLIC;
-const private = CppAccess.PRIVATE;
-const protected = CppAccess.PROTECTED;
-
-const ref = RefType.REF;
-const cref = RefType.CREF;
-const vref = RefType.VREF;
-const cvref = RefType.CVREF;
-const value = RefType.VALUE;
-
-const sptr = PtrType.SPTR;
-const uptr = PtrType.UPTR;
-const scptr = PtrType.SCPTR;
-const ucptr = PtrType.UCPTR;
-
 const Map _ptrSuffixMap = const {
   sptr : 'sptr',
   uptr : 'uptr',
@@ -290,24 +134,6 @@ Map _ptrStdTypeMap = {
 
 ptrType(PtrType ptrType, String t) =>
   _ptrStdTypeMap[ptrType](t);
-
-String br(Object o) =>
-  o == null? null :
-  o is Iterable? br(combine(o)) :
-  (o is String && o.length > 0) ? '$o\n' : '';
-
-bool ignored(Object o) =>
-  o == null || (o is String && (o as String).length == 0);
-
-String combine(Iterable<Object> parts) {
-  final result =
-    parts
-    .map((o) => (o is Iterable)? combine(o) : o)
-    .where((o) => !ignored(o))
-    .join('\n');
-  return result;
-  //return result == '' ? null : result;
-}
 
 String quote(String s) => '"$s"';
 

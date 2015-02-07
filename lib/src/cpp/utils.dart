@@ -190,7 +190,7 @@ class Base {
   bool streamable = false;
   // custom <class Base>
 
-  String get decl => '$access $_virtual$className';
+  String get decl => '${ev(access)} $_virtual$className';
   String get _virtual => virtual? 'virtual ' : '';
 
   // end <class Base>
@@ -246,5 +246,15 @@ String clangFormat(String contents, [String fname = 'ebisu_txt.cpp']) {
   tmpDir.deleteSync(recursive : true);
   return formatted;
 }
+
+/// Assuming *v* is an enum value, returns that value as capitalized string
+///
+/// if v is CppAccess.private => Private
+String evCap(v) => Id.capitalize(v.toString().split('.')[1]);
+
+/// Assuming *v* is an enum value, returns that value
+///
+/// if v is CppAccess.private => private
+String ev(v) => v.toString().split('.')[1];
 
 // end <part utils>

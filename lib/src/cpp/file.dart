@@ -39,22 +39,22 @@ abstract class CppFile extends Entity {
     if(classes.any((c) => c._opMethods.any((m) => m is OpOut))) {
       _includes.add('fcs/utils/block_indenter.hpp');
     }
-    customBlocks.forEach((cb) => getCodeBlock(cb).tag = '$cb ${id.snake}');
+    customBlocks.forEach((cb) => getCodeBlock(cb).tag = '${evCap(cb)} ${id.snake}');
 
     return combine([
       br(_includes.includes),
-      _codeBlockText(FileCodeBlock.FCB_CUSTOM_INCLUDES),
-      _codeBlockText(FileCodeBlock.FCB_PRE_NAMESPACE),
+      _codeBlockText(fcbCustomIncludes),
+      _codeBlockText(fcbPreNamespace),
       namespace.wrap(
         combine([
-          _codeBlockText(FileCodeBlock.FCB_BEGIN_NAMESPACE),
+          _codeBlockText(fcbBeginNamespace),
           br(constExprs),
           forwardDecls,
           br(usings.map((u) => 'using $u;')),
           original,
-          _codeBlockText(FileCodeBlock.FCB_END_NAMESPACE)
+          _codeBlockText(fcbEndNamespace)
         ])),
-      _codeBlockText(FileCodeBlock.FCB_POST_NAMESPACE),
+      _codeBlockText(fcbPostNamespace),
     ]);
   }
 

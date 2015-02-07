@@ -46,6 +46,7 @@ class ArgType implements Comparable<ArgType> {
 
 }
 
+
 class AppArg extends Entity {
   ArgType type = ArgType.STRING;
   String shortName;

@@ -15,7 +15,6 @@ void main() {
     ..includeHop = true
     ..pubSpec.version = '0.0.1'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
-    ..pubSpec.addDependency(new PubDependency('ebisu'))
     ..pubSpec.addDependency(new PubDependency('path'))
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
     ..rootPath = _topDir
@@ -179,22 +178,25 @@ of C++ entities to make code generation as simple and fun as possible.
       ..enums = [
         enum_('access')
         ..doc = 'Access for member variable - ia - inaccessible, ro - read/only, rw read/write'
+        ..libraryScopedValues = true
         ..values = [
           id('ia'), id('ro'), id('rw'), id('wo'),
         ],
         enum_('cpp_access')
         ..doc = 'Cpp access'
-        ..isSnakeString = true
+        ..libraryScopedValues = true
         ..values = [
           id('public'), id('private'), id('protected'),
         ],
         enum_('ref_type')
         ..doc = 'Reference type'
+        ..libraryScopedValues = true
         ..values = [
           id('ref'), id('cref'), id('vref'), id('cvref'), id('value'),
         ],
         enum_('ptr_type')
         ..doc = 'Standard pointer type declaration'
+        ..libraryScopedValues = true
         ..values = [
           id('sptr'), id('uptr'), id('scptr'), id('ucptr'),
         ],
@@ -369,6 +371,7 @@ initialize it''',
         part('class')
         ..enums = [
           enum_('class_code_block')
+          ..libraryScopedValues = true
           ..values = [
             id('cls_public'),
             id('cls_protected'),
@@ -412,8 +415,15 @@ initialize it''',
             member('abstract')..classInit = false
           ],
           class_('member_ctor_parm')
+          ..ctorSansNew = true
           ..members = [
-            member('name')..doc = 'Name of member initialized by argument to member ctor',
+            member('name')
+            ..doc = 'Name of member initialized by argument to member ctor'
+            ..isFinal = true
+            ..ctors = [''],
+            member('member')
+            ..doc = 'cpp member to be initialized'
+            ..type = 'Member',
             member('parm_decl')..doc = '''
 *Override* for arguemnt declaration. This is rarely needed. Suppose
 you want to initialize member *Y y* from an input argument *X x* that
@@ -461,7 +471,8 @@ The usage would be:
     ])
 
 '''
-            //            member('default')..
+            ..access = WO,
+            member('default_value'),
           ],
           class_('member_ctor')
           ..doc = '''
@@ -485,9 +496,9 @@ custom block. In that case the class might look like:
 '''
           ..extend = 'ClassMethod'
           ..members = [
-            member('member_args')
+            member('member_parms')
             ..doc = 'List of members that are passed as arguments for initialization'
-            ..type = 'List<String>'
+            ..type = 'List<MemberCtorParm>'
             ..classInit = [],
             // member('opt_init')
             // ..doc = 'Map member name to text for initialization'
@@ -555,6 +566,7 @@ custom block. In that case the class might look like:
         part('serializer')
         ..enums = [
           enum_('serialization_style')
+          ..libraryScopedValues = true
           ..values = [
             id('json_serialization'),
             id('xml_serialization'),
@@ -577,6 +589,7 @@ custom block. In that case the class might look like:
         part('lib')
         ..enums = [
           enum_('file_code_block')
+          ..libraryScopedValues = true
           ..values = [
             id('fcb_custom_includes'),
             id('fcb_pre_namespace'),
@@ -618,6 +631,7 @@ If true marks this header as special to the set of headers in its library in tha
         part('app')
         ..enums = [
           enum_('arg_type')
+          ..requiresClass = true
           ..values = [
             id('int'),
             id('double'),

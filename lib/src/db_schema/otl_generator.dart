@@ -1,75 +1,24 @@
 part of ebisu_cpp.db_schema;
 
-class BindDataType implements Comparable<BindDataType> {
-  static const BDT_INT = const BindDataType._(0);
-  static const BDT_SHORT = const BindDataType._(1);
-  static const BDT_DOUBLE = const BindDataType._(2);
-  static const BDT_BIGINT = const BindDataType._(3);
-  static const BDT_SIZED_CHAR = const BindDataType._(4);
-  static const BDT_UNSIZED_CHAR = const BindDataType._(5);
-  static const BDT_VARCHAR_LONG = const BindDataType._(6);
-  static const BDT_TIMESTAMP = const BindDataType._(7);
-
-  static get values => [
-    BDT_INT,
-    BDT_SHORT,
-    BDT_DOUBLE,
-    BDT_BIGINT,
-    BDT_SIZED_CHAR,
-    BDT_UNSIZED_CHAR,
-    BDT_VARCHAR_LONG,
-    BDT_TIMESTAMP
-  ];
-
-  final int value;
-
-  int get hashCode => value;
-
-  const BindDataType._(this.value);
-
-  copy() => this;
-
-  int compareTo(BindDataType other) => value.compareTo(other.value);
-
-  String toString() {
-    switch(this) {
-      case BDT_INT: return "BdtInt";
-      case BDT_SHORT: return "BdtShort";
-      case BDT_DOUBLE: return "BdtDouble";
-      case BDT_BIGINT: return "BdtBigint";
-      case BDT_SIZED_CHAR: return "BdtSizedChar";
-      case BDT_UNSIZED_CHAR: return "BdtUnsizedChar";
-      case BDT_VARCHAR_LONG: return "BdtVarcharLong";
-      case BDT_TIMESTAMP: return "BdtTimestamp";
-    }
-    return null;
-  }
-
-  static BindDataType fromString(String s) {
-    if(s == null) return null;
-    switch(s) {
-      case "BdtInt": return BDT_INT;
-      case "BdtShort": return BDT_SHORT;
-      case "BdtDouble": return BDT_DOUBLE;
-      case "BdtBigint": return BDT_BIGINT;
-      case "BdtSizedChar": return BDT_SIZED_CHAR;
-      case "BdtUnsizedChar": return BDT_UNSIZED_CHAR;
-      case "BdtVarcharLong": return BDT_VARCHAR_LONG;
-      case "BdtTimestamp": return BDT_TIMESTAMP;
-      default: return null;
-    }
-  }
-
+enum BindDataType {
+  bdtInt,
+  bdtShort,
+  bdtDouble,
+  bdtBigint,
+  bdtSizedChar,
+  bdtUnsizedChar,
+  bdtVarcharLong,
+  bdtTimestamp
 }
+const bdtInt = BindDataType.bdtInt;
+const bdtShort = BindDataType.bdtShort;
+const bdtDouble = BindDataType.bdtDouble;
+const bdtBigint = BindDataType.bdtBigint;
+const bdtSizedChar = BindDataType.bdtSizedChar;
+const bdtUnsizedChar = BindDataType.bdtUnsizedChar;
+const bdtVarcharLong = BindDataType.bdtVarcharLong;
+const bdtTimestamp = BindDataType.bdtTimestamp;
 
-const BDT_INT = BindDataType.BDT_INT;
-const BDT_SHORT = BindDataType.BDT_SHORT;
-const BDT_DOUBLE = BindDataType.BDT_DOUBLE;
-const BDT_BIGINT = BindDataType.BDT_BIGINT;
-const BDT_SIZED_CHAR = BindDataType.BDT_SIZED_CHAR;
-const BDT_UNSIZED_CHAR = BindDataType.BDT_UNSIZED_CHAR;
-const BDT_VARCHAR_LONG = BindDataType.BDT_VARCHAR_LONG;
-const BDT_TIMESTAMP = BindDataType.BDT_TIMESTAMP;
 
 class OtlBindVariable {
   String name;
@@ -82,43 +31,43 @@ class OtlBindVariable {
       case SqlString: {
         final str = sqlType as SqlString;
         if(str.length > 0) {
-          dataType = BDT_SIZED_CHAR;
+          dataType = bdtSizedChar;
           size = str.length;
         } else {
-          dataType = BDT_VARCHAR_LONG;
+          dataType = bdtVarcharLong;
         }
       }
       break;
       case SqlInt:
-        dataType = (sqlType as SqlInt).length <= 4? BDT_INT : BDT_BIGINT;
+        dataType = (sqlType as SqlInt).length <= 4? bdtInt : bdtBigint;
         break;
       case SqlDecimal:
         throw 'Add support for SqlDecimal';
       case SqlBinary:
         throw 'Add support for SqlDecimal';
       case SqlFloat:
-        dataType = BDT_DOUBLE;
+        dataType = bdtDouble;
         break;
       case SqlDate:
       case SqlTime:
       case SqlTimestamp: {
-        dataType = BDT_TIMESTAMP;
+        dataType = bdtTimestamp;
         break;
       }
     }
   }
 
-  toString() => dataType == BDT_SIZED_CHAR?
+  toString() => dataType == bdtSizedChar?
     ':$name<char[$size]>' : ':$name<${typeMapping[dataType]}>';
 
   static Map<BindDataType, String> typeMapping = {
-    BDT_INT : 'int',
-    BDT_SHORT : 'short',
-    BDT_DOUBLE : 'double',
-    BDT_BIGINT : 'bigint',
-    BDT_UNSIZED_CHAR : 'char[]',
-    BDT_VARCHAR_LONG : 'varchar_long',
-    BDT_TIMESTAMP : 'timestamp',
+    bdtInt : 'int',
+    bdtShort : 'short',
+    bdtDouble : 'double',
+    bdtBigint : 'bigint',
+    bdtUnsizedChar : 'char[]',
+    bdtVarcharLong : 'varchar_long',
+    bdtTimestamp : 'timestamp',
   };
 
   // end <class OtlBindVariable>
@@ -154,7 +103,7 @@ class OtlSchemaCodeGenerator extends SchemaCodeGenerator {
             member('tss_connection')..type = 'boost::thread_specific_ptr< otl_connect >',
           ]);
   }
-  
+
   get _connectionSingletonPrivate => '''
 $connectionClassName() {
   otl_connect *connection = new otl_connect;
@@ -368,7 +317,7 @@ size_t delete_all_rows() {
   return size_t(rows_deleted);
 }
 ''';
-  
+
   _otlStreamSupport(Class cls) => '''
 inline otl_stream&
 operator<<(otl_stream &out,

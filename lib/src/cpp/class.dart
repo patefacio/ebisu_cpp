@@ -1,54 +1,18 @@
 part of ebisu_cpp.cpp;
 
-class ClassCodeBlock implements Comparable<ClassCodeBlock> {
-  static const CLS_PUBLIC = const ClassCodeBlock._(0);
-  static const CLS_PROTECTED = const ClassCodeBlock._(1);
-  static const CLS_PRIVATE = const ClassCodeBlock._(2);
-  static const CLS_PRE_DECL = const ClassCodeBlock._(3);
-  static const CLS_POST_DECL = const ClassCodeBlock._(4);
-
-  static get values => [
-    CLS_PUBLIC,
-    CLS_PROTECTED,
-    CLS_PRIVATE,
-    CLS_PRE_DECL,
-    CLS_POST_DECL
-  ];
-
-  final int value;
-
-  int get hashCode => value;
-
-  const ClassCodeBlock._(this.value);
-
-  copy() => this;
-
-  int compareTo(ClassCodeBlock other) => value.compareTo(other.value);
-
-  String toString() {
-    switch(this) {
-      case CLS_PUBLIC: return "ClsPublic";
-      case CLS_PROTECTED: return "ClsProtected";
-      case CLS_PRIVATE: return "ClsPrivate";
-      case CLS_PRE_DECL: return "ClsPreDecl";
-      case CLS_POST_DECL: return "ClsPostDecl";
-    }
-    return null;
-  }
-
-  static ClassCodeBlock fromString(String s) {
-    if(s == null) return null;
-    switch(s) {
-      case "ClsPublic": return CLS_PUBLIC;
-      case "ClsProtected": return CLS_PROTECTED;
-      case "ClsPrivate": return CLS_PRIVATE;
-      case "ClsPreDecl": return CLS_PRE_DECL;
-      case "ClsPostDecl": return CLS_POST_DECL;
-      default: return null;
-    }
-  }
-
+enum ClassCodeBlock {
+  clsPublic,
+  clsProtected,
+  clsPrivate,
+  clsPreDecl,
+  clsPostDecl
 }
+const clsPublic = ClassCodeBlock.clsPublic;
+const clsProtected = ClassCodeBlock.clsProtected;
+const clsPrivate = ClassCodeBlock.clsPrivate;
+const clsPreDecl = ClassCodeBlock.clsPreDecl;
+const clsPostDecl = ClassCodeBlock.clsPostDecl;
+
 
 abstract class ClassMethod {
   Class get parent => _parent;
@@ -172,8 +136,12 @@ class Dtor extends DefaultMethod {
 }
 
 class MemberCtorParm {
+  MemberCtorParm(this.name);
+
   /// Name of member initialized by argument to member ctor
-  String name;
+  final String name;
+  /// cpp member to be initialized
+  Member member;
   /// *Override* for arguemnt declaration. This is rarely needed. Suppose
   /// you want to initialize member *Y y* from an input argument *X x* that
   /// requires a special function *f* to do the conversion:
@@ -216,10 +184,30 @@ class MemberCtorParm {
   ///       ..parmDecl = "mode_t new_mode"
   ///       ..init = "umask(new_mode)"
   ///     ])
-  String init;
+  set init(String init) => _init = init;
+  String defaultValue;
   // custom <class MemberCtorParm>
+
+  get decl =>
+    defaultValue != null?
+    '${member.passType} ${member.name} = $defaultValue' :
+    '${member.passType} ${member.name}';
+
+  get init =>
+    member.ctorInit != null?
+    '${member.vname} { ${member.ctorInit} }' :
+    _init != null?
+    '${member.vname} { $_init }' :
+    '${member.vname} { ${member.name} }';
+
   // end <class MemberCtorParm>
+  String _init;
 }
+
+/// Create a MemberCtorParm sans new, for more declarative construction
+MemberCtorParm
+memberCtorParm([String name]) =>
+  new MemberCtorParm(name);
 
 /// Specificication for a member constructor. A member constructor is a constructor
 /// with the intent of initializing one or more members of a class.
@@ -241,7 +229,7 @@ class MemberCtorParm {
 ///
 class MemberCtor extends ClassMethod {
   /// List of members that are passed as arguments for initialization
-  List<String> memberArgs = [];
+  List<MemberCtorParm> memberParms = [];
   /// List of additional decls ["Type Argname", ...]
   List<String> decls;
   /// Has custom code, so needs protect block
@@ -252,13 +240,31 @@ class MemberCtor extends ClassMethod {
   bool allMembers = false;
   // custom <class MemberCtor>
 
-  MemberCtor(this.memberArgs, [ this.decls ]) {
+  static _makeParm(parm) =>
+    (parm is String)? memberCtorParm(parm) :
+    (parm is MemberCtorParm)? parm :
+    (throw Exception('''
+MemberCtor ctor requires list of parms where each parm is a *String* naming the
+member being initialized or a MemberCtorParm instance'''));
+
+  MemberCtor(List parms, [ this.decls ]) {
+    memberParms = parms.map((parm) => _makeParm(parm)).toList();
     if(decls == null) decls = [];
   }
 
   String get _templateDecl => _template == null? '' : br(_template.decl);
 
   String get definition {
+
+    if(allMembers) {
+      assert(memberParms.isEmpty);
+      memberParms = parent.members.map((m) => _makeParm(m.name)..member = m).toList();
+    } else {
+      memberParms.forEach(
+          (MemberCtorParm mp) =>
+          mp.member = parent.members.firstWhere((m) => mp.name == m.name));
+    }
+
     List<String> argDecls = decls == null? [] : new List<String>.from(decls);
     List<String> initializers = [];
 
@@ -266,19 +272,9 @@ class MemberCtor extends ClassMethod {
     .where((b) => b.init != null)
     .forEach((b) => initializers.add(b.init));
 
-    parent.members.forEach((Member member) {
-      final arg = member.name;
-      if(allMembers || memberArgs.indexOf(member.name) >= 0) {
-        var decl = member.passDecl;
-        final init = optInit == null? null : optInit[arg];
-        if(init != null)
-          decl += ' = $init';
-
-        argDecls.add(decl);
-        initializers.add('${member.vname} { $arg }');
-      } else if(member.ctorInit != null) {
-        initializers.add('${member.vname} { ${member.ctorInit} }');
-      }
+    memberParms.forEach((MemberCtorParm parm) {
+      argDecls.add(parm.decl);
+      initializers.add(parm.init);
     });
 
     return '''
@@ -460,7 +456,7 @@ class Class extends Entity {
       _methods.forEach((m) { if(m != null) m._parent = this; });
       memberCtors.forEach((m) { if(m != null) m._parent = this; });
       customBlocks.forEach((ClassCodeBlock cb) {
-        getCodeBlock(cb).tag = '$cb $className';
+        getCodeBlock(cb).tag = '${evCap(cb)} $className';
       });
       _definition = combine(_parts);
     }
@@ -536,7 +532,7 @@ static $className & instance() {
   get _enumDecls => enums.map((e) => e.decl);
   get _enumStreamers => enums.map((e) => e.streamSupport);
   _access(CppAccess access) => access == null? '' : '''
-$access:
+${ev(access)}:
 ''';
 
 
@@ -609,12 +605,6 @@ Class
 class_(Object id) =>
   new Class(id is Id? id : new Id(id));
 
-const clsPublic = ClassCodeBlock.CLS_PUBLIC;
-const clsProtected = ClassCodeBlock.CLS_PROTECTED;
-const clsPrivate = ClassCodeBlock.CLS_PRIVATE;
-const clsPreDecl = ClassCodeBlock.CLS_PRE_DECL;
-const clsPostDecl = ClassCodeBlock.CLS_POST_DECL;
-
 Template _makeTemplate(Object t) =>
   t is Iterable? new Template(t) :
   t is String? new Template([t]) :
@@ -633,10 +623,10 @@ opOut() => new OpOut();
 /// Create a MemberCtor sans new, for more declarative construction
 MemberCtor
   memberCtor([
-    List<String> memberArgs,
+    List memberParms,
     List<String> decls
   ]) =>
-  new MemberCtor(memberArgs == null? [] : memberArgs,
+  new MemberCtor(memberParms == null? [] : memberParms,
       decls == null? [] : decls);
 
 // end <part class>
