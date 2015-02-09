@@ -1,5 +1,6 @@
 part of ebisu_cpp.cpp;
 
+/// A c++ enumeration
 class Enum extends Entity {
   /// Strings for the values of the enum
   List<String> get values => _values;

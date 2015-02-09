@@ -1,5 +1,6 @@
 part of ebisu_cpp.cpp;
 
+/// Serialization using *cereal* supports these types of serialization
 enum SerializationStyle {
   jsonSerialization,
   xmlSerialization,
@@ -10,6 +11,7 @@ const xmlSerialization = SerializationStyle.xmlSerialization;
 const binarySerialization = SerializationStyle.binarySerialization;
 
 
+/// Establishes an interface for instance serialization
 abstract class Serializer {
   // custom <class Serializer>
 
@@ -18,6 +20,7 @@ abstract class Serializer {
   // end <class Serializer>
 }
 
+/// Provides support for serialization as *delimited separated values*
 class DsvSerializer
   implements Serializer {
   String delimiter = ':';
@@ -122,6 +125,7 @@ return ${cls.className}(${cls.members.map((Member m) => m.vname).join(', ')});
   // end <class DsvSerializer>
 }
 
+/// Adds support for serialization using *cereal*
 class Cereal
   implements Serializer {
   List<SerializationStyle> styles = [];

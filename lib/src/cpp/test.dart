@@ -37,10 +37,31 @@ class Test extends Impl with InstallationCodeGenerator {
     _filePath = path.join(root, testFilePathFromRoot);
 
   get testNames => concat([testFunctions, testImplementations.keys]);
+
   String get contents {
     _includes.add(headerUnderTest.includeFilePath);
     _testFunctions.addAll(headerUnderTest.testFunctions);
-    getCodeBlock(fcbPostNamespace).snippets.add('''
+
+    getCodeBlock(fcbEndNamespace)
+    .snippets
+    .add(
+        combine([
+          testFunctions.map((f) => '''
+void test_$f() {
+${chomp(indentBlock(customBlock(f)))}
+}
+'''),
+          testImplementations.keys.map((t) => '''
+void test_$t() {
+${chomp(indentBlock(testImplementations[t]))}
+}
+''')])
+         );
+
+    getCodeBlock(fcbPostNamespace)
+    .snippets
+    .addAll([
+      '''
 
 boost::unit_test::test_suite* init_unit_test_suite(int , char*[]) {
   ${namespace.using};
@@ -53,20 +74,10 @@ indentBlock(
 }
   return test;
 }
-''');
+''',
+    ]);
 
-    return _contentsWithBlocks(
-      combine([
-        testFunctions.map((f) => '''
-void test_$f() {
-${chomp(indentBlock(customBlock(f)))}
-}
-'''),
-        testImplementations.keys.map((t) => '''
-void test_$t() {
-${chomp(indentBlock(testImplementations[t]))}
-}
-''')]));
+    return _contentsWithBlocks;
   }
 
   generate() {

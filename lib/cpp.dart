@@ -21,6 +21,8 @@ part 'src/cpp/enum.dart';
 part 'src/cpp/member.dart';
 part 'src/cpp/class.dart';
 part 'src/cpp/serializer.dart';
+part 'src/cpp/header.dart';
+part 'src/cpp/impl.dart';
 part 'src/cpp/lib.dart';
 part 'src/cpp/app.dart';
 part 'src/cpp/cmake_support.dart';
@@ -95,8 +97,13 @@ class Entity {
   // custom <class Entity>
 
   String get briefComment => brief != null? '//! $brief' : null;
+
   String get detailedComment => descr != null?
     blockComment(descr, ' ') : null;
+
+  /// *doc* is a synonym for descr
+  set doc(String d) => descr = d;
+  get doc => descr;
 
   // end <class Entity>
 }

@@ -1,13 +1,27 @@
 part of ebisu_cpp.cpp;
 
+/// Establishes an interface and common elements for c++ file, such as
+/// *Header* and *Impl*.
 abstract class CppFile extends Entity {
+  /// Namespace associated with this file
   Namespace namespace;
+  /// List of blocks requiring custom code and therefore inserted into the
+  /// file with *Protect Blocks*. Note it is a list of *FileCodeBlock*
+  /// enumeration values. *CodeBlocks* can be used to inject code into
+  /// the location designated by their value. Additionally *CodeBlocks*
+  /// have support for a single custom *Protect Block*
   List<FileCodeBlock> customBlocks = [];
+  /// List of classes whose definitions are included in this file
   List<Class> classes = [];
+  /// List of includes required by this c++ file
   Includes get includes => _includes;
+  /// List of c++ *constexprs* that will appear near the top of the file
   List<ConstExpr> constExprs = [];
+  /// List of forward declarations that will appear near the top of the file
   List<ForwardDecl> forwardDecls = [];
+  /// List of using statements that will appear near the top of the file
   List<String> usings = [];
+  /// List of enumerations that will appear near the top of the file
   List<Enum> enums = [];
   // custom <class CppFile>
 
@@ -35,7 +49,7 @@ abstract class CppFile extends Entity {
     return result == null? (_codeBlocks[fcb] = codeBlock()) : result;
   }
 
-  String _contentsWithBlocks(String original) {
+  String get _contentsWithBlocks {
     if(classes.any((c) => c._opMethods.any((m) => m is OpOut))) {
       _includes.add('fcs/utils/block_indenter.hpp');
     }
@@ -51,7 +65,8 @@ abstract class CppFile extends Entity {
           br(constExprs),
           forwardDecls,
           br(usings.map((u) => 'using $u;')),
-          original,
+          br(enums.map((Enum e) => br(e.decl))),
+          br(classes.map((Class cls) => br(cls.definition))),
           _codeBlockText(fcbEndNamespace)
         ])),
       _codeBlockText(fcbPostNamespace),
@@ -64,6 +79,7 @@ abstract class CppFile extends Entity {
   }
 
   // end <class CppFile>
+  /// Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.
   Map<FileCodeBlock, CodeBlock> _codeBlocks = {};
   Includes _includes = new Includes();
 }

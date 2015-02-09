@@ -229,13 +229,17 @@ of C++ entities to make code generation as simple and fun as possible.
             member('namespace')..type = 'Namespace',
           ],
           class_('forward_decl')
+          ..doc = 'A forward declaration'
           ..ctorSansNew = true
           ..members = [
             member('type')..ctors = [''],
             member('namespace')..type = 'Namespace'..ctorsOpt = [''],
           ],
-          class_('code_generator')..isAbstract = true,
+          class_('code_generator')
+          ..doc = 'Establishes an interface for generating code'
+          ..isAbstract = true,
           class_('namespace')
+          ..doc = 'Represents a c++ namespace which is essentially a list of names'
           ..members = [
             member('names')..type = 'List<String>'..classInit = [],
           ],
@@ -277,24 +281,51 @@ of C++ entities to make code generation as simple and fun as possible.
         part('file')
         ..classes = [
           class_('cpp_file')
+          ..doc = '''
+Establishes an interface and common elements for c++ file, such as
+*Header* and *Impl*.'''
           ..isAbstract = true
           ..extend = 'Entity'
           ..members = [
-            member('namespace')..type = 'Namespace',
-            member('custom_blocks')..type = 'List<FileCodeBlock>'..classInit = [],
+            member('namespace')
+            ..doc = 'Namespace associated with this file'
+            ..type = 'Namespace',
+            member('custom_blocks')
+            ..doc = '''
+List of blocks requiring custom code and therefore inserted into the
+file with *Protect Blocks*. Note it is a list of *FileCodeBlock*
+enumeration values. *CodeBlocks* can be used to inject code into
+the location designated by their value. Additionally *CodeBlocks*
+have support for a single custom *Protect Block*'''
+            ..type = 'List<FileCodeBlock>'..classInit = [],
             member('code_blocks')
+            ..doc = '''
+Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
             ..type = 'Map<FileCodeBlock, CodeBlock>'..access = IA..classInit = {},
-            member('classes')..type = 'List<Class>'..classInit = [],
-            member('includes')..type = 'Includes'..access = RO..classInit = 'new Includes()',
-            member('const_exprs')..type = 'List<ConstExpr>'..classInit = [],
-            member('forward_decls')..type = 'List<ForwardDecl>'..classInit = [],
-            member('usings')..type = 'List<String>'..classInit = [],
-            member('enums')..type = 'List<Enum>'..classInit = [],
+            member('classes')
+            ..doc = 'List of classes whose definitions are included in this file'
+            ..type = 'List<Class>'..classInit = [],
+            member('includes')
+            ..doc = 'List of includes required by this c++ file'
+            ..type = 'Includes'..access = RO..classInit = 'new Includes()',
+            member('const_exprs')
+            ..doc = 'List of c++ *constexprs* that will appear near the top of the file'
+            ..type = 'List<ConstExpr>'..classInit = [],
+            member('forward_decls')
+            ..doc = 'List of forward declarations that will appear near the top of the file'
+            ..type = 'List<ForwardDecl>'..classInit = [],
+            member('usings')
+            ..doc = 'List of using statements that will appear near the top of the file'
+            ..type = 'List<String>'..classInit = [],
+            member('enums')
+            ..doc = 'List of enumerations that will appear near the top of the file'
+            ..type = 'List<Enum>'..classInit = [],
           ],
         ],
         part('enum')
         ..classes = [
           class_('enum')
+          ..doc = 'A c++ enumeration'
           ..extend = 'Entity'
           ..members = [
             member('values')
@@ -330,10 +361,12 @@ of C++ entities to make code generation as simple and fun as possible.
         part('member')
         ..classes = [
           class_('member')
+          ..doc = 'A member or field included in a class'
           ..extend = 'Entity'
           ..members = [
             member('type')..doc = 'Type of member',
-            member('init')..doc = 'Initialization of member (if type is null and Dart type is key in { int:int, double:double }, cpp type is set to value type)'..access = RO,
+            member('init')
+            ..doc = 'Initialization of member (if type is null and Dart type is key in { int:int, double:double }, cpp type is set to value type)'..access = RO,
             member('ctor_init')
             ..doc = '''
 Rare usage - member b depends on member a (e.g. b is just a string rep of a
@@ -410,6 +443,7 @@ initialize it''',
           class_('assign_copy')..extend = 'DefaultMethod',
           class_('assign_move')..extend = 'DefaultMethod',
           class_('dtor')
+          ..doc = 'Provides a destructor'
           ..extend = 'DefaultMethod'
           ..members = [
             member('abstract')..classInit = false
@@ -500,9 +534,6 @@ custom block. In that case the class might look like:
             ..doc = 'List of members that are passed as arguments for initialization'
             ..type = 'List<MemberCtorParm>'
             ..classInit = [],
-            // member('opt_init')
-            // ..doc = 'Map member name to text for initialization'
-            // ..type = 'Map<String, String>',
             member('decls')
             ..doc = 'List of additional decls ["Type Argname", ...]'
             ..type = 'List<String>',
@@ -514,19 +545,53 @@ custom block. In that case the class might look like:
             ..doc = 'If set automatically includes all members as args'
             ..classInit = false,
           ],
-          class_('op_equal')..extend = 'ClassMethod',
-          class_('op_less')..extend = 'ClassMethod',
-          class_('op_out')..extend = 'ClassMethod',
+          class_('op_equal')
+          ..doc = 'Provides *operator==()*'
+          ..extend = 'ClassMethod',
+          class_('op_less')
+          ..doc = 'Provides *operator<()*'
+          ..extend = 'ClassMethod',
+          class_('op_out')
+          ..doc = 'Provides *operator<<()*'
+          ..extend = 'ClassMethod',
           class_('class')
           ..extend = 'Entity'
           ..members = [
-            member('definition')..access = IA,
-            member('struct')..doc = 'Is this definition a *struct*'
+            member('definition')
+            ..doc = '''
+The contents of the class definition. *Inaccessible* and established
+as a member so custom *definition* getter can be called multiple times
+on the same class and results lazy-inited here'''
+            ..access = IA,
+            member('struct')
+            ..doc = 'Is this definition a *struct*'
             ..classInit = false,
-            member('template')..type = 'Template'..access = RO,
-            member('usings')..type = 'List<String>'..classInit = [],
-            member('usings_post_decl')..type = 'List<String>'..classInit = [],
-            member('bases')..type = 'List<Base>'..classInit = [],
+            member('template')
+            ..doc = 'The template by which the class is parameterized'
+            ..type = 'Template'..access = RO,
+            member('usings')
+            ..doc = '''
+List of usings that will be scoped to this class near the top of
+the class definition.'''
+            ..type = 'List<String>'..classInit = [],
+            member('usings_post_decl')
+            ..doc = '''
+List of usings to occur after the class declaration. Sometimes it is
+useful to establish some type definitions directly following the class
+so they may be reused among any client of the class. For instance if
+class *Foo* will most commonly be used in vector, the using occuring
+just after the class definition will work:
+
+    using Foo = std::vector<Foo>;
+
+'''
+            ..type = 'List<String>'..classInit = [],
+            member('bases')
+            ..doc = '''
+Base classes this class derives form.
+
+'''
+            ..type = 'List<Base>'..classInit = [],
             member('default_ctor')..type = 'DefaultCtor'..access = IA,
             member('copy_ctor')..type = 'CopyCtor'..access = IA,
             member('move_ctor')..type = 'MoveCtor'..access = IA,
@@ -566,6 +631,7 @@ custom block. In that case the class might look like:
         part('serializer')
         ..enums = [
           enum_('serialization_style')
+          ..doc = 'Serialization using *cereal* supports these types of serialization'
           ..libraryScopedValues = true
           ..values = [
             id('json_serialization'),
@@ -574,40 +640,26 @@ custom block. In that case the class might look like:
           ]
         ]
         ..classes = [
-          class_('serializer')..isAbstract = true,
+          class_('serializer')
+          ..doc = 'Establishes an interface for instance serialization'
+          ..isAbstract = true,
           class_('dsv_serializer')
+          ..doc = 'Provides support for serialization as *delimited separated values*'
           ..implement = [ 'Serializer' ]
           ..members = [
             member('delimiter')..classInit = ':',
           ],
           class_('cereal')
+          ..doc = 'Adds support for serialization using *cereal*'
           ..implement = [ 'Serializer' ]
           ..members = [
             member('styles')..type = 'List<SerializationStyle>'..classInit = [],
           ],
         ],
-        part('lib')
-        ..enums = [
-          enum_('file_code_block')
-          ..libraryScopedValues = true
-          ..values = [
-            id('fcb_custom_includes'),
-            id('fcb_pre_namespace'),
-            id('fcb_post_namespace'),
-            id('fcb_begin_namespace'),
-            id('fcb_end_namespace'),
-          ]
-        ]
+        part('header')
         ..classes = [
-          class_('lib')
-          ..extend = 'Entity'
-          ..mixins = [ 'InstallationCodeGenerator' ]
-          ..members = [
-            member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
-            member('headers')..type = 'List<Header>'..classInit = [],
-            member('tests')..type = 'List<Test>'..classInit = [],
-          ],
           class_('header')
+          ..doc = 'A single c++ header'
           ..extend = 'CppFile'
           ..members = [
             member('file_path')..access = RO,
@@ -622,15 +674,44 @@ If true marks this header as special to the set of headers in its library in tha
 '''
             ..classInit = false,
           ],
+        ],
+        part('impl')
+        ..classes = [
           class_('impl')
+          ..doc = 'A single implementation file (i.e. *cpp* file)'
           ..extend = 'CppFile'
           ..members = [
             member('file_path')..access = RO,
           ]
         ],
+        part('lib')
+        ..enums = [
+          enum_('file_code_block')
+          ..doc = 'Set of pre-canned blocks where custom or generated code can be placed'
+          ..libraryScopedValues = true
+          ..values = [
+            id('fcb_custom_includes'),
+            id('fcb_pre_namespace'),
+            id('fcb_post_namespace'),
+            id('fcb_begin_namespace'),
+            id('fcb_end_namespace'),
+          ]
+        ]
+        ..classes = [
+          class_('lib')
+          ..doc = 'A c++ library'
+          ..extend = 'Entity'
+          ..mixins = [ 'InstallationCodeGenerator' ]
+          ..members = [
+            member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
+            member('headers')..type = 'List<Header>'..classInit = [],
+            member('tests')..type = 'List<Test>'..classInit = [],
+          ],
+        ],
         part('app')
         ..enums = [
           enum_('arg_type')
+          ..doc = 'Set of argument types supported by command line option processing'
           ..requiresClass = true
           ..values = [
             id('int'),
@@ -641,6 +722,10 @@ If true marks this header as special to the set of headers in its library in tha
         ]
         ..classes = [
           class_('app_arg')
+          ..doc = '''
+Metadata associated with an argument to an application.  Requires and
+geared to features supported by boost::program_options.
+'''
           ..extend = 'Entity'
           ..members = [
             member('type')..type = 'ArgType'..classInit = 'ArgType.STRING',
@@ -650,22 +735,45 @@ If true marks this header as special to the set of headers in its library in tha
             member('default_value')..type = 'Object'..access = RO,
           ],
           class_('app')
+          ..doc = 'A c++ application'
           ..extend = 'Impl'
           ..mixins = [ 'InstallationCodeGenerator' ]
           ..members = [
-            member('args')..type = 'List<AppArg>'..classInit = [],
-            member('namespace')..type = 'Namespace'..access = IA,
-            member('headers')..type = 'List<Header>'..classInit = [],
-            member('impls')..type = 'List<Impl>'..classInit = [],
-            member('required_libs')..type = 'List<String>'..classInit = [],
+            member('args')
+            ..doc = 'Command line arguments specific to this application'
+            ..type = 'List<AppArg>'..classInit = [],
+            member('namespace')
+            ..doc = 'Namespace associated with application code'
+            ..type = 'Namespace'..access = IA,
+            member('headers')
+            ..doc = '''
+Additional headers that are associated with the application itself, as
+opposed to belonging to a reusable library.'''
+            ..type = 'List<Header>'..classInit = [],
+            member('impls')
+            ..doc = '''
+Additional implementation files associated with the application
+itself, as opposed to belonging to a reusable library.'''
+            ..type = 'List<Impl>'..classInit = [],
+            member('required_libs')
+            ..doc = '''
+Libraries required to build this executable. *Warning* potentially
+deprecated in the future. Originally when generating boost jam files
+it was convenient to associate the required libraries directly in the
+code generation scripts. With cmake it was simpler to just incorporate
+protect blocks where the required libs could be easily added.
+'''
+            ..type = 'List<String>'..classInit = [],
             member('builders')
             ..doc = 'List of builders to generate build scripts of a desired flavor (bjam,...)'
             ..type = 'List<AppBuilder>'..classInit = [],
           ],
           class_('app_builder')
+          ..doc = '''
+Base class establishing interface for generating build scripts for
+libraries, apps, and tests'''
           ..isAbstract = true
           ..implement = [ 'CodeGenerator' ]
-          ..doc = 'Creates builder for an application'
           ..members = [
             member('app')..type = 'App'
           ],

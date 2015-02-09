@@ -120,6 +120,7 @@ class AssignMove extends DefaultMethod {
   // end <class AssignMove>
 }
 
+/// Provides a destructor
 class Dtor extends DefaultMethod {
   bool abstract = false;
   // custom <class Dtor>
@@ -297,6 +298,7 @@ ${indentBlock(_protectBlock)}}''';
   String _customLabel;
 }
 
+/// Provides *operator==()*
 class OpEqual extends ClassMethod {
   // custom <class OpEqual>
 
@@ -315,6 +317,7 @@ bool operator!=($className const& rhs) const {
   // end <class OpEqual>
 }
 
+/// Provides *operator<()*
 class OpLess extends ClassMethod {
   // custom <class OpLess>
 
@@ -334,6 +337,7 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
   // end <class OpLess>
 }
 
+/// Provides *operator<<()*
 class OpOut extends ClassMethod {
   // custom <class OpOut>
 
@@ -359,9 +363,20 @@ combine(members.map((m) =>
 class Class extends Entity {
   /// Is this definition a *struct*
   bool struct = false;
+  /// The template by which the class is parameterized
   Template get template => _template;
+  /// List of usings that will be scoped to this class near the top of
+  /// the class definition.
   List<String> usings = [];
+  /// List of usings to occur after the class declaration. Sometimes it is
+  /// useful to establish some type definitions directly following the class
+  /// so they may be reused among any client of the class. For instance if
+  /// class *Foo* will most commonly be used in vector, the using occuring
+  /// just after the class definition will work:
+  ///
+  ///     using Foo = std::vector<Foo>;
   List<String> usingsPostDecl = [];
+  /// Base classes this class derives form.
   List<Base> bases = [];
   List<MemberCtor> memberCtors = [];
   List<PtrType> forwardPtrs = [];
@@ -582,6 +597,9 @@ $classStyle $className$_baseDecl
   }
 
   // end <class Class>
+  /// The contents of the class definition. *Inaccessible* and established
+  /// as a member so custom *definition* getter can be called multiple times
+  /// on the same class and results lazy-inited here
   String _definition;
   Template _template;
   DefaultCtor _defaultCtor;

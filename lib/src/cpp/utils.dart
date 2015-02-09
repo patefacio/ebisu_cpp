@@ -38,6 +38,7 @@ class ConstExpr extends Entity {
   String _value;
 }
 
+/// A forward declaration
 class ForwardDecl {
   ForwardDecl(this.type, [ this.namespace ]);
 
@@ -65,6 +66,7 @@ forwardDecl(String type,
   new ForwardDecl(type,
       namespace);
 
+/// Establishes an interface for generating code
 abstract class CodeGenerator {
   // custom <class CodeGenerator>
 
@@ -73,6 +75,7 @@ abstract class CodeGenerator {
   // end <class CodeGenerator>
 }
 
+/// Represents a c++ namespace which is essentially a list of names
 class Namespace {
   List<String> names = [];
   // custom <class Namespace>

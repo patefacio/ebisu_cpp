@@ -1,5 +1,6 @@
 part of ebisu_cpp.cpp;
 
+/// A member or field included in a class
 class Member extends Entity {
   /// Type of member
   String type;

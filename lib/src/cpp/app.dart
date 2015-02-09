@@ -1,5 +1,6 @@
 part of ebisu_cpp.cpp;
 
+/// Set of argument types supported by command line option processing
 class ArgType implements Comparable<ArgType> {
   static const INT = const ArgType._(0);
   static const DOUBLE = const ArgType._(1);
@@ -47,6 +48,9 @@ class ArgType implements Comparable<ArgType> {
 }
 
 
+/// Metadata associated with an argument to an application.  Requires and
+/// geared to features supported by boost::program_options.
+///
 class AppArg extends Entity {
   ArgType type = ArgType.STRING;
   String shortName;
@@ -103,10 +107,21 @@ class AppArg extends Entity {
   Object _defaultValue;
 }
 
+/// A c++ application
 class App extends Impl with InstallationCodeGenerator {
+  /// Command line arguments specific to this application
   List<AppArg> args = [];
+  /// Additional headers that are associated with the application itself, as
+  /// opposed to belonging to a reusable library.
   List<Header> headers = [];
+  /// Additional implementation files associated with the application
+  /// itself, as opposed to belonging to a reusable library.
   List<Impl> impls = [];
+  /// Libraries required to build this executable. *Warning* potentially
+  /// deprecated in the future. Originally when generating boost jam files
+  /// it was convenient to associate the required libraries directly in the
+  /// code generation scripts. With cmake it was simpler to just incorporate
+  /// protect blocks where the required libs could be easily added.
   List<String> requiredLibs = [];
   /// List of builders to generate build scripts of a desired flavor (bjam,...)
   List<AppBuilder> builders = [];
@@ -121,7 +136,7 @@ class App extends Impl with InstallationCodeGenerator {
   get sources => [ id.snake ]..addAll(impls.map((i) => i.id.snake));
   get allIncludes =>
     new Includes(_includes.includeEntries)
-    ..addAll(concat(headers.map((h) => h.includeEntries)))
+    ..addAll(concat(headers.map((h) => h.includes.includeEntries)))
     ..addAll(concat(impls.map((i) => i.includes.includeEntries)));
 
   generate() {
@@ -284,10 +299,12 @@ if(options.help()) {
     ]);
 
   // end <class App>
+  /// Namespace associated with application code
   Namespace _namespace;
 }
 
-/// Creates builder for an application
+/// Base class establishing interface for generating build scripts for
+/// libraries, apps, and tests
 abstract class AppBuilder
   implements CodeGenerator {
   App app;
