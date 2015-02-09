@@ -10,7 +10,6 @@ const jsonSerialization = SerializationStyle.jsonSerialization;
 const xmlSerialization = SerializationStyle.xmlSerialization;
 const binarySerialization = SerializationStyle.binarySerialization;
 
-
 /// Establishes an interface for instance serialization
 abstract class Serializer {
   // custom <class Serializer>
@@ -21,8 +20,7 @@ abstract class Serializer {
 }
 
 /// Provides support for serialization as *delimited separated values*
-class DsvSerializer
-  implements Serializer {
+class DsvSerializer implements Serializer {
   String delimiter = ':';
   // custom <class DsvSerializer>
 
@@ -37,8 +35,7 @@ ${cls.immutable? _immutableIn(cls) : _in(cls)}
   }
 
   String _outMember(Member m) =>
-    m.type == 'Timestamp_t'? 'fcs::timestamp::ticks(${m.vname})' : m.vname;
-
+      m.type == 'Timestamp_t' ? 'fcs::timestamp::ticks(${m.vname})' : m.vname;
 
   String _out(Class cls) => '''
 std::string serialize_to_dsv() const {
@@ -56,18 +53,17 @@ indentBlock(
 }
 ''';
 
-  String _castMember(Member m) =>
-    m.type == 'Timestamp_t'?
-    '''
+  String _castMember(Member m) => m.type == 'Timestamp_t'
+      ? '''
 if(!fcs::timestamp::convert_to_timestamp_from_ticks(*it__, ${m.vname})) {
   std::string msg { "Encountered invalid timestamp ticks:" };
   msg += *it__;
   throw std::logic_error(msg);
 }
-''' :
-    m.serializeInt? '${m.vname} = ${m.type}(lexical_cast<int>(*it__));' :
-    '${m.vname} = lexical_cast<${m.type}>(*it__);';
-
+'''
+      : m.serializeInt
+          ? '${m.vname} = ${m.type}(lexical_cast<int>(*it__));'
+          : '${m.vname} = lexical_cast<${m.type}>(*it__);';
 
   String _readToken(Class cls, Member m) => '''
 if(it__ != tokens__.end()) {
@@ -121,39 +117,34 @@ return ${cls.className}(${cls.members.map((Member m) => m.vname).join(', ')});
 }
 ''';
 
-
   // end <class DsvSerializer>
 }
 
 /// Adds support for serialization using *cereal*
-class Cereal
-  implements Serializer {
+class Cereal implements Serializer {
   List<SerializationStyle> styles = [];
   // custom <class Cereal>
 
   Cereal(this.styles);
 
   static final _tag = const {
-    jsonSerialization : 'json',
-    xmlSerialization : 'xml',
+    jsonSerialization: 'json',
+    xmlSerialization: 'xml',
   };
 
   static final _styleToInput = const {
-    jsonSerialization : 'cereal::JSONInputArchive',
-    xmlSerialization : 'cereal::XMLInputArchive',
+    jsonSerialization: 'cereal::JSONInputArchive',
+    xmlSerialization: 'cereal::XMLInputArchive',
   };
 
   static final _styleToOutput = const {
-    jsonSerialization : 'cereal::JSONOutputArchive',
-    xmlSerialization : 'cereal::XMLOutputArchive',
+    jsonSerialization: 'cereal::JSONOutputArchive',
+    xmlSerialization: 'cereal::XMLOutputArchive',
   };
 
   String serialize(Class cls) {
     final parts = [];
-    cls
-      .members
-      .where((m) => !m.cerealTransient)
-      .forEach((Member m) {
+    cls.members.where((m) => !m.cerealTransient).forEach((Member m) {
       parts.add('  ar__(cereal::make_nvp("${m.name}", ${m.vname}));');
     });
     parts.add('}');
@@ -189,12 +180,12 @@ final json = jsonSerialization;
 final xml = xmlSerialization;
 final binary = binarySerialization;
 
-Cereal cereal([ List<SerializationStyle> styles ]) {
-  if(styles == null) styles = [ json ];
+Cereal cereal([List<SerializationStyle> styles]) {
+  if (styles == null) styles = [json];
   return new Cereal(styles);
 }
 
-DsvSerializer dsv([ String delimiter = ':' ]) {
+DsvSerializer dsv([String delimiter = ':']) {
   assert(delimiter.length == 1);
   return new DsvSerializer(delimiter);
 }

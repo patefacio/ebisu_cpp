@@ -10,31 +10,29 @@ class Test extends Impl with InstallationCodeGenerator {
   List<String> requiredLibs = [];
   // custom <class Test>
 
-  Test(Header header) : super(header.id),
-                        headerUnderTest = header
-  {
-    _includes.addAll([
-      'boost/test/included/unit_test.hpp',
-    ]);
+  Test(Header header)
+      : super(header.id),
+        headerUnderTest = header {
+    _includes.addAll(['boost/test/included/unit_test.hpp',]);
   }
 
   Namespace get namespace => super.namespace;
   get basename => id.snake;
   get name => 'test_$basename';
   get testCppFile => '$name.cpp';
-  get cppFiles => [ testCppFile ];
-  get sources => [ name ]..addAll(impls.map((i) => i.id.snake));
+  get cppFiles => [testCppFile];
+  get sources => [name]..addAll(impls.map((i) => i.id.snake));
   get testFilePathFromRoot => path.join(namespace.asPath, testCppFile);
   get cppPath => path.dirname(_filePath);
 
   addTestFunctions(Iterable<String> testFunction) =>
-    _testFunctions.addAll(testFunction);
+      _testFunctions.addAll(testFunction);
 
   addTestImplementations(Map<String, String> impls) =>
-    _testImplementations.addAll(impls);
+      _testImplementations.addAll(impls);
 
   setFilePathFromRoot(String root) =>
-    _filePath = path.join(root, testFilePathFromRoot);
+      _filePath = path.join(root, testFilePathFromRoot);
 
   get testNames => concat([testFunctions, testImplementations.keys]);
 
@@ -42,25 +40,20 @@ class Test extends Impl with InstallationCodeGenerator {
     _includes.add(headerUnderTest.includeFilePath);
     _testFunctions.addAll(headerUnderTest.testFunctions);
 
-    getCodeBlock(fcbEndNamespace)
-    .snippets
-    .add(
-        combine([
-          testFunctions.map((f) => '''
+    getCodeBlock(fcbEndNamespace).snippets.add(combine([
+      testFunctions.map((f) => '''
 void test_$f() {
 ${chomp(indentBlock(customBlock(f)))}
 }
 '''),
-          testImplementations.keys.map((t) => '''
+      testImplementations.keys.map((t) => '''
 void test_$t() {
 ${chomp(indentBlock(testImplementations[t]))}
 }
-''')])
-         );
+''')
+    ]));
 
-    getCodeBlock(fcbPostNamespace)
-    .snippets
-    .addAll([
+    getCodeBlock(fcbPostNamespace).snippets.addAll([
       '''
 
 boost::unit_test::test_suite* init_unit_test_suite(int , char*[]) {
@@ -91,8 +84,7 @@ indentBlock(
 }
 
 /// Creates builder for test folder
-abstract class TestBuilder
-  implements CodeGenerator {
+abstract class TestBuilder implements CodeGenerator {
   TestBuilder(this.lib, this.directory, this.tests);
 
   Lib lib;

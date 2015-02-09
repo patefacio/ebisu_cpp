@@ -25,19 +25,23 @@ auto $gw = $className<>::instance();
 delete_rows($gw);
 $rowsListDecl''';
 
-  get randomizePatchAndInsert => foreignKeys.isEmpty? '''
+  get randomizePatchAndInsert => foreignKeys.isEmpty
+      ? '''
 random_rows($rowList);
 insert_rows($gw, $rowList);
-''' : '''
+'''
+      : '''
 random_rows($rowList);
 patch_rows($rowList);
 insert_rows($gw, $rowList);
 ''';
 
-  get randomizePatchAndUpdate => foreignKeys.isEmpty? '''
+  get randomizePatchAndUpdate => foreignKeys.isEmpty
+      ? '''
 randomize_row_values($rowList);
 update_rows($gw, $rowList);
-''' : '''
+'''
+      : '''
 randomize_row_values($rowList);
 patch_rows($rowList);
 update_rows($gw, $rowList);
@@ -57,17 +61,15 @@ class GatewayTestGenerator {
 
     final schema = tableDetails.schema;
     tableDetails.fkeyPath.forEach((FkeyPathEntry fpe) {
-      gateways.add(
-        new Gateway(
-          new TableDetails.fromTable(schema, fpe.refTable)));
+      gateways
+          .add(new Gateway(new TableDetails.fromTable(schema, fpe.refTable)));
     });
     gateways.add(new Gateway(tableDetails));
 
     test
       ..includes.add('fcs/utils/streamers/random.hpp')
-      ..addTestImplementations({
-        'insert_update_delete_rows' : _testInsertUpdateDeleteRows,
-      })
+      ..addTestImplementations(
+          {'insert_update_delete_rows': _testInsertUpdateDeleteRows,})
       ..getCodeBlock(fcbPreNamespace).snippets.add(_randomRow);
 
     // end <GatewayTestGenerator>
@@ -89,8 +91,9 @@ class GatewayTestGenerator {
   get valueColumns => tableDetails.valueColumns;
   get fkeyPath => tableDetails.fkeyPath;
 
-  get swapPostInsert => table.hasAutoIncrement?
-    'std::swap(${gateways.last.rowList}, ${gateways.last.postInsertRows});' : '';
+  get swapPostInsert => table.hasAutoIncrement
+      ? 'std::swap(${gateways.last.rowList}, ${gateways.last.postInsertRows});'
+      : '';
 
   _tableRandomSupport(TableDetails tableDetails) => '''
 ${_classRandomRow(tableDetails.keyClassName, tableDetails.keyColumns)}
@@ -193,9 +196,9 @@ ${gateways.map((gw) => _tableRandomSupport(gw.tableDetails)).join('\n')}
 
   get _linkUp {
     var parts = [];
-    for(var gw in gateways) {
+    for (var gw in gateways) {
       final table = gw.table;
-      for(var fk in gw.foreignKeys.values) {
+      for (var fk in gw.foreignKeys.values) {
         final refGw = gateways.firstWhere((gw) => gw.table == fk.refTable);
         parts.add('''
 void patch_rows(${gw.rowListType} & rows) {

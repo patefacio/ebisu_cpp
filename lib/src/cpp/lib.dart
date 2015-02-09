@@ -14,7 +14,6 @@ const fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
 const fcbBeginNamespace = FileCodeBlock.fcbBeginNamespace;
 const fcbEndNamespace = FileCodeBlock.fcbEndNamespace;
 
-
 /// A c++ library
 class Lib extends Entity with InstallationCodeGenerator {
   Namespace namespace = new Namespace();
@@ -28,30 +27,29 @@ class Lib extends Entity with InstallationCodeGenerator {
   get allTests => new List.from(tests);
 
   generate() {
-    if(installation == null) {
-      installation = new Installation(new Id('tmp'))
-        ..root = '/tmp';
+    if (installation == null) {
+      installation = new Installation(new Id('tmp'))..root = '/tmp';
     }
 
     final apiHeaders = headers.where((h) => h.isApiHeader);
     Header apiHeader;
 
-    if(apiHeaders.length > 1) {
+    if (apiHeaders.length > 1) {
       throw '''A library may have only one api header:
 [ ${apiHeaders.map((h)=>h.id).join(', ')} ]''';
-    } else if(apiHeaders.isNotEmpty) {
+    } else if (apiHeaders.isNotEmpty) {
       apiHeader = apiHeaders.first;
     }
 
     final cpp = installation.paths["cpp"];
     headers.forEach((Header header) {
-      if(header.namespace == null) {
+      if (header.namespace == null) {
         header.namespace = namespace;
       }
       header.setFilePathFromRoot(installation.cppPath);
 
-      if(apiHeader != null && apiHeader != header)
-        header.includes.add(apiHeader.includeFilePath);
+      if (apiHeader != null && apiHeader != header) header.includes
+          .add(apiHeader.includeFilePath);
 
       header.generate();
     });
@@ -61,27 +59,23 @@ class Lib extends Entity with InstallationCodeGenerator {
 
   generateTests() {
     Map pathToTests = {};
-    headers
-      .where((header) => header.hasTest)
-      .forEach((header) {
-         header.test
-           ..namespace = header.namespace
-           ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'))
-           ..generate();
+    headers.where((header) => header.hasTest).forEach((header) {
+      header.test
+        ..namespace = header.namespace
+        ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'))
+        ..generate();
 
-         final test = header.test;
-         final directory = path.dirname(test.filePath);
-         var dirTests = pathToTests[directory];
-         if(dirTests == null)
-           dirTests = (pathToTests[directory] = []);
-         dirTests.add(test);
-         tests.add(test);
-       });
+      final test = header.test;
+      final directory = path.dirname(test.filePath);
+      var dirTests = pathToTests[directory];
+      if (dirTests == null) dirTests = (pathToTests[directory] = []);
+      dirTests.add(test);
+      tests.add(test);
+    });
 
-    if(installation.wantsJam) {
+    if (installation.wantsJam) {
       pathToTests.forEach((directory, tests) {
-        new JamTestBuilder(this, directory, tests)
-          .generate();
+        new JamTestBuilder(this, directory, tests).generate();
       });
     }
   }
@@ -96,6 +90,6 @@ class Lib extends Entity with InstallationCodeGenerator {
 }
 // custom <part lib>
 
-Lib lib(Object id) => new Lib(id is Id? id : new Id(id));
+Lib lib(Object id) => new Lib(id is Id ? id : new Id(id));
 
 // end <part lib>

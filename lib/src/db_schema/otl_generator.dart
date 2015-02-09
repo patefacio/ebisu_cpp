@@ -19,7 +19,6 @@ const bdtUnsizedChar = BindDataType.bdtUnsizedChar;
 const bdtVarcharLong = BindDataType.bdtVarcharLong;
 const bdtTimestamp = BindDataType.bdtTimestamp;
 
-
 class OtlBindVariable {
   String name;
   BindDataType dataType;
@@ -27,19 +26,20 @@ class OtlBindVariable {
   // custom <class OtlBindVariable>
 
   OtlBindVariable.fromDataType(this.name, SqlType sqlType) {
-    switch(sqlType.runtimeType) {
-      case SqlString: {
-        final str = sqlType as SqlString;
-        if(str.length > 0) {
-          dataType = bdtSizedChar;
-          size = str.length;
-        } else {
-          dataType = bdtVarcharLong;
+    switch (sqlType.runtimeType) {
+      case SqlString:
+        {
+          final str = sqlType as SqlString;
+          if (str.length > 0) {
+            dataType = bdtSizedChar;
+            size = str.length;
+          } else {
+            dataType = bdtVarcharLong;
+          }
         }
-      }
-      break;
+        break;
       case SqlInt:
-        dataType = (sqlType as SqlInt).length <= 4? bdtInt : bdtBigint;
+        dataType = (sqlType as SqlInt).length <= 4 ? bdtInt : bdtBigint;
         break;
       case SqlDecimal:
         throw 'Add support for SqlDecimal';
@@ -50,24 +50,26 @@ class OtlBindVariable {
         break;
       case SqlDate:
       case SqlTime:
-      case SqlTimestamp: {
-        dataType = bdtTimestamp;
-        break;
-      }
+      case SqlTimestamp:
+        {
+          dataType = bdtTimestamp;
+          break;
+        }
     }
   }
 
-  toString() => dataType == bdtSizedChar?
-    ':$name<char[$size]>' : ':$name<${typeMapping[dataType]}>';
+  toString() => dataType == bdtSizedChar
+      ? ':$name<char[$size]>'
+      : ':$name<${typeMapping[dataType]}>';
 
   static Map<BindDataType, String> typeMapping = {
-    bdtInt : 'int',
-    bdtShort : 'short',
-    bdtDouble : 'double',
-    bdtBigint : 'bigint',
-    bdtUnsizedChar : 'char[]',
-    bdtVarcharLong : 'varchar_long',
-    bdtTimestamp : 'timestamp',
+    bdtInt: 'int',
+    bdtShort: 'short',
+    bdtDouble: 'double',
+    bdtBigint: 'bigint',
+    bdtUnsizedChar: 'char[]',
+    bdtVarcharLong: 'varchar_long',
+    bdtTimestamp: 'timestamp',
   };
 
   // end <class OtlBindVariable>
@@ -88,20 +90,20 @@ class OtlSchemaCodeGenerator extends SchemaCodeGenerator {
   get namespace => super.namespace;
 
   TableGatewayGenerator createTableGatewayGenerator(Table t) =>
-    new OtlTableGatewayGenerator(installation, this, t);
+      new OtlTableGatewayGenerator(installation, this, t);
 
   finishApiHeader(Header apiHeader) {
     final connectionClass = 'connection_${id.snake}';
     apiHeader
       ..includes.add('fcs/orm/orm.hpp')
-      ..classes.add(
-          class_(connectionClassId)
-          ..getCodeBlock(clsPrivate).snippets = [_connectionSingletonPrivate]
-          ..getCodeBlock(clsPublic).snippets = [_connectionSingletonPublic]
-          ..isSingleton = true
-          ..members = [
-            member('tss_connection')..type = 'boost::thread_specific_ptr< otl_connect >',
-          ]);
+      ..classes.add(class_(connectionClassId)
+        ..getCodeBlock(clsPrivate).snippets = [_connectionSingletonPrivate]
+        ..getCodeBlock(clsPublic).snippets = [_connectionSingletonPublic]
+        ..isSingleton = true
+        ..members = [
+          member('tss_connection')
+            ..type = 'boost::thread_specific_ptr< otl_connect >',
+        ]);
   }
 
   get _connectionSingletonPrivate => '''
@@ -128,26 +130,22 @@ class OtlTableGatewayGenerator extends TableGatewayGenerator {
   // custom <class OtlTableGatewayGenerator>
 
   OtlTableGatewayGenerator(Installation installation,
-      SchemaCodeGenerator schemaCodeGenerator, Table table) :
-    super(installation, schemaCodeGenerator, table);
+      SchemaCodeGenerator schemaCodeGenerator, Table table)
+      : super(installation, schemaCodeGenerator, table);
 
   void finishClass(Class cls) {
     cls.getCodeBlock(clsPostDecl).snippets.add(_otlStreamSupport(cls));
   }
 
   void finishGatewayClass(Class gatewayClass) {
-    gatewayClass.members.add(
-        member('connection')..type = 'otl_connect *'
-        ..access = ia
-        ..initText = 'Connection_code_metrics::instance().connection()');
+    gatewayClass.members.add(member('connection')
+      ..type = 'otl_connect *'
+      ..access = ia
+      ..initText = 'Connection_code_metrics::instance().connection()');
   }
 
-  void addRequiredIncludes(Header hdr) =>
-    hdr.includes.addAll([
-      'fcs/orm/otl_utils.hpp',
-      'fcs/orm/orm_to_string_table.hpp',
-    ]);
-
+  void addRequiredIncludes(Header hdr) => hdr.includes
+      .addAll(['fcs/orm/otl_utils.hpp', 'fcs/orm/orm_to_string_table.hpp',]);
 
   get selectLastInsertId => '''
 int select_last_insert_id() {
@@ -335,7 +333,7 @@ operator>>(otl_stream &src,
 ''';
 
   String _bindingVariableText(Column column) =>
-    new OtlBindVariable.fromDataType(column.name, column.type).toString();
+      new OtlBindVariable.fromDataType(column.name, column.type).toString();
 
   String _bindingWhereClause(Iterable<Column> cols) => '''
 ${cols.map((col) => '${col.name}=${_bindingVariableText(col)}').join(' AND\n')}

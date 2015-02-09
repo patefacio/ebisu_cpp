@@ -7,19 +7,21 @@ class ConstExpr extends Entity {
   Namespace namespace;
   // custom <class ConstExpr>
 
-  ConstExpr(Id id, Object value_, [ this.type ]) : super(id) {
+  ConstExpr(Id id, Object value_, [this.type]) : super(id) {
     value = value_;
   }
 
   set value(Object value_) {
-    if(type == null) {
-      type =
-        value_ is String? 'char const*' :
-        value_ is int? 'int' :
-        value_ is double? 'double' :
-        throw 'ConstExpr does not infer types from ${value.runtimeType} => $value';
+    if (type == null) {
+      type = value_ is String
+          ? 'char const*'
+          : value_ is int
+              ? 'int'
+              : value_ is double
+                  ? 'double'
+                  : throw 'ConstExpr does not infer types from ${value.runtimeType} => $value';
     }
-    if(value_ is String) {
+    if (value_ is String) {
       value_ = quote(value_);
     }
     _value = value_.toString();
@@ -30,9 +32,9 @@ class ConstExpr extends Entity {
   get vname => id.capSnake;
   get unqualDecl => 'constexpr $type $vname { $value };';
 
-  toString() =>
-    namespace == null || namespace.length == 0?
-    unqualDecl : namespace.wrap(unqualDecl);
+  toString() => namespace == null || namespace.length == 0
+      ? unqualDecl
+      : namespace.wrap(unqualDecl);
 
   // end <class ConstExpr>
   String _value;
@@ -40,31 +42,23 @@ class ConstExpr extends Entity {
 
 /// A forward declaration
 class ForwardDecl {
-  ForwardDecl(this.type, [ this.namespace ]);
+  ForwardDecl(this.type, [this.namespace]);
 
   String type;
   Namespace namespace;
   // custom <class ForwardDecl>
 
-  toString() =>
-    namespace == null || namespace.length == 0?
-    'class $type;' :
-    namespace
-    .names
-    .reversed
-    .fold('class $type;', (prev, n) => 'namespace $n { $prev }' );
+  toString() => namespace == null || namespace.length == 0
+      ? 'class $type;'
+      : namespace.names.reversed.fold(
+          'class $type;', (prev, n) => 'namespace $n { $prev }');
 
   // end <class ForwardDecl>
 }
 
 /// Create a ForwardDecl sans new, for more declarative construction
-ForwardDecl
-forwardDecl(String type,
-    [
-      Namespace namespace
-    ]) =>
-  new ForwardDecl(type,
-      namespace);
+ForwardDecl forwardDecl(String type, [Namespace namespace]) =>
+    new ForwardDecl(type, namespace);
 
 /// Establishes an interface for generating code
 abstract class CodeGenerator {
@@ -80,16 +74,15 @@ class Namespace {
   List<String> names = [];
   // custom <class Namespace>
 
-  Namespace([Iterable<String> n]) :
-    this.names = n == null? [] : new List.from(n);
+  Namespace([Iterable<String> n])
+      : this.names = n == null ? [] : new List.from(n);
 
-  String wrap(String txt) =>
-    _helper(names.iterator, txt);
+  String wrap(String txt) => _helper(names.iterator, txt);
 
   String get using => 'using namespace $this';
 
   String _helper(Iterator<String> it, String txt) {
-    if(it.moveNext()) {
+    if (it.moveNext()) {
       final name = it.current;
       return '''
 namespace $name {
@@ -113,28 +106,26 @@ class Includes {
   Set<String> get included => _included;
   // custom <class Includes>
 
-  Includes([ Iterable<String> from ]) :
-    _included = from == null? new Set() : new Set.from(from);
+  Includes([Iterable<String> from])
+      : _included = from == null ? new Set() : new Set.from(from);
 
   Iterable<String> get includeEntries {
     final boostHeaders = [];
     final systemHeaders = [];
     final rest = [];
     _included.forEach((String include) {
-      if(include.contains('boost/')) {
+      if (include.contains('boost/')) {
         boostHeaders.add(_sysInclude(include));
-      } else if(isSystemHeader(include)) {
+      } else if (isSystemHeader(include)) {
         systemHeaders.add(_sysInclude(include));
       } else {
         rest.add(_include(include));
       }
     });
-    return concat([
-      rest..sort(), boostHeaders..sort(), systemHeaders..sort()]);
+    return concat([rest..sort(), boostHeaders..sort(), systemHeaders..sort()]);
   }
 
-  String get includes =>
-    includeEntries.map((h) => h).join('\n');
+  String get includes => includeEntries.map((h) => h).join('\n');
 
   add(String include) => _included.add(include);
   addAll(Iterable<String> more) => _included.addAll(more);
@@ -162,10 +153,12 @@ class CodeBlock {
   bool get hasTag => tag != null && tag.length > 0;
 
   String toString() {
-    if(hasTag) {
-      return hasSnippetsFirst?
-        combine([ ]..addAll(snippets)..add(customBlock(tag))) :
-        combine([ customBlock(tag) ]..addAll(snippets));
+    if (hasTag) {
+      return hasSnippetsFirst
+          ? combine([]
+        ..addAll(snippets)
+        ..add(customBlock(tag)))
+          : combine([customBlock(tag)]..addAll(snippets));
     }
     return combine(snippets);
   }
@@ -174,9 +167,7 @@ class CodeBlock {
 }
 
 /// Create a CodeBlock sans new, for more declarative construction
-CodeBlock
-codeBlock([String tag]) =>
-  new CodeBlock(tag);
+CodeBlock codeBlock([String tag]) => new CodeBlock(tag);
 
 /// Base class
 class Base {
@@ -194,59 +185,54 @@ class Base {
   // custom <class Base>
 
   String get decl => '${ev(access)} $_virtual$className';
-  String get _virtual => virtual? 'virtual ' : '';
+  String get _virtual => virtual ? 'virtual ' : '';
 
   // end <class Base>
 }
 
 /// Create a Base sans new, for more declarative construction
-Base
-base([String className]) =>
-  new Base(className);
+Base base([String className]) => new Base(className);
 // custom <part utils>
 
-Namespace namespace(List<String> ns) =>
-  new Namespace()..names = ns;
+Namespace namespace(List<String> ns) => new Namespace()..names = ns;
 
-Includes includes([ List<String> includes ]) =>
-  new Includes(includes);
+Includes includes([List<String> includes]) => new Includes(includes);
 
 ConstExpr constExpr(Object id, Object value,
-    [ String typeStr,  Namespace namespace ]) {
-  id =
-    id is Id? id :
-    id is String? idFromString(id) :
-    throw 'ConstExpr must be created with an id or string - not $id';
+    [String typeStr, Namespace namespace]) {
+  id = id is Id
+      ? id
+      : id is String
+          ? idFromString(id)
+          : throw 'ConstExpr must be created with an id or string - not $id';
 
   return new ConstExpr(id, value, typeStr);
 }
 
-
-
 final _commonTypes = const {
-  'std::string' : 'string',
-  'std::vector' : 'vector',
-  'std::set' : 'set',
-  'std::map' : 'map',
-  'std::pair' : 'utility',
-  'std::stringstream' : 'sstream',
+  'std::string': 'string',
+  'std::vector': 'vector',
+  'std::set': 'set',
+  'std::map': 'map',
+  'std::pair': 'utility',
+  'std::stringstream': 'sstream',
 };
 
 addIncludesForCommonTypes(Iterable<String> types, Includes includes) {
   types.forEach((String type) {
-    if(_commonTypes.containsKey(type)) {
+    if (_commonTypes.containsKey(type)) {
       includes.add(_commonTypes[type]);
     }
   });
 }
 
-
 String clangFormat(String contents, [String fname = 'ebisu_txt.cpp']) {
   final tmpDir = Directory.systemTemp.createTempSync();
   var tmpFile = new File(path.join(tmpDir.path, fname));
   tmpFile.writeAsStringSync(contents);
-  final formatted = Process.runSync('clang-format', ['--style=Google', tmpFile.path]).stdout;
-  tmpDir.deleteSync(recursive : true);
+  final formatted =
+      Process.runSync('clang-format', ['--style=Google', tmpFile.path]).stdout;
+  tmpDir.deleteSync(recursive: true);
   return formatted;
 }
 

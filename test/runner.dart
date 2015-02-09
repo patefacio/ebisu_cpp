@@ -21,4 +21,3 @@ main() {
   test_cpp_class.main();
   test_cpp_utils.main();
 }
-

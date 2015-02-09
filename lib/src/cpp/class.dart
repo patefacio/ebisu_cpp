@@ -13,7 +13,6 @@ const clsPrivate = ClassCodeBlock.clsPrivate;
 const clsPreDecl = ClassCodeBlock.clsPreDecl;
 const clsPostDecl = ClassCodeBlock.clsPostDecl;
 
-
 abstract class ClassMethod {
   Class get parent => _parent;
   /// If true add logging
@@ -43,10 +42,9 @@ abstract class DefaultMethod extends ClassMethod {
   String get customDefinition;
   String get prototype;
 
-  String get definition =>
-    useDefault? '$prototype = default;' :
-    delete? '$prototype = delete;' :
-    customDefinition;
+  String get definition => useDefault
+      ? '$prototype = default;'
+      : delete ? '$prototype = delete;' : customDefinition;
 
   // end <class DefaultMethod>
 }
@@ -55,8 +53,7 @@ abstract class DefaultMethod extends ClassMethod {
 class DefaultCtor extends DefaultMethod {
   // custom <class DefaultCtor>
 
-  String get prototype =>
-    '${className}()';
+  String get prototype => '${className}()';
 
   String get customDefinition {
     final cb = customBlock('${className} defaultCtor');
@@ -73,8 +70,7 @@ ${hasCustom? indentBlock(cb) : ''}}''';
 class CopyCtor extends DefaultMethod {
   // custom <class CopyCtor>
 
-  String get prototype =>
-    '${className}(${className} const& other)';
+  String get prototype => '${className}(${className} const& other)';
 
   String get customDefinition {
     final cb = customBlock('${className} copyCtor');
@@ -91,8 +87,7 @@ ${hasCustom? indentBlock(cb) : ''}}''';
 class MoveCtor extends DefaultMethod {
   // custom <class MoveCtor>
 
-  String get prototype =>
-    '${className}(${className} && other)';
+  String get prototype => '${className}(${className} && other)';
 
   String get customDefinition => 'Move Ctor';
 
@@ -104,7 +99,7 @@ class AssignCopy extends DefaultMethod {
 
   String get prototype => '${className}& operator=(${className} const&)';
   String get customDefinition =>
-    throw 'AssignCopy not generated - specify useDefault or delete for ${className}';
+      throw 'AssignCopy not generated - specify useDefault or delete for ${className}';
 
   // end <class AssignCopy>
 }
@@ -112,10 +107,9 @@ class AssignCopy extends DefaultMethod {
 class AssignMove extends DefaultMethod {
   // custom <class AssignMove>
 
-
   String get prototype => '${className}& operator=(${className} &&)';
   String get customDefinition =>
-    throw 'AssignMove not generated - specify useDefault or delete for ${className}';
+      throw 'AssignMove not generated - specify useDefault or delete for ${className}';
 
   // end <class AssignMove>
 }
@@ -125,13 +119,12 @@ class Dtor extends DefaultMethod {
   bool abstract = false;
   // custom <class Dtor>
 
-  String get definition =>
-    delete? throw "Don't delete the destructor for $className" : super.definition;
+  String get definition => delete
+      ? throw "Don't delete the destructor for $className"
+      : super.definition;
   String get prototype => '~${className}()';
   String get customDefinition =>
-    abstract?
-    'virtual ~${className}() {}' :
-    '~${className}() {}';
+      abstract ? 'virtual ~${className}() {}' : '~${className}() {}';
 
   // end <class Dtor>
 }
@@ -189,26 +182,22 @@ class MemberCtorParm {
   String defaultValue;
   // custom <class MemberCtorParm>
 
-  get decl =>
-    defaultValue != null?
-    '${member.passType} ${member.name} = $defaultValue' :
-    '${member.passType} ${member.name}';
+  get decl => defaultValue != null
+      ? '${member.passType} ${member.name} = $defaultValue'
+      : '${member.passType} ${member.name}';
 
-  get init =>
-    member.ctorInit != null?
-    '${member.vname} { ${member.ctorInit} }' :
-    _init != null?
-    '${member.vname} { $_init }' :
-    '${member.vname} { ${member.name} }';
+  get init => member.ctorInit != null
+      ? '${member.vname} { ${member.ctorInit} }'
+      : _init != null
+          ? '${member.vname} { $_init }'
+          : '${member.vname} { ${member.name} }';
 
   // end <class MemberCtorParm>
   String _init;
 }
 
 /// Create a MemberCtorParm sans new, for more declarative construction
-MemberCtorParm
-memberCtorParm([String name]) =>
-  new MemberCtorParm(name);
+MemberCtorParm memberCtorParm([String name]) => new MemberCtorParm(name);
 
 /// Specificication for a member constructor. A member constructor is a constructor
 /// with the intent of initializing one or more members of a class.
@@ -241,37 +230,37 @@ class MemberCtor extends ClassMethod {
   bool allMembers = false;
   // custom <class MemberCtor>
 
-  static _makeParm(parm) =>
-    (parm is String)? memberCtorParm(parm) :
-    (parm is MemberCtorParm)? parm :
-    (throw Exception('''
+  static _makeParm(parm) => (parm is String)
+      ? memberCtorParm(parm)
+      : (parm is MemberCtorParm)
+          ? parm
+          : (throw Exception('''
 MemberCtor ctor requires list of parms where each parm is a *String* naming the
 member being initialized or a MemberCtorParm instance'''));
 
-  MemberCtor(List parms, [ this.decls ]) {
+  MemberCtor(List parms, [this.decls]) {
     memberParms = parms.map((parm) => _makeParm(parm)).toList();
-    if(decls == null) decls = [];
+    if (decls == null) decls = [];
   }
 
-  String get _templateDecl => _template == null? '' : br(_template.decl);
+  String get _templateDecl => _template == null ? '' : br(_template.decl);
 
   String get definition {
-
-    if(allMembers) {
+    if (allMembers) {
       assert(memberParms.isEmpty);
-      memberParms = parent.members.map((m) => _makeParm(m.name)..member = m).toList();
+      memberParms =
+          parent.members.map((m) => _makeParm(m.name)..member = m).toList();
     } else {
-      memberParms.forEach(
-          (MemberCtorParm mp) =>
+      memberParms.forEach((MemberCtorParm mp) =>
           mp.member = parent.members.firstWhere((m) => mp.name == m.name));
     }
 
-    List<String> argDecls = decls == null? [] : new List<String>.from(decls);
+    List<String> argDecls = decls == null ? [] : new List<String>.from(decls);
     List<String> initializers = [];
 
     parent.bases
-    .where((b) => b.init != null)
-    .forEach((b) => initializers.add(b.init));
+        .where((b) => b.init != null)
+        .forEach((b) => initializers.add(b.init));
 
     memberParms.forEach((MemberCtorParm parm) {
       argDecls.add(parm.decl);
@@ -287,11 +276,10 @@ ${indentBlock(_protectBlock)}}''';
 
   get hasCustom => _hasCustom || _customLabel != null;
 
-  get customLabel =>
-    _customLabel != null? _customLabel : decls.join(', ');
+  get customLabel => _customLabel != null ? _customLabel : decls.join(', ');
 
-  get _protectBlock => hasCustom?
-    customBlock('${className}($customLabel)') : '';
+  get _protectBlock =>
+      hasCustom ? customBlock('${className}($customLabel)') : '';
 
   // end <class MemberCtor>
   bool _hasCustom = false;
@@ -313,7 +301,6 @@ bool operator!=($className const& rhs) const {
   return !(*this == rhs);
 }''';
 
-
   // end <class OpEqual>
 }
 
@@ -323,7 +310,7 @@ class OpLess extends ClassMethod {
 
   String get definition {
     List pairs = [];
-    pairs.addAll(members.map((m) => [ m.vname, 'rhs.${m.vname}' ]));
+    pairs.addAll(members.map((m) => [m.vname, 'rhs.${m.vname}']));
     return '''
 bool operator<($className const& rhs) const {
   return ${
@@ -400,23 +387,27 @@ class Class extends Entity {
 
   Class(Id id) : super(id);
 
-  String get classStyle => struct? 'struct' : 'class';
+  String get classStyle => struct ? 'struct' : 'class';
 
   //! Accessing auto-initilizes
-  DefaultCtor get defaultCtor => _defaultCtor = _defaultCtor == null? new DefaultCtor() : _defaultCtor;
+  DefaultCtor get defaultCtor =>
+      _defaultCtor = _defaultCtor == null ? new DefaultCtor() : _defaultCtor;
   withDefaultCtor(void f(DefaultCtor)) => f(defaultCtor);
 
-  CopyCtor get copyCtor => _copyCtor = _copyCtor == null? new CopyCtor() : _copyCtor;
-  MoveCtor get moveCtor => _moveCtor = _moveCtor == null? new MoveCtor() : _moveCtor;
-  AssignCopy get assignCopy => _assignCopy = _assignCopy == null? new AssignCopy() : _assignCopy;
-  AssignMove get assignMove => _assignMove = _assignMove == null? new AssignMove() : _assignMove;
-  Dtor get dtor => _dtor = _dtor == null? new Dtor() : _dtor;
-  OpEqual get opEqual => _opEqual = _opEqual == null? new OpEqual() : _opEqual;
-  OpLess get opLess => _opLess = _opLess == null? new OpLess() : _opLess;
-  OpOut get opOut => _opOut = _opOut == null? new OpOut() : _opOut;
+  CopyCtor get copyCtor =>
+      _copyCtor = _copyCtor == null ? new CopyCtor() : _copyCtor;
+  MoveCtor get moveCtor =>
+      _moveCtor = _moveCtor == null ? new MoveCtor() : _moveCtor;
+  AssignCopy get assignCopy =>
+      _assignCopy = _assignCopy == null ? new AssignCopy() : _assignCopy;
+  AssignMove get assignMove =>
+      _assignMove = _assignMove == null ? new AssignMove() : _assignMove;
+  Dtor get dtor => _dtor = _dtor == null ? new Dtor() : _dtor;
+  OpEqual get opEqual => _opEqual = _opEqual == null ? new OpEqual() : _opEqual;
+  OpLess get opLess => _opLess = _opLess == null ? new OpLess() : _opLess;
+  OpOut get opOut => _opOut = _opOut == null ? new OpOut() : _opOut;
 
-
-  set defaultCtor(DefaultCtor defaultCtor) =>  _defaultCtor = defaultCtor;
+  set defaultCtor(DefaultCtor defaultCtor) => _defaultCtor = defaultCtor;
   set copyCtor(CopyCtor copyCtor) => _copyCtor = copyCtor;
   set moveCtor(MoveCtor moveCtor) => _moveCtor = moveCtor;
   set assignCopy(AssignCopy assignCopy) => _assignCopy = assignCopy;
@@ -427,7 +418,8 @@ class Class extends Entity {
   set opOut(OpOut opOut) => _opOut = opOut;
 
   Iterable<Base> get basesPublic => bases.where((b) => b.access == public);
-  Iterable<Base> get basesProtected => bases.where((b) => b.access == protected);
+  Iterable<Base> get basesProtected =>
+      bases.where((b) => b.access == protected);
   Iterable<Base> get basesPrivate => bases.where((b) => b.access == private);
 
   set template(Object t) => _template = _makeTemplate(t);
@@ -442,36 +434,38 @@ class Class extends Entity {
 
   String get _baseDecl {
     final decls = _baseDecls;
-    return decls.length > 0?
-    ' :\n' + indentBlock(_baseDecls.join(',\n')) : '';
+    return decls.length > 0 ? ' :\n' + indentBlock(_baseDecls.join(',\n')) : '';
   }
 
   CodeBlock getCodeBlock(ClassCodeBlock cb) {
     var result = _codeBlocks[cb];
-    return (result == null) ?
-      (_codeBlocks[cb] = codeBlock()) : result;
+    return (result == null) ? (_codeBlocks[cb] = codeBlock()) : result;
   }
 
-  addFullMemberCtor() => memberCtors.add(
-      memberCtor(members.map((m) => m.name).toList()));
+  addFullMemberCtor() =>
+      memberCtors.add(memberCtor(members.map((m) => m.name).toList()));
 
   String get definition {
-    if(_definition == null) {
-      if(immutable) {
+    if (_definition == null) {
+      if (immutable) {
         members.forEach((Member m) {
-          if(_defaultCtor == null) {
+          if (_defaultCtor == null) {
             m.noInit = true;
           }
           m.isConst = !m.mutable;
           m.access = ro;
         });
-        if(memberCtors.isEmpty) {
+        if (memberCtors.isEmpty) {
           addFullMemberCtor();
         }
       }
       enums.forEach((e) => e.isNested = true);
-      _methods.forEach((m) { if(m != null) m._parent = this; });
-      memberCtors.forEach((m) { if(m != null) m._parent = this; });
+      _methods.forEach((m) {
+        if (m != null) m._parent = this;
+      });
+      memberCtors.forEach((m) {
+        if (m != null) m._parent = this;
+      });
       customBlocks.forEach((ClassCodeBlock cb) {
         getCodeBlock(cb).tag = '${evCap(cb)} $className';
       });
@@ -481,15 +475,18 @@ class Class extends Entity {
   }
 
   Iterable<Member> get publicMembers =>
-    members.where((m) => m.cppAccess == public);
+      members.where((m) => m.cppAccess == public);
   Iterable<Member> get protectedMembers =>
-    members.where((m) => m.cppAccess == protected);
+      members.where((m) => m.cppAccess == protected);
   Iterable<Member> get privateMembers =>
-    members.where((m) => m.cppAccess == private);
+      members.where((m) => m.cppAccess == private);
 
-  get _ctorMethods => [ _defaultCtor, _copyCtor, _moveCtor ];
-  get _opMethods => [ _assignCopy, _assignMove, _dtor, _opEqual, _opLess, _opOut ];
-  get _methods => []..addAll(_ctorMethods)..addAll(_opMethods);
+  get _ctorMethods => [_defaultCtor, _copyCtor, _moveCtor];
+  get _opMethods =>
+      [_assignCopy, _assignMove, _dtor, _opEqual, _opLess, _opOut];
+  get _methods => []
+    ..addAll(_ctorMethods)
+    ..addAll(_opMethods);
 
   get _parts => [
     _forwardPtrs,
@@ -499,68 +496,71 @@ class Class extends Entity {
     detailedComment,
     _templateDecl,
     _classOpener,
-
-    _wrapInAccess(struct? null : public,
-        indentBlock(
-          combine([
-            br(usings.map((u) => 'using $u;')),
-            br([_enumDecls, _enumStreamers]),
-            br(publicMembers
-                .where((m) => m.isPublicStaticConst).map((m) => _memberDefinition(m))),
-            br(memberCtors.where((m) => m.cppAccess == public).map((m) => m.definition)),
-            chomp(combine(_methods.map((m) => m == null? m : br(m.definition)))),
-            br(_singleton),
-            _codeBlockText(clsPublic),
-            br(publicMembers
-                .where((m) => !m.isPublicStaticConst).map((m) => _memberDefinition(m))),
-            chomp(combine(members.map((m) => br([m.getter, m.setter])))),
-            streamable? outStreamer : null,
-            serializers.map((s) => s.serialize(this)),
-          ]))),
-
-    _wrapInAccess(protected,
-        indentBlock(
-          combine([
-            _codeBlockText(clsProtected),
-            br(memberCtors.where((m) => m.cppAccess == protected).map((m) => m.definition)),
-            br(protectedMembers.map((m) => _memberDefinition(m)))
-          ]))),
-
-    _wrapInAccess(private,
-        indentBlock(
-          combine([
-            _codeBlockText(clsPrivate),
-            br(memberCtors.where((m) => m.cppAccess == private).map((m) => m.definition)),
-            br(privateMembers.map((m) => _memberDefinition(m)))
-          ]))),
-
+    _wrapInAccess(struct ? null : public, indentBlock(combine([
+      br(usings.map((u) => 'using $u;')),
+      br([_enumDecls, _enumStreamers]),
+      br(publicMembers
+          .where((m) => m.isPublicStaticConst)
+          .map((m) => _memberDefinition(m))),
+      br(memberCtors
+          .where((m) => m.cppAccess == public)
+          .map((m) => m.definition)),
+      chomp(combine(_methods.map((m) => m == null ? m : br(m.definition)))),
+      br(_singleton),
+      _codeBlockText(clsPublic),
+      br(publicMembers
+          .where((m) => !m.isPublicStaticConst)
+          .map((m) => _memberDefinition(m))),
+      chomp(combine(members.map((m) => br([m.getter, m.setter])))),
+      streamable ? outStreamer : null,
+      serializers.map((s) => s.serialize(this)),
+    ]))),
+    _wrapInAccess(protected, indentBlock(combine([
+      _codeBlockText(clsProtected),
+      br(memberCtors
+          .where((m) => m.cppAccess == protected)
+          .map((m) => m.definition)),
+      br(protectedMembers.map((m) => _memberDefinition(m)))
+    ]))),
+    _wrapInAccess(private, indentBlock(combine([
+      _codeBlockText(clsPrivate),
+      br(memberCtors
+          .where((m) => m.cppAccess == private)
+          .map((m) => m.definition)),
+      br(privateMembers.map((m) => _memberDefinition(m)))
+    ]))),
     br(_classCloser),
     br(usingsPostDecl.map((u) => 'using $u;')),
     _codeBlockText(clsPostDecl),
   ];
 
-  get _singleton => isSingleton? '''
+  get _singleton => isSingleton
+      ? '''
 static $className & instance() {
   static $className instance_s;
   return instance_s;
-}''' : null;
+}'''
+      : null;
 
-  get _templateDecl => _template != null? _template.decl : null;
+  get _templateDecl => _template != null ? _template.decl : null;
   get _enumDecls => enums.map((e) => e.decl);
   get _enumStreamers => enums.map((e) => e.streamSupport);
-  _access(CppAccess access) => access == null? '' : '''
+  _access(CppAccess access) => access == null
+      ? ''
+      : '''
 ${ev(access)}:
 ''';
 
-
   _wrapInAccess(CppAccess access, String txt) {
-    return (txt != null && txt.length > 0)? '''
-${_access(access)}${txt}''' : null;
+    return (txt != null && txt.length > 0)
+        ? '''
+${_access(access)}${txt}'''
+        : null;
   }
 
   _codeBlockText(ClassCodeBlock cb) {
     final codeBlock = _codeBlocks[cb];
-    return codeBlock != null? codeBlock.toString() : null;
+    return codeBlock != null ? codeBlock.toString() : null;
   }
 
   _memberDefinition(Member m) => '$m';
@@ -572,14 +572,15 @@ ${_access(access)}${txt}''' : null;
 friend inline
 std::ostream& operator<<(std::ostream& out,
                          $className const& item) {''',
-    usesStreamers? '  using fcs::utils::streamers::operator<<;' : null,
+    usesStreamers ? '  using fcs::utils::streamers::operator<<;' : null,
     '''
   ${
 members.map((m) => "out << '\\n' << ${quote(m.name + ':')} << item.${m.vname}").join(';\n  ')
 };
   return out;
 }
-''']);
+'''
+  ]);
 
   get _classOpener => '''
 $classStyle $className$_baseDecl
@@ -587,10 +588,10 @@ $classStyle $className$_baseDecl
   get _classCloser => '};';
 
   get _forwardPtrs {
-    if(forwardPtrs.length > 0) {
+    if (forwardPtrs.length > 0) {
       final name = className;
       List<String> parts = ['class $name;'];
-      for(var ptr in forwardPtrs) {
+      for (var ptr in forwardPtrs) {
         parts.add('using ${name}_${ptrSuffix(ptr)} = ${ptrType(ptr, name)};');
       }
       return parts.join('\n');
@@ -621,32 +622,24 @@ $classStyle $className$_baseDecl
 // class_(Object id) =>
 //   new CppClass(id is Id? id : new Id(id));
 
-Class
-class_(Object id) =>
-  new Class(id is Id? id : new Id(id));
+Class class_(Object id) => new Class(id is Id ? id : new Id(id));
 
-Template _makeTemplate(Object t) =>
-  t is Iterable? new Template(t) :
-  t is String? new Template([t]) :
-  t as Template;
+Template _makeTemplate(Object t) => t is Iterable
+    ? new Template(t)
+    : t is String ? new Template([t]) : t as Template;
 
 defaultCtor() => new DefaultCtor();
 copyCtor() => new CopyCtor();
 moveCtor() => new MoveCtor();
 assignCopy() => new AssignCopy();
-assignMove() =>  new AssignMove();
+assignMove() => new AssignMove();
 dtor() => new Dtor();
 opEqual() => new OpEqual();
 opLess() => new OpLess();
 opOut() => new OpOut();
 
 /// Create a MemberCtor sans new, for more declarative construction
-MemberCtor
-  memberCtor([
-    List memberParms,
-    List<String> decls
-  ]) =>
-  new MemberCtor(memberParms == null? [] : memberParms,
-      decls == null? [] : decls);
+MemberCtor memberCtor([List memberParms, List<String> decls]) => new MemberCtor(
+    memberParms == null ? [] : memberParms, decls == null ? [] : decls);
 
 // end <part class>

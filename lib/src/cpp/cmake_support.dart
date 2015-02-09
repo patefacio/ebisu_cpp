@@ -3,8 +3,8 @@ part of ebisu_cpp.cpp;
 class CmakeInstallationBuilder extends InstallationBuilder {
   // custom <class CmakeInstallationBuilder>
 
-  CmakeInstallationBuilder.fromInstallation(installation) :
-    super.fromInstallation(installation);
+  CmakeInstallationBuilder.fromInstallation(installation)
+      : super.fromInstallation(installation);
 
   CmakeInstallationBuilder() : super();
 
@@ -12,7 +12,7 @@ class CmakeInstallationBuilder extends InstallationBuilder {
     final cmakeRoot = installationCmakeRoot(installation);
 
     appCmake(app) {
-      final relPath = path.relative(app.appPath, from:installation.cppPath);
+      final relPath = path.relative(app.appPath, from: installation.cppPath);
       return '''
 add_executable(${app.name}
   ${app.sources.map((src) => '$relPath/$src.cpp').join('\n  ')}
@@ -27,7 +27,7 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
     }
 
     testCmake(test) {
-      final relPath = path.relative(test.cppPath, from:installation.cppPath);
+      final relPath = path.relative(test.cppPath, from: installation.cppPath);
       return '''
 # test for ${test.name}
 add_executable(${test.name}
@@ -43,7 +43,6 @@ ${chomp(scriptCustomBlock('${test.name} link requirements'))}
 add_test(${test.name} ${test.name})
 ''';
     }
-
 
     scriptMergeWithFile('''
 cmake_minimum_required (VERSION 2.8)
@@ -93,26 +92,24 @@ ${br(tests.map((test) => testCmake(test)))}
 
 ''', cmakeRoot);
 
-    final cmakeGenerator = path.join(
-      path.dirname(cmakeRoot), 'cmake.gen.sh');
+    final cmakeGenerator = path.join(path.dirname(cmakeRoot), 'cmake.gen.sh');
     mergeBlocksWithFile('''
 cmake -DCMAKE_BUILD_TYPE=Release -B../cmake_build/release -H.
 cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
 ''', cmakeGenerator);
   }
 
-
   // end <class CmakeInstallationBuilder>
 }
 // custom <part cmake_support>
 
 CmakeInstallationBuilder cmakeInstallationBuilder() =>
-  new CmakeInstallationBuilder();
+    new CmakeInstallationBuilder();
 
 installationCmakeCommon(Installation installation) =>
-  path.join(installation.root, 'cpp', 'cmake.${installation.name}.common');
+    path.join(installation.root, 'cpp', 'cmake.${installation.name}.common');
 
 installationCmakeRoot(Installation installation) =>
-  path.join(installation.root, 'cpp', 'CMakeLists.txt');
+    path.join(installation.root, 'cpp', 'CMakeLists.txt');
 
 // end <part cmake_support>

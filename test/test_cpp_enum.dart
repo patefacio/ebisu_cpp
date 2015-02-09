@@ -15,13 +15,13 @@ main() {
   final ws = new RegExp(r'\s+');
 
   test('basic', () {
-    [ true, false ].forEach((bool isClass) {
+    [true, false].forEach((bool isClass) {
       final id = 'color_${isClass}';
       final sample = enum_(id)
         ..isClass = isClass
         ..hasToCStr = true
         ..hasFromCStr = true
-        ..values = [ 'red', 'green', 'blue' ];
+        ..values = ['red', 'green', 'blue'];
 
       final expected = '''
 enum ${isClass? 'class':''} Color_$isClass {
@@ -46,24 +46,18 @@ inline void from_c_str(char const* str, Color_$isClass &e) {
 }
 ''';
 
-      expect(sample.toString().replaceAll(ws, ''),
-          expected.replaceAll(ws, ''));
+      expect(sample.toString().replaceAll(ws, ''), expected.replaceAll(ws, ''));
 
       final sample_map = enum_('${id}_map')
         ..isClass = isClass
         ..hasToCStr = true
         ..hasFromCStr = true
-        ..valueMap = {
-          'red' : 0xA00000,
-          'green' : 0x009900,
-          'blue' : 0x3333FF,
-        };
+        ..valueMap = {'red': 0xA00000, 'green': 0x009900, 'blue': 0x3333FF,};
 
       final sample_mask = enum_('${id}_mask')
         ..isClass = isClass
-        ..values = [ 'red', 'green', 'blue' ]
+        ..values = ['red', 'green', 'blue']
         ..isMask = true;
-
     });
   });
 // end <main>

@@ -6,8 +6,8 @@ part of ebisu_cpp.cpp;
 class JamInstallationBuilder extends InstallationBuilder {
   // custom <class JamInstallationBuilder>
 
-  JamInstallationBuilder.fromInstallation(installation) :
-    super.fromInstallation(installation);
+  JamInstallationBuilder.fromInstallation(installation)
+      : super.fromInstallation(installation);
   JamInstallationBuilder() : super();
 
   generate() {
@@ -29,9 +29,9 @@ class JamAppBuilder extends AppBuilder {
   JamAppBuilder() : super();
 
   static const Map _libToJamRequirement = const {
-    'boost_program_options' : '/site-config//boost_program_options',
-    'boost_date_time' : '/site-config//boost_date_time',
-    'boost_regex' : '/site-config//boost_regex',
+    'boost_program_options': '/site-config//boost_program_options',
+    'boost_date_time': '/site-config//boost_date_time',
+    'boost_regex': '/site-config//boost_regex',
   };
 
   get jamRequirements {
@@ -39,12 +39,11 @@ class JamAppBuilder extends AppBuilder {
 
     app.requiredLibs.forEach((String lib) {
       final requirement = _libToJamRequirement[lib];
-      if(requirement == null)
-        throw "Unkown lib requirement $lib";
+      if (requirement == null) throw "Unkown lib requirement $lib";
       found.add(requirement);
     });
 
-    for(var lib in detectLibsFromIncludes()) {
+    for (var lib in detectLibsFromIncludes()) {
       found.add('/site-config//$lib');
     }
 
@@ -101,8 +100,8 @@ class JamTestBuilder extends TestBuilder {
 
   get lib => super.lib;
 
-  JamTestBuilder(Lib lib, String directory, List<Test> tests) :
-    super(lib, directory, tests);
+  JamTestBuilder(Lib lib, String directory, List<Test> tests)
+      : super(lib, directory, tests);
 
   _testRuleAddition(Test test) => '''
 rule ${test.name}
@@ -132,8 +131,7 @@ ${chomp(br(tests.map((t) => _testRuleAddition(t))))}''', targetFile);
   // end <class JamTestBuilder>
 }
 
-class SiteConfig
-  implements CodeGenerator {
+class SiteConfig implements CodeGenerator {
   SiteConfig(this.installation);
 
   Installation installation;
@@ -143,8 +141,8 @@ class SiteConfig
     final boostPath = installation.path('boost_install');
     final cppIncludePath = installation.path('cpp_include');
 
-    if(boostPath == null)
-      throw 'To generate site-config.jam you must set BOOST_INSTALL_PATH';
+    if (boostPath ==
+        null) throw 'To generate site-config.jam you must set BOOST_INSTALL_PATH';
 
     final filePath = path.join(installation.root, 'config', 'site-config.jam');
     mergeBlocksWithFile('''
@@ -171,13 +169,10 @@ _boostMtStatics.contains(l) ?
 
   get _boostLibs => [];
 
-
-
   // end <class SiteConfig>
 }
 
-class UserConfig
-  implements CodeGenerator {
+class UserConfig implements CodeGenerator {
   UserConfig(this.installation);
 
   Installation installation;
@@ -202,8 +197,7 @@ class JamConstant {
   // end <class JamConstant>
 }
 
-class JamFileTop
-  implements CodeGenerator {
+class JamFileTop implements CodeGenerator {
   JamFileTop(this.installation);
 
   Installation installation;
@@ -215,7 +209,9 @@ class JamFileTop
   get name => installation.name;
   get nameShout => installation.nameShout;
 
-  get _moreIncludes => includePaths.isEmpty? '' : '''
+  get _moreIncludes => includePaths.isEmpty
+      ? ''
+      : '''
 <include>${includePaths.join('\n          <include>')}
 ''';
 
@@ -272,8 +268,7 @@ ${scriptCustomBlock('additional_libs')}
   // end <class JamFileTop>
 }
 
-class JamRoot
-  implements CodeGenerator {
+class JamRoot implements CodeGenerator {
   JamRoot(this.installation);
 
   Installation installation;
@@ -281,11 +276,10 @@ class JamRoot
 
   void generate() {
     final filePath = path.join(installation.root, 'cpp', 'Jamroot');
-    mergeBlocksWithFile(
-      _jamRoot
-      .replaceAll('FCS', installation.id.shout)
-      .replaceAll('fcs', installation.id.snake)
-      .replaceAll('Fcs', installation.id.capSnake), filePath);
+    mergeBlocksWithFile(_jamRoot
+        .replaceAll('FCS', installation.id.shout)
+        .replaceAll('fcs', installation.id.snake)
+        .replaceAll('Fcs', installation.id.capSnake), filePath);
   }
 
   // end <class JamRoot>
@@ -425,16 +419,16 @@ final _boostLibsUnique = () {
       result.add(l);
       s.add(l);
     }
-    if(l.endsWith('-mt.a')) {
+    if (l.endsWith('-mt.a')) {
       final base = l.substring(0, l.indexOf('-mt.a'));
       addLib(_boostMtStatics, base);
-    } else if(l.endsWith('-mt.dylib')) {
+    } else if (l.endsWith('-mt.dylib')) {
       final base = l.substring(0, l.indexOf('-mt.dylib'));
       addLib(_boostMtDynamics, base);
-    } else if(l.endsWith('.a')) {
+    } else if (l.endsWith('.a')) {
       final base = l.substring(0, l.indexOf('.a'));
       addLib(_boostStStatics, base);
-    } else if(l.endsWith('.dylib')) {
+    } else if (l.endsWith('.dylib')) {
       final base = l.substring(0, l.indexOf('.dylib'));
       addLib(_boostMtStatics, base);
     } else {
@@ -446,8 +440,7 @@ final _boostLibsUnique = () {
 
 get _buildInstallPath {
   final result = Platform.environment['BUILD_INSTALL_PATH'];
-  if(result == null)
-    throw "You must specify env var BUILD_INSTALL_PATH";
+  if (result == null) throw "You must specify env var BUILD_INSTALL_PATH";
   return result;
 }
 
@@ -928,6 +921,5 @@ for local l in $(all-libraries)
     use-project /fcs/$(l) : libs/$(l)/build ;
 }
 ''';
-
 
 // end <part jam_support>

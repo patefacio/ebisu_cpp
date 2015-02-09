@@ -1,5 +1,6 @@
 import "dart:io";
 import "package:path/path.dart" as path;
+import "package:ebisu/ebisu.dart";
 import "package:ebisu/ebisu_dart_meta.dart";
 import "package:logging/logging.dart";
 
@@ -11,6 +12,7 @@ void main() {
       print("${r.loggerName} [${r.level}]:\t${r.message}"));
   String here = path.absolute(Platform.script.path);
   _topDir = path.dirname(path.dirname(here));
+  useDartFormatter = true;
   System ebisu = system('ebisu_cpp')
     ..includeHop = true
     ..pubSpec.version = '0.0.1'

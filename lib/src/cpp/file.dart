@@ -32,50 +32,52 @@ abstract class CppFile extends Entity {
 
   set includes(Object h) => _includes = _makeIncludes(h);
 
-  _makeIncludes(Object h) =>
-    h is Iterable? new Includes(h) :
-    h is String? new Includes([h]) :
-    h is Includes? h :
-    throw 'Includes must be String, List<String> or Includes';
+  _makeIncludes(Object h) => h is Iterable
+      ? new Includes(h)
+      : h is String
+          ? new Includes([h])
+          : h is Includes
+              ? h
+              : throw 'Includes must be String, List<String> or Includes';
 
   generate() =>
-    (Platform.environment['EBISU_CLANG_FORMAT'] != null || useClangFormatter)?
-    mergeWithFile(contents, filePath, customBegin, customEnd,
-        (String txt) => clangFormat(txt, '${id.snake}.cpp')) :
-    mergeWithFile(contents, filePath);
+      (Platform.environment['EBISU_CLANG_FORMAT'] != null || useClangFormatter)
+          ? mergeWithFile(contents, filePath, customBegin, customEnd,
+              (String txt) => clangFormat(txt, '${id.snake}.cpp'))
+          : mergeWithFile(contents, filePath);
 
   CodeBlock getCodeBlock(FileCodeBlock fcb) {
     final result = _codeBlocks[fcb];
-    return result == null? (_codeBlocks[fcb] = codeBlock()) : result;
+    return result == null ? (_codeBlocks[fcb] = codeBlock()) : result;
   }
 
   String get _contentsWithBlocks {
-    if(classes.any((c) => c._opMethods.any((m) => m is OpOut))) {
+    if (classes.any((c) => c._opMethods.any((m) => m is OpOut))) {
       _includes.add('fcs/utils/block_indenter.hpp');
     }
-    customBlocks.forEach((cb) => getCodeBlock(cb).tag = '${evCap(cb)} ${id.snake}');
+    customBlocks
+        .forEach((cb) => getCodeBlock(cb).tag = '${evCap(cb)} ${id.snake}');
 
     return combine([
       br(_includes.includes),
       _codeBlockText(fcbCustomIncludes),
       _codeBlockText(fcbPreNamespace),
-      namespace.wrap(
-        combine([
-          _codeBlockText(fcbBeginNamespace),
-          br(constExprs),
-          forwardDecls,
-          br(usings.map((u) => 'using $u;')),
-          br(enums.map((Enum e) => br(e.decl))),
-          br(classes.map((Class cls) => br(cls.definition))),
-          _codeBlockText(fcbEndNamespace)
-        ])),
+      namespace.wrap(combine([
+        _codeBlockText(fcbBeginNamespace),
+        br(constExprs),
+        forwardDecls,
+        br(usings.map((u) => 'using $u;')),
+        br(enums.map((Enum e) => br(e.decl))),
+        br(classes.map((Class cls) => br(cls.definition))),
+        _codeBlockText(fcbEndNamespace)
+      ])),
       _codeBlockText(fcbPostNamespace),
     ]);
   }
 
   _codeBlockText(FileCodeBlock cb) {
     final codeBlock = _codeBlocks[cb];
-    return codeBlock != null? codeBlock.toString() : null;
+    return codeBlock != null ? codeBlock.toString() : null;
   }
 
   // end <class CppFile>

@@ -15,7 +15,7 @@ class Header extends CppFile {
 
   Namespace get namespace => super.namespace;
 
-  Test get test => _test == null? (_test = new Test(this)) : _test;
+  Test get test => _test == null ? (_test = new Test(this)) : _test;
 
   /// Provides access to this header's test as function for declarative
   /// manipulation:
@@ -29,23 +29,23 @@ class Header extends CppFile {
   ///     });
   withTest(void t(Test t)) => t(test);
 
-  bool get hasTest => includeTest || _test != null || classes.any((c) => c.includeTest);
-  Iterable get testFunctions => (includeTest? [ id.snake ] : [])
+  bool get hasTest =>
+      includeTest || _test != null || classes.any((c) => c.includeTest);
+  Iterable get testFunctions => (includeTest ? [id.snake] : [])
     ..addAll(classes.where((c) => c.includeTest).map((c) => c.id.snake));
 
   get includeFilePath => path.join(namespace.asPath, '${id.snake}.hpp');
 
   setFilePathFromRoot(String root) =>
-    _filePath = path.join(root, includeFilePath);
+      _filePath = path.join(root, includeFilePath);
 
   String get contents {
-
-    if(classes.any((c) => c.streamable) &&
+    if (classes.any((c) => c.streamable) &&
         !this.includes.contains('iostream')) {
       this.includes.add('iosfwd');
     }
 
-    if(classes.any((c) => c.serializers.any((s) => s is Cereal))) {
+    if (classes.any((c) => c.serializers.any((s) => s is Cereal))) {
       this.includes.addAll([
         'cereal/cereal.hpp',
         'fcs/timestamp/cereal.hpp',
@@ -53,15 +53,12 @@ class Header extends CppFile {
       ]);
     }
 
-    if(classes.any((c) => c.serializers.any((s) => s is DsvSerializer))) {
-      this.includes.addAll([
-        'cppformat/format.h',
-      ]);
+    if (classes.any((c) => c.serializers.any((s) => s is DsvSerializer))) {
+      this.includes.addAll(['cppformat/format.h',]);
     }
 
     addIncludesForCommonTypes(
-      concat(classes.map((c) => c.typesReferenced)),
-      this.includes);
+        concat(classes.map((c) => c.typesReferenced)), this.includes);
 
     return _wrapIncludeGuard(_contentsWithBlocks);
   }
@@ -71,10 +68,11 @@ class Header extends CppFile {
           classes:[${classes.map((cls) => cls.className).join(', ')}]
 ''';
 
-  String get _includeGuard => namespace == null? '__${id.shout}__' :
-    '__${namespace.names.map((n) => new Id(n).shout).join("_")}_${id.shout}_HPP__';
+  String get _includeGuard => namespace == null
+      ? '__${id.shout}__'
+      : '__${namespace.names.map((n) => new Id(n).shout).join("_")}_${id.shout}_HPP__';
 
-  String _wrapIncludeGuard(String text) =>'''
+  String _wrapIncludeGuard(String text) => '''
 #ifndef $_includeGuard
 #define $_includeGuard
 
@@ -87,5 +85,5 @@ $text
   Test _test;
 }
 // custom <part header>
-Header header(Object id) => new Header(id is Id? id : new Id(id));
+Header header(Object id) => new Header(id is Id ? id : new Id(id));
 // end <part header>

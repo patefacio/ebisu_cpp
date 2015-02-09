@@ -13,41 +13,47 @@ main() {
 // custom <main>
 
   test('basic', () {
-
-    final l =
-      lib('lib1')
-      ..namespace = namespace(['foo','bar'])
+    final l = lib('lib1')
+      ..namespace = namespace(['foo', 'bar'])
       ..headers = [
         header('guts')
-        ..includes = [ 'cmath', 'boost/filesystem.hpp' ]
-        ..classes = [
-          class_('c_1')
-          ..streamable = true
-          ..bases = [
-            base('Foo'),
-            base('Bar')..access = protected,
-            base('Goo')..virtual = true
+          ..includes = ['cmath', 'boost/filesystem.hpp']
+          ..classes = [
+            class_('c_1')
+              ..streamable = true
+              ..bases = [
+                base('Foo'),
+                base('Bar')..access = protected,
+                base('Goo')..virtual = true
+              ]
+              ..enums = [
+                enum_('letters')
+                  ..streamable = true
+                  ..hasFromCStr = false
+                  ..values = ['a', 'b', 'c'],
+              ]
+              ..enumsForward = [
+                enum_('abcs')
+                  ..streamable = true
+                  ..values = ['a', 'b', 'c'],
+              ]
+              ..members = [
+                member('foo_bar')
+                  ..type = 'std::string'
+                  ..init = '"Foo"',
+                member('foo_bor')..type = 'int',
+                member('foo_bur')..type = 'std::string',
+                member('letters')
+                  ..type = 'Letters'
+                  ..init = 'C_1::B_e',
+              ]
+              ..getCodeBlock(clsProtected).snippets
+                  .addAll(['//Sample code block stuff...'])
+              ..opEqual
+              ..opLess
+              ..customBlocks = [clsPublic, clsPrivate]
+              ..forwardPtrs = [sptr, uptr, scptr, ucptr]
           ]
-          ..enums = [
-            enum_('letters')
-            ..streamable = true
-            ..hasFromCStr = false
-            ..values = [ 'a','b','c' ],
-          ]
-          ..enumsForward = [
-            enum_('abcs')..streamable = true..values = [ 'a','b','c'],
-          ]
-          ..members = [
-            member('foo_bar')..type = 'std::string'..init = '"Foo"',
-            member('foo_bor')..type = 'int',
-            member('foo_bur')..type = 'std::string',
-            member('letters')..type = 'Letters'..init = 'C_1::B_e',
-          ]
-          ..getCodeBlock(clsProtected).snippets.addAll(['//Sample code block stuff...'])
-          ..opEqual..opLess
-          ..customBlocks = [ clsPublic, clsPrivate ]
-          ..forwardPtrs = [ sptr, uptr, scptr, ucptr ]
-        ]
       ];
 
     l.generate();

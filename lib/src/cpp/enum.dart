@@ -24,8 +24,8 @@ class Enum extends Entity {
 
   set values(Iterable<String> values) {
     _values = new List<String>.from(values);
-    if(_values.any((String v) => !Id.isSnake(v)))
-      throw 'For CppEnum($id) *values* must be snake case';
+    if (_values.any((String v) =>
+        !Id.isSnake(v))) throw 'For CppEnum($id) *values* must be snake case';
     _ids = _values.map((v) => new Id(v)).toList();
     _valueNames = _ids.map((id) => Id.capitalize(id.snake) + '_e').toList();
   }
@@ -38,24 +38,21 @@ class Enum extends Entity {
   String toString() {
     _checkRequirements();
 
-    return combine([
-      decl,
-      streamSupport
-    ]);
+    return combine([decl, streamSupport]);
   }
 
   String get streamSupport => combine([
-    (streamable || hasToCStr)? toCString : null,
-    streamable? outStreamer : null,
-    hasFromCStr? fromCString : null,
+    (streamable || hasToCStr) ? toCString : null,
+    streamable ? outStreamer : null,
+    hasFromCStr ? fromCString : null,
   ]);
 
   String get decl {
     String result;
-    if(values != null) {
-      if(values.any((String v) => !Id.isSnake(v)))
-        throw 'For CppEnum($id) *values* must snake case';
-      if(isMask) {
+    if (values != null) {
+      if (values.any((String v) =>
+          !Id.isSnake(v))) throw 'For CppEnum($id) *values* must snake case';
+      if (isMask) {
         result = _makeMaskEnum();
       } else {
         result = _makeBasicEnum();
@@ -67,11 +64,11 @@ class Enum extends Entity {
   }
 
   String get name => id.capSnake;
-  String get _classDecl => isClass? 'class $name' : name;
+  String get _classDecl => isClass ? 'class $name' : name;
 
-  String get toCString => isMask? _maskToCString : _generalToCString;
+  String get toCString => isMask ? _maskToCString : _generalToCString;
   String get _maskToCString => '';
-  String get _friend => isNested? 'friend ' : '';
+  String get _friend => isNested ? 'friend ' : '';
   String get _generalToCString => '''
 ${_friend}inline char const* to_c_str($name e) {
   switch(e) {
@@ -86,9 +83,11 @@ ${_friend}inline std::ostream& operator<<(std::ostream &out, $name e) {
   return out << to_c_str(e);
 }''';
 
-  String get fromCString => isMask? _maskFromCString : _generalFromCString;
+  String get fromCString => isMask ? _maskFromCString : _generalFromCString;
   String get _maskFromCString => '';
-  String get _generalFromCString => !hasFromCStr? null : '''
+  String get _generalFromCString => !hasFromCStr
+      ? null
+      : '''
 inline void from_c_str(char const* str, $name &e) {
   using namespace std;
 ${
@@ -115,8 +114,8 @@ ${indentBlock(_ids.map((id) => id.shout + ' = 1 << ${i++}').join(',\n'))}
   }
 
   String _makeMapEnum() {
-    if(valueMap.keys.any((String v) => !Id.isSnake(v)))
-      throw 'For CppEnum($id) *valueMap* must have snake case keys';
+    if (valueMap.keys.any((String v) => !Id.isSnake(
+        v))) throw 'For CppEnum($id) *valueMap* must have snake case keys';
     return '''
 enum ${_classDecl} {
 ${
@@ -127,8 +126,9 @@ ${
   }
 
   _checkRequirements() {
-    if(values == null && valueMap == null)
-      throw 'For CppEnum($id) *values* or *valueMap* must be set';
+    if (values == null &&
+        valueMap ==
+            null) throw 'For CppEnum($id) *values* or *valueMap* must be set';
   }
 
   // end <class Enum>
@@ -141,9 +141,7 @@ ${
 }
 // custom <part enum>
 
-Enum
-enum_(Object id) =>
-  new Enum(id is Id? id : new Id(id));
+Enum enum_(Object id) => new Enum(id is Id ? id : new Id(id));
 
 main() => print('goo');
 

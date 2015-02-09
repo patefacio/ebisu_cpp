@@ -12,16 +12,16 @@ class Impl extends CppFile {
   String get contents => _contentsWithBlocks;
 
   setLibFilePathFromRoot(String root) =>
-    _filePath = path.join(root, 'lib', namespace.asPath, '${id.snake}.cpp');
+      _filePath = path.join(root, 'lib', namespace.asPath, '${id.snake}.cpp');
 
   setAppFilePathFromRoot(String root) =>
-    _filePath = path.join(root, 'app', id.snake, '${id.snake}.cpp');
+      _filePath = path.join(root, 'app', id.snake, '${id.snake}.cpp');
 
   // end <class Impl>
   String _filePath;
 }
 // custom <part impl>
 
-Impl impl(Object id) => new Impl(id is Id? id : new Id(id));
+Impl impl(Object id) => new Impl(id is Id ? id : new Id(id));
 
 // end <part impl>

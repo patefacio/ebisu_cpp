@@ -34,7 +34,7 @@ Wee willy winkee went through the town.'''
     expect(m.toString().contains('volatile& foo'), true);
   });
 
-    test('cref', () {
+  test('cref', () {
     final m = member('foo')
       ..brief = 'This is a foo'
       ..refType = cref
@@ -56,7 +56,6 @@ Wee willy winkee went through the town.'''
     expect(m.toString().contains('const volatile& foo'), true);
   });
 
-
   test('ref fields can not have init', () {
     try {
       final m = member('foo')
@@ -69,7 +68,7 @@ Wee willy winkee went through the town.'''
         ..init = '{"foo",1.2}, {"bar", 2.3}';
 
       fail('Excpected an exception since ref fields can not have init');
-    } catch(e) {}
+    } catch (e) {}
   });
 
 // end <main>

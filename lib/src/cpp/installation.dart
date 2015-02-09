@@ -1,8 +1,7 @@
 part of ebisu_cpp.cpp;
 
 /// A CodeGenerator tied to a c++ installation
-abstract class InstallationCodeGenerator
-  implements CodeGenerator {
+abstract class InstallationCodeGenerator implements CodeGenerator {
   Installation installation;
   // custom <class InstallationCodeGenerator>
   // end <class InstallationCodeGenerator>
@@ -10,8 +9,7 @@ abstract class InstallationCodeGenerator
 
 /// Creates builder for an installation (ie ties together all build artifacts)
 ///
-abstract class InstallationBuilder
-  implements CodeGenerator {
+abstract class InstallationBuilder implements CodeGenerator {
   Installation installation;
   // custom <class InstallationBuilder>
 
@@ -33,8 +31,7 @@ abstract class InstallationBuilder
   // end <class InstallationBuilder>
 }
 
-class Installation
-  implements CodeGenerator {
+class Installation implements CodeGenerator {
   Installation(this.id);
 
   Id id;
@@ -56,8 +53,8 @@ class Installation
   get nameShout => id.shout;
 
   get allTests {
-    final result = _generatedLibs.fold([],
-        (prev, l) => prev..addAll(l.allTests));
+    final result =
+        _generatedLibs.fold([], (prev, l) => prev..addAll(l.allTests));
     return result..addAll(tests);
   }
 
@@ -76,19 +73,25 @@ Installation($root)
   addLibs(Iterable<Lib> libs) => libs.forEach((l) => addLib(l));
   addApp(App app) => apps.add(app..installation = this);
   addSchemaCodeGenerator(InstallationCodeGenerator scg) =>
-    schemaCodeGenerators.add(scg..installation = this);
+      schemaCodeGenerators.add(scg..installation = this);
 
   generate([bool generateJamConfigs = false]) {
-    schemaCodeGenerators..forEach((scg) => libs.add(scg.lib))..clear();
-    libs..forEach((l) => _generatedLibs.add(l..generate()))..clear();
-    apps..forEach((a) => _generatedApps.add(a..generate()))..clear();
-    if(generateJamConfigs) {
-      if(!builders.any((b) => b is JamInstallationBuilder)) {
+    schemaCodeGenerators
+      ..forEach((scg) => libs.add(scg.lib))
+      ..clear();
+    libs
+      ..forEach((l) => _generatedLibs.add(l..generate()))
+      ..clear();
+    apps
+      ..forEach((a) => _generatedApps.add(a..generate()))
+      ..clear();
+    if (generateJamConfigs) {
+      if (!builders.any((b) => b is JamInstallationBuilder)) {
         builders.add(new JamInstallationBuilder.fromInstallation(this));
       }
     }
 
-    for(var builder in builders) {
+    for (var builder in builders) {
       builder.generateInstallationBuilder(this);
     }
   }
@@ -96,20 +99,20 @@ Installation($root)
   set root(String root) {
     _root = root;
     _paths = {
-      'usr_lib' : '/usr/lib',
-      'usr_include' : 'usr/include',
-      'cpp' : '${_root}/cpp',
+      'usr_lib': '/usr/lib',
+      'usr_include': 'usr/include',
+      'cpp': '${_root}/cpp',
     };
   }
 
   String path(String key) {
     var result = getPath(key);
 
-    if(result == null) {
+    if (result == null) {
       result = _paths[key];
     }
 
-    if(result == null) {
+    if (result == null) {
       _logger.warning('Do not recognize path $key');
     }
     return result;
@@ -133,23 +136,26 @@ class PathLocator {
   // custom <class PathLocator>
 
   PathLocator(this.envVar, this.defaultPath) {
-    if(envVar == null && defaultPath == null)
-      throw 'Valid PathLocator requires envVar and/or defaultPath';
+    if (envVar == null &&
+        defaultPath ==
+            null) throw 'Valid PathLocator requires envVar and/or defaultPath';
 
-    if(envVar != null) {
+    if (envVar != null) {
       _path = Platform.environment[envVar];
     }
 
-    if(_path == null) {
+    if (_path == null) {
       _path = defaultPath;
     }
 
-    if(path == null) {
-      _logger.warning('$envVar must be set as there is no established default!');
+    if (path == null) {
+      _logger
+          .warning('$envVar must be set as there is no established default!');
     } else {
       var fileType = FileSystemEntity.typeSync(path);
-      if(fileType == FileSystemEntityType.NOT_FOUND) {
-        _logger.warning('Required path ($envVar, $defaultPath, $path) not found');
+      if (fileType == FileSystemEntityType.NOT_FOUND) {
+        _logger
+            .warning('Required path ($envVar, $defaultPath, $path) not found');
       }
     }
   }
@@ -159,26 +165,27 @@ class PathLocator {
 }
 // custom <part installation>
 
-App app(Object id) => new App(id is Id? id : new Id(id));
-Script script(Object id) => new Script(id is Id? id : new Id(id));
+App app(Object id) => new App(id is Id ? id : new Id(id));
+Script script(Object id) => new Script(id is Id ? id : new Id(id));
 
 get _home => Platform.environment["HOME"];
 
 var _locatorPaths = {
-  'boost_build' : new PathLocator('BOOST_BUILD_PATH',
-      path.join(_home, 'install', 'boost-build')).path,
-  'boost_install' : new PathLocator('BOOST_INSTALL_PATH', null).path,
-  'cpp_install' : new PathLocator('CPP_INSTALL_PATH',
-      path.join(_home, 'install', 'cpp')).path,
+  'boost_build': new PathLocator(
+      'BOOST_BUILD_PATH', path.join(_home, 'install', 'boost-build')).path,
+  'boost_install': new PathLocator('BOOST_INSTALL_PATH', null).path,
+  'cpp_install': new PathLocator(
+      'CPP_INSTALL_PATH', path.join(_home, 'install', 'cpp')).path,
 };
 
 var _functorPaths = {
-  'cpp_include' : path.join(_locatorPaths['cpp_install'], 'include'),
+  'cpp_include': path.join(_locatorPaths['cpp_install'], 'include'),
 };
 
 String getPath(String key) {
-  var result = _locatorPaths.containsKey(key)? _locatorPaths[key] :
-    _functorPaths.containsKey(key)? _functorPaths[key] : null;
+  var result = _locatorPaths.containsKey(key)
+      ? _locatorPaths[key]
+      : _functorPaths.containsKey(key) ? _functorPaths[key] : null;
   return result;
 }
 

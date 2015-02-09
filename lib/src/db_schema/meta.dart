@@ -3,10 +3,8 @@ part of ebisu_cpp.db_schema;
 class DataType {
   const DataType(this.dbType, this.cppType);
 
-  bool operator==(DataType other) =>
-    identical(this, other) ||
-    dbType == other.dbType &&
-    cppType == other.cppType;
+  bool operator ==(DataType other) => identical(this, other) ||
+      dbType == other.dbType && cppType == other.cppType;
 
   int get hashCode => hash2(dbType, cppType);
 
@@ -23,8 +21,7 @@ class FixedVarchar extends DataType {
   int size;
   // custom <class FixedVarchar>
 
-  FixedVarchar(this.size, dbType, cppType) :
-    super(dbType, cppType);
+  FixedVarchar(this.size, dbType, cppType) : super(dbType, cppType);
 
   // end <class FixedVarchar>
 }

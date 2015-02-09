@@ -1,23 +1,23 @@
 part of ebisu_cpp.db_schema;
 
-abstract class SchemaCodeGenerator extends Object with InstallationCodeGenerator {
+abstract class SchemaCodeGenerator extends Object
+    with InstallationCodeGenerator {
   Schema schema;
   Id get id => _id;
   List<Query> queries = [];
   TableFilter tableFilter = (Table t) => true;
   // custom <class SchemaCodeGenerator>
 
-  get namespace => new Namespace(['fcs','orm', id.snake ]);
+  get namespace => new Namespace(['fcs', 'orm', id.snake]);
   get tables => schema.tables.where((t) => tableFilter(t));
   TableGatewayGenerator createTableGatewayGenerator(Table t);
   finishApiHeader(Header apiHeader);
-  
+
   SchemaCodeGenerator(this.schema) {
     _id = idFromString(schema.name);
   }
 
   Lib get lib {
-
     final queryVisitor = schema.engine.queryVisitor;
     print('All queries are ${queries.map((q) => queryVisitor.select(q))}');
     final ns = namespace;
@@ -32,21 +32,21 @@ abstract class SchemaCodeGenerator extends Object with InstallationCodeGenerator
     final result = new Lib(id)
       ..installation = installation
       ..namespace = ns
-      ..headers = [ apiHeader ];
+      ..headers = [apiHeader];
 
-    tables.forEach((Table t) =>
-        result.headers.add(createTableGatewayGenerator(t).header));
+    tables.forEach(
+        (Table t) => result.headers.add(createTableGatewayGenerator(t).header));
 
     return result;
   }
-  
+
   // end <class SchemaCodeGenerator>
   Id _id;
 }
 
 class TableDetails {
   const TableDetails(this.schema, this.table, this.tableId, this.tableName,
-    this.className, this.keyClassId, this.valueClassId);
+      this.className, this.keyClassId, this.valueClassId);
 
   final Schema schema;
   final Table table;
@@ -59,9 +59,8 @@ class TableDetails {
 
   factory TableDetails.fromTable(Schema schema, Table table) {
     final tableId = idFromString(table.name);
-    return new TableDetails(schema,
-        table, tableId, table.name, tableId.capSnake,
-        idFromString('${tableId.snake}_pkey'),
+    return new TableDetails(schema, table, tableId, table.name,
+        tableId.capSnake, idFromString('${tableId.snake}_pkey'),
         idFromString('${tableId.snake}_value'));
   }
 
@@ -83,8 +82,10 @@ abstract class TableGatewayGenerator {
   Class valueClass;
   // custom <class TableGatewayGenerator>
 
-  TableGatewayGenerator(this.installation, this.schemaCodeGenerator, Table table) {
-    _tableDetails = new TableDetails.fromTable(schemaCodeGenerator.schema, table);
+  TableGatewayGenerator(
+      this.installation, this.schemaCodeGenerator, Table table) {
+    _tableDetails =
+        new TableDetails.fromTable(schemaCodeGenerator.schema, table);
     keyClass = _makeClass(keyClassId.snake, table.primaryKey);
     valueClass = _makeClass(valueClassId.snake, table.valueColumns);
   }
@@ -98,7 +99,6 @@ abstract class TableGatewayGenerator {
   get keyClassId => _tableDetails.keyClassId;
   get valueClassId => _tableDetails.valueClassId;
 
-  
   void finishClass(Class cls);
   void finishGatewayClass(Class cls);
   void addRequiredIncludes(Header hdr);
@@ -114,15 +114,13 @@ abstract class TableGatewayGenerator {
   get deleteRow;
   get deleteAllRows;
 
-  _makeMember(c) =>
-    member(c.name)
+  _makeMember(c) => member(c.name)
     ..cppAccess = public
     ..type = _cppType(c.type)
     ..noInit = true;
 
   _colInRow(Table table, Column c) =>
-    table.isPrimaryKeyColumn(c) ?
-    'first.${c.name}' : 'second.${c.name}';
+      table.isPrimaryKeyColumn(c) ? 'first.${c.name}' : 'second.${c.name}';
 
   _linkToMethod(ForeignKey fk) {
     final ref = new TableDetails.fromTable(schema, fk.refTable);
@@ -138,12 +136,9 @@ fk.columnPairs.map((l) =>
 }''';
   }
 
-  get _foreignLinks => combine(
-    table
-    .foreignKeys
-    .values
-    //.where((ForeignKey fk) => td.table == table)
-    .map((ForeignKey fk) => _linkToMethod(fk)));
+  get _foreignLinks => combine(table.foreignKeys.values
+      //.where((ForeignKey fk) => td.table == table)
+      .map((ForeignKey fk) => _linkToMethod(fk)));
 
   _stringListSupport(Iterable<Member> members) => '''
 static inline
@@ -160,26 +155,26 @@ to_string_list(String_list_t &out) const {
   _makeClass(String id, Iterable<Column> columns) {
     final result = class_(id)
       ..struct = true
-      ..opEqual..opLess
+      ..opEqual
+      ..opLess
       ..streamable = true
       ..members = columns.map((c) => _makeMember(c)).toList();
-    result.getCodeBlock(clsPublic).snippets.add(_stringListSupport(result.members));
+    result.getCodeBlock(clsPublic).snippets
+        .add(_stringListSupport(result.members));
     finishClass(result);
     return result;
   }
 
-  setFilePathFromRoot(String root) =>
-    header.setFilePathFromRoot(root);
+  setFilePathFromRoot(String root) => header.setFilePathFromRoot(root);
 
   Header get header {
-    if(_header == null) {
+    if (_header == null) {
       _header = _makeHeader();
     }
     return _header;
   }
 
-  Namespace get namespace => new Namespace(
-    []
+  Namespace get namespace => new Namespace([]
     ..addAll(schemaCodeGenerator.namespace.names)
     ..addAll(['table']));
 
@@ -187,7 +182,7 @@ to_string_list(String_list_t &out) const {
     final keyClassType = keyClass.className;
     final valueClassType = valueClass.className;
     final valueColumns = table.valueColumns;
-    final hasForeignKey  = table.hasForeignKey;
+    final hasForeignKey = table.hasForeignKey;
     var fkeyIncludes = [];
     table.foreignKeys.values.forEach((ForeignKey fk) {
       final refTableId = idFromString(fk.refTable.name);
@@ -225,27 +220,21 @@ to_string_list(String_list_t &out) const {
       ..getCodeBlock(clsPostDecl).snippets.add(_foreignLinks);
 
     finishGatewayClass(gatewayClass);
-    
+
     final result = new Header(tableId)
       ..namespace = namespace
-      ..includes = (
-        [
-          'cstdint',
-          'utility',
-          'sstream',
-          'vector',
-          'boost/any.hpp',
-        ]
-        ..addAll(fkeyIncludes))
-      ..classes = [
-        keyClass,
-        valueClass,
-        gatewayClass
-      ];
+      ..includes = ([
+        'cstdint',
+        'utility',
+        'sstream',
+        'vector',
+        'boost/any.hpp',
+      ]..addAll(fkeyIncludes))
+      ..classes = [keyClass, valueClass, gatewayClass];
 
     //    if(!hasForeignKey) {
     new GatewayTestGenerator(result.test, _tableDetails, namespace);
-      //    }
+    //    }
 
     addRequiredIncludes(result);
     return result;
@@ -265,7 +254,7 @@ print_values_as_table(Value_list_t const& values,
 }
 
 ''';
-  
+
   // end <class TableGatewayGenerator>
   TableDetails _tableDetails;
   Header _header;
@@ -275,7 +264,7 @@ print_values_as_table(Value_list_t const& values,
 typedef bool TableFilter(Table);
 
 TableFilter TableNameFilter(Iterable<String> tableNames) =>
-  (Table t) => tableNames.contains(t.name);
+    (Table t) => tableNames.contains(t.name);
 
 _nonAutoColumns(Table table) => table.columns.where((c) => !c.autoIncrement);
 _joined(Iterable<Column> cols) => cols.map((c) => c.name).join(',\n');
@@ -314,21 +303,26 @@ from
 }
 
 String _cppType(SqlType sqlType) {
-    switch(sqlType.runtimeType) {
-      case SqlString:
-        final str = sqlType as SqlString;
-        return (str.length > 0)?
-          'fcs::utils::Fixed_size_char_array< ${str.length} >' :
-          'std::string';
-      case SqlInt: return (sqlType as SqlInt).length <= 4? 'int32_t' : 'Orm_bigint_t';
-      case SqlDecimal: return 'decimal';
-      case SqlBinary: throw 'Add support for SqlDecimal';
-      case SqlFloat: return 'double';
-      case SqlDate:
-      case SqlTime:
-      case SqlTimestamp: return 'Orm_timestamp_t';
-    }
-    throw 'SqlType $sqlType not supported';
+  switch (sqlType.runtimeType) {
+    case SqlString:
+      final str = sqlType as SqlString;
+      return (str.length > 0)
+          ? 'fcs::utils::Fixed_size_char_array< ${str.length} >'
+          : 'std::string';
+    case SqlInt:
+      return (sqlType as SqlInt).length <= 4 ? 'int32_t' : 'Orm_bigint_t';
+    case SqlDecimal:
+      return 'decimal';
+    case SqlBinary:
+      throw 'Add support for SqlDecimal';
+    case SqlFloat:
+      return 'double';
+    case SqlDate:
+    case SqlTime:
+    case SqlTimestamp:
+      return 'Orm_timestamp_t';
+  }
+  throw 'SqlType $sqlType not supported';
 }
 
 // end <part generator>

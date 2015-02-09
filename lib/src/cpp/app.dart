@@ -7,12 +7,7 @@ class ArgType implements Comparable<ArgType> {
   static const STRING = const ArgType._(2);
   static const FLAG = const ArgType._(3);
 
-  static get values => [
-    INT,
-    DOUBLE,
-    STRING,
-    FLAG
-  ];
+  static get values => [INT, DOUBLE, STRING, FLAG];
 
   final int value;
 
@@ -25,28 +20,35 @@ class ArgType implements Comparable<ArgType> {
   int compareTo(ArgType other) => value.compareTo(other.value);
 
   String toString() {
-    switch(this) {
-      case INT: return "Int";
-      case DOUBLE: return "Double";
-      case STRING: return "String";
-      case FLAG: return "Flag";
+    switch (this) {
+      case INT:
+        return "Int";
+      case DOUBLE:
+        return "Double";
+      case STRING:
+        return "String";
+      case FLAG:
+        return "Flag";
     }
     return null;
   }
 
   static ArgType fromString(String s) {
-    if(s == null) return null;
-    switch(s) {
-      case "Int": return INT;
-      case "Double": return DOUBLE;
-      case "String": return STRING;
-      case "Flag": return FLAG;
-      default: return null;
+    if (s == null) return null;
+    switch (s) {
+      case "Int":
+        return INT;
+      case "Double":
+        return DOUBLE;
+      case "String":
+        return STRING;
+      case "Flag":
+        return FLAG;
+      default:
+        return null;
     }
   }
-
 }
-
 
 /// Metadata associated with an argument to an application.  Requires and
 /// geared to features supported by boost::program_options.
@@ -68,40 +70,44 @@ class AppArg extends Entity {
   AppArg(Id id) : super(id);
 
   set defaultValue(Object defaultValue) {
-    type =
-      defaultValue is String? ArgType.STRING :
-      defaultValue is double? ArgType.DOUBLE :
-      defaultValue is int? ArgType.INT :
-      defaultValue is bool? ArgType.FLAG : null;
+    type = defaultValue is String
+        ? ArgType.STRING
+        : defaultValue is double
+            ? ArgType.DOUBLE
+            : defaultValue is int
+                ? ArgType.INT
+                : defaultValue is bool ? ArgType.FLAG : null;
 
     _defaultValue = defaultValue;
   }
 
   get vname => '${name}_';
   get isString => type == ArgType.STRING;
-  get defaultValueLit => isString? quote(defaultValue) : defaultValue;
+  get defaultValueLit => isString ? quote(defaultValue) : defaultValue;
 
-  get cppType =>
-    isMultiple ? (type == ArgType.INT ? 'std::vector< int >' :
-        type == ArgType.DOUBLE ? 'std::vector< double >' :
-        type == ArgType.STRING ? 'std::vector< std::string >' : 'std::vector< bool >') :
-    (type == ArgType.INT ? 'int' :
-        type == ArgType.DOUBLE ? 'double' :
-        type == ArgType.STRING ? 'std::string' : 'bool');
+  get cppType => isMultiple
+      ? (type == ArgType.INT
+          ? 'std::vector< int >'
+          : type == ArgType.DOUBLE
+              ? 'std::vector< double >'
+              : type == ArgType.STRING
+                  ? 'std::vector< std::string >'
+                  : 'std::vector< bool >')
+      : (type == ArgType.INT
+          ? 'int'
+          : type == ArgType.DOUBLE
+              ? 'double'
+              : type == ArgType.STRING ? 'std::string' : 'bool');
 
   get flagDecl =>
-    shortName == null?
-    '"${id.emacs}"' : '"${id.emacs},$shortName"';
+      shortName == null ? '"${id.emacs}"' : '"${id.emacs},$shortName"';
 
   get _defaultValueSet =>
-    _defaultValue == null?
-    '' :
-    '->default_value($defaultValueLit)';
+      _defaultValue == null ? '' : '->default_value($defaultValueLit)';
 
-  get addOptionDecl =>
-    type == ArgType.FLAG?
-    '($flagDecl, "$descr")' :
-    '($flagDecl, value< $cppType >()$_defaultValueSet,\n  "${descr}")';
+  get addOptionDecl => type == ArgType.FLAG
+      ? '($flagDecl, "$descr")'
+      : '($flagDecl, value< $cppType >()$_defaultValueSet,\n  "${descr}")';
 
   // end <class AppArg>
   Object _defaultValue;
@@ -133,43 +139,39 @@ class App extends Impl with InstallationCodeGenerator {
   get cppPath => path.join(installation.root, 'cpp');
   get appPath => path.join(cppPath, 'app', name);
   get namespace => super.namespace;
-  get sources => [ id.snake ]..addAll(impls.map((i) => i.id.snake));
-  get allIncludes =>
-    new Includes(_includes.includeEntries)
+  get sources => [id.snake]..addAll(impls.map((i) => i.id.snake));
+  get allIncludes => new Includes(_includes.includeEntries)
     ..addAll(concat(headers.map((h) => h.includes.includeEntries)))
     ..addAll(concat(impls.map((i) => i.includes.includeEntries)));
 
   generate() {
-    if(namespace == null) throw Exception('App $id requires a namespace');
-    if(!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {
-      args.insert(0,
-          new AppArg(new Id('help'))
-          ..shortName = 'h'
-          ..defaultValue = false
-          ..descr = 'Display help information');
+    if (namespace == null) throw Exception('App $id requires a namespace');
+    if (!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {
+      args.insert(0, new AppArg(new Id('help'))
+        ..shortName = 'h'
+        ..defaultValue = false
+        ..descr = 'Display help information');
     }
     _includes.add('iostream');
-    if(args.isNotEmpty)
-      _includes.add('boost/program_options.hpp');
+    if (args.isNotEmpty) _includes.add('boost/program_options.hpp');
 
     setAppFilePathFromRoot(cppPath);
     getCodeBlock(fcbPostNamespace).snippets.add(_cppContents);
     classes.add(_programOptions);
 
-    if(_hasMultiple) {
+    if (_hasMultiple) {
       _includes.addAll(['vector', 'fcs/utils/streamers/containers.hpp']);
     }
 
-    if(_hasString)
-      _includes.add('string');
+    if (_hasString) _includes.add('string');
 
     super.generate();
 
-    if(installation.wantsJam) {
+    if (installation.wantsJam) {
       builders.add(new JamAppBuilder.fromApp(this));
     }
 
-    for(var appBuilder in builders) {
+    for (var appBuilder in builders) {
       appBuilder.generateBuildScripts(this);
     }
   }
@@ -178,16 +180,14 @@ class App extends Impl with InstallationCodeGenerator {
   get _hasString => args.any((a) => ArgType.STRING == a.type);
   get _hasHelp => args.any((a) => _isHelpArg(a));
 
-  get _programOptions =>
-    class_('program_options')
+  get _programOptions => class_('program_options')
     ..struct = true
     ..streamable = true
     ..usesStreamers = _hasMultiple
-    ..members = args.map((a) =>
-        member(a.id)
-        ..byRef = a.isMultiple || a.isString
-        ..type = a.cppType
-        ..access = ro).toList()
+    ..members = args.map((a) => member(a.id)
+      ..byRef = a.isMultiple || a.isString
+      ..type = a.cppType
+      ..access = ro).toList()
     ..getCodeBlock(clsPublic).snippets.add(_argvCtor);
 
   get _argvCtor => '''
@@ -224,44 +224,44 @@ static void show_help(std::ostream& out) {
 }
 ''';
 
-  get _orderedArgs =>
-    concat([
-      args.where((a) => _isHelpArg(a)),
-      args.where((a) => !_isHelpArg(a))]);
+  get _orderedArgs => concat(
+      [args.where((a) => _isHelpArg(a)), args.where((a) => !_isHelpArg(a))]);
 
   bool _isHelpArg(AppArg arg) => arg.optName == 'help';
   get _helpArg => args.where((a) => _isHelpArg(a));
 
-  _readFlag(AppArg arg) =>
-    'parsed_options.count("${arg.optName}") > 0';
+  _readFlag(AppArg arg) => 'parsed_options.count("${arg.optName}") > 0';
 
-  _pullOption(AppArg arg) => _isHelpArg(arg)?
-    '''
+  _pullOption(AppArg arg) => _isHelpArg(arg)
+      ? '''
 if(parsed_options.count("${arg.optName}") > 0) {
   help_ = true;
   return;
-}''' : arg == null? null :
-    arg.type == ArgType.FLAG? '''
+}'''
+      : arg == null
+          ? null
+          : arg.type == ArgType.FLAG
+              ? '''
 ${arg.vname} = ${_readFlag(arg)};
-''' :
-    (arg.defaultValue != null?
-    '''
+'''
+      : (arg.defaultValue != null
+          ? '''
 ${arg.vname} = parsed_options["${arg.optName}"]
-  .as< ${arg.cppType} >();''' :
-    '''
+  .as< ${arg.cppType} >();'''
+      : '''
 if(parsed_options.count("${arg.optName}") > 0) {
   ${arg.vname} = parsed_options["${arg.optName}"]
     .as< ${arg.cppType} >();
 }${_failIfRequired(arg)}''');
 
-  String _failIfRequired(AppArg arg) =>
-    arg.isRequired ? '''
+  String _failIfRequired(AppArg arg) => arg.isRequired
+      ? '''
  else {
   std::ostringstream msg;
   msg << "$id option '${arg.optName}' is required";
   throw std::runtime_error(msg.str());
-}''' : '';
-
+}'''
+      : '';
 
   get _cppContents => '''
 
@@ -285,18 +285,18 @@ ${indentBlock(customBlock('main'))}
 }
 ''';
 
-  get _showHelp => _hasHelp? '''
+  get _showHelp => _hasHelp
+      ? '''
 if(options.help()) {
   Program_options::show_help(std::cout);
   return 0;
 }
-''' : null;
+'''
+      : null;
 
-  get _readProgramOptions => args.isEmpty? null :
-    combine([
-      'Program_options options = { argc, argv };',
-      _showHelp,
-    ]);
+  get _readProgramOptions => args.isEmpty
+      ? null
+      : combine(['Program_options options = { argc, argv };', _showHelp,]);
 
   // end <class App>
   /// Namespace associated with application code
@@ -305,8 +305,7 @@ if(options.help()) {
 
 /// Base class establishing interface for generating build scripts for
 /// libraries, apps, and tests
-abstract class AppBuilder
-  implements CodeGenerator {
+abstract class AppBuilder implements CodeGenerator {
   App app;
   // custom <class AppBuilder>
 
@@ -324,7 +323,7 @@ abstract class AppBuilder
     final found = new Set<String>();
     app.allIncludes.includeEntries.forEach((String include) {
       _headerToLibRequirement.forEach((String header, String requirement) {
-        if(include.contains(header)) found.add(requirement);
+        if (include.contains(header)) found.add(requirement);
       });
     });
     return found;
@@ -336,16 +335,15 @@ abstract class AppBuilder
   }
 
   static const Map _headerToLibRequirement = const {
-    'boost/program_options.hpp' : 'boost_program_options',
-    'boost/date_time' : 'boost_date_time',
-    'boost/regex' : 'boost_regex',
+    'boost/program_options.hpp': 'boost_program_options',
+    'boost/date_time': 'boost_date_time',
+    'boost/regex': 'boost_regex',
   };
 
   // end <class AppBuilder>
 }
 // custom <part app>
 
-AppArg arg(Object name) =>
-  new AppArg(name is String? new Id(name) : name);
+AppArg arg(Object name) => new AppArg(name is String ? new Id(name) : name);
 
 // end <part app>
