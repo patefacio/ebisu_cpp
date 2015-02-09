@@ -404,6 +404,8 @@ class Class extends Entity {
 
   //! Accessing auto-initilizes
   DefaultCtor get defaultCtor => _defaultCtor = _defaultCtor == null? new DefaultCtor() : _defaultCtor;
+  withDefaultCtor(void f(DefaultCtor)) => f(defaultCtor);
+
   CopyCtor get copyCtor => _copyCtor = _copyCtor == null? new CopyCtor() : _copyCtor;
   MoveCtor get moveCtor => _moveCtor = _moveCtor == null? new MoveCtor() : _moveCtor;
   AssignCopy get assignCopy => _assignCopy = _assignCopy == null? new AssignCopy() : _assignCopy;
