@@ -97,23 +97,18 @@ class OtlSchemaCodeGenerator extends SchemaCodeGenerator {
     apiHeader
       ..includes.add('fcs/orm/orm.hpp')
       ..classes.add(class_(connectionClassId)
-        ..getCodeBlock(clsPrivate).snippets = [_connectionSingletonPrivate]
         ..getCodeBlock(clsPublic).snippets = [_connectionSingletonPublic]
+        ..withDefaultCtor((ctor) => ctor.topInject = '''
+  otl_connect *connection = new otl_connect;
+  connection->rlogon("DSN=${id.snake}", 0);
+  tss_connection_.reset(connection);
+''')
         ..isSingleton = true
         ..members = [
           member('tss_connection')
             ..type = 'boost::thread_specific_ptr< otl_connect >',
         ]);
   }
-
-  get _connectionSingletonPrivate => '''
-$connectionClassName() {
-  otl_connect *connection = new otl_connect;
-  connection->rlogon("DSN=${id.snake}", 0);
-  tss_connection_.reset(connection);
-}
-
-''';
 
   get _connectionSingletonPublic => '''
 otl_connect * connection() {

@@ -433,6 +433,18 @@ initialize it''',
           ..members = [
             member('has_custom')
             ..doc = 'Has custom code, so needs protect block'..classInit = false,
+            member('top_inject')
+            ..doc = '''
+Code snippet to inject at beginning of method. The intent is for the
+methods to have standard generated implementations, but to also
+support programatic injection of implmementation into the
+methods. This supports injection near the top of the method.'''
+            ..classInit = '',
+            member('bottom_inject')
+            ..doc = '''
+Supports injecting code near the bottom of the method. *See*
+*topInject*'''
+            ..classInit = '',
             member('use_default')..classInit = false,
             member('delete')..classInit = false,
           ],

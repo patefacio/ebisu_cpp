@@ -3,6 +3,7 @@ library ebisu_cpp.test.test_cpp_class;
 import 'package:unittest/unittest.dart';
 // custom <additional imports>
 
+import 'package:ebisu/ebisu.dart';
 import 'package:ebisu_cpp/cpp.dart';
 
 // end <additional imports>
@@ -12,7 +13,150 @@ import 'package:ebisu_cpp/cpp.dart';
 main() {
 // custom <main>
 
-  test('basic', () {
+  group('basic', () {
+    group('default methods', () {
+      [
+        [public, 'public:'],
+        [private, 'private:'],
+        [protected, 'protected:']
+      ].forEach((List pair) {
+        final access = pair[0];
+        final tag = pair[1];
+
+        test('defaultCtor $tag', () {
+          var c = class_('c_1')
+            ..withDefaultCtor((ctor) => ctor.cppAccess = access);
+
+          expect(darkMatter(c.definition), darkMatter('''
+class C_1
+{
+$tag
+  C_1() {
+  }
+};
+'''));
+        });
+
+        test('copyCtor $tag', () {
+          final c = class_('c_1')
+            ..withCopyCtor((ctor) => ctor.cppAccess = access);
+
+          expect(darkMatter(c.definition), darkMatter('''
+class C_1
+{
+$tag
+  C_1(C_1 const& other) {
+  }
+};
+'''));
+        });
+
+        test('dtor $tag', () {
+          final c = class_('c_1')..withDtor((dtor) => dtor.cppAccess = access);
+
+          expect(darkMatter(c.definition), darkMatter('''
+class C_1
+{
+$tag
+  ~C_1() {
+  }
+};
+'''));
+        });
+
+        test('opEqual $tag', () {
+          final c = class_('c_1')
+            ..members.add(member('x')..type = 'std::string')
+            ..members.add(member('y')..type = 'std::string')
+            ..withOpEqual((op) => op.cppAccess = access);
+
+          // if access is not private there should be two access sections, the
+          // first is *access*, the second private. Otherwise it's all private
+          final tricky = access == private ? '' : 'private:';
+          expect(darkMatter(c.definition), darkMatter('''
+class C_1
+{
+$tag
+  bool operator==(C_1 const& rhs) const {
+    return this == &rhs ||
+      (x_ == rhs.x_ &&
+      y_ == rhs.y_);
+  }
+
+  bool operator!=(C_1 const& rhs) const {
+    return !(*this == rhs);
+  }
+
+$tricky
+  std::string x_ {};
+  std::string y_ {};
+
+};
+'''));
+        });
+
+        test('opLess $tag', () {
+          final c = class_('c_1')
+            ..members.add(member('x')..type = 'std::string')
+            ..members.add(member('y')..type = 'std::string')
+            ..withOpLess((op) => op.cppAccess = access);
+
+          // if access is not private there should be two access sections, the
+          // first is *access*, the second private. Otherwise it's all private
+          final tricky = access == private ? '' : 'private:';
+          expect(darkMatter(c.definition), darkMatter('''
+class C_1
+{
+$tag
+  bool operator<(C_1 const& rhs) const {
+    return x_ != rhs.x_? x_ < rhs.x_ : (
+      y_ != rhs.y_? y_ < rhs.y_ : (
+      false));
+  }
+
+$tricky
+  std::string x_ {};
+  std::string y_ {};
+};
+'''));
+        });
+
+        test('opOut $tag', () {
+          final c = class_('c_1')
+            ..members.add(member('x')..type = 'std::string')
+            ..members.add(member('y')..type = 'std::string')
+            ..withOpOut((op) => op.cppAccess = access);
+
+          // if access is not private there should be two access sections, the
+          // first is *access*, the second private. Otherwise it's all private
+          final tricky = access == private ? '' : 'private:';
+          expect(darkMatter(c.definition), darkMatter('''
+class C_1
+{
+$tag
+  friend inline
+  std::ostream& operator<<(std::ostream &out,
+                           C_1 const& item) {
+    using fcs::utils::streamers::operator<<;
+    fcs::utils::Block_indenter indenter;
+    char const* indent(indenter.current_indentation_text());
+    out << '\\n' << indent << "C_1(" << &item << ") {";
+    out << '\\n' << indent << "  x:" << item.x_;
+    out << '\\n' << indent << "  y:" << item.y_;
+    out << '\\n' << indent << "}\\n";
+    return out;
+  }
+
+$tricky
+  std::string x_ {};
+  std::string y_ {};
+
+};
+'''));
+        });
+      });
+    });
+
     final l = lib('lib1')
       ..namespace = namespace(['foo', 'bar'])
       ..headers = [
@@ -57,8 +201,6 @@ main() {
       ];
 
     l.generate();
-
-    //print('Headers for ${c.className} => ${c.headers}');
   });
 // end <main>
 

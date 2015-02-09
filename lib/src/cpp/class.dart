@@ -35,6 +35,14 @@ abstract class ClassMethod {
 abstract class DefaultMethod extends ClassMethod {
   /// Has custom code, so needs protect block
   bool hasCustom = false;
+  /// Code snippet to inject at beginning of method. The intent is for the
+  /// methods to have standard generated implementations, but to also
+  /// support programatic injection of implmementation into the
+  /// methods. This supports injection near the top of the method.
+  String topInject = '';
+  /// Supports injecting code near the bottom of the method. *See*
+  /// *topInject*
+  String bottomInject = '';
   bool useDefault = false;
   bool delete = false;
   // custom <class DefaultMethod>
@@ -59,7 +67,10 @@ class DefaultCtor extends DefaultMethod {
     final cb = customBlock('${className} defaultCtor');
     var result = '''
 ${className}() {
-${hasCustom? indentBlock(cb) : ''}}''';
+$topInject
+${hasCustom? indentBlock(cb) : ''}
+$bottomInject
+}''';
     return result;
   }
 
@@ -76,7 +87,10 @@ class CopyCtor extends DefaultMethod {
     final cb = customBlock('${className} copyCtor');
     var result = '''
 ${className}(${className} const& other) {
-${hasCustom? indentBlock(cb) : ''}}''';
+$topInject
+${hasCustom? indentBlock(cb) : ''}
+$bottomInject
+}''';
     return result;
   }
 
@@ -122,9 +136,20 @@ class Dtor extends DefaultMethod {
   String get definition => delete
       ? throw "Don't delete the destructor for $className"
       : super.definition;
+
   String get prototype => '~${className}()';
-  String get customDefinition =>
-      abstract ? 'virtual ~${className}() {}' : '~${className}() {}';
+
+  String get customDefinition => abstract
+      ? '''
+virtual ~${className}() {
+$topInject
+$bottomInject
+}'''
+      : '''
+~${className}() {
+$topInject
+$bottomInject
+}''';
 
   // end <class Dtor>
 }
@@ -396,16 +421,31 @@ class Class extends Entity {
 
   CopyCtor get copyCtor =>
       _copyCtor = _copyCtor == null ? new CopyCtor() : _copyCtor;
+  withCopyCtor(void f(CopyCtor)) => f(copyCtor);
+
   MoveCtor get moveCtor =>
       _moveCtor = _moveCtor == null ? new MoveCtor() : _moveCtor;
+  withMoveCtor(void f(MoveCtor)) => f(moveCtor);
+
   AssignCopy get assignCopy =>
       _assignCopy = _assignCopy == null ? new AssignCopy() : _assignCopy;
+  withAssignCopy(void f(AssignCopy)) => f(assignCopy);
+
   AssignMove get assignMove =>
       _assignMove = _assignMove == null ? new AssignMove() : _assignMove;
+  withAssignMove(void f(AssignMove)) => f(assignMove);
+
   Dtor get dtor => _dtor = _dtor == null ? new Dtor() : _dtor;
+  withDtor(void f(Dtor)) => f(dtor);
+
   OpEqual get opEqual => _opEqual = _opEqual == null ? new OpEqual() : _opEqual;
+  withOpEqual(void f(OpEqual)) => f(opEqual);
+
   OpLess get opLess => _opLess = _opLess == null ? new OpLess() : _opLess;
+  withOpLess(void f(OpLess)) => f(opLess);
+
   OpOut get opOut => _opOut = _opOut == null ? new OpOut() : _opOut;
+  withOpOut(void f(OpOut)) => f(opOut);
 
   set defaultCtor(DefaultCtor defaultCtor) => _defaultCtor = defaultCtor;
   set copyCtor(CopyCtor copyCtor) => _copyCtor = copyCtor;
@@ -459,6 +499,11 @@ class Class extends Entity {
           addFullMemberCtor();
         }
       }
+
+      if (isSingleton) {
+        defaultCtor.cppAccess = private;
+      }
+
       enums.forEach((e) => e.isNested = true);
       _methods.forEach((m) {
         if (m != null) m._parent = this;
@@ -482,8 +527,14 @@ class Class extends Entity {
       members.where((m) => m.cppAccess == private);
 
   get _ctorMethods => [_defaultCtor, _copyCtor, _moveCtor];
+
+  get _allCtors => []
+    ..addAll(_ctorMethods.where((m) => m != null))
+    ..addAll(memberCtors);
+
   get _opMethods =>
       [_assignCopy, _assignMove, _dtor, _opEqual, _opLess, _opOut];
+
   get _methods => []
     ..addAll(_ctorMethods)
     ..addAll(_opMethods);
@@ -502,10 +553,12 @@ class Class extends Entity {
       br(publicMembers
           .where((m) => m.isPublicStaticConst)
           .map((m) => _memberDefinition(m))),
-      br(memberCtors
+      br(_allCtors
           .where((m) => m.cppAccess == public)
           .map((m) => m.definition)),
-      chomp(combine(_methods.map((m) => m == null ? m : br(m.definition)))),
+      br(_opMethods
+          .where((m) => m != null && m.cppAccess == public)
+          .map((m) => m.definition)),
       br(_singleton),
       _codeBlockText(clsPublic),
       br(publicMembers
@@ -517,15 +570,21 @@ class Class extends Entity {
     ]))),
     _wrapInAccess(protected, indentBlock(combine([
       _codeBlockText(clsProtected),
-      br(memberCtors
+      br(_allCtors
           .where((m) => m.cppAccess == protected)
+          .map((m) => m.definition)),
+      br(_opMethods
+          .where((m) => m != null && m.cppAccess == protected)
           .map((m) => m.definition)),
       br(protectedMembers.map((m) => _memberDefinition(m)))
     ]))),
     _wrapInAccess(private, indentBlock(combine([
       _codeBlockText(clsPrivate),
-      br(memberCtors
+      br(_allCtors
           .where((m) => m.cppAccess == private)
+          .map((m) => m.definition)),
+      br(_opMethods
+          .where((m) => m != null && m.cppAccess == private)
           .map((m) => m.definition)),
       br(privateMembers.map((m) => _memberDefinition(m)))
     ]))),
