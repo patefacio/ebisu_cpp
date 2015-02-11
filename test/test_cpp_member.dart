@@ -4,6 +4,7 @@ import 'package:unittest/unittest.dart';
 // custom <additional imports>
 
 import 'package:ebisu_cpp/cpp.dart';
+import 'package:ebisu/ebisu.dart';
 
 // end <additional imports>
 
@@ -69,6 +70,66 @@ Wee willy winkee went through the town.'''
 
       fail('Excpected an exception since ref fields can not have init');
     } catch (e) {}
+  });
+
+  aContainsB(String a, String b) => darkMatter(a).contains(darkMatter(b));
+
+  memberWithAccess(access, [cppAccess = null]) => class_('c_1')
+    ..members.add(member('x')
+      ..type = 'std::string'
+      ..access = access
+      ..cppAccess = cppAccess);
+
+  final reader = 'std::string const& x() const';
+  final writer = 'void x(std::string &x)';
+
+  [null, public, private, protected].forEach((CppAccess cppAccess) {
+    group('access designation with $cppAccess', () {
+      final memberName = cppAccess == public ? 'x' : 'x_';
+      final selectedAccess = cppAccess == null ? private : cppAccess;
+      final accessDecl = '${ev(selectedAccess)}: std::string $memberName';
+
+      test('inaccessible contains no accessors', () {
+        final definition = memberWithAccess(ia, cppAccess).definition;
+        expect(aContainsB(definition, accessDecl), true);
+        expect(aContainsB(definition, reader), false);
+        expect(aContainsB(definition, writer), false);
+      });
+      test('ro gives reader no writer', () {
+        final definition = memberWithAccess(ro, cppAccess).definition;
+
+        if(false) {
+          print('''
+*cppAccess* $cppAccess with *access* *ro* gives:
+
+${indentBlock(definition, '    ')}
+''');
+        }
+
+        expect(aContainsB(definition, accessDecl), true);
+        expect(aContainsB(definition, reader), true);
+        expect(aContainsB(definition, writer), false);
+      });
+      test('rw gives private with reader and writer', () {
+        final definition = memberWithAccess(rw, cppAccess).definition;
+        expect(aContainsB(definition, accessDecl), true);
+        expect(aContainsB(definition, reader), true);
+        expect(aContainsB(definition, writer), true);
+      });
+      test('wo gives private with writer and no reader', () {
+        final definition = memberWithAccess(wo, cppAccess).definition;
+        expect(aContainsB(definition, accessDecl), true);
+        expect(aContainsB(definition, reader), false);
+        expect(aContainsB(definition, writer), true);
+      });
+    });
+  });
+
+  test('no access with public works', () {
+    final definition = memberWithAccess(null, public).definition;
+    expect(aContainsB(definition, 'public: std::string x'), true);
+    expect(aContainsB(definition, reader), false);
+    expect(aContainsB(definition, writer), false);
   });
 
 // end <main>

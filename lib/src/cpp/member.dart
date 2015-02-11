@@ -101,15 +101,14 @@ class Member extends Entity {
 $_constAccess $name() const { return $vname; }'''
       : null;
 
-  String get setter => access == rw
+  String get setter => (access == rw || access == wo)
       ? '''
 //! setter for ${vname} (access is $access)
 void $name($_argType $name) { $vname = $name; }'''
       : null;
 
-  CppAccess get cppAccess => _cppAccess != null
-      ? _cppAccess
-      : (access == ia || access == ro || access == rw) ? private : public;
+  CppAccess get cppAccess =>
+      _cppAccess != null ? _cppAccess : (access != null) ? private : public;
 
   get _argType => byRef ? '$type &' : type;
   get _constAccess => byRef ? '$type const&' : type;

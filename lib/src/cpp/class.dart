@@ -265,8 +265,9 @@ class MemberCtorParm {
   String defaultValue;
   // custom <class MemberCtorParm>
 
-  /// The parameter as declared in the ctor, including any defaultValue.
-  /// The *mode_t new_mode* in the following ctor
+  /// The parameter as declared in the ctor, including any defaultValue. So, the:
+  ///     mode_t new_mode
+  /// in the following ctor
   ///
   ///     class Umask_scoped_set {
   ///     public:
@@ -280,8 +281,9 @@ class MemberCtorParm {
           ? '${member.passType} ${member.name} = $defaultValue'
           : '${member.passType} ${member.name}';
 
-  /// The complete initialization text for the member in the ctor.
-  /// The *previous_mode_{umask(new_mode)}* in the following
+  /// The complete initialization text for the member in the ctor. So, the:
+  ///     previous_mode_{umask(new_mode)}
+  /// in the following:
   ///
   ///     class Umask_scoped_set {
   ///     public:
