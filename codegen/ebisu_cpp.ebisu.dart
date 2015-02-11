@@ -463,6 +463,56 @@ Supports injecting code near the bottom of the method. *See*
             member('abstract')..classInit = false
           ],
           class_('member_ctor_parm')
+          ..doc = '''
+A *Member Constructor Parameter*. Defines a single parameter to be passed to a
+MemberCtor in order to initialize a single member variable. MemberCtor will
+convert strings automatically into instances of MemberCtorParm. For example:
+
+    memberCtor(['x', 'y'])
+
+would produce the following constructor:
+
+    class Point {
+    public:
+      Point(int x, int y) : x_{x}, y_{y} {}
+    private:
+      int x_;
+      int y_;
+    }
+
+But to modify the parameter definition or initializtaion you might rather
+construct and modify the MemberCtorParm instead of taking the default:
+
+        final cls = class_('point')
+          ..members = [ member('x')..init = 0, member('y')..init = 0 ]
+          ..memberCtors = [
+            memberCtor( [
+              memberCtorParm('x')
+              ..defaultValue = '42',
+              memberCtorParm('y')
+              ..defaultValue = '42'] )
+          ];
+
+which produces:
+
+    class Point
+    {
+    public:
+      Point(
+        int x = 42,
+        int y = 42) :
+        x_ { x },
+        y_ { y } {
+      }
+
+    private:
+      int x_ { 0 };
+      int y_ { 0 };
+    };
+
+'''
+
+
           ..ctorSansNew = true
           ..members = [
             member('name')
