@@ -112,6 +112,24 @@ $tricky
 
         });
 
+        test('ctor parmDecl and init', () {
+          final cls = class_('point')
+            ..members = [member('x')..init = 0, member('y')..init = 0]
+            ..memberCtors = [
+              memberCtor([
+                memberCtorParm('x')..parmDecl = 'T t = 25'..init = '2*t',
+                memberCtorParm('y')..defaultValue = '42'
+              ])
+            ];
+
+          expect(darkMatter(cls.definition)
+              .contains(darkMatter('''
+(T t = 25, int y = 42) : x_{2*t}, y_{y}
+''')), true);
+
+        });
+
+
         test('opLess $tag', () {
           final c = class_('c_1')
             ..members.add(member('x')..type = 'std::string')
