@@ -95,6 +95,23 @@ $tricky
 '''));
         });
 
+        test('ctor defaultValue', () {
+          final cls = class_('point')
+            ..members = [member('x')..init = 0, member('y')..init = 0]
+            ..memberCtors = [
+              memberCtor([
+                memberCtorParm('x')..defaultValue = '42',
+                memberCtorParm('y')..defaultValue = '42'
+              ])
+            ];
+
+          expect(darkMatter(cls.definition)
+              .contains(darkMatter('''
+(int x = 42, int y = 42)
+''')), true);
+
+        });
+
         test('opLess $tag', () {
           final c = class_('c_1')
             ..members.add(member('x')..type = 'std::string')

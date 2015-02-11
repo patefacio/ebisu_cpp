@@ -93,8 +93,8 @@ ${br(tests.map((test) => testCmake(test)))}
 ''', cmakeRoot);
 
     final cmakeGenerator = path.join(path.dirname(cmakeRoot), 'cmake.gen.sh');
-    mergeBlocksWithFile('''
-${scriptCustomBlock('additional exports/flags')}
+    scriptMergeWithFile('''
+${scriptCustomBlock('additional exports')}
 cmake -DCMAKE_BUILD_TYPE=Release -B../cmake_build/release -H.
 cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
 ''', cmakeGenerator);

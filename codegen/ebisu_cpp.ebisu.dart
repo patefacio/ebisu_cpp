@@ -527,11 +527,15 @@ which produces:
 you want to initialize member *Y y* from an input argument *X x* that
 requires a special function *f* to do the conversion:
 
-    Class(X x) : y_(f(x)) {}
+    Class(X x) : y_ {f(x)}
 
-The usage would be:
+Which would be achieved by:
 
-memberCtor([ memberCtorParm("y")..parmDecl = "X x" ])
+    memberCtor([
+      memberCtorParm("y")
+      ..parmDecl = "X x"
+      ..init = "f(x)"
+    ])
 
 ''',
             member('init')..doc = '''
@@ -560,7 +564,7 @@ But sometimes you need more:
     ...
     }
 
-The usage would be:
+Which would be achieved by:
 
     memberCtor([
       memberCtorParm("previous_mode")
@@ -570,7 +574,17 @@ The usage would be:
 
 '''
             ..access = WO,
-            member('default_value'),
+            member('default_value')
+            ..doc = '''
+If set provides a default value for the parm in the ctor. For example:
+
+    memberCtorParm('x')..defaultValue = '42'
+
+where the type of member *x* is *int* might yield:
+
+    Cls(int x = 42) : x_{x}
+
+''',
           ],
           class_('member_ctor')
           ..doc = '''

@@ -212,11 +212,15 @@ class MemberCtorParm {
   /// you want to initialize member *Y y* from an input argument *X x* that
   /// requires a special function *f* to do the conversion:
   ///
-  ///     Class(X x) : y_(f(x)) {}
+  ///     Class(X x) : y_ {f(x)}
   ///
-  /// The usage would be:
+  /// Which would be achieved by:
   ///
-  /// memberCtor([ memberCtorParm("y")..parmDecl = "X x" ])
+  ///     memberCtor([
+  ///       memberCtorParm("y")
+  ///       ..parmDecl = "X x"
+  ///       ..init = "f(x)"
+  ///     ])
   String parmDecl;
   /// *Override* of initialization text. This is rarely needed since
   /// initialization of members in a member ctor is straightforward:
@@ -243,7 +247,7 @@ class MemberCtorParm {
   ///     ...
   ///     }
   ///
-  /// The usage would be:
+  /// Which would be achieved by:
   ///
   ///     memberCtor([
   ///       memberCtorParm("previous_mode")
@@ -251,14 +255,41 @@ class MemberCtorParm {
   ///       ..init = "umask(new_mode)"
   ///     ])
   set init(String init) => _init = init;
+  /// If set provides a default value for the parm in the ctor. For example:
+  ///
+  ///     memberCtorParm('x')..defaultValue = '42'
+  ///
+  /// where the type of member *x* is *int* might yield:
+  ///
+  ///     Cls(int x = 42) : x_{x}
   String defaultValue;
   // custom <class MemberCtorParm>
 
-  get decl => defaultValue != null
-      ? '${member.passType} ${member.name} = $defaultValue'
-      : '${member.passType} ${member.name}';
+  /// The parameter as declared in the ctor, including any defaultValue.
+  /// The *mode_t new_mode* in the following ctor
+  ///
+  ///     class Umask_scoped_set {
+  ///     public:
+  ///       Umask_scoped_set(mode_t new_mode) : previous_mode_{umask(new_mode)}
+  ///     ...
+  ///     }
+  ///
+  get decl => parmDecl != null
+      ? parmDecl
+      : defaultValue != null
+          ? '${member.passType} ${member.name} = $defaultValue'
+          : '${member.passType} ${member.name}';
 
-  get init => member.ctorInit != null
+  /// The complete initialization text for the member in the ctor.
+  /// The *previous_mode_{umask(new_mode)}* in the following
+  ///
+  ///     class Umask_scoped_set {
+  ///     public:
+  ///       Umask_scoped_set(mode_t new_mode) : previous_mode_{umask(new_mode)}
+  ///     ...
+  ///     }
+  ///
+  get member_init => member.ctorInit != null
       ? '${member.vname} { ${member.ctorInit} }'
       : _init != null
           ? '${member.vname} { $_init }'
@@ -336,7 +367,7 @@ member being initialized or a MemberCtorParm instance'''));
 
     memberParms.forEach((MemberCtorParm parm) {
       argDecls.add(parm.decl);
-      initializers.add(parm.init);
+      initializers.add(parm.member_init);
     });
 
     return '''
