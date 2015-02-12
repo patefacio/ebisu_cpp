@@ -54,14 +54,14 @@ inline void from_c_str(char const* str, Color_$isClass &e) {
         ..hasFromCStr = true
         ..valueMap = {'red': 0xA00000, 'green': 0x009900, 'blue': 0x3333FF,};
 
-      if(false) print(sample_map.toString());
+      if (false) print(sample_map.toString());
 
       final sample_mask = enum_('${id}_mask')
         ..isClass = isClass
         ..values = ['red', 'green', 'blue']
         ..isMask = true;
 
-      if(false) print(sample_mask.toString());
+      if (false) print(sample_mask.toString());
     });
   });
 // end <main>

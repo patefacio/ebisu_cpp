@@ -1,5 +1,7 @@
 # Ebisu Cpp
 
+[![Build Status](https://drone.io/github.com/patefacio/ebisu_cpp/status.png)](https://drone.io/github.com/patefacio/ebisu_cpp/latest)
+
 Code generation library/toolkit that focuses on generating the structure of c++ code and as much of the boilerplate coding that goes with that in the creation of c++ systems. Much like its required companion library [ebisu](https://github.com/patefacio/ebisu) this library does what it can to leverage a convenient declarative approach encouraging heavy use of *cascades*.
 
 ## General C++ Code Generation Approach
