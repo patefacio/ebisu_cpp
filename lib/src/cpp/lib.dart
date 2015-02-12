@@ -15,7 +15,7 @@ const fcbBeginNamespace = FileCodeBlock.fcbBeginNamespace;
 const fcbEndNamespace = FileCodeBlock.fcbEndNamespace;
 
 /// A c++ library
-class Lib extends Entity with InstallationCodeGenerator {
+class Lib extends Entity with InstallationContainer implements CodeGenerator {
   Namespace namespace = new Namespace();
   List<Header> headers = [];
   List<Test> tests = [];

@@ -141,7 +141,7 @@ class AppArg extends Entity {
 /// as well as [headers] and [impls] which may be part of the
 /// application and not necessarily suited for a separate library.
 ///
-class App extends Impl with InstallationCodeGenerator {
+class App extends Impl with InstallationContainer implements CodeGenerator {
   /// Command line arguments specific to this application
   List<AppArg> args = [];
   /// Additional headers that are associated with the application itself, as

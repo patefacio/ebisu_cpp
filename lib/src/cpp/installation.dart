@@ -1,8 +1,15 @@
 part of ebisu_cpp.cpp;
 
-/// A CodeGenerator tied to a c++ installation
-abstract class InstallationCodeGenerator implements CodeGenerator {
+/// Mixin that brings in the installation that this child belongs to
+abstract class InstallationContainer {
   Installation installation;
+  // custom <class InstallationContainer>
+  // end <class InstallationContainer>
+}
+
+/// A CodeGenerator tied to a c++ installation
+abstract class InstallationCodeGenerator extends Object
+    with InstallationContainer implements CodeGenerator {
   // custom <class InstallationCodeGenerator>
   // end <class InstallationCodeGenerator>
 }
@@ -41,7 +48,7 @@ class Installation implements CodeGenerator {
   List<Lib> libs = [];
   List<App> apps = [];
   List<Script> scripts = [];
-  List<InstallationCodeGenerator> schemaCodeGenerators = [];
+  List<CodeGenerator> schemaCodeGenerators = [];
   List<Test> tests = [];
   List<Lib> get generatedLibs => _generatedLibs;
   List<App> get generatedApps => _generatedApps;
@@ -72,7 +79,7 @@ Installation($root)
   addLib(Lib lib) => libs.add(lib..installation = this);
   addLibs(Iterable<Lib> libs) => libs.forEach((l) => addLib(l));
   addApp(App app) => apps.add(app..installation = this);
-  addSchemaCodeGenerator(InstallationCodeGenerator scg) =>
+  addSchemaCodeGenerator(CodeGenerator scg) =>
       schemaCodeGenerators.add(scg..installation = this);
 
   generate([bool generateJamConfigs = false]) {

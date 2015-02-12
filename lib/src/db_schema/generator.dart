@@ -1,7 +1,7 @@
 part of ebisu_cpp.db_schema;
 
-abstract class SchemaCodeGenerator extends Object
-    with InstallationCodeGenerator {
+abstract class SchemaCodeGenerator extends Object with InstallationContainer
+    implements CodeGenerator {
   Schema schema;
   Id get id => _id;
   List<Query> queries = [];
@@ -77,7 +77,7 @@ class TableDetails {
 
 abstract class TableGatewayGenerator {
   Installation installation;
-  SchemaCodeGenerator schemaCodeGenerator;
+  CodeGenerator schemaCodeGenerator;
   Class keyClass;
   Class valueClass;
   // custom <class TableGatewayGenerator>
