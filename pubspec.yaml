@@ -1,7 +1,7 @@
 name: ebisu_cpp
-homepage: https://github.com/patefacio/ebisu_cpp
 version: 0.0.1
 author: Daniel Davidson <dbdavidson@yahoo.com>
+homepage: https://github.com/patefacio/ebisu_cpp
 description: >
   A library that supports code generation of cpp and others
 dependencies:
