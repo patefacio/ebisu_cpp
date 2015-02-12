@@ -15,9 +15,10 @@ void main() {
   useDartFormatter = true;
   System ebisu = system('ebisu_cpp')
     ..includeHop = true
+    ..license = 'boost'
     ..pubSpec.version = '0.0.1'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
-    ..pubSpec.addDependency(new PubDependency('path'))
+    ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
     ..rootPath = _topDir
     ..doc = 'A library that supports code generation of cpp and others'
