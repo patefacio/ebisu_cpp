@@ -2,13 +2,30 @@
 
 [![Build Status](https://drone.io/github.com/patefacio/ebisu_cpp/status.png)](https://drone.io/github.com/patefacio/ebisu_cpp/latest)
 
-Code generation library/toolkit that focuses on generating the structure of c++ code and as much of the boilerplate coding that goes with that in the creation of c++ systems. Much like its required companion library [ebisu](https://github.com/patefacio/ebisu) this library does what it can to leverage a convenient declarative approach encouraging heavy use of *cascades*.
+Code generation library/toolkit that focuses on generating the
+structure of c++ code and as much of the boilerplate coding that goes
+with that in the creation of c++ systems. Much like its required
+companion library [ebisu](https://github.com/patefacio/ebisu) this
+library does what it can to leverage a convenient declarative approach
+encouraging heavy use of *cascades*.
 
 ## General C++ Code Generation Approach
 
-As stated the focus is on c++ *structure* as opposed to attempting to support all aspects of the language. On any large system there is some combination of boilerplate and hand-crafted custom business logic. The larger the amount of boilerplate the larger the benefit of code generation. In order to make the use of code generation palatable in the face of large amounts of custom code it is important to be able to have the two live nicely side-by-side. In *ebisu* and *ebisu_cpp* this is accomplished with *Protect Blocks* also called *Custom Blocks*. A *custom block* is code that exists in generated output that is protected because it has been hand coded. Custom blocks are designated with special comments, which are labeled with *tags*. Here are some examples:
+As stated the focus is on c++ *structure* as opposed to attempting to
+support all aspects of the language. On any large system there is some
+combination of boilerplate and hand-crafted custom business logic. The
+larger the amount of boilerplate the larger the benefit of code
+generation. In order to make the use of code generation palatable in
+the face of large amounts of custom code it is important to be able to
+have the two live nicely side-by-side. In *ebisu* and *ebisu_cpp* this
+is accomplished with *Protect Blocks* also called *Custom Blocks*. A
+*custom block* is code that exists in generated output that is
+protected because it has been hand coded. Custom blocks are designated
+with special comments, which are labeled with *tags*. Here are some
+examples:
 
-For C++, a custom block with a *tag* of *ClsPublic Change_tracker* designating the class public section (ClsPublic) of class *Change_tracker*:
+For C++, a custom block with a *tag* of *<ClsPublic Change_tracker>*
+designating the class public section of class *Change_tracker*:
 
     template <typename T>
     class Change_tracker {
@@ -28,9 +45,13 @@ For C++, a custom block with a *tag* of *ClsPublic Change_tracker* designating t
       T previous_{};
     };
 
-All code around the *custom block* is generated. Any code within a *Custom Block* is preserved from one run to the next of the code generation. 
+All code around the *custom block* is generated. Any code within a
+*Custom Block* is preserved from one run to the next of the code
+generation.
 
-For *cmake* a custom block with *tag* of *date_time_converter libs* designating additional libraries required for the *date_time_converter* application:
+For *cmake* a custom block with *tag* of *<date_time_converter libs>*
+designating additional libraries required for the
+*date_time_converter* application:
 
     target_link_libraries(date_time_converter
     # custom <date_time_converter libs>
@@ -45,9 +66,11 @@ For *cmake* a custom block with *tag* of *date_time_converter libs* designating 
 
 ### Structural Targets
 
-Specifically, the following are some of the current structural targets for covered by *ebisu_cpp*:
+Specifically, the following are some of the current structural targets
+for covered by *ebisu_cpp*:
 
-* [Enum]: C++ enums, with some support for serialization and different flavors - such as *masks*.
+* [Enum]: C++ enums, with some support for serialization and different
+  flavors - such as *masks*.
 
           Example:
 
@@ -67,7 +90,8 @@ Specifically, the following are some of the current structural targets for cover
   In addition to the basic enum, support is provided for converting
   enum values to and from strings, streaming and mask enums.
   
-* [Class]: The heart of the language. With simple declarations, classes can be generated:
+* [Class]: The heart of the language. With simple declarations,
+  classes can be generated:
 
                   class_('change_tracker')
                   ..descr = '''
@@ -108,7 +132,9 @@ Specifically, the following are some of the current structural targets for cover
             };
 
 
-* [Header]: A single header file, typically with a collection of C++ type things like [includes], enums, classes, forward declarations, using statements
+* [Header]: A single header file, typically with a collection of C++
+  type things like [includes], enums, classes, forward declarations,
+  using statements
 
             Example:
             
@@ -126,9 +152,16 @@ Specifically, the following are some of the current structural targets for cover
 
                 $TOP/fcs/cpp/fcs/raii/change_tracker.hpp
 
-* [Impl]: A single cpp implementation, typically with a collection of C++ type things like includes, enums, classes, forward declarations, using statements
+* [Impl]: A single cpp implementation, typically with a collection of
+  C++ type things like includes, enums, classes, forward declarations,
+  using statements
 
-* [Lib]: C++ libraries. C++ Libarary sometimes has a newer connotation in that there is a concept of *header only* library which implies no library at all. In *ebisu_cpp* [Lib] does not necessarily mean a C++ archive is created. Rather it is a collection of code generated within a *namespace* in a consistent directory structure that may or may not entail the creation of a C++ archive.
+* [Lib]: C++ libraries. C++ Libarary sometimes has a newer connotation
+  in that there is a concept of *header only* library which implies no
+  library at all. In *ebisu_cpp* [Lib] does not necessarily mean a C++
+  archive is created. Rather it is a collection of code generated
+  within a *namespace* in a consistent directory structure that may or
+  may not entail the creation of a C++ archive.
 
         final utils = lib('utils')
           ..namespace = namespace([ 'fcs', 'utils' ])
@@ -203,7 +236,12 @@ Specifically, the following are some of the current structural targets for cover
 
 
 
-* [AppArg]: An application argument that gets translated into *boost::program_option* code. Even when using helpful libraries like *boost::program_options*, there is typically large amounts of boilerplate code. The arguments associated with an application are localized into a single class containing the program options as fields. So for the example application above:
+* [AppArg]: An application argument that gets translated into
+  *boost::program_option* code. Even when using helpful libraries like
+  *boost::program_options*, there is typically large amounts of
+  boilerplate code. The arguments associated with an application are
+  localized into a single class containing the program options as
+  fields. So for the example application above:
 
           struct Program_options {
             Program_options(int argc, char** argv) {...}
@@ -237,14 +275,20 @@ Specifically, the following are some of the current structural targets for cover
 
 * [Test]: A generated test. 
 
-* [Script]: Any large C++ installation will typically require or benefit from some set of scripts.
+* [Script]: Any large C++ installation will typically require or
+  benefit from some set of scripts.
 
-* [Installation]: The *kit and caboodle*. An installation is a collection of *libs*, *apps*, *tests* and *scripts*. When an installation is generated it generates all artifacts, taking care to leave all protect blocks in tact.
+* [Installation]: The *kit and caboodle*. An installation is a
+  collection of *libs*, *apps*, *tests* and *scripts*. When an
+  installation is generated it generates all artifacts, taking care to
+  leave all protect blocks in tact.
 
 
 ### Functional Targets
 
-In most large scale projects there are often those mundane tasks that scream for code generation. Here are some that are covered by *ebisu_cpp*
+In most large scale projects there are often those mundane tasks that
+scream for code generation. Here are some that are covered by
+*ebisu_cpp*
 
 * *Common Operators* Often support for various operators can (and should) be code generated. Assume you have a class that looks something like:
 
@@ -316,16 +360,21 @@ In most large scale projects there are often those mundane tasks that scream for
 
 ## Large Scale Code Generation
 
-Perhaps you want to generate all code, business logic as well as structure. This is a common task when the functionality is very pattern oriented.
+Perhaps you want to generate all code, business logic as well as
+structure. This is a common task when the functionality is very
+pattern oriented.
 
 ### More on Custom Blocks
 
-Typically, the set of *custom blocks* associated with some type of entity are determined up front. For instance, for C++ classes you can specify inclusing of any of the following custom blocks:
+Typically, the set of *custom blocks* associated with some type of
+entity are determined up front. For instance, for C++ classes you can
+specify inclusing of any of the following custom blocks:
 
     class_('foo')
     ..customBlocks = [clsPreDecl, clsPublic, clsProtected, clsPrivate, clsPostDecl]
 
-Similarly for any C++ file, *Header*, *Impl*, or *App* which is an *Impl*, you can choose from:
+Similarly for any C++ file, *Header*, *Impl*, or *App* which is an
+*Impl*, you can choose from:
 
     app('date_time_converter')
     ..namespace = namespace(['fcs'])
@@ -333,28 +382,69 @@ Similarly for any C++ file, *Header*, *Impl*, or *App* which is an *Impl*, you c
       fcbCustomIncludes, fcbPreNamespace, fcbPostNamespace,
       fcbBeginNamespace, fcbEndNamespace ]
 
-Essentially the predefined set of *custom blocks* for an entity comprise the set matching the best guess of the code generation author as to where additional custom code might be required. The name indicates the location, so *fcbCustomIncludes* is a protection block near the top of the file, just below any pre-registered include statements, allowing the C++ developer to throw in new includes as they are developing without regenerating. Similarly, *fcbPreNamespace* is the location just above the namespace declaration containing the meat of the structure and logic. The interesting thing about these locations is that they represent not only where a user might like enter hand written code, they are also the location where a large scale code generation effort might like to programatically include more generated content.
+Essentially the predefined set of *custom blocks* for an entity
+comprise the set matching the best guess of the code generation author
+as to where additional custom code might be required. The name
+indicates the location, so *fcbCustomIncludes* is a protection block
+near the top of the file, just below any pre-registered include
+statements, allowing the C++ developer to throw in new includes as
+they are developing without regenerating. Similarly, *fcbPreNamespace*
+is the location just above the namespace declaration containing the
+meat of the structure and logic. The interesting thing about these
+locations is that they represent not only where a user might like
+enter hand written code, they are also the location where a large
+scale code generation effort might like to programatically include
+more generated content.
+
+For example, suppose you were generating support for a class whose
+members are determined programatically.
+
+    _makeClass(String id, Iterable<Column> columns) {
+      final result = class_(id)
+        ..struct = true
+        ..opEqual
+        ..opLess
+        ..streamable = true
+        ..members = columns.map((c) => _makeMember(c)).toList();
+      result.getCodeBlock(clsPublic).snippets
+          .add(_stringListSupport(result.members));
+      finishClass(result);
+      return result;
+    }
+
+In this example, like the prior examples a class is created with
+*operator==* and *operator<* as well as streaming support,
+*operator<<*. However, here the members are not hand coded but rather
+pulled in from other data, in this case column names from the schema
+of a database of table. Also, note that the *clsPublic* code block
+which before was used for a *Custom Block* is used here to inject
+*snipets* of code.
 
 ## Generated Code Requirements
 
-* *boost* Used for *program_options* to support application arguments. Used for *date_time*, and *thread_local_storage* support when using database orm facilities.
+* *boost* Used for *program_options* to support application
+   arguments. Used for *date_time*, and *thread_local_storage* support
+   when using database orm facilities.
 
 * *cereal* Used for serialization.
 
 ## Philosophies/Goals
 
-* Always support generating code around custom code. Alternatively always provide hooks for custom code to be inserted into generated code.
+* Always support generating code around custom code. Alternatively
+  always provide hooks for custom code to be inserted into generated
+  code.
 
-* Make usage of *ebisu_cpp* simple enough to be used on tasks where hand-coding is still the bulk of the effort, but the option to incorporate code generation is still desired
+* Make usage of *ebisu_cpp* simple enough to be used on tasks where
+  hand-coding is still the bulk of the effort, but the option to
+  incorporate code generation is still desired
 
 * Where possible steer generation towards good practices
 
+    * Encourage consistent naming
     * Encourage good member encapsulation
     * Encourage namespace usage
     * Encourage consistent directory structure/layout
     * Encourage consistent file structure/layout
-
-## Target Applications
 
 ## Why Dart
 
@@ -364,12 +454,45 @@ of facilities that make it perfect for this type of work.
 
 ### Compiled Languages vs Scripting Languages
 
+Scripting languages obviously have an edge in code generation due to
+the ability to rapidly prototype and lack of a build cycle. Compiled
+languages have an advantage that in general due to typing and all else
+equal, if the code compiles it has a better chance of running as
+intended as more errors are taken care of at compile time. With Dart
+you get the best of both approaches. Among the many awsome features of
+Dart, those that most help with code generation include:
+
+* Quick turnaround time as with other scripting langauges
+
+* String interpolation. This is very important and it makes the job
+  much simpler. Without it you would probably want to use a template
+  engine. However, that has a cost since they usually make debugging
+  painful.
+
+* Errors caught by the type system during analysis
+
+* Excellent set of support libraries. Need to read json input, to
+  generate code no problem.
+
+* For those that like to use an IDE, Dart Editor certainly adds value
+  in trying to make use of the libraries to declaritively generate
+  your code. It is nice to be able to use the intellisense to
+  determine *properties* and *methods*.
+
 ### Templates vs Code Functions
 
-
+The choice here is tougher. Template engines can provide a nice set of
+features. However the trouble with them is often they are a pain to
+debug, let alone test. No template engine is used for this code
+generation, so finding and fixing errors involves reading and
+understading Dart as opposed to scanning C++ looking template text for
+the issues. Both can work.
 
 ## Examples
 
+Here are some samples illustrating C++ scripts and corresponding
+generated code:
 
-
+* Dart Source [utils.dart](https://github.com/patefacio/fcs/blob/master/codegen/bin/libs/utils.dart) => C++ Generated [utils C++](https://github.com/patefacio/fcs/tree/master/cpp/fcs/utils)
+* Dart Source [raii.dart](https://github.com/patefacio/fcs/blob/master/codegen/bin/libs/raii.dart) => C++ Generated  [raii C++](https://github.com/patefacio/fcs/tree/master/cpp/fcs/raii)
 

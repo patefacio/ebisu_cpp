@@ -47,9 +47,9 @@ class Installation implements CodeGenerator {
   Map<String, String> get paths => _paths;
   List<Lib> libs = [];
   List<App> apps = [];
+  List<Test> tests = [];
   List<Script> scripts = [];
   List<CodeGenerator> schemaCodeGenerators = [];
-  List<Test> tests = [];
   List<Lib> get generatedLibs => _generatedLibs;
   List<App> get generatedApps => _generatedApps;
   /// List of builders for the installation (bjam, cmake)

@@ -1,4 +1,5 @@
-/// Reads schema and stores tables/column field types
+/// Generates code to support **CRUD** operations on relational database tables.
+///
 library ebisu_cpp.db_schema;
 
 import 'dart:async';

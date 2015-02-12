@@ -29,6 +29,7 @@ void main() {
     ]
     ..libraries = [
       library('db_schema')
+      ..doc = dbSchemaDoc
       ..imports = [
         'dart:io',
         'package:id/id.dart',
@@ -40,7 +41,6 @@ void main() {
         'package:magus/schema.dart',
         'dart:async',
       ]
-      ..doc = 'Reads schema and stores tables/column field types'
       ..parts = [
         part('meta')
         ..classes = [
@@ -1087,9 +1087,6 @@ focus of these utilities is in generating the *structure* of c++ code. This is
 achieved by modeling the C++ language at a relatively high level and selectively
 choosing what parts of the language lend themselves to the approach.
 
- *
-
-
 For sample code that uses this library to generate its structure see:
 [fcs project](https://github.com/patefacio/fcs)
 
@@ -1118,32 +1115,7 @@ acquisition is initialization* idiom.
             member('current')..type = 'T'..access = ro,
             member('previous')..type = 'T'..access = ro,
           ],
-          class_('change_tracker_next_value')
-          ..descr = \'\'\'
-    Uses a ChangeTracker to track current/previous values of a type and
-    ensures that on destruction the previous value becomes the current
-    value and the current value will be assigned the next value.\'\'\'
-          ..template = [ 'typename T' ]
-          ..usings = [ 'Change_tracker_t = Change_tracker< T >' ]
-          ..customBlocks = [clsPublic]
-          ..includeTest = true
-          ..members = [
-            member('tracker')..type = 'Change_tracker_t'
-            ..byRef = true
-            ..refType = ref..access = ro,
-            member('next_value')..type = 'T'..access = ro,
-          ],
-          class_('change_until_end_of_block')
-          ..descr = \'\'\'
-    Stores the current state, changes that state to a new value and on
-    destruction restores the original state.\'\'\'
-          ..template = [ 'typename T' ]
-          ..customBlocks = [clsPublic]
-          ..includeTest = true
-          ..members = [
-            member('target')..type = 'T'..refType = ref..access = ro,
-            member('saved_value')..type = 'T'..access = ro,
-          ],
+          ...
         ],
         header('api_initializer')
         ..test.customBlocks = [ fcbPreNamespace ]
@@ -1162,28 +1134,7 @@ acquisition is initialization* idiom.
           ..members = [
             member('functor')..type = 'Functor_t'..noInit = true..access = ro,
           ],
-          class_('api_initializer_registry')
-          ..descr = \'\'\'
-    For api's that need some form of initialization/uninitialization to be performed.
-    \'\'\'
-          ..customBlocks = [ clsPublic ]
-          ..usings = [
-            'Init_func_t = INIT_FUNC',
-            'Uninit_func_t = UNINIT_FUNC',
-            'Functor_scope_exit_t = Functor_scope_exit< Uninit_func_t >',
-            'Uninit_wrapper_ptr = std::shared_ptr< Functor_scope_exit_t >',
-            'Uninit_list_t = std::list< Uninit_wrapper_ptr >',
-            'Registry_t = std::map< Init_func_t, Uninit_wrapper_ptr >',
-          ]
-          ..isSingleton = true
-          ..template = [
-            'typename INIT_FUNC = Void_func_t',
-            'typename UNINIT_FUNC = Void_func_t',
-          ]
-          ..members = [
-            member('registry')..type = 'Registry_t',
-            member('registry_ordered')..type = 'Uninit_list_t',
-          ],
+          ...
           class_('api_initializer')
           ..usings = [
             'Api_initializer_registry_t = Api_initializer_registry< INIT_FUNC, UNINIT_FUNC >'
@@ -1205,11 +1156,16 @@ acquisition is initialization* idiom.
 
 When that script is run, the following is output:
 
-    No change: /home/dbdavidson/dev/open_source/fcs/cpp/fcs/raii/change_tracker.hpp
-    No change: /home/dbdavidson/dev/open_source/fcs/cpp/fcs/raii/api_initializer.hpp
-    No change: /home/dbdavidson/dev/open_source/fcs/cpp/tests/fcs/raii/test_change_tracker.cpp
-    No change: /home/dbdavidson/dev/open_source/fcs/cpp/tests/fcs/raii/test_api_initializer.cpp
+    No change: \$TOP/fcs/cpp/fcs/raii/change_tracker.hpp
+    No change: \$TOP/fcs/cpp/fcs/raii/api_initializer.hpp
+    No change: \$TOP/fcs/cpp/tests/fcs/raii/test_change_tracker.cpp
+    No change: \$TOP/fcs/cpp/tests/fcs/raii/test_api_initializer.cpp
 
-So that *regenerated* the source files and in this case there were no code changes
-because the code had previously been generated.
+So when the script is run the code is *regenerated* and any changed files will
+be indicated as such. In this case, since the code was previously generated, it
+indicates there were no updates.
+''';
+
+final dbSchemaDoc = '''
+Generates code to support **CRUD** operations on relational database tables.
 ''';
