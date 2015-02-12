@@ -1050,9 +1050,9 @@ Creates builder for an installation (ie ties together all build artifacts)
             member('paths')..type = 'Map<String, String>'..classInit = {}..access = RO,
             member('libs')..type = 'List<Lib>'..classInit = [],
             member('apps')..type = 'List<App>'..classInit = [],
+            member('tests')..type = 'List<Test>'..classInit = [],
             member('scripts')..type = 'List<Script>'..classInit = [],
             member('schema_code_generators')..type = 'List<CodeGenerator>'..classInit = [],
-            member('tests')..type = 'List<Test>'..classInit = [],
             member('generated_libs')..type = 'List<Lib>'..classInit = []..access = RO,
             member('generated_apps')..type = 'List<App>'..classInit = []..access = RO,
             member('builders')
@@ -1076,6 +1076,8 @@ Creates builder for an installation (ie ties together all build artifacts)
   ebisu.generate();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Large doc comment for the cpp library
 final cppLibraryDoc = '''
 Library to facility generation of c++ code.
 
