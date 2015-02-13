@@ -64,6 +64,15 @@ designating additional libraries required for the
     )
 
 
+### Approach to Naming
+
+These code generation utilities ensure consistent naming by requiring
+all potential identifier names to be derived from an identifier
+provided by the user in *snake case*. A utility library *id* with
+class *Id* is used to ensure names are converted from the input *snake
+case* to whatever case is deemed appropriate. The naming conventions
+are guaranteed consistent and currently baked into the cake.
+
 ### Structural Targets
 
 Specifically, the following are some of the current structural targets
@@ -368,7 +377,7 @@ pattern oriented.
 
 Typically, the set of *custom blocks* associated with some type of
 entity are determined up front. For instance, for C++ classes you can
-specify inclusing of any of the following custom blocks:
+specify inclusion of any of the following custom blocks:
 
     class_('foo')
     ..customBlocks = [clsPreDecl, clsPublic, clsProtected, clsPrivate, clsPostDecl]
