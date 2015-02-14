@@ -569,14 +569,38 @@ class Class extends Entity {
     return decls.length > 0 ? ' :\n' + indentBlock(_baseDecls.join(',\n')) : '';
   }
 
+
+  /// Get the specified [ClassCodeBlock] and if not present creates a
+  /// fresh one.
+  ///
+  /// [CodeBlock] allows for injection of code at a location indicated
+  /// by the [ClassCodeBlock] argument. For example:
+  ///
+  ///    class_('c')
+  ///    ..getCodeBlock(clsPublic).snippets.add('// foo')
+  ///    ..definition
+  ///
+  /// generates something like:
+  ///
+  ///    class C
+  ///    {
+  ///    public:
+  ///      // foo
+  ///    };
+  ///
   CodeBlock getCodeBlock(ClassCodeBlock cb) {
     var result = _codeBlocks[cb];
     return (result == null) ? (_codeBlocks[cb] = codeBlock()) : result;
   }
 
+  /// Adds a member constructor that provides for initialization of
+  /// all members
+  ///
+  /// Used by [immutable].
   addFullMemberCtor() =>
       memberCtors.add(memberCtor(members.map((m) => m.name).toList()));
 
+  /// Returns a string representation of the class definition
   String get definition {
     if (_definition == null) {
       if (immutable) {
@@ -718,6 +742,7 @@ ${_access(access)}${txt}'''
 
   String get className => id.capSnake;
 
+  /// Returns the *operator<<* method for this class
   get outStreamer => combine([
     '''
 friend inline
@@ -779,14 +804,23 @@ Template _makeTemplate(Object t) => t is Iterable
     ? new Template(t)
     : t is String ? new Template([t]) : t as Template;
 
+/// Convenience returning empty [DefaultCtor]
 defaultCtor() => new DefaultCtor();
+/// Convenience returning empty [CopyCtor]
 copyCtor() => new CopyCtor();
+/// Convenience returning empty [MoveCtor]
 moveCtor() => new MoveCtor();
+/// Convenience returning empty [AssignCopy]
 assignCopy() => new AssignCopy();
+/// Convenience returning empty [AssignMove]
 assignMove() => new AssignMove();
+/// Convenience returning empty [Dtor]
 dtor() => new Dtor();
+/// Convenience returning empty [OpEqual]
 opEqual() => new OpEqual();
+/// Convenience returning empty [OpLess]
 opLess() => new OpLess();
+/// Convenience returning empty [OpOut]
 opOut() => new OpOut();
 
 /// Create a MemberCtor sans new, for more declarative construction

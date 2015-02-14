@@ -755,7 +755,16 @@ Base classes this class derives form.
             ..doc = 'If true adds test function to tests of the header it belongs to'
             ..classInit = false,
             member('immutable')
-            ..doc = 'If true makes members const provides single ctor'
+            ..doc = '''
+If true makes all members const provides single member ctor
+initializing all.
+
+There are a few options to achieve *immutable* support. The first is
+this type, where all fields are constant and therefore must be
+initialized. An alternative concept is immutable from perspective of
+user. This can be achieved with use of [addFullMemberCtor] and the
+developer ensuring the members are not modified. This provides a
+stronger guarantee of immutability.'''
             ..classInit = false,
             member('serializers')
             ..doc = 'List of processors supporting flavors of serialization'

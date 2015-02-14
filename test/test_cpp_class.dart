@@ -235,10 +235,84 @@ $tricky
     l.generate();
   });
 
+  group('access code blocks', () {
+    /// Accessing code blocks does not autocreate
+    [ clsPublic, clsPrivate, clsProtected, clsPreDecl, clsPostDecl ]
+      .forEach((ClassCodeBlock ccb) {
+        test('getting $ccb', () {
+          final c1 = class_('c_1');
+          // Initially there should be no code blocks
+          expect(c1.codeBlocks, {});
+          final codeBlock = c1.getCodeBlock(ccb);
+          expect(c1.codeBlocks, { ccb:codeBlock });
+          // Getting the codeblock multiple times should return the same object
+          expect(c1.getCodeBlock(ccb), codeBlock);
+        });
+      });
+
+  });
+
+  group('templatized class', () {
+    test('from string', () {
+      final c1 = class_('c_1')..template = ['typename T'];
+      expect(darkMatter(c1.definition), darkMatter('''
+template< typename T >
+class C_1
+{};
+'''));
+    });
+
+    test('from multiple strings', () {
+      final c1 = class_('c_1')
+        ..template = ['typename T','typename FUNCTOR = Void_func_t'];
+      expect(darkMatter(c1.definition), darkMatter('''
+template< typename T, typename FUNCTOR = Void_func_t >
+class C_1
+{};
+'''));
+
+    });
+  });
+
+  group('add full member constructor', () {
+    test('one member', () {
+      final c1 = class_('c_1')
+        ..members = [ member('a')..init = 1 ]
+        ..addFullMemberCtor();
+      expect(darkMatter(c1.definition), darkMatter('''
+class C_1
+{
+public:
+  C_1(int a) : a_{ a } {}
+
+private:
+  int a_ { 1 };
+};
+'''));
+    });
+
+    test('two member', () {
+      final c1 = class_('c_1')
+        ..members = [ member('a')..init = 1, member('b')..init = 2 ]
+        ..addFullMemberCtor();
+      expect(darkMatter(c1.definition), darkMatter('''
+class C_1
+{
+public:
+  C_1(int a, int b) : a_{ a }, b_{ b } { }
+
+private:
+  int a_ { 1 };
+  int b_ { 2 };
+};
+'''));
+    });
+
+  });
+
   group('c++ singleton', () {
     test('access to single instance added', () {
       final c1 = class_('c_1')..isSingleton = true;
-      print(c1.definition);
       expect(darkMatter(c1.definition), darkMatter('''
 class C_1
 {
