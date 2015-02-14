@@ -106,7 +106,7 @@ void main() {
           ..isAbstract = true
           ..members = [
             member('installation')..type = 'Installation',
-            member('schema_code_generator')..type = 'CodeGenerator',
+            member('schema_code_generator')..type = 'SchemaCodeGenerator',
             member('table_details')..type = 'TableDetails'..access = IA,
             member('key_class')..type = 'Class',
             member('value_class')..type = 'Class',

@@ -77,7 +77,7 @@ class TableDetails {
 
 abstract class TableGatewayGenerator {
   Installation installation;
-  CodeGenerator schemaCodeGenerator;
+  SchemaCodeGenerator schemaCodeGenerator;
   Class keyClass;
   Class valueClass;
   // custom <class TableGatewayGenerator>

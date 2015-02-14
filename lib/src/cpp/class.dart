@@ -339,7 +339,7 @@ class MemberCtor extends ClassMethod {
       ? memberCtorParm(parm)
       : (parm is MemberCtorParm)
           ? parm
-          : (throw Exception('''
+          : (throw new Exception('''
 MemberCtor ctor requires list of parms where each parm is a *String* naming the
 member being initialized or a MemberCtorParm instance'''));
 
@@ -542,7 +542,7 @@ class Class extends Entity {
       bases.where((b) => b.access == protected);
   Iterable<Base> get basesPrivate => bases.where((b) => b.access == private);
 
-  CodeBlock withCustomBlock(ClassCodeBlock cb, void f(CodeBlock)) =>
+  void withCustomBlock(ClassCodeBlock cb, void f(CodeBlock)) =>
       f(getCodeBlock(cb));
 
   set template(Object t) => _template = _makeTemplate(t);

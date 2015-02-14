@@ -72,10 +72,10 @@ class AppArg extends Entity {
   set defaultValue(Object defaultValue) {
     type = defaultValue is String
         ? ArgType.STRING
-        : defaultValue is double
-            ? ArgType.DOUBLE
-            : defaultValue is int
-                ? ArgType.INT
+        : defaultValue is int
+            ? ArgType.INT
+            : defaultValue is double
+                ? ArgType.DOUBLE
                 : defaultValue is bool ? ArgType.FLAG : null;
 
     _defaultValue = defaultValue;
@@ -182,7 +182,7 @@ class App extends Impl with InstallationContainer implements CodeGenerator {
   /// additional [headers] and [impls]. As with other facitilities, should only
   /// update files if there are real changes.
   generate() {
-    if (namespace == null) throw Exception('App $id requires a namespace');
+    if (namespace == null) throw new Exception('App $id requires a namespace');
     if (!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {
       args.insert(0, new AppArg(new Id('help'))
         ..shortName = 'h'
