@@ -235,10 +235,31 @@ $tricky
     l.generate();
   });
 
+  group('usses type query', () {
+    final c1 = class_('c_1')
+      ..members = [ member('a')..type = 'int' ];
+    expect(c1.usesType('std::string'), false);
+    expect(c1.usesType('int'), true);
+  });
+
+  group('immutable', () {
+    final c1 = class_('c_1')
+      ..immutable = true
+      ..members = [ member('a')..type = 'int' ];
+    final definition = darkMatter(c1.definition);
+    test('makes member const', () =>
+        expect(definition.contains(darkMatter('int const a_')), true));
+    test('provides member init all members', () =>
+        expect(definition.contains(
+                darkMatter('C_1(int a) : a_ { a } {}')), true));
+
+  });
+
   group('access code blocks', () {
     /// Accessing code blocks does not autocreate
     [ clsPublic, clsPrivate, clsProtected, clsPreDecl, clsPostDecl ]
       .forEach((ClassCodeBlock ccb) {
+
         test('getting $ccb', () {
           final c1 = class_('c_1');
           // Initially there should be no code blocks
@@ -248,8 +269,18 @@ $tricky
           // Getting the codeblock multiple times should return the same object
           expect(c1.getCodeBlock(ccb), codeBlock);
         });
-      });
 
+        test('with custom block', () {
+          final fooMethod = 'void foo() { std::cout << "Foo"; }';
+          final c1 = class_('c_1');
+          c1.withCustomBlock(ccb, (CodeBlock cb) {
+            cb.snippets.add(fooMethod);
+          });
+          expect(darkMatter(c1.definition)
+              .contains(darkMatter(fooMethod)), true);
+        });
+
+      });
   });
 
   group('templatized class', () {
