@@ -498,34 +498,43 @@ class Class extends Entity {
   DefaultCtor get defaultCtor =>
       _defaultCtor = _defaultCtor == null ? new DefaultCtor() : _defaultCtor;
   withDefaultCtor(void f(DefaultCtor)) => f(defaultCtor);
+  bool get hasDefaultCtor => _defaultCtor != null;
 
   CopyCtor get copyCtor =>
       _copyCtor = _copyCtor == null ? new CopyCtor() : _copyCtor;
   withCopyCtor(void f(CopyCtor)) => f(copyCtor);
+  bool get hasCopyCtor => _copyCtor != null;
 
   MoveCtor get moveCtor =>
       _moveCtor = _moveCtor == null ? new MoveCtor() : _moveCtor;
   withMoveCtor(void f(MoveCtor)) => f(moveCtor);
+  bool get hasMoveCtor => _moveCtor != null;
 
   AssignCopy get assignCopy =>
       _assignCopy = _assignCopy == null ? new AssignCopy() : _assignCopy;
   withAssignCopy(void f(AssignCopy)) => f(assignCopy);
+  bool get hasAssignCopy => _assignCopy != null;
 
   AssignMove get assignMove =>
       _assignMove = _assignMove == null ? new AssignMove() : _assignMove;
   withAssignMove(void f(AssignMove)) => f(assignMove);
+  bool get hasAssignMove => _assignMove != null;
 
   Dtor get dtor => _dtor = _dtor == null ? new Dtor() : _dtor;
   withDtor(void f(Dtor)) => f(dtor);
+  bool get hasDtor => _dtor != null;
 
   OpEqual get opEqual => _opEqual = _opEqual == null ? new OpEqual() : _opEqual;
   withOpEqual(void f(OpEqual)) => f(opEqual);
+  bool get hasOpEqual => _opEqual != null;
 
   OpLess get opLess => _opLess = _opLess == null ? new OpLess() : _opLess;
   withOpLess(void f(OpLess)) => f(opLess);
+  bool get hasOpLess => _opLess != null;
 
   OpOut get opOut => _opOut = _opOut == null ? new OpOut() : _opOut;
   withOpOut(void f(OpOut)) => f(opOut);
+  bool get hasOpOut => _opOut != null;
 
   set defaultCtor(DefaultCtor defaultCtor) => _defaultCtor = defaultCtor;
   set copyCtor(CopyCtor copyCtor) => _copyCtor = copyCtor;

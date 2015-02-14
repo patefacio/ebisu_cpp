@@ -234,6 +234,121 @@ $tricky
 
     l.generate();
   });
+
+  group('c++ singleton', () {
+    test('access to single instance added', () {
+      final c1 = class_('c_1')..isSingleton = true;
+      print(c1.definition);
+      expect(darkMatter(c1.definition), darkMatter('''
+class C_1
+{
+public:
+  static C_1 & instance() {
+    static C_1 instance_s;
+    return instance_s;
+  }
+
+private:
+  C_1() {}
+};
+'''));
+    });
+  });
+
+  group('auto-create methods', () {
+
+    /// Here is an example showing how the defaultCtor is auto-initialized and
+    /// when initialized provides access to mutation of access
+    test('defaultCtor auto create', () {
+      final c1 = class_('c_1');
+      expect(c1.hasDefaultCtor, false);
+      c1.defaultCtor;
+      expect(c1.hasDefaultCtor, true);
+      c1.defaultCtor.cppAccess = private;
+      expect(c1.defaultCtor.cppAccess, private);
+    });
+
+
+    /// The following does similar tests on all such methods
+    final hasMethods = {
+      'defaultCtor' : (cls) => cls.hasDefaultCtor,
+      'copyCtor' : (cls) => cls.hasCopyCtor,
+      'moveCtor' : (cls) => cls.hasMoveCtor,
+      'assignCopy' : (cls) => cls.hasAssignCopy,
+      'assignMove' : (cls) => cls.hasAssignMove,
+      'dtor' : (cls) => cls.hasDtor,
+      'opEqual' : (cls) => cls.hasOpEqual,
+      'opLess' : (cls) => cls.hasOpLess,
+      'opOut' : (cls) => cls.hasOpOut,
+    };
+
+    final withMethods = {
+      'defaultCtor' : (cls) => cls.withDefaultCtor,
+      'copyCtor' : (cls) => cls.withCopyCtor,
+      'moveCtor' : (cls) => cls.withMoveCtor,
+      'assignCopy' : (cls) => cls.withAssignCopy,
+      'assignMove' : (cls) => cls.withAssignMove,
+      'dtor' : (cls) => cls.withDtor,
+      'opEqual' : (cls) => cls.withOpEqual,
+      'opLess' : (cls) => cls.withOpLess,
+      'opOut' : (cls) => cls.withOpOut,
+    };
+
+    final autoInits = {
+      'defaultCtor' : (cls) => cls.defaultCtor,
+      'copyCtor' : (cls) => cls.copyCtor,
+      'moveCtor' : (cls) => cls.moveCtor,
+      'assignCopy' : (cls) => cls.assignCopy,
+      'assignMove' : (cls) => cls.assignMove,
+      'dtor' : (cls) => cls.dtor,
+      'opEqual' : (cls) => cls.opEqual,
+      'opLess' : (cls) => cls.opLess,
+      'opOut' : (cls) => cls.opOut,
+    };
+
+    final newEmpties = {
+      'defaultCtor' : (cls) => cls.defaultCtor = defaultCtor(),
+      'copyCtor' : (cls) => cls.copyCtor = copyCtor(),
+      'moveCtor' : (cls) => cls.moveCtor = moveCtor(),
+      'assignCopy' : (cls) => cls.assignCopy = assignCopy(),
+      'assignMove' : (cls) => cls.assignMove = assignMove(),
+      'dtor' : (cls) => cls.dtor = dtor(),
+      'opEqual' : (cls) => cls.opEqual = opEqual(),
+      'opLess' : (cls) => cls.opLess = opLess(),
+      'opOut' : (cls) => cls.opOut = opOut(),
+    };
+
+    [ 'defaultCtor', 'copyCtor', 'moveCtor', 'assignCopy', 'assignMove',
+      'dtor', 'opEqual', 'opLess', 'opOut' ]
+      .forEach((String method) {
+        test('by default $method does not exist', () {
+          final c1 = class_('c_1');
+          expect(hasMethods[method](c1), false);
+        });
+        test('call to accessor $method creates method', () {
+          final c1 = class_('c_1');
+          autoInits[method](c1);
+          expect(hasMethods[method](c1), true);
+        });
+        test('can be set manually', () {
+          final c1 = class_('c_1');
+          expect(hasMethods[method](c1), false);
+          newEmpties[method](c1);
+          expect(hasMethods[method](c1), true);
+        });
+        [ public, protected, private ]
+          .forEach((CppAccess access) {
+            test('call to with$method allows set to $access', () {
+              final c1 = class_('c_1');
+              withMethods[method](c1)((ClassMethod m) => m.cppAccess = access);
+              expect(hasMethods[method](c1), true);
+              expect(autoInits[method](c1).cppAccess, access);
+            });
+          });
+      });
+
+  });
+
 // end <main>
 
 }
