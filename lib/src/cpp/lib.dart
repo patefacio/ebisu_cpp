@@ -8,10 +8,19 @@ enum FileCodeBlock {
   fcbBeginNamespace,
   fcbEndNamespace
 }
+/// Convenient access to FileCodeBlock.fcbCustomIncludes with *fcbCustomIncludes* see [FileCodeBlock]
 const fcbCustomIncludes = FileCodeBlock.fcbCustomIncludes;
+
+/// Convenient access to FileCodeBlock.fcbPreNamespace with *fcbPreNamespace* see [FileCodeBlock]
 const fcbPreNamespace = FileCodeBlock.fcbPreNamespace;
+
+/// Convenient access to FileCodeBlock.fcbPostNamespace with *fcbPostNamespace* see [FileCodeBlock]
 const fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
+
+/// Convenient access to FileCodeBlock.fcbBeginNamespace with *fcbBeginNamespace* see [FileCodeBlock]
 const fcbBeginNamespace = FileCodeBlock.fcbBeginNamespace;
+
+/// Convenient access to FileCodeBlock.fcbEndNamespace with *fcbEndNamespace* see [FileCodeBlock]
 const fcbEndNamespace = FileCodeBlock.fcbEndNamespace;
 
 /// A c++ library

@@ -1,5 +1,48 @@
 part of ebisu_cpp.cpp;
 
+/// The various supported code blocks associated with a C++ class. The
+/// name indicates where in the class it appears. Within the class
+/// definition the order is *public*, *protected* then
+/// *private*. Additional locations for just before the class and just
+/// after the class.
+///
+/// So, the following spec:
+///
+///         (class_('c')
+///             ..customBlocks = [
+///               clsPreDecl,
+///               clsPublic,
+///               clsProtected,
+///               clsPrivate,
+///               clsPostDecl
+///             ])
+///         .definition
+///
+///
+/// Gives the following content:
+///
+///     // custom <ClsPreDecl C>
+///     // end <ClsPreDecl C>
+///
+///     class C
+///     {
+///     public:
+///       // custom <ClsPublic C>
+///       // end <ClsPublic C>
+///
+///     protected:
+///       // custom <ClsProtected C>
+///       // end <ClsProtected C>
+///
+///     private:
+///       // custom <ClsPrivate C>
+///       // end <ClsPrivate C>
+///
+///     };
+///
+///     // custom <ClsPostDecl C>
+///     // end <ClsPostDecl C>
+///
 enum ClassCodeBlock {
   clsPublic,
   clsProtected,
@@ -7,10 +50,19 @@ enum ClassCodeBlock {
   clsPreDecl,
   clsPostDecl
 }
+/// Convenient access to ClassCodeBlock.clsPublic with *clsPublic* see [ClassCodeBlock]
 const clsPublic = ClassCodeBlock.clsPublic;
+
+/// Convenient access to ClassCodeBlock.clsProtected with *clsProtected* see [ClassCodeBlock]
 const clsProtected = ClassCodeBlock.clsProtected;
+
+/// Convenient access to ClassCodeBlock.clsPrivate with *clsPrivate* see [ClassCodeBlock]
 const clsPrivate = ClassCodeBlock.clsPrivate;
+
+/// Convenient access to ClassCodeBlock.clsPreDecl with *clsPreDecl* see [ClassCodeBlock]
 const clsPreDecl = ClassCodeBlock.clsPreDecl;
+
+/// Convenient access to ClassCodeBlock.clsPostDecl with *clsPostDecl* see [ClassCodeBlock]
 const clsPostDecl = ClassCodeBlock.clsPostDecl;
 
 abstract class ClassMethod {
@@ -484,7 +536,15 @@ class Class extends Entity {
   bool usesStreamers = false;
   /// If true adds test function to tests of the header it belongs to
   bool includeTest = false;
-  /// If true makes members const provides single ctor
+  /// If true makes all members const provides single member ctor
+  /// initializing all.
+  ///
+  /// There are a few options to achieve *immutable* support. The first is
+  /// this type, where all fields are constant and therefore must be
+  /// initialized. An alternative concept is immutable from perspective of
+  /// user. This can be achieved with use of [addFullMemberCtor] and the
+  /// developer ensuring the members are not modified. This provides a
+  /// stronger guarantee of immutability.
   bool immutable = false;
   /// List of processors supporting flavors of serialization
   List<Serializer> serializers = [];
@@ -568,7 +628,6 @@ class Class extends Entity {
     final decls = _baseDecls;
     return decls.length > 0 ? ' :\n' + indentBlock(_baseDecls.join(',\n')) : '';
   }
-
 
   /// Get the specified [ClassCodeBlock] and if not present creates a
   /// fresh one.

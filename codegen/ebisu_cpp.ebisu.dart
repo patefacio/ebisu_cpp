@@ -17,7 +17,7 @@ void main() {
     ..includeHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.2'
+    ..pubSpec.version = '0.0.3'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -247,23 +247,48 @@ This designation is used in multiple contexts such as:
 '''
         ..libraryScopedValues = true
         ..values = [
-          id('public'), id('private'), id('protected'),
+          enumValue(id('public'))
+          ..doc = 'C++ public designation',
+          enumValue(id('protected'))
+          ..doc = 'C++ protected designation',
+          enumValue(id('private'))
+          ..doc = 'C++ private designation',
         ],
         enum_('ref_type')
         ..doc = 'Reference type'
         ..libraryScopedValues = true
         ..values = [
-          id('ref'), id('cref'), id('vref'), id('cvref'), id('value'),
+          enumValue(id('ref'))
+          ..doc = 'Indicates a reference to type: *T &*',
+          enumValue(id('cref'))
+          ..doc = 'Indicates a const reference to type: *T const&*',
+          enumValue(id('vref'))
+          ..doc = 'Indicates a volatile reference to type: *T volatile&*',
+          enumValue(id('cvref'))
+          ..doc = 'Indicates a const volatile reference to type: *T const volatile&*',
+          enumValue(id('value'))
+          ..doc = 'Indicates not a reference'
         ],
         enum_('ptr_type')
         ..doc = 'Standard pointer type declaration'
         ..libraryScopedValues = true
         ..values = [
-          id('sptr'), id('uptr'), id('scptr'), id('ucptr'),
+          enumValue(id('sptr'))
+          ..doc = 'Indicates *std::shared_ptr< T >*',
+          enumValue(id('uptr'))
+          ..doc = 'Indicates *std::unique_ptr< T >*',
+          enumValue(id('scptr'))
+          ..doc = 'Indicates *std::shared_ptr< const T >*',
+          enumValue(id('ucptr'))
+          ..doc = 'Indicates *std::unique_ptr< const T >*',
         ],
       ]
       ..classes = [
         class_('entity')
+        ..doc = '''
+Exposes common elements for named entities, including their [id] and
+documentation
+'''
         ..members = [
           member('id')
           ..doc = 'Id for the entity'
@@ -274,6 +299,9 @@ This designation is used in multiple contexts such as:
           ..doc = 'Description of entity',
         ],
         class_('template')
+        ..doc = '''
+Represents a template declaration comprized of a list of [decls]
+'''
         ..members = [
           member('decls')..type = 'List<String>',
         ],
@@ -282,8 +310,8 @@ This designation is used in multiple contexts such as:
         part('utils')
         ..classes = [
           class_('const_expr')
-          ..extend = 'Entity'
           ..doc = 'Simple variable constexprs'
+          ..extend = 'Entity'
           ..members = [
             member('type'),
             member('value')..access = RO,
@@ -465,6 +493,50 @@ initialize it''',
         part('class')
         ..enums = [
           enum_('class_code_block')
+          ..doc = '''
+The various supported code blocks associated with a C++ class. The
+name indicates where in the class it appears. Within the class
+definition the order is *public*, *protected* then
+*private*. Additional locations for just before the class and just
+after the class.
+
+So, the following spec:
+
+        (class_('c')
+            ..customBlocks = [
+              clsPreDecl,
+              clsPublic,
+              clsProtected,
+              clsPrivate,
+              clsPostDecl
+            ])
+        .definition
+
+
+Gives the following content:
+
+    // custom <ClsPreDecl C>
+    // end <ClsPreDecl C>
+
+    class C
+    {
+    public:
+      // custom <ClsPublic C>
+      // end <ClsPublic C>
+
+    protected:
+      // custom <ClsProtected C>
+      // end <ClsProtected C>
+
+    private:
+      // custom <ClsPrivate C>
+      // end <ClsPrivate C>
+
+    };
+
+    // custom <ClsPostDecl C>
+    // end <ClsPostDecl C>
+'''
           ..libraryScopedValues = true
           ..values = [
             id('cls_public'),

@@ -236,8 +236,7 @@ $tricky
   });
 
   group('usses type query', () {
-    final c1 = class_('c_1')
-      ..members = [ member('a')..type = 'int' ];
+    final c1 = class_('c_1')..members = [member('a')..type = 'int'];
     expect(c1.usesType('std::string'), false);
     expect(c1.usesType('int'), true);
   });
@@ -245,42 +244,42 @@ $tricky
   group('immutable', () {
     final c1 = class_('c_1')
       ..immutable = true
-      ..members = [ member('a')..type = 'int' ];
+      ..members = [member('a')..type = 'int'];
     final definition = darkMatter(c1.definition);
-    test('makes member const', () =>
-        expect(definition.contains(darkMatter('int const a_')), true));
-    test('provides member init all members', () =>
-        expect(definition.contains(
-                darkMatter('C_1(int a) : a_ { a } {}')), true));
-
+    test('makes member const',
+        () => expect(definition.contains(darkMatter('int const a_')), true));
+    test('provides member init all members', () => expect(
+        definition.contains(darkMatter('C_1(int a) : a_ { a } {}')), true));
   });
 
   group('access code blocks', () {
     /// Accessing code blocks does not autocreate
-    [ clsPublic, clsPrivate, clsProtected, clsPreDecl, clsPostDecl ]
-      .forEach((ClassCodeBlock ccb) {
-
-        test('getting $ccb', () {
-          final c1 = class_('c_1');
-          // Initially there should be no code blocks
-          expect(c1.codeBlocks, {});
-          final codeBlock = c1.getCodeBlock(ccb);
-          expect(c1.codeBlocks, { ccb:codeBlock });
-          // Getting the codeblock multiple times should return the same object
-          expect(c1.getCodeBlock(ccb), codeBlock);
-        });
-
-        test('with custom block', () {
-          final fooMethod = 'void foo() { std::cout << "Foo"; }';
-          final c1 = class_('c_1');
-          c1.withCustomBlock(ccb, (CodeBlock cb) {
-            cb.snippets.add(fooMethod);
-          });
-          expect(darkMatter(c1.definition)
-              .contains(darkMatter(fooMethod)), true);
-        });
-
+    [
+      clsPublic,
+      clsPrivate,
+      clsProtected,
+      clsPreDecl,
+      clsPostDecl
+    ].forEach((ClassCodeBlock ccb) {
+      test('getting $ccb', () {
+        final c1 = class_('c_1');
+        // Initially there should be no code blocks
+        expect(c1.codeBlocks, {});
+        final codeBlock = c1.getCodeBlock(ccb);
+        expect(c1.codeBlocks, {ccb: codeBlock});
+        // Getting the codeblock multiple times should return the same object
+        expect(c1.getCodeBlock(ccb), codeBlock);
       });
+
+      test('with custom block', () {
+        final fooMethod = 'void foo() { std::cout << "Foo"; }';
+        final c1 = class_('c_1');
+        c1.withCustomBlock(ccb, (CodeBlock cb) {
+          cb.snippets.add(fooMethod);
+        });
+        expect(darkMatter(c1.definition).contains(darkMatter(fooMethod)), true);
+      });
+    });
   });
 
   group('templatized class', () {
@@ -295,20 +294,19 @@ class C_1
 
     test('from multiple strings', () {
       final c1 = class_('c_1')
-        ..template = ['typename T','typename FUNCTOR = Void_func_t'];
+        ..template = ['typename T', 'typename FUNCTOR = Void_func_t'];
       expect(darkMatter(c1.definition), darkMatter('''
 template< typename T, typename FUNCTOR = Void_func_t >
 class C_1
 {};
 '''));
-
     });
   });
 
   group('add full member constructor', () {
     test('one member', () {
       final c1 = class_('c_1')
-        ..members = [ member('a')..init = 1 ]
+        ..members = [member('a')..init = 1]
         ..addFullMemberCtor();
       expect(darkMatter(c1.definition), darkMatter('''
 class C_1
@@ -324,7 +322,7 @@ private:
 
     test('two member', () {
       final c1 = class_('c_1')
-        ..members = [ member('a')..init = 1, member('b')..init = 2 ]
+        ..members = [member('a')..init = 1, member('b')..init = 2]
         ..addFullMemberCtor();
       expect(darkMatter(c1.definition), darkMatter('''
 class C_1
@@ -338,7 +336,6 @@ private:
 };
 '''));
     });
-
   });
 
   group('c++ singleton', () {
@@ -373,85 +370,90 @@ private:
       expect(c1.defaultCtor.cppAccess, private);
     });
 
-
     /// The following does similar tests on all such methods
     final hasMethods = {
-      'defaultCtor' : (cls) => cls.hasDefaultCtor,
-      'copyCtor' : (cls) => cls.hasCopyCtor,
-      'moveCtor' : (cls) => cls.hasMoveCtor,
-      'assignCopy' : (cls) => cls.hasAssignCopy,
-      'assignMove' : (cls) => cls.hasAssignMove,
-      'dtor' : (cls) => cls.hasDtor,
-      'opEqual' : (cls) => cls.hasOpEqual,
-      'opLess' : (cls) => cls.hasOpLess,
-      'opOut' : (cls) => cls.hasOpOut,
+      'defaultCtor': (cls) => cls.hasDefaultCtor,
+      'copyCtor': (cls) => cls.hasCopyCtor,
+      'moveCtor': (cls) => cls.hasMoveCtor,
+      'assignCopy': (cls) => cls.hasAssignCopy,
+      'assignMove': (cls) => cls.hasAssignMove,
+      'dtor': (cls) => cls.hasDtor,
+      'opEqual': (cls) => cls.hasOpEqual,
+      'opLess': (cls) => cls.hasOpLess,
+      'opOut': (cls) => cls.hasOpOut,
     };
 
     final withMethods = {
-      'defaultCtor' : (cls) => cls.withDefaultCtor,
-      'copyCtor' : (cls) => cls.withCopyCtor,
-      'moveCtor' : (cls) => cls.withMoveCtor,
-      'assignCopy' : (cls) => cls.withAssignCopy,
-      'assignMove' : (cls) => cls.withAssignMove,
-      'dtor' : (cls) => cls.withDtor,
-      'opEqual' : (cls) => cls.withOpEqual,
-      'opLess' : (cls) => cls.withOpLess,
-      'opOut' : (cls) => cls.withOpOut,
+      'defaultCtor': (cls) => cls.withDefaultCtor,
+      'copyCtor': (cls) => cls.withCopyCtor,
+      'moveCtor': (cls) => cls.withMoveCtor,
+      'assignCopy': (cls) => cls.withAssignCopy,
+      'assignMove': (cls) => cls.withAssignMove,
+      'dtor': (cls) => cls.withDtor,
+      'opEqual': (cls) => cls.withOpEqual,
+      'opLess': (cls) => cls.withOpLess,
+      'opOut': (cls) => cls.withOpOut,
     };
 
     final autoInits = {
-      'defaultCtor' : (cls) => cls.defaultCtor,
-      'copyCtor' : (cls) => cls.copyCtor,
-      'moveCtor' : (cls) => cls.moveCtor,
-      'assignCopy' : (cls) => cls.assignCopy,
-      'assignMove' : (cls) => cls.assignMove,
-      'dtor' : (cls) => cls.dtor,
-      'opEqual' : (cls) => cls.opEqual,
-      'opLess' : (cls) => cls.opLess,
-      'opOut' : (cls) => cls.opOut,
+      'defaultCtor': (cls) => cls.defaultCtor,
+      'copyCtor': (cls) => cls.copyCtor,
+      'moveCtor': (cls) => cls.moveCtor,
+      'assignCopy': (cls) => cls.assignCopy,
+      'assignMove': (cls) => cls.assignMove,
+      'dtor': (cls) => cls.dtor,
+      'opEqual': (cls) => cls.opEqual,
+      'opLess': (cls) => cls.opLess,
+      'opOut': (cls) => cls.opOut,
     };
 
     final newEmpties = {
-      'defaultCtor' : (cls) => cls.defaultCtor = defaultCtor(),
-      'copyCtor' : (cls) => cls.copyCtor = copyCtor(),
-      'moveCtor' : (cls) => cls.moveCtor = moveCtor(),
-      'assignCopy' : (cls) => cls.assignCopy = assignCopy(),
-      'assignMove' : (cls) => cls.assignMove = assignMove(),
-      'dtor' : (cls) => cls.dtor = dtor(),
-      'opEqual' : (cls) => cls.opEqual = opEqual(),
-      'opLess' : (cls) => cls.opLess = opLess(),
-      'opOut' : (cls) => cls.opOut = opOut(),
+      'defaultCtor': (cls) => cls.defaultCtor = defaultCtor(),
+      'copyCtor': (cls) => cls.copyCtor = copyCtor(),
+      'moveCtor': (cls) => cls.moveCtor = moveCtor(),
+      'assignCopy': (cls) => cls.assignCopy = assignCopy(),
+      'assignMove': (cls) => cls.assignMove = assignMove(),
+      'dtor': (cls) => cls.dtor = dtor(),
+      'opEqual': (cls) => cls.opEqual = opEqual(),
+      'opLess': (cls) => cls.opLess = opLess(),
+      'opOut': (cls) => cls.opOut = opOut(),
     };
 
-    [ 'defaultCtor', 'copyCtor', 'moveCtor', 'assignCopy', 'assignMove',
-      'dtor', 'opEqual', 'opLess', 'opOut' ]
-      .forEach((String method) {
-        test('by default $method does not exist', () {
-          final c1 = class_('c_1');
-          expect(hasMethods[method](c1), false);
-        });
-        test('call to accessor $method creates method', () {
-          final c1 = class_('c_1');
-          autoInits[method](c1);
-          expect(hasMethods[method](c1), true);
-        });
-        test('can be set manually', () {
-          final c1 = class_('c_1');
-          expect(hasMethods[method](c1), false);
-          newEmpties[method](c1);
-          expect(hasMethods[method](c1), true);
-        });
-        [ public, protected, private ]
-          .forEach((CppAccess access) {
-            test('call to with$method allows set to $access', () {
-              final c1 = class_('c_1');
-              withMethods[method](c1)((ClassMethod m) => m.cppAccess = access);
-              expect(hasMethods[method](c1), true);
-              expect(autoInits[method](c1).cppAccess, access);
-            });
-          });
+    [
+      'defaultCtor',
+      'copyCtor',
+      'moveCtor',
+      'assignCopy',
+      'assignMove',
+      'dtor',
+      'opEqual',
+      'opLess',
+      'opOut'
+    ].forEach((String method) {
+      test('by default $method does not exist', () {
+        final c1 = class_('c_1');
+        expect(hasMethods[method](c1), false);
       });
-
+      test('call to accessor $method creates method', () {
+        final c1 = class_('c_1');
+        autoInits[method](c1);
+        expect(hasMethods[method](c1), true);
+      });
+      test('can be set manually', () {
+        final c1 = class_('c_1');
+        expect(hasMethods[method](c1), false);
+        newEmpties[method](c1);
+        expect(hasMethods[method](c1), true);
+      });
+      [public, protected, private].forEach((CppAccess access) {
+        test('call to with$method allows set to $access', () {
+          final c1 = class_('c_1');
+          withMethods[method](c1)((ClassMethod m) => m.cppAccess = access);
+          expect(hasMethods[method](c1), true);
+          expect(autoInits[method](c1).cppAccess, access);
+        });
+      });
+    });
   });
 
 // end <main>
