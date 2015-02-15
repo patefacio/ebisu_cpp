@@ -1,27 +1,91 @@
 part of ebisu_cpp.cpp;
 
-/// Set of pre-canned blocks where custom or generated code can be placed
+/// Set of pre-canned blocks where custom or generated code can be placed.
+/// The various supported code blocks associated with a C++ file. The
+/// name indicates where in the file it appears.
+///
+/// So, the following spec:
+///
+///     final h = header('foo')
+///       ..includes = [ 'iostream' ]
+///       ..namespace = namespace(['foo'])
+///       ..customBlocks = [
+///         fcbCustomIncludes,
+///         fcbPreNamespace,
+///         fcbBeginNamespace,
+///         fcbEndNamespace,
+///         fcbPostNamespace,
+///       ];
+///     print(h.contents);
+///
+/// prints:
+///
+///     #ifndef __FOO_FOO_HPP__
+///     #define __FOO_FOO_HPP__
+///
+///     #include <iostream>
+///
+///     // custom <FcbCustomIncludes foo>
+///     // end <FcbCustomIncludes foo>
+///
+///     // custom <FcbPreNamespace foo>
+///     // end <FcbPreNamespace foo>
+///
+///     namespace foo {
+///       // custom <FcbBeginNamespace foo>
+///       // end <FcbBeginNamespace foo>
+///
+///       // custom <FcbEndNamespace foo>
+///       // end <FcbEndNamespace foo>
+///
+///     } // namespace foo
+///     // custom <FcbPostNamespace foo>
+///     // end <FcbPostNamespace foo>
+///
+///     #endif // __FOO_FOO_HPP__
+///
+///
 enum FileCodeBlock {
+  /// Custom block for any additional includes appearing just after generated includes
   fcbCustomIncludes,
+  /// Custom block appearing just before the namespace declaration in the code
   fcbPreNamespace,
-  fcbPostNamespace,
+  /// Custom block appearing at the begining of and inside the namespace
   fcbBeginNamespace,
-  fcbEndNamespace
+  /// Custom block appearing at the end of and inside the namespace
+  fcbEndNamespace,
+  /// Custom block appearing just after the namespace declaration in the code
+  fcbPostNamespace
 }
-/// Convenient access to FileCodeBlock.fcbCustomIncludes with *fcbCustomIncludes* see [FileCodeBlock]
-const fcbCustomIncludes = FileCodeBlock.fcbCustomIncludes;
+/// Convenient access to FileCodeBlock.fcbCustomIncludes with *fcbCustomIncludes* see [FileCodeBlock].
+///
+/// Custom block for any additional includes appearing just after generated includes
+///
+const FileCodeBlock fcbCustomIncludes = FileCodeBlock.fcbCustomIncludes;
 
-/// Convenient access to FileCodeBlock.fcbPreNamespace with *fcbPreNamespace* see [FileCodeBlock]
-const fcbPreNamespace = FileCodeBlock.fcbPreNamespace;
+/// Convenient access to FileCodeBlock.fcbPreNamespace with *fcbPreNamespace* see [FileCodeBlock].
+///
+/// Custom block appearing just before the namespace declaration in the code
+///
+const FileCodeBlock fcbPreNamespace = FileCodeBlock.fcbPreNamespace;
 
-/// Convenient access to FileCodeBlock.fcbPostNamespace with *fcbPostNamespace* see [FileCodeBlock]
-const fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
+/// Convenient access to FileCodeBlock.fcbBeginNamespace with *fcbBeginNamespace* see [FileCodeBlock].
+///
+/// Custom block appearing at the begining of and inside the namespace
+///
+const FileCodeBlock fcbBeginNamespace = FileCodeBlock.fcbBeginNamespace;
 
-/// Convenient access to FileCodeBlock.fcbBeginNamespace with *fcbBeginNamespace* see [FileCodeBlock]
-const fcbBeginNamespace = FileCodeBlock.fcbBeginNamespace;
+/// Convenient access to FileCodeBlock.fcbEndNamespace with *fcbEndNamespace* see [FileCodeBlock].
+///
+/// Custom block appearing at the end of and inside the namespace
+///
+const FileCodeBlock fcbEndNamespace = FileCodeBlock.fcbEndNamespace;
 
-/// Convenient access to FileCodeBlock.fcbEndNamespace with *fcbEndNamespace* see [FileCodeBlock]
-const fcbEndNamespace = FileCodeBlock.fcbEndNamespace;
+/// Convenient access to FileCodeBlock.fcbPostNamespace with *fcbPostNamespace* see [FileCodeBlock].
+///
+/// Custom block appearing just after the namespace declaration in the code
+///
+const FileCodeBlock fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
 
 /// A c++ library
 class Lib extends Entity with InstallationContainer implements CodeGenerator {

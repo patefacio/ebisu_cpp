@@ -229,7 +229,17 @@ accessors, set *cppAccess* to *public* andd set *access* to null.
 '''
         ..libraryScopedValues = true
         ..values = [
-          id('ia'), id('ro'), id('rw'), id('wo'),
+          enumValue(id('ia'))
+          ..doc = '**Inaccessible**. Designates a member that is *private* by default and no accessors',
+          enumValue(id('ro'))
+          ..doc = '**Read-Only**. Designates a member tht is *private* by default and a read accessor',
+          enumValue(id('rw'))
+          ..doc = '**Read-Write**. Designates a member tht is *private* by default and both read and write accessors',
+          enumValue(id('wo'))
+          ..doc = '''
+**Write-Only**. Designates a member tht is *private* by default and
+write accessor only.  Useful if you want the standard write accessor
+but a custom reader.''',
         ],
         enum_('cpp_access')
         ..doc = '''
@@ -350,7 +360,39 @@ Represents a template declaration comprized of a list of [decls]
             member('has_snippets_first')..classInit = false,
           ],
           class_('base')
-          ..doc = 'Base class'
+          ..doc = '''
+A base class of another class.
+
+
+The style of inheritance is determined by [virtual] and [access]. Examples:
+
+Default is *not* virtual and [public] inheritance:
+
+    class_('derived')
+    ..bases = [
+      base('Base')
+    ];
+
+gives:
+
+    class Derived : public Base {};
+
+With overrides:
+
+    class_('derived')
+    ..bases = [
+      base('Base')
+      ..virtual = true
+      ..access = protected
+    ];
+
+Gives:
+
+    class Derived :
+      protected virtual Base
+    {
+    };
+'''
           ..ctorSansNew = true
           ..members = [
             member('class_name')..ctors = [''],
@@ -450,7 +492,146 @@ Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
         part('member')
         ..classes = [
           class_('member')
-          ..doc = 'A member or field included in a class'
+          ..doc = '''
+A member or field included in a class.
+
+## Basics
+
+Members are typed (i.e. have [type]) and optionally initialized.
+
+For example:
+
+    member('widget')..type = 'Widget'..init = 'Widget()'
+
+gives:
+
+    Widget widget_ { Widget() };
+
+For some C++ types (*double*, *int*, *std::string*, *bool*) the type
+can be inferred if a suitable [init] is provided:
+
+Examples:
+
+    member('number')..init = 4
+    member('pi')..init = 3.14
+    member('default_tag')..init = 'empty'
+    member('is_strong')..init = false
+
+give respectively:
+
+    int number_ { 4 };
+    double pi_ { 3.14 };
+    std::string default_tag_ { "empty" };
+    bool is_strong_ { false };
+
+## Encapsulation
+
+Encapsulation can be achieved by setting [access] and/or
+[cppAccess]. Setting [access] is the preferred approach since it
+provides a consistent, sensible pattern for hiding and accessing
+members (See [Access]).
+
+*Read-Only* Example:
+
+    (class_('c')
+        ..members = [
+          member('readable')..init = 'foo'..access = ro
+        ])
+    .definition
+
+Gives:
+
+    class C
+    {
+    public:
+      //! getter for readable_ (access is Ro)
+      std::string const& readable() const { return readable_; }
+    private:
+      std::string readable_ { "foo" };
+    };
+
+
+*Inaccessible* Example:
+
+    (class_('c')
+        ..members = [
+          member('inaccessible')..init = 'foo'..access = ia
+        ])
+    .definition
+
+Gives:
+
+    class C
+    {
+    private:
+      std::string inaccessible_ { "foo" };
+    };
+
+*Read-Write* Example:
+
+    (class_('c')
+      ..members = [
+        member('read_write')..init = 'foo'..access = rw
+      ])
+    .definition
+
+Gives:
+
+    class C
+    {
+    public:
+      //! getter for read_write_ (access is Rw)
+      std::string const& read_write() const { return read_write_; }
+      //! setter for read_write_ (access is Access.rw)
+      void read_write(std::string & read_write) { read_write_ = read_write; }
+    private:
+      std::string read_write_ { "foo" };
+    };
+
+
+Note that read-write keeps the member *private* by default and allows
+access through methods. However, complete control over C++ access of
+members can be obtained with [cppAccess]. Here are two such examples:
+
+No accessors, just C++ public:
+
+    (class_('c')
+      ..members = [
+        member('full_control')..init = 'foo'..cppAccess = public
+      ])
+    .definition
+
+Gives:
+
+    class C
+    {
+    public:
+      std::string full_control { "foo" };
+    };
+
+Finally, using both [access] and [cppAccess] for more control:
+
+    (class_('c')
+      ..members = [
+        member('more_control')..init = 'foo'..access = ro..cppAccess = protected
+      ])
+    .definition
+
+
+Gives:
+
+    class C
+    {
+    public:
+      //! getter for more_control_ (access is Ro)
+      std::string const& more_control() const { return more_control_; }
+    protected:
+      std::string more_control_ { "foo" };
+    };
+
+
+
+'''
           ..extend = 'Entity'
           ..members = [
             member('type')..doc = 'Type of member',
@@ -539,11 +720,16 @@ Gives the following content:
 '''
           ..libraryScopedValues = true
           ..values = [
-            id('cls_public'),
-            id('cls_protected'),
-            id('cls_private'),
-            id('cls_pre_decl'),
-            id('cls_post_decl'),
+            enumValue(id('cls_public'))
+            ..doc = 'The custom block appearing in the standard *public* section',
+            enumValue(id('cls_protected'))
+            ..doc = 'The custom block appearing in the standard *protected* section',
+            enumValue(id('cls_private'))
+            ..doc = 'The custom block appearing in the standard *private* section',
+            enumValue(id('cls_pre_decl'))
+            ..doc = 'The custom block appearing just before the class definition',
+            enumValue(id('cls_post_decl'))
+            ..doc = 'The custom block appearing just after the class definition',
           ],
         ]
         ..classes = [
@@ -762,6 +948,43 @@ custom block. In that case the class might look like:
           ..doc = 'Provides *operator<<()*'
           ..extend = 'ClassMethod',
           class_('class')
+          ..doc = '''
+A C++ class.
+
+Classes optionally have these items:
+
+* A [template]
+* A collection of [bases]
+* A collection of [members]
+* A collection of class local [usings]
+* A collection of class local [enums]
+* A collection of class local [forward_ptrs] which are like [usings] but standardized for pointer type
+* A collection of *optionally included* standard methods including:
+
+  * Constructors including:
+
+    * [CopyCtor]
+    * [MoveCtor]
+    * [DefaultCtor]
+    * Zero or more member initializing ctors [MemberCtor]
+
+  * Assignment functions:
+
+    * [AssignCopy]
+    * [AssignMove]
+
+  * [Dtor]
+
+  * Standard Utility Methods
+
+    * [OpEqual]
+    * [OpLess]
+    * [OpOut] - Support for streaming fields
+
+* A fixed collection of indexed [codeBlocks] that can be used for
+  providing *CustomBlocks* and/or for dynamically injecting code - see
+  [CodeBlock].
+'''
           ..extend = 'Entity'
           ..members = [
             member('definition')
@@ -903,14 +1126,64 @@ If true marks this header as special to the set of headers in its library in tha
         part('lib')
         ..enums = [
           enum_('file_code_block')
-          ..doc = 'Set of pre-canned blocks where custom or generated code can be placed'
+          ..doc = '''
+Set of pre-canned blocks where custom or generated code can be placed.
+The various supported code blocks associated with a C++ file. The
+name indicates where in the file it appears.
+
+So, the following spec:
+
+    final h = header('foo')
+      ..includes = [ 'iostream' ]
+      ..namespace = namespace(['foo'])
+      ..customBlocks = [
+        fcbCustomIncludes,
+        fcbPreNamespace,
+        fcbBeginNamespace,
+        fcbEndNamespace,
+        fcbPostNamespace,
+      ];
+    print(h.contents);
+
+prints:
+
+    #ifndef __FOO_FOO_HPP__
+    #define __FOO_FOO_HPP__
+
+    #include <iostream>
+
+    // custom <FcbCustomIncludes foo>
+    // end <FcbCustomIncludes foo>
+
+    // custom <FcbPreNamespace foo>
+    // end <FcbPreNamespace foo>
+
+    namespace foo {
+      // custom <FcbBeginNamespace foo>
+      // end <FcbBeginNamespace foo>
+
+      // custom <FcbEndNamespace foo>
+      // end <FcbEndNamespace foo>
+
+    } // namespace foo
+    // custom <FcbPostNamespace foo>
+    // end <FcbPostNamespace foo>
+
+    #endif // __FOO_FOO_HPP__
+
+'''
           ..libraryScopedValues = true
           ..values = [
-            id('fcb_custom_includes'),
-            id('fcb_pre_namespace'),
-            id('fcb_post_namespace'),
-            id('fcb_begin_namespace'),
-            id('fcb_end_namespace'),
+            enumValue(id('fcb_custom_includes'))
+            ..doc = 'Custom block for any additional includes appearing just after generated includes',
+            enumValue(id('fcb_pre_namespace'))
+            ..doc = 'Custom block appearing just before the namespace declaration in the code',
+            enumValue(id('fcb_begin_namespace'))
+            ..doc = 'Custom block appearing at the begining of and inside the namespace',
+            enumValue(id('fcb_end_namespace'))
+            ..doc = 'Custom block appearing at the end of and inside the namespace',
+            enumValue(id('fcb_post_namespace'))
+            ..doc = 'Custom block appearing just after the namespace declaration in the code',
           ]
         ]
         ..classes = [
@@ -928,13 +1201,19 @@ If true marks this header as special to the set of headers in its library in tha
         part('app')
         ..enums = [
           enum_('arg_type')
-          ..doc = 'Set of argument types supported by command line option processing'
+          ..doc = '''
+Set of argument types supported by command line option processing.
+'''
           ..requiresClass = true
           ..values = [
-            id('int'),
-            id('double'),
-            id('string'),
-            id('flag'),
+            enumValue(id('int'))
+            ..doc = 'The command line arg is an integer',
+            enumValue(id('double'))
+            ..doc = 'The command line arg is a double',
+            enumValue(id('string'))
+            ..doc = 'The command line arg is a string',
+            enumValue(id('flag'))
+            ..doc = 'The command line arg is a flag - i.e. a boolean',
           ]
         ]
         ..classes = [
@@ -1162,7 +1441,7 @@ Creates builder for an installation (ie ties together all build artifacts)
 ////////////////////////////////////////////////////////////////////////////////
 // Large doc comment for the cpp library
 final cppLibraryDoc = '''
-Library to facility generation of c++ code.
+Library to facilate generation of c++ code.
 
 The intent is to get as declarative as possible with the specification of C++
 entities to make code generation as simple and fun as possible. The primary

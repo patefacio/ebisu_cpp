@@ -44,26 +44,46 @@ part of ebisu_cpp.cpp;
 ///     // end <ClsPostDecl C>
 ///
 enum ClassCodeBlock {
+  /// The custom block appearing in the standard *public* section
   clsPublic,
+  /// The custom block appearing in the standard *protected* section
   clsProtected,
+  /// The custom block appearing in the standard *private* section
   clsPrivate,
+  /// The custom block appearing just before the class definition
   clsPreDecl,
+  /// The custom block appearing just after the class definition
   clsPostDecl
 }
-/// Convenient access to ClassCodeBlock.clsPublic with *clsPublic* see [ClassCodeBlock]
-const clsPublic = ClassCodeBlock.clsPublic;
+/// Convenient access to ClassCodeBlock.clsPublic with *clsPublic* see [ClassCodeBlock].
+///
+/// The custom block appearing in the standard *public* section
+///
+const ClassCodeBlock clsPublic = ClassCodeBlock.clsPublic;
 
-/// Convenient access to ClassCodeBlock.clsProtected with *clsProtected* see [ClassCodeBlock]
-const clsProtected = ClassCodeBlock.clsProtected;
+/// Convenient access to ClassCodeBlock.clsProtected with *clsProtected* see [ClassCodeBlock].
+///
+/// The custom block appearing in the standard *protected* section
+///
+const ClassCodeBlock clsProtected = ClassCodeBlock.clsProtected;
 
-/// Convenient access to ClassCodeBlock.clsPrivate with *clsPrivate* see [ClassCodeBlock]
-const clsPrivate = ClassCodeBlock.clsPrivate;
+/// Convenient access to ClassCodeBlock.clsPrivate with *clsPrivate* see [ClassCodeBlock].
+///
+/// The custom block appearing in the standard *private* section
+///
+const ClassCodeBlock clsPrivate = ClassCodeBlock.clsPrivate;
 
-/// Convenient access to ClassCodeBlock.clsPreDecl with *clsPreDecl* see [ClassCodeBlock]
-const clsPreDecl = ClassCodeBlock.clsPreDecl;
+/// Convenient access to ClassCodeBlock.clsPreDecl with *clsPreDecl* see [ClassCodeBlock].
+///
+/// The custom block appearing just before the class definition
+///
+const ClassCodeBlock clsPreDecl = ClassCodeBlock.clsPreDecl;
 
-/// Convenient access to ClassCodeBlock.clsPostDecl with *clsPostDecl* see [ClassCodeBlock]
-const clsPostDecl = ClassCodeBlock.clsPostDecl;
+/// Convenient access to ClassCodeBlock.clsPostDecl with *clsPostDecl* see [ClassCodeBlock].
+///
+/// The custom block appearing just after the class definition
+///
+const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
 
 abstract class ClassMethod {
   Class get parent => _parent;
@@ -504,6 +524,42 @@ combine(members.map((m) =>
   // end <class OpOut>
 }
 
+/// A C++ class.
+///
+/// Classes optionally have these items:
+///
+/// * A [template]
+/// * A collection of [bases]
+/// * A collection of [members]
+/// * A collection of class local [usings]
+/// * A collection of class local [enums]
+/// * A collection of class local [forward_ptrs] which are like [usings] but standardized for pointer type
+/// * A collection of *optionally included* standard methods including:
+///
+///   * Constructors including:
+///
+///     * [CopyCtor]
+///     * [MoveCtor]
+///     * [DefaultCtor]
+///     * Zero or more member initializing ctors [MemberCtor]
+///
+///   * Assignment functions:
+///
+///     * [AssignCopy]
+///     * [AssignMove]
+///
+///   * [Dtor]
+///
+///   * Standard Utility Methods
+///
+///     * [OpEqual]
+///     * [OpLess]
+///     * [OpOut] - Support for streaming fields
+///
+/// * A fixed collection of indexed [codeBlocks] that can be used for
+///   providing *CustomBlocks* and/or for dynamically injecting code - see
+///   [CodeBlock].
+///
 class Class extends Entity {
   /// Is this definition a *struct*
   bool struct = false;
@@ -554,44 +610,52 @@ class Class extends Entity {
 
   String get classStyle => struct ? 'struct' : 'class';
 
-  //! Accessing auto-initilizes
+  /// Auto-initializing accessor for the [DefaultCtor]
   DefaultCtor get defaultCtor =>
       _defaultCtor = _defaultCtor == null ? new DefaultCtor() : _defaultCtor;
   withDefaultCtor(void f(DefaultCtor)) => f(defaultCtor);
   bool get hasDefaultCtor => _defaultCtor != null;
 
+  /// Auto-initializing accessor for the [CopyCtor]
   CopyCtor get copyCtor =>
       _copyCtor = _copyCtor == null ? new CopyCtor() : _copyCtor;
   withCopyCtor(void f(CopyCtor)) => f(copyCtor);
   bool get hasCopyCtor => _copyCtor != null;
 
+  /// Auto-initializing accessor for the [MoveCtor]
   MoveCtor get moveCtor =>
       _moveCtor = _moveCtor == null ? new MoveCtor() : _moveCtor;
   withMoveCtor(void f(MoveCtor)) => f(moveCtor);
   bool get hasMoveCtor => _moveCtor != null;
 
+  /// Auto-initializing accessor for the [AssignCopy]
   AssignCopy get assignCopy =>
       _assignCopy = _assignCopy == null ? new AssignCopy() : _assignCopy;
   withAssignCopy(void f(AssignCopy)) => f(assignCopy);
   bool get hasAssignCopy => _assignCopy != null;
 
+  /// Auto-initializing accessor for the [AssignMove]
   AssignMove get assignMove =>
       _assignMove = _assignMove == null ? new AssignMove() : _assignMove;
   withAssignMove(void f(AssignMove)) => f(assignMove);
   bool get hasAssignMove => _assignMove != null;
 
+  /// Auto-initializing accessor for the [Dtor]
   Dtor get dtor => _dtor = _dtor == null ? new Dtor() : _dtor;
   withDtor(void f(Dtor)) => f(dtor);
   bool get hasDtor => _dtor != null;
 
+  /// Auto-initializing accessor for the [OpEqual]
   OpEqual get opEqual => _opEqual = _opEqual == null ? new OpEqual() : _opEqual;
   withOpEqual(void f(OpEqual)) => f(opEqual);
   bool get hasOpEqual => _opEqual != null;
 
+  /// Auto-initializing accessor for the [OpLess]
   OpLess get opLess => _opLess = _opLess == null ? new OpLess() : _opLess;
   withOpLess(void f(OpLess)) => f(opLess);
   bool get hasOpLess => _opLess != null;
 
+  /// Auto-initializing accessor for the [OpOut]
   OpOut get opOut => _opOut = _opOut == null ? new OpOut() : _opOut;
   withOpOut(void f(OpOut)) => f(opOut);
   bool get hasOpOut => _opOut != null;
@@ -618,16 +682,6 @@ class Class extends Entity {
 
   usesType(String type) => members.any((m) => m.type == type);
   get typesReferenced => members.map((m) => m.type);
-
-  List<String> get _baseDecls => []
-    ..addAll(basesPublic.map((b) => b.decl))
-    ..addAll(basesProtected.map((b) => b.decl))
-    ..addAll(basesPrivate.map((b) => b.decl));
-
-  String get _baseDecl {
-    final decls = _baseDecls;
-    return decls.length > 0 ? ' :\n' + indentBlock(_baseDecls.join(',\n')) : '';
-  }
 
   /// Get the specified [ClassCodeBlock] and if not present creates a
   /// fresh one.
@@ -694,12 +748,25 @@ class Class extends Entity {
     return _definition;
   }
 
+  /// Members defined in the [public] section
   Iterable<Member> get publicMembers =>
       members.where((m) => m.cppAccess == public);
+  /// Members defined in the [protected] section
   Iterable<Member> get protectedMembers =>
       members.where((m) => m.cppAccess == protected);
+  /// Members defined in the [private] section
   Iterable<Member> get privateMembers =>
       members.where((m) => m.cppAccess == private);
+
+  List<String> get _baseDecls => []
+    ..addAll(basesPublic.map((b) => b.decl))
+    ..addAll(basesProtected.map((b) => b.decl))
+    ..addAll(basesPrivate.map((b) => b.decl));
+
+  String get _baseDecl {
+    final decls = _baseDecls;
+    return decls.length > 0 ? ' :\n' + indentBlock(_baseDecls.join(',\n')) : '';
+  }
 
   get _ctorMethods => [_defaultCtor, _copyCtor, _moveCtor];
 
@@ -799,7 +866,20 @@ ${_access(access)}${txt}'''
 
   _memberDefinition(Member m) => '$m';
 
+  /// Class names are capitalized *snake case*
   String get className => id.capSnake;
+
+  String get _streamInstanceOpener =>
+      'out << "${className}(" << &item << ") {";';
+  String get _streamInstanceCloser => r'out << "\n}\n";';
+
+  String _streamBase(Base b) => 'out << static_cast<${b.className}>(item);';
+  get _streamBases =>
+      bases.where((b) => b.streamable).map((b) => _streamBase(b));
+
+  String _streamMember(Member m) =>
+      'out << "\\n  ${m.name}: " << item.${m.vname};';
+  get _streamMembers => members.map((m) => _streamMember(m));
 
   /// Returns the *operator<<* method for this class
   get outStreamer => combine([
@@ -808,13 +888,14 @@ friend inline
 std::ostream& operator<<(std::ostream& out,
                          $className const& item) {''',
     usesStreamers ? '  using fcs::utils::streamers::operator<<;' : null,
-    '''
-  ${
-members.map((m) => "out << '\\n' << ${quote(m.name + ':')} << item.${m.vname}").join(';\n  ')
-};
-  return out;
-}
-'''
+    indentBlock(chomp(br([
+      _streamBases,
+      _streamInstanceOpener,
+      _streamMembers,
+      _streamInstanceCloser,
+      'return out;',
+    ]))),
+    '}'
   ]);
 
   get _classOpener => '''
@@ -853,34 +934,36 @@ $classStyle $className$_baseDecl
 }
 // custom <part class>
 
-// CppClass
-// class_(Object id) =>
-//   new CppClass(id is Id? id : new Id(id));
-
+/// Convenience fucnction for creating a [Class]
+///
+/// All classes must be named with an [Id]. This method accepts an [Id] or
+/// creates one. Creation of [Id] requires a string in *snake case*
 Class class_(Object id) => new Class(id is Id ? id : new Id(id));
 
+/// Create a template from (1) a single string (2) [Iterable] of arguments for
+/// construction
 Template _makeTemplate(Object t) => t is Iterable
     ? new Template(t)
     : t is String ? new Template([t]) : t as Template;
 
 /// Convenience returning empty [DefaultCtor]
-defaultCtor() => new DefaultCtor();
+DefaultCtor defaultCtor() => new DefaultCtor();
 /// Convenience returning empty [CopyCtor]
-copyCtor() => new CopyCtor();
+CopyCtor copyCtor() => new CopyCtor();
 /// Convenience returning empty [MoveCtor]
-moveCtor() => new MoveCtor();
+MoveCtor moveCtor() => new MoveCtor();
 /// Convenience returning empty [AssignCopy]
-assignCopy() => new AssignCopy();
+AssignCopy assignCopy() => new AssignCopy();
 /// Convenience returning empty [AssignMove]
-assignMove() => new AssignMove();
+AssignMove assignMove() => new AssignMove();
 /// Convenience returning empty [Dtor]
-dtor() => new Dtor();
+Dtor dtor() => new Dtor();
 /// Convenience returning empty [OpEqual]
-opEqual() => new OpEqual();
+OpEqual opEqual() => new OpEqual();
 /// Convenience returning empty [OpLess]
-opLess() => new OpLess();
+OpLess opLess() => new OpLess();
 /// Convenience returning empty [OpOut]
-opOut() => new OpOut();
+OpOut opOut() => new OpOut();
 
 /// Create a MemberCtor sans new, for more declarative construction
 MemberCtor memberCtor([List memberParms, List<String> decls]) => new MemberCtor(

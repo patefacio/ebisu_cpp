@@ -1,6 +1,144 @@
 part of ebisu_cpp.cpp;
 
-/// A member or field included in a class
+/// A member or field included in a class.
+///
+/// ## Basics
+///
+/// Members are typed (i.e. have [type]) and optionally initialized.
+///
+/// For example:
+///
+///     member('widget')..type = 'Widget'..init = 'Widget()'
+///
+/// gives:
+///
+///     Widget widget_ { Widget() };
+///
+/// For some C++ types (*double*, *int*, *std::string*, *bool*) the type
+/// can be inferred if a suitable [init] is provided:
+///
+/// Examples:
+///
+///     member('number')..init = 4
+///     member('pi')..init = 3.14
+///     member('default_tag')..init = 'empty'
+///     member('is_strong')..init = false
+///
+/// give respectively:
+///
+///     int number_ { 4 };
+///     double pi_ { 3.14 };
+///     std::string default_tag_ { "empty" };
+///     bool is_strong_ { false };
+///
+/// ## Encapsulation
+///
+/// Encapsulation can be achieved by setting [access] and/or
+/// [cppAccess]. Setting [access] is the preferred approach since it
+/// provides a consistent, sensible pattern for hiding and accessing
+/// members (See [Access]).
+///
+/// *Read-Only* Example:
+///
+///     (class_('c')
+///         ..members = [
+///           member('readable')..init = 'foo'..access = ro
+///         ])
+///     .definition
+///
+/// Gives:
+///
+///     class C
+///     {
+///     public:
+///       //! getter for readable_ (access is Ro)
+///       std::string const& readable() const { return readable_; }
+///     private:
+///       std::string readable_ { "foo" };
+///     };
+///
+///
+/// *Inaccessible* Example:
+///
+///     (class_('c')
+///         ..members = [
+///           member('inaccessible')..init = 'foo'..access = ia
+///         ])
+///     .definition
+///
+/// Gives:
+///
+///     class C
+///     {
+///     private:
+///       std::string inaccessible_ { "foo" };
+///     };
+///
+/// *Read-Write* Example:
+///
+///     (class_('c')
+///       ..members = [
+///         member('read_write')..init = 'foo'..access = rw
+///       ])
+///     .definition
+///
+/// Gives:
+///
+///     class C
+///     {
+///     public:
+///       //! getter for read_write_ (access is Rw)
+///       std::string const& read_write() const { return read_write_; }
+///       //! setter for read_write_ (access is Access.rw)
+///       void read_write(std::string & read_write) { read_write_ = read_write; }
+///     private:
+///       std::string read_write_ { "foo" };
+///     };
+///
+///
+/// Note that read-write keeps the member *private* by default and allows
+/// access through methods. However, complete control over C++ access of
+/// members can be obtained with [cppAccess]. Here are two such examples:
+///
+/// No accessors, just C++ public:
+///
+///     (class_('c')
+///       ..members = [
+///         member('full_control')..init = 'foo'..cppAccess = public
+///       ])
+///     .definition
+///
+/// Gives:
+///
+///     class C
+///     {
+///     public:
+///       std::string full_control { "foo" };
+///     };
+///
+/// Finally, using both [access] and [cppAccess] for more control:
+///
+///     (class_('c')
+///       ..members = [
+///         member('more_control')..init = 'foo'..access = ro..cppAccess = protected
+///       ])
+///     .definition
+///
+///
+/// Gives:
+///
+///     class C
+///     {
+///     public:
+///       //! getter for more_control_ (access is Ro)
+///       std::string const& more_control() const { return more_control_; }
+///     protected:
+///       std::string more_control_ { "foo" };
+///     };
+///
+///
+///
+///
 class Member extends Entity {
   /// Type of member
   String type;

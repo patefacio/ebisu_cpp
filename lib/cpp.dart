@@ -1,4 +1,4 @@
-/// Library to facility generation of c++ code.
+/// Library to facilate generation of c++ code.
 ///
 /// The intent is to get as declarative as possible with the specification of C++
 /// entities to make code generation as simple and fun as possible. The primary
@@ -164,22 +164,42 @@ final _logger = new Logger('cpp');
 ///     };
 ///
 enum Access {
+  /// **Inaccessible**. Designates a member that is *private* by default and no accessors
   ia,
+  /// **Read-Only**. Designates a member tht is *private* by default and a read accessor
   ro,
+  /// **Read-Write**. Designates a member tht is *private* by default and both read and write accessors
   rw,
+  /// **Write-Only**. Designates a member tht is *private* by default and
+  /// write accessor only.  Useful if you want the standard write accessor
+  /// but a custom reader.
   wo
 }
-/// Convenient access to Access.ia with *ia* see [Access]
-const ia = Access.ia;
+/// Convenient access to Access.ia with *ia* see [Access].
+///
+/// **Inaccessible**. Designates a member that is *private* by default and no accessors
+///
+const Access ia = Access.ia;
 
-/// Convenient access to Access.ro with *ro* see [Access]
-const ro = Access.ro;
+/// Convenient access to Access.ro with *ro* see [Access].
+///
+/// **Read-Only**. Designates a member tht is *private* by default and a read accessor
+///
+const Access ro = Access.ro;
 
-/// Convenient access to Access.rw with *rw* see [Access]
-const rw = Access.rw;
+/// Convenient access to Access.rw with *rw* see [Access].
+///
+/// **Read-Write**. Designates a member tht is *private* by default and both read and write accessors
+///
+const Access rw = Access.rw;
 
-/// Convenient access to Access.wo with *wo* see [Access]
-const wo = Access.wo;
+/// Convenient access to Access.wo with *wo* see [Access].
+///
+/// **Write-Only**. Designates a member tht is *private* by default and
+/// write accessor only.  Useful if you want the standard write accessor
+/// but a custom reader.
+///
+const Access wo = Access.wo;
 
 /// Cpp access designations:
 ///
@@ -201,14 +221,23 @@ enum CppAccess {
   /// C++ private designation
   private
 }
-/// Convenient access to CppAccess.public with *public* see [CppAccess]
-const public = CppAccess.public;
+/// Convenient access to CppAccess.public with *public* see [CppAccess].
+///
+/// C++ public designation
+///
+const CppAccess public = CppAccess.public;
 
-/// Convenient access to CppAccess.protected with *protected* see [CppAccess]
-const protected = CppAccess.protected;
+/// Convenient access to CppAccess.protected with *protected* see [CppAccess].
+///
+/// C++ protected designation
+///
+const CppAccess protected = CppAccess.protected;
 
-/// Convenient access to CppAccess.private with *private* see [CppAccess]
-const private = CppAccess.private;
+/// Convenient access to CppAccess.private with *private* see [CppAccess].
+///
+/// C++ private designation
+///
+const CppAccess private = CppAccess.private;
 
 /// Reference type
 enum RefType {
@@ -223,20 +252,35 @@ enum RefType {
   /// Indicates not a reference
   value
 }
-/// Convenient access to RefType.ref with *ref* see [RefType]
-const ref = RefType.ref;
+/// Convenient access to RefType.ref with *ref* see [RefType].
+///
+/// Indicates a reference to type: *T &*
+///
+const RefType ref = RefType.ref;
 
-/// Convenient access to RefType.cref with *cref* see [RefType]
-const cref = RefType.cref;
+/// Convenient access to RefType.cref with *cref* see [RefType].
+///
+/// Indicates a const reference to type: *T const&*
+///
+const RefType cref = RefType.cref;
 
-/// Convenient access to RefType.vref with *vref* see [RefType]
-const vref = RefType.vref;
+/// Convenient access to RefType.vref with *vref* see [RefType].
+///
+/// Indicates a volatile reference to type: *T volatile&*
+///
+const RefType vref = RefType.vref;
 
-/// Convenient access to RefType.cvref with *cvref* see [RefType]
-const cvref = RefType.cvref;
+/// Convenient access to RefType.cvref with *cvref* see [RefType].
+///
+/// Indicates a const volatile reference to type: *T const volatile&*
+///
+const RefType cvref = RefType.cvref;
 
-/// Convenient access to RefType.value with *value* see [RefType]
-const value = RefType.value;
+/// Convenient access to RefType.value with *value* see [RefType].
+///
+/// Indicates not a reference
+///
+const RefType value = RefType.value;
 
 /// Standard pointer type declaration
 enum PtrType {
@@ -249,17 +293,29 @@ enum PtrType {
   /// Indicates *std::unique_ptr< const T >*
   ucptr
 }
-/// Convenient access to PtrType.sptr with *sptr* see [PtrType]
-const sptr = PtrType.sptr;
+/// Convenient access to PtrType.sptr with *sptr* see [PtrType].
+///
+/// Indicates *std::shared_ptr< T >*
+///
+const PtrType sptr = PtrType.sptr;
 
-/// Convenient access to PtrType.uptr with *uptr* see [PtrType]
-const uptr = PtrType.uptr;
+/// Convenient access to PtrType.uptr with *uptr* see [PtrType].
+///
+/// Indicates *std::unique_ptr< T >*
+///
+const PtrType uptr = PtrType.uptr;
 
-/// Convenient access to PtrType.scptr with *scptr* see [PtrType]
-const scptr = PtrType.scptr;
+/// Convenient access to PtrType.scptr with *scptr* see [PtrType].
+///
+/// Indicates *std::shared_ptr< const T >*
+///
+const PtrType scptr = PtrType.scptr;
 
-/// Convenient access to PtrType.ucptr with *ucptr* see [PtrType]
-const ucptr = PtrType.ucptr;
+/// Convenient access to PtrType.ucptr with *ucptr* see [PtrType].
+///
+/// Indicates *std::unique_ptr< const T >*
+///
+const PtrType ucptr = PtrType.ucptr;
 
 /// Exposes common elements for named entities, including their [id] and
 /// documentation

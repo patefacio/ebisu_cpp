@@ -1,6 +1,7 @@
 part of ebisu_cpp.cpp;
 
-/// Set of argument types supported by command line option processing
+/// Set of argument types supported by command line option processing.
+///
 class ArgType implements Comparable<ArgType> {
   static const INT = const ArgType._(0);
   static const DOUBLE = const ArgType._(1);

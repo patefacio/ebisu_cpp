@@ -18,7 +18,7 @@ larger the amount of boilerplate the larger the benefit of code
 generation. In order to make the use of code generation palatable in
 the face of large amounts of custom code it is important to be able to
 have the two live nicely side-by-side. In *ebisu* and *ebisu_cpp* this
-is accomplished with *Protect Blocks* also called *Custom Blocks*. A
+is accomplished with *Protect Blocks*, also called *Custom Blocks*. A
 *custom block* is code that exists in generated output that is
 protected because it has been hand coded. Custom blocks are designated
 with special comments, which are labeled with *tags*. Here are some
@@ -68,10 +68,11 @@ designating additional libraries required for the
 
 These code generation utilities ensure consistent naming by requiring
 all potential identifier names to be derived from an identifier
-provided by the user in *snake case*. A utility library *id* with
-class *Id* is used to ensure names are converted from the input *snake
-case* to whatever case is deemed appropriate. The naming conventions
-are guaranteed consistent and currently baked into the cake.
+provided by the user in *snake case*. A utility library
+[id](https://pub.dartlang.org/packages/id) with class *Id* is used to
+ensure names are converted from the input *snake case* to whatever
+case is deemed appropriate. The naming conventions are guaranteed
+consistent and currently baked into the cake.
 
 ### Structural Targets
 

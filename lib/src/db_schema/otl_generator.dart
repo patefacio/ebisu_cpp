@@ -10,29 +10,37 @@ enum BindDataType {
   bdtVarcharLong,
   bdtTimestamp
 }
-/// Convenient access to BindDataType.bdtInt with *bdtInt* see [BindDataType]
-const bdtInt = BindDataType.bdtInt;
+/// Convenient access to BindDataType.bdtInt with *bdtInt* see [BindDataType].
+///
+const BindDataType bdtInt = BindDataType.bdtInt;
 
-/// Convenient access to BindDataType.bdtShort with *bdtShort* see [BindDataType]
-const bdtShort = BindDataType.bdtShort;
+/// Convenient access to BindDataType.bdtShort with *bdtShort* see [BindDataType].
+///
+const BindDataType bdtShort = BindDataType.bdtShort;
 
-/// Convenient access to BindDataType.bdtDouble with *bdtDouble* see [BindDataType]
-const bdtDouble = BindDataType.bdtDouble;
+/// Convenient access to BindDataType.bdtDouble with *bdtDouble* see [BindDataType].
+///
+const BindDataType bdtDouble = BindDataType.bdtDouble;
 
-/// Convenient access to BindDataType.bdtBigint with *bdtBigint* see [BindDataType]
-const bdtBigint = BindDataType.bdtBigint;
+/// Convenient access to BindDataType.bdtBigint with *bdtBigint* see [BindDataType].
+///
+const BindDataType bdtBigint = BindDataType.bdtBigint;
 
-/// Convenient access to BindDataType.bdtSizedChar with *bdtSizedChar* see [BindDataType]
-const bdtSizedChar = BindDataType.bdtSizedChar;
+/// Convenient access to BindDataType.bdtSizedChar with *bdtSizedChar* see [BindDataType].
+///
+const BindDataType bdtSizedChar = BindDataType.bdtSizedChar;
 
-/// Convenient access to BindDataType.bdtUnsizedChar with *bdtUnsizedChar* see [BindDataType]
-const bdtUnsizedChar = BindDataType.bdtUnsizedChar;
+/// Convenient access to BindDataType.bdtUnsizedChar with *bdtUnsizedChar* see [BindDataType].
+///
+const BindDataType bdtUnsizedChar = BindDataType.bdtUnsizedChar;
 
-/// Convenient access to BindDataType.bdtVarcharLong with *bdtVarcharLong* see [BindDataType]
-const bdtVarcharLong = BindDataType.bdtVarcharLong;
+/// Convenient access to BindDataType.bdtVarcharLong with *bdtVarcharLong* see [BindDataType].
+///
+const BindDataType bdtVarcharLong = BindDataType.bdtVarcharLong;
 
-/// Convenient access to BindDataType.bdtTimestamp with *bdtTimestamp* see [BindDataType]
-const bdtTimestamp = BindDataType.bdtTimestamp;
+/// Convenient access to BindDataType.bdtTimestamp with *bdtTimestamp* see [BindDataType].
+///
+const BindDataType bdtTimestamp = BindDataType.bdtTimestamp;
 
 class OtlBindVariable {
   String name;

@@ -6,14 +6,19 @@ enum SerializationStyle {
   xmlSerialization,
   binarySerialization
 }
-/// Convenient access to SerializationStyle.jsonSerialization with *jsonSerialization* see [SerializationStyle]
-const jsonSerialization = SerializationStyle.jsonSerialization;
+/// Convenient access to SerializationStyle.jsonSerialization with *jsonSerialization* see [SerializationStyle].
+///
+const SerializationStyle jsonSerialization =
+    SerializationStyle.jsonSerialization;
 
-/// Convenient access to SerializationStyle.xmlSerialization with *xmlSerialization* see [SerializationStyle]
-const xmlSerialization = SerializationStyle.xmlSerialization;
+/// Convenient access to SerializationStyle.xmlSerialization with *xmlSerialization* see [SerializationStyle].
+///
+const SerializationStyle xmlSerialization = SerializationStyle.xmlSerialization;
 
-/// Convenient access to SerializationStyle.binarySerialization with *binarySerialization* see [SerializationStyle]
-const binarySerialization = SerializationStyle.binarySerialization;
+/// Convenient access to SerializationStyle.binarySerialization with *binarySerialization* see [SerializationStyle].
+///
+const SerializationStyle binarySerialization =
+    SerializationStyle.binarySerialization;
 
 /// Establishes an interface for instance serialization
 abstract class Serializer {

@@ -169,7 +169,38 @@ class CodeBlock {
 /// Create a CodeBlock sans new, for more declarative construction
 CodeBlock codeBlock([String tag]) => new CodeBlock(tag);
 
-/// Base class
+/// A base class of another class.
+///
+///
+/// The style of inheritance is determined by [virtual] and [access]. Examples:
+///
+/// Default is *not* virtual and [public] inheritance:
+///
+///     class_('derived')
+///     ..bases = [
+///       base('Base')
+///     ];
+///
+/// gives:
+///
+///     class Derived : public Base {};
+///
+/// With overrides:
+///
+///     class_('derived')
+///     ..bases = [
+///       base('Base')
+///       ..virtual = true
+///       ..access = protected
+///     ];
+///
+/// Gives:
+///
+///     class Derived :
+///       protected virtual Base
+///     {
+///     };
+///
 class Base {
   Base(this.className);
 
