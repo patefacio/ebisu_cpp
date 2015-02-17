@@ -49,7 +49,6 @@ class Installation implements CodeGenerator {
   List<App> apps = [];
   List<Test> tests = [];
   List<Script> scripts = [];
-  List<CodeGenerator> schemaCodeGenerators = [];
   List<Lib> get generatedLibs => _generatedLibs;
   List<App> get generatedApps => _generatedApps;
   /// List of builders for the installation (bjam, cmake)
@@ -79,13 +78,8 @@ Installation($root)
   addLib(Lib lib) => libs.add(lib..installation = this);
   addLibs(Iterable<Lib> libs) => libs.forEach((l) => addLib(l));
   addApp(App app) => apps.add(app..installation = this);
-  addSchemaCodeGenerator(CodeGenerator scg) =>
-      schemaCodeGenerators.add(scg..installation = this);
 
   generate([bool generateJamConfigs = false]) {
-    schemaCodeGenerators
-      ..forEach((scg) => libs.add(scg.lib))
-      ..clear();
     libs
       ..forEach((l) => _generatedLibs.add(l..generate()))
       ..clear();
