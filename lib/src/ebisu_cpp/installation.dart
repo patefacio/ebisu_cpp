@@ -1,4 +1,4 @@
-part of ebisu_cpp.cpp;
+part of ebisu_cpp.ebisu_cpp;
 
 /// Mixin that brings in the installation that this child belongs to
 abstract class InstallationContainer {

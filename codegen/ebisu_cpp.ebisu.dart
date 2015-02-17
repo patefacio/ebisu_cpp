@@ -30,7 +30,7 @@ void main() {
       library('test_cpp_utils'),
     ]
     ..libraries = [
-      library('cpp')
+      library('ebisu_cpp')
       ..doc = cppLibraryDoc
       ..includeLogger = true
       ..imports = [

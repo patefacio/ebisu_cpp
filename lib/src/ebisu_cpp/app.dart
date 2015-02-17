@@ -1,4 +1,4 @@
-part of ebisu_cpp.cpp;
+part of ebisu_cpp.ebisu_cpp;
 
 /// Set of argument types supported by command line option processing.
 ///

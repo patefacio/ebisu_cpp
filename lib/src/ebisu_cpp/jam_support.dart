@@ -1,4 +1,4 @@
-part of ebisu_cpp.cpp;
+part of ebisu_cpp.ebisu_cpp;
 
 /// Effectively just a placeholder, the presence of which in an installation
 /// indicates bjam shoud be set up per app and tests in the installation.

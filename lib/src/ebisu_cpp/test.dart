@@ -1,4 +1,4 @@
-part of ebisu_cpp.cpp;
+part of ebisu_cpp.ebisu_cpp;
 
 class Test extends Impl with InstallationContainer implements CodeGenerator {
   String get filePath => _filePath;

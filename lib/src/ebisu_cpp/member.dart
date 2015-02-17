@@ -1,4 +1,4 @@
-part of ebisu_cpp.cpp;
+part of ebisu_cpp.ebisu_cpp;
 
 /// A member or field included in a class.
 ///

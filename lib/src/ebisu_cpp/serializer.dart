@@ -1,4 +1,4 @@
-part of ebisu_cpp.cpp;
+part of ebisu_cpp.ebisu_cpp;
 
 /// Serialization using *cereal* supports these types of serialization
 enum SerializationStyle {

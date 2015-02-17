@@ -1,4 +1,4 @@
-part of ebisu_cpp.cpp;
+part of ebisu_cpp.ebisu_cpp;
 
 /// Establishes an interface and common elements for c++ file, such as
 /// *Header* and *Impl*.

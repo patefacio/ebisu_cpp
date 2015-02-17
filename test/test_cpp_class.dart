@@ -4,7 +4,7 @@ import 'package:unittest/unittest.dart';
 // custom <additional imports>
 
 import 'package:ebisu/ebisu.dart';
-import 'package:ebisu_cpp/cpp.dart';
+import 'package:ebisu_cpp/ebisu_cpp.dart';
 
 // end <additional imports>
 
@@ -235,7 +235,7 @@ $tricky
     l.generate();
   });
 
-  group('usses type query', () {
+  group('uses type query', () {
     final c1 = class_('c_1')..members = [member('a')..type = 'int'];
     expect(c1.usesType('std::string'), false);
     expect(c1.usesType('int'), true);

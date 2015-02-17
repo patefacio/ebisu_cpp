@@ -3,7 +3,7 @@ library ebisu_cpp.test.test_cpp_enum;
 import 'package:unittest/unittest.dart';
 // custom <additional imports>
 
-import 'package:ebisu_cpp/cpp.dart';
+import 'package:ebisu_cpp/ebisu_cpp.dart';
 
 // end <additional imports>
 

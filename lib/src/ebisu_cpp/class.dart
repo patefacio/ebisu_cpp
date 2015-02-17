@@ -1,4 +1,4 @@
-part of ebisu_cpp.cpp;
+part of ebisu_cpp.ebisu_cpp;
 
 /// The various supported code blocks associated with a C++ class. The
 /// name indicates where in the class it appears. Within the class

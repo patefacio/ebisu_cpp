@@ -1,4 +1,4 @@
-part of ebisu_cpp.cpp;
+part of ebisu_cpp.ebisu_cpp;
 
 class Script extends Entity with InstallationContainer
     implements CodeGenerator {

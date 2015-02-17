@@ -1,4 +1,4 @@
-part of ebisu_cpp.cpp;
+part of ebisu_cpp.ebisu_cpp;
 
 /// Set of pre-canned blocks where custom or generated code can be placed.
 /// The various supported code blocks associated with a C++ file. The
