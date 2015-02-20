@@ -23,6 +23,11 @@ abstract class CppFile extends Entity {
   List<String> usings = [];
   /// List of enumerations that will appear near the top of the file
   List<Enum> enums = [];
+  /// List of interfaces for this header. Interfaces result in either:
+  ///
+  /// * abstract base class with pure virtual methods
+  /// * static polymorphic base class with inline forwarding methods
+  List<Interface> interfaces = [];
   // custom <class CppFile>
 
   CppFile(Id id) : super(id);

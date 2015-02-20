@@ -11,7 +11,6 @@ main() {
 // custom <main>
 
   group('parm decl', () {
-
     {
       final decl = 'int x';
       test('"$decl" parsed', () {
@@ -55,7 +54,17 @@ main() {
     }
 
     {
-      final decl = 'EXCEPTION makeException(int line_number,\n\tchar const* file)';
+      final decl = 'void\n\tempty_method()';
+      test('"$decl" parsed', () {
+        final methodDecl = new MethodDecl.fromDecl(decl);
+        expect(methodDecl.id.snake, 'empty_method');
+        expect(methodDecl.parmDecls.length, 0);
+      });
+    }
+
+    {
+      final decl =
+          'EXCEPTION makeException(int lineNumber,\n\tchar const* file)';
       test('"$decl" parsed and name normalized', () {
         final methodDecl = new MethodDecl.fromDecl(decl);
         expect(methodDecl.id.snake, 'make_exception');
@@ -67,7 +76,6 @@ main() {
       });
     }
   });
-
 
 // end <main>
 

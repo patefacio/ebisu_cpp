@@ -318,6 +318,14 @@ Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
             member('enums')
             ..doc = 'List of enumerations that will appear near the top of the file'
             ..type = 'List<Enum>'..classInit = [],
+            member('interfaces')
+            ..doc = '''
+List of interfaces for this header. Interfaces result in either:
+
+* abstract base class with pure virtual methods
+* static polymorphic base class with inline forwarding methods
+'''
+            ..type = 'List<Interface>'..classInit = []
           ],
         ],
         part('enum')
@@ -932,8 +940,8 @@ stronger guarantee of immutability.'''
             ..doc = 'List of processors supporting flavors of serialization'
             ..type = 'List<Serializer>'
             ..classInit = [],
-            member('interfaces')
-            ..doc = 'List of interfaces this class implements virtually'
+            member('implemented_interfaces')
+            ..doc = 'List of interfaces this class implements'
             ..type = 'List<AccessInterface>'
             ..classInit = [],
           ],
@@ -960,7 +968,10 @@ If true interface results in pure abstract class, else *static
 polymorphic* base.
 '''
             ..classInit = false,
-            member('method_decls')..type = 'List<MethodDecl>'..classInit = [],
+            member('method_decls')
+            ..type = 'List<MethodDecl>'
+            ..access = RO
+            ..classInit = [],
           ],
           class_('access_interface')
           ..extend = 'Interface'

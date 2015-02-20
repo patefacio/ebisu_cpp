@@ -605,8 +605,8 @@ class Class extends Entity {
   bool immutable = false;
   /// List of processors supporting flavors of serialization
   List<Serializer> serializers = [];
-  /// List of interfaces this class implements virtually
-  List<AccessInterface> interfaces = [];
+  /// List of interfaces this class implements
+  List<AccessInterface> implementedInterfaces = [];
   // custom <class Class>
 
   Class(Id id) : super(id);
