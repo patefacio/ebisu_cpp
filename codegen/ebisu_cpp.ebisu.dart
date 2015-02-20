@@ -27,6 +27,7 @@ void main() {
       library('test_cpp_enum'),
       library('test_cpp_member'),
       library('test_cpp_class'),
+      library('test_cpp_method'),
       library('test_cpp_utils'),
     ]
     ..libraries = [

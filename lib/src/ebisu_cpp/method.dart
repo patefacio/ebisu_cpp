@@ -4,12 +4,12 @@ class ParmDecl extends Entity {
   String type;
   // custom <class ParmDecl>
 
-  ParmDecl(id) => super(id);
+  ParmDecl(id) : super(id);
 
   static RegExp declRe = new RegExp(r'^(.*?)\s+(\w+)\s*$');
 
   factory ParmDecl.fromDecl(String decl) {
-    final declMatch = declRe.firstMatch(decl);
+    final declMatch = declRe.firstMatch(decl.trim());
     if(declMatch == null) {
       throw ArgumentError('''
 Invalid parm decl: $decl
@@ -20,8 +20,8 @@ Try something familiar like these:
 ''');
     }
 
-    final id = idFromString(declMatch.group(1));
-    final type = declMatch.group(2);
+    final type = declMatch.group(1);
+    final id = idFromString(declMatch.group(2));
 
     return new ParmDecl(id)
       ..type = type;
@@ -35,7 +35,7 @@ class MethodDecl extends Entity {
   String returnType;
   // custom <class MethodDecl>
 
-  MethodDecl(id) => super(id);
+  MethodDecl(id) : super(id);
 
   static RegExp declRe =
     new RegExp(r'^(.*?)\s+(\w+)\s*\(([^\)]*)\)\s*$');
@@ -73,7 +73,7 @@ class Interface extends Entity {
   List<MethodDecl> methodDecls = [];
   // custom <class Interface>
 
-  MethodDecl(id) => super(id);
+  MethodDecl(id) : super(id);
 
   // end <class Interface>
 }
