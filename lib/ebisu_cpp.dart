@@ -100,6 +100,7 @@ part 'src/ebisu_cpp/file.dart';
 part 'src/ebisu_cpp/enum.dart';
 part 'src/ebisu_cpp/member.dart';
 part 'src/ebisu_cpp/class.dart';
+part 'src/ebisu_cpp/method.dart';
 part 'src/ebisu_cpp/serializer.dart';
 part 'src/ebisu_cpp/header.dart';
 part 'src/ebisu_cpp/impl.dart';

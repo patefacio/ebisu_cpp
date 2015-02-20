@@ -931,6 +931,40 @@ stronger guarantee of immutability.'''
             ..doc = 'List of processors supporting flavors of serialization'
             ..type = 'List<Serializer>'
             ..classInit = [],
+            member('interfaces')
+            ..doc = 'List of interfaces this class implements virtually'
+            ..type = 'List<AccessInterface>'
+            ..classInit = [],
+          ],
+        ],
+        part('method')
+        ..classes = [
+          class_('parm_decl')
+          ..extend = 'Entity'
+          ..members = [
+            member('type'),
+          ],
+          class_('method_decl')
+          ..extend = 'Entity'
+          ..members = [
+            member('parm_decls')..type = 'List<ParmDecl>'..classInit = [],
+            member('return_type'),
+          ],
+          class_('interface')
+          ..extend = 'Entity'
+          ..members = [
+            member('is_virtual')
+            ..doc = '''
+If true interface results in pure abstract class, else *static
+polymorphic* base.
+'''
+            ..classInit = false,
+            member('method_decls')..type = 'List<MethodDecl>'..classInit = [],
+          ],
+          class_('access_interface')
+          ..extend = 'Interface'
+          ..members = [
+            member('cpp_access')..type = 'CppAccess'..classInit = 'public'
           ],
         ],
         part('serializer')

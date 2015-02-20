@@ -422,6 +422,7 @@ member being initialized or a MemberCtorParm instance'''));
 
   String get _templateDecl => _template == null ? '' : br(_template.decl);
 
+  /// The [MemberCtor] definition as it appears in the class
   String get definition {
     if (allMembers) {
       assert(memberParms.isEmpty);
@@ -604,6 +605,8 @@ class Class extends Entity {
   bool immutable = false;
   /// List of processors supporting flavors of serialization
   List<Serializer> serializers = [];
+  /// List of interfaces this class implements virtually
+  List<AccessInterface> interfaces = [];
   // custom <class Class>
 
   Class(Id id) : super(id);
