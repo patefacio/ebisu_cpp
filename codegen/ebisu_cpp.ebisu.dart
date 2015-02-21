@@ -963,8 +963,18 @@ stronger guarantee of immutability.'''
             ..type = 'List<Serializer>'
             ..classInit = [],
             member('implemented_interfaces')
-            ..doc = 'List of interfaces this class implements'
-            ..type = 'List<AccessInterface>'
+            ..doc = '''
+List of interfaces this class implements. The [Interface] determines
+whether the polymorphism is runtime via virtual methods or compile
+time via call forwarding. The entries in the list must be either:
+
+* Interface: identifying the interface implemented. The interface will
+  be wrapped in an [AccessInterface] with [public] access.
+
+* AccessInterface: which will be used directly
+
+'''
+            ..type = 'List'
             ..classInit = [],
           ],
         ],
@@ -996,8 +1006,8 @@ polymorphic* base.
             ..classInit = [],
           ],
           class_('access_interface')
-          ..extend = 'Interface'
           ..members = [
+            member('interface')..type = 'Interface'..ctors = [''],
             member('cpp_access')..type = 'CppAccess'..classInit = 'public'
           ],
         ],

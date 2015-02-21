@@ -65,6 +65,11 @@ abstract class CppFile extends Entity {
     customBlocks
         .forEach((cb) => getCodeBlock(cb).tag = '${evCap(cb)} ${id.snake}');
 
+    if (namespace == null) {
+      throw new ArgumentError(
+          'Yikes! provide a namespace: ${runtimeType} ${id.snake}');
+    }
+
     return combine([
       br(_includes.includes),
       _codeBlockText(fcbCustomIncludes),

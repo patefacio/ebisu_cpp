@@ -354,8 +354,18 @@ abstract class Entity {
   set doc(String d) => descr = d;
   get doc => descr;
 
+  /// Establishes the [Entity] that *this* [Entity] is owned by. This
+  /// function should be called only when all declarative information
+  /// is available and the [Installation] is ready to be
+  /// generated. Entities wanting to perform any actions required
+  /// prior to code genreation can hook into this flow by implementing
+  /// [_finalizeEntity] which is called after ownership is
+  /// established.
   set owner(Entity newOwner) {
     _owner = newOwner;
+    _finalizeEntity();
+    _logger
+        .info('Set owner of $id to ${newOwner == null? "root" : newOwner.id}');
     if (_owner != null) {
       _entityPath = new List<Id>.from(newOwner.entityPath)..add(id);
     }
@@ -364,6 +374,21 @@ abstract class Entity {
 
   Iterable<Entity> get children;
 
+  /// This is called after ownership has been established and provides a
+  /// mechanism for any work required before code generation but after all
+  /// declarations are in.
+  /// An example would be the act of doing lookups on
+  /// [Interfaces] required by classes. When a class is defined it may
+  /// implement one or more [Interfaces]. Rather than require those
+  /// interfaces to be named, they may be created elsewhere and
+  /// referenced by [Id] in the class. The act of finding the relevant
+  /// [Interfaces] prior to generating the class needs to be done at a
+  /// time when all declarations are complete but before generation.
+  ///
+  ///     final h = header
+  void _finalizeEntity() {}
+
+  /// Performs visitation on all children recursively
   void visitChildren(EntityVisitor visitor) {
     for (Entity child in children) {
       visitor(child);
@@ -371,9 +396,12 @@ abstract class Entity {
     }
   }
 
-  List<Entity> entitiesWhere(bool test(Entity)) {
+  /// returns the root - i.e. the top of the chain
+  Entity get root => _owner == null ? this : _owner.root;
+
+  List<Entity> entitiesWhere(bool test(Entity), [bool fromRoot = true]) {
     final result = [];
-    this.visitChildren((Entity child) {
+    root.visitChildren((Entity child) {
       if (test(child)) result.add(child);
     });
     return result;

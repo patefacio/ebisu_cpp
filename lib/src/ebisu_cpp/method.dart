@@ -26,6 +26,8 @@ Try something familiar like these:
     return new ParmDecl(id)..type = type;
   }
 
+  toString() => '$type ${id.snake}';
+
   // end <class ParmDecl>
 }
 
@@ -63,6 +65,13 @@ Try something familiar like: "void add(int a, int b)"
       ..parmDecls = parmDecls;
   }
 
+  toString() => '''
+$returnType
+${id.snake}(${parmDecls.join(',')}) {
+${customBlock(id.snake)}
+}
+''';
+
   // end <class MethodDecl>
 }
 
@@ -88,15 +97,24 @@ MethodDecls must be initialized with String or MethodDecl
   /// The interface is empty if there are no methods
   bool get isEmpty => methodDecls.isEmpty;
 
+  String get definition => '''
+${_methodDecls.join('\n')}
+''';
+
   // end <class Interface>
   List<MethodDecl> _methodDecls = [];
 }
 
-class AccessInterface extends Interface {
+class AccessInterface {
+  AccessInterface(this.interface);
+
+  Interface interface;
   CppAccess cppAccess = public;
   // custom <class AccessInterface>
 
-  AccessInterface(id) : super(id);
+  String get definition => interface.definition;
+
+  toString() => '${ev(cppAccess)}: ${interface.id.snake}';
 
   // end <class AccessInterface>
 }
@@ -111,5 +129,9 @@ Interface interface(Object id) => new Interface(id is Id ? id : new Id(id));
 /// Convenience fucnction for creating a [MethodDecl]
 ///
 MethodDecl methodDecl(String decl) => new MethodDecl.fromDecl(decl);
+
+AccessInterface accessInterface(Interface interface,
+        [CppAccess cppAccess = public]) =>
+    new AccessInterface(interface)..cppAccess = cppAccess;
 
 // end <part method>

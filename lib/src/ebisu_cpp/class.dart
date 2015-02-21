@@ -605,8 +605,15 @@ class Class extends Entity {
   bool immutable = false;
   /// List of processors supporting flavors of serialization
   List<Serializer> serializers = [];
-  /// List of interfaces this class implements
-  List<AccessInterface> implementedInterfaces = [];
+  /// List of interfaces this class implements. The [Interface] determines
+  /// whether the polymorphism is runtime via virtual methods or compile
+  /// time via call forwarding. The entries in the list must be either:
+  ///
+  /// * Interface: identifying the interface implemented. The interface will
+  ///   be wrapped in an [AccessInterface] with [public] access.
+  ///
+  /// * AccessInterface: which will be used directly
+  List implementedInterfaces = [];
   // custom <class Class>
 
   Class(Id id) : super(id);
@@ -763,6 +770,17 @@ class Class extends Entity {
   Iterable<Member> get privateMembers =>
       members.where((m) => m.cppAccess == private);
 
+  void _finalizeEntity() {
+    for (int i = 0; i < implementedInterfaces.length; ++i) {
+      final interface = implementedInterfaces[i];
+      if (interface is Interface) {
+        implementedInterfaces[i] = new AccessInterface(interface);
+      }
+      assert(implementedInterfaces[i] is AccessInterface);
+    }
+    _logger.info('Class ($id) finalized supporting: ${implementedInterfaces}');
+  }
+
   List<String> get _baseDecls => []
     ..addAll(basesPublic.map((b) => b.decl))
     ..addAll(basesProtected.map((b) => b.decl))
@@ -806,6 +824,9 @@ class Class extends Entity {
       br(_opMethods
           .where((m) => m != null && m.cppAccess == public)
           .map((m) => m.definition)),
+      br(implementedInterfaces
+          .where((i) => i.cppAccess == public)
+          .map((i) => i.definition)),
       br(_singleton),
       _codeBlockText(clsPublic),
       br(publicMembers
@@ -823,6 +844,9 @@ class Class extends Entity {
       br(_opMethods
           .where((m) => m != null && m.cppAccess == protected)
           .map((m) => m.definition)),
+      br(implementedInterfaces
+          .where((i) => i.cppAccess == protected)
+          .map((i) => i.definition)),
       br(protectedMembers.map((m) => _memberDefinition(m)))
     ]))),
     _wrapInAccess(private, indentBlock(combine([
@@ -833,6 +857,9 @@ class Class extends Entity {
       br(_opMethods
           .where((m) => m != null && m.cppAccess == private)
           .map((m) => m.definition)),
+      br(implementedInterfaces
+          .where((i) => i.cppAccess == private)
+          .map((i) => i.definition)),
       br(privateMembers.map((m) => _memberDefinition(m)))
     ]))),
     br(_classCloser),
