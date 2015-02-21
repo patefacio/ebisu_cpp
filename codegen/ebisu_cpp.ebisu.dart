@@ -40,6 +40,7 @@ void main() {
         'package:quiver/iterables.dart',
         "'package:path/path.dart' as path",
         'dart:io',
+        'dart:collection',
       ]
       ..enums = [
         enum_('access')
@@ -162,9 +163,18 @@ This designation is used in multiple contexts such as:
       ]
       ..classes = [
         class_('entity')
+        ..isAbstract = true
         ..doc = '''
 Exposes common elements for named entities, including their [id] and
-documentation
+documentation. Additionally tracks parentage/ownership of entities.
+
+This is abstract for purposes of ownership. Each [Entity] knows its
+owning entity up until [Installation] which is the root entity. A call
+to [generate] on [Installation] will [setOwnership] which subclasses
+can trick down establishing ownership.
+
+The purpose of linking all [Entity] instances in a virtual tree type
+structure is so lookups can be done for entities.
 '''
         ..members = [
           member('id')
@@ -174,6 +184,18 @@ documentation
           ..doc = 'Brief description for the entity',
           member('descr')
           ..doc = 'Description of entity',
+          member('owner')
+          ..doc = '''
+The entity containing this entity (e.g. the [Class] containing the [Member]).
+[Installation] is a top level entity and has no owner.
+'''
+          ..access = RO
+          ..type = 'Entity',
+          member('entity_path')
+          ..doc = 'Path from root to this entity'
+          ..type = 'List<Id>'
+          ..access = RO
+          ..classInit = [],
         ],
         class_('template')
         ..doc = '''
@@ -1317,17 +1339,15 @@ Creates builder for an installation (ie ties together all build artifacts)
             member('installation')..type = 'Installation'
           ],
           class_('installation')
+          ..extend = 'Entity'
           ..implement = [ 'CodeGenerator' ]
           ..members = [
-            member('id')..type = 'Id'..ctors = [''],
             member('root')..doc = 'Fully qualified path to installation'..access = RO,
             member('paths')..type = 'Map<String, String>'..classInit = {}..access = RO,
             member('libs')..type = 'List<Lib>'..classInit = [],
             member('apps')..type = 'List<App>'..classInit = [],
             member('tests')..type = 'List<Test>'..classInit = [],
             member('scripts')..type = 'List<Script>'..classInit = [],
-            member('generated_libs')..type = 'List<Lib>'..classInit = []..access = RO,
-            member('generated_apps')..type = 'List<App>'..classInit = []..access = RO,
             member('builders')
             ..doc = 'List of builders for the installation (bjam, cmake)'
             ..type = 'List<InstallationBuilder>'..classInit = [],

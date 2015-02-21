@@ -611,6 +611,8 @@ class Class extends Entity {
 
   Class(Id id) : super(id);
 
+  Iterable<Entity> get children => concat([enumsForward, enums, members]);
+
   String get classStyle => struct ? 'struct' : 'class';
 
   /// Auto-initializing accessor for the [DefaultCtor]

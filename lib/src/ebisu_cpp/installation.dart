@@ -24,8 +24,8 @@ abstract class InstallationBuilder implements CodeGenerator {
   get rootPath => installation.root;
   get cppPath => path.join(rootPath, 'cpp');
   get tests => installation.allTests;
-  get apps => installation._generatedApps;
-  get libs => installation._generatedLibs;
+  get apps => installation.apps;
+  get libs => installation.libs;
 
   InstallationBuilder.fromInstallation(this.installation);
   InstallationBuilder();
@@ -38,10 +38,7 @@ abstract class InstallationBuilder implements CodeGenerator {
   // end <class InstallationBuilder>
 }
 
-class Installation implements CodeGenerator {
-  Installation(this.id);
-
-  Id id;
+class Installation extends Entity implements CodeGenerator {
   /// Fully qualified path to installation
   String get root => _root;
   Map<String, String> get paths => _paths;
@@ -49,18 +46,17 @@ class Installation implements CodeGenerator {
   List<App> apps = [];
   List<Test> tests = [];
   List<Script> scripts = [];
-  List<Lib> get generatedLibs => _generatedLibs;
-  List<App> get generatedApps => _generatedApps;
   /// List of builders for the installation (bjam, cmake)
   List<InstallationBuilder> builders = [];
   // custom <class Installation>
+
+  Installation(Id id) : super(id);
 
   get name => id.snake;
   get nameShout => id.shout;
 
   get allTests {
-    final result =
-        _generatedLibs.fold([], (prev, l) => prev..addAll(l.allTests));
+    final result = libs.fold([], (prev, l) => prev..addAll(l.allTests));
     return result..addAll(tests);
   }
 
@@ -80,12 +76,10 @@ Installation($root)
   addApp(App app) => apps.add(app..installation = this);
 
   generate([bool generateJamConfigs = false]) {
-    libs
-      ..forEach((l) => _generatedLibs.add(l..generate()))
-      ..clear();
-    apps
-      ..forEach((a) => _generatedApps.add(a..generate()))
-      ..clear();
+    owner = null;
+
+    concat([libs, apps]).forEach((CodeGenerator cg) => cg.generate());
+
     if (generateJamConfigs) {
       if (!builders.any((b) => b is JamInstallationBuilder)) {
         builders.add(new JamInstallationBuilder.fromInstallation(this));
@@ -121,11 +115,11 @@ Installation($root)
 
   get cppPath => path('cpp');
 
+  Iterable<Entity> get children => concat([apps, libs, tests, scripts]);
+
   // end <class Installation>
   String _root;
   Map<String, String> _paths = {};
-  List<Lib> _generatedLibs = [];
-  List<App> _generatedApps = [];
 }
 
 class PathLocator {

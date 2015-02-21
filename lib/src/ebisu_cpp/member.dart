@@ -175,6 +175,8 @@ class Member extends Entity {
 
   Member(Id id) : super(id);
 
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+
   String toString() {
     if (static &&
         mutable) throw "Member $id may not be both static and mutable";

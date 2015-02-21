@@ -99,6 +99,8 @@ class Lib extends Entity with InstallationContainer implements CodeGenerator {
 
   get allTests => new List.from(tests);
 
+  Iterable<Entity> get children => concat([headers, tests]);
+
   generate() {
     if (installation == null) {
       installation = new Installation(new Id('tmp'))..root = '/tmp';

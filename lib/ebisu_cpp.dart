@@ -86,6 +86,7 @@
 ///
 library ebisu_cpp.ebisu_cpp;
 
+import 'dart:collection';
 import 'dart:io';
 import 'package:ebisu/ebisu.dart';
 import 'package:id/id.dart';
@@ -319,9 +320,17 @@ const PtrType scptr = PtrType.scptr;
 const PtrType ucptr = PtrType.ucptr;
 
 /// Exposes common elements for named entities, including their [id] and
-/// documentation
+/// documentation. Additionally tracks parentage/ownership of entities.
 ///
-class Entity {
+/// This is abstract for purposes of ownership. Each [Entity] knows its
+/// owning entity up until [Installation] which is the root entity. A call
+/// to [generate] on [Installation] will [setOwnership] which subclasses
+/// can trick down establishing ownership.
+///
+/// The purpose of linking all [Entity] instances in a virtual tree type
+/// structure is so lookups can be done for entities.
+///
+abstract class Entity {
   Entity(this.id);
 
   /// Id for the entity
@@ -330,6 +339,11 @@ class Entity {
   String brief;
   /// Description of entity
   String descr;
+  /// The entity containing this entity (e.g. the [Class] containing the [Member]).
+  /// [Installation] is a top level entity and has no owner.
+  Entity get owner => _owner;
+  /// Path from root to this entity
+  List<Id> get entityPath => _entityPath;
   // custom <class Entity>
 
   String get briefComment => brief != null ? '//! $brief' : null;
@@ -340,7 +354,34 @@ class Entity {
   set doc(String d) => descr = d;
   get doc => descr;
 
+  set owner(Entity newOwner) {
+    _owner = newOwner;
+    if (_owner != null) {
+      _entityPath = new List<Id>.from(newOwner.entityPath)..add(id);
+    }
+    visitChildren((Entity child) => child.owner = this);
+  }
+
+  Iterable<Entity> get children;
+
+  void visitChildren(EntityVisitor visitor) {
+    for (Entity child in children) {
+      visitor(child);
+      child.visitChildren(visitor);
+    }
+  }
+
+  List<Entity> entitiesWhere(bool test(Entity)) {
+    final result = [];
+    this.visitChildren((Entity child) {
+      if (test(child)) result.add(child);
+    });
+    return result;
+  }
+
   // end <class Entity>
+  Entity _owner;
+  List<Id> _entityPath = [];
 }
 
 /// Represents a template declaration comprized of a list of [decls]
@@ -583,5 +624,7 @@ String cppStringLit(String original) =>
     original.split('\n').map((l) => '"$l\\n"').join('\n');
 
 Template template([Iterable<String> decls]) => new Template(decls);
+
+typedef void EntityVisitor(Entity);
 
 // end <library ebisu_cpp>

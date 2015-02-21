@@ -22,6 +22,8 @@ class Enum extends Entity {
 
   Enum(Id id) : super(id);
 
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+
   set values(Iterable<String> values) {
     _values = new List<String>.from(values);
     if (_values.any((String v) =>

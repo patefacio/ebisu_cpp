@@ -37,6 +37,8 @@ abstract class CppFile extends Entity {
 
   set includes(Object h) => _includes = _makeIncludes(h);
 
+  Iterable<Entity> get children => concat([classes, constExprs, enums]);
+
   _makeIncludes(Object h) => h is Iterable
       ? new Includes(h)
       : h is String
