@@ -899,7 +899,7 @@ ${_access(access)}${txt}'''
   _memberDefinition(Member m) => '$m';
 
   /// Class names are capitalized *snake case*
-  String get className => id.capSnake;
+  String get className => namer.nameClass(id);
 
   String get _streamInstanceOpener =>
       'out << "${className}(" << &item << ") {";';

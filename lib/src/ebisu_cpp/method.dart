@@ -65,12 +65,19 @@ Try something familiar like: "void add(int a, int b)"
       ..parmDecls = parmDecls;
   }
 
-  toString() => '''
-$returnType
-${id.snake}(${parmDecls.join(',')}) {
+  String get signature => '$returnType ${id.snake}(${parmDecls.join(',')})';
+
+  String get declaration => '''
+$signature {
 ${customBlock(id.snake)}
 }
 ''';
+
+  String get asVirtual => 'virtual $declaration';
+
+  String get asPureVirtual => 'virtual $signature = 0;';
+
+  toString() => asPureVirtual;
 
   // end <class MethodDecl>
 }

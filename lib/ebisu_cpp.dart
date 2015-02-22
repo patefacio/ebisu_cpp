@@ -362,15 +362,27 @@ abstract class Entity {
   /// [_finalizeEntity] which is called after ownership is
   /// established.
   set owner(Entity newOwner) {
+    bool isRoot = _owner == null;
+
+    _namer = (isRoot && _namer == null) ? defaultNamer : newOwner.namer;
     _owner = newOwner;
     _finalizeEntity();
-    _logger
-        .info('Set owner of $id to ${newOwner == null? "root" : newOwner.id}');
-    if (_owner != null) {
+    _logger.info('Set owner $id to ${newOwner == null? "root" : newOwner.id}');
+
+    if (!isRoot) {
       _entityPath = new List<Id>.from(newOwner.entityPath)..add(id);
     }
     visitChildren((Entity child) => child.owner = this);
   }
+
+  set namer(Namer namer) {
+    if (_owner != null) {
+      throw new Exception('Namer should only be set on root entity');
+    }
+    _namer = namer;
+  }
+
+  get namer => _namer == null ? defaultNamer : _namer;
 
   Iterable<Entity> get children;
 
@@ -402,7 +414,7 @@ abstract class Entity {
   /// returns list of entities where predicate [test] is true
   /// [fromRoot] if true starts from root, if false starts from *this*
   List<Entity> entitiesWhere(bool test(Entity), [bool fromRoot = true]) {
-    final start = fromRoot? root : this;
+    final start = fromRoot ? root : this;
     final result = [];
     start.visitChildren((Entity child) {
       if (test(child)) result.add(child);
@@ -413,6 +425,13 @@ abstract class Entity {
   // end <class Entity>
   Entity _owner;
   List<Id> _entityPath = [];
+  /// Namer to be used when generating names during generation. There is a
+  /// default namer, [EbisuCppNamer] that is used if one is not provide. To
+  /// create your own naming conventions, provide an implementation of
+  /// [Namer] and set an assign that namer to a top-level [Entity], such as
+  /// the [Installation]. The assigned namer will be propogated to all
+  /// genration utilities.
+  Namer _namer;
 }
 
 /// Represents a template declaration comprized of a list of [decls]

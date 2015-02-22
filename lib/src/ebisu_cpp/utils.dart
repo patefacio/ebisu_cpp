@@ -169,6 +169,51 @@ class CodeBlock {
 /// Create a CodeBlock sans new, for more declarative construction
 CodeBlock codeBlock([String tag]) => new CodeBlock(tag);
 
+/// Provides support for consistent naming of C++ entities
+abstract class Namer {
+  // custom <class Namer>
+
+  String nameApp(Id id);
+  String nameScript(Id id);
+  String nameLib(Namespace namespace, Id id);
+  String nameClass(Id id);
+  String nameMember(Id id, bool isPublic);
+  String nameMethod(Id id);
+  String nameEnum(Id id);
+  String nameEnumConst(Id id);
+
+  // end <class Namer>
+}
+
+/// Default namer establishing reasonable conventions, that are fairly
+/// *snake* case heavy like the STL.
+///
+class EbisuCppNamer implements Namer {
+  // custom <class EbisuCppNamer>
+
+  const EbisuCppNamer();
+
+  String nameApp(Id id) => id.capSnake;
+  String nameScript(Id id) => id.snake;
+  String nameLib(Namespace namespace, Id id) {
+    if (namespace.names.length > 0 && namespace.names.last == id.snake) {
+      return namespace.snake;
+    } else {
+      return namespace.snake + '_' + lib.id.snake;
+    }
+  }
+  String nameClass(Id id) => id.capSnake;
+  String nameMember(Id id) => id.snake;
+  String nameMemberVar(Id id, bool isPublic) =>
+      isPublic ? id.snake : '${id.snake}_';
+  String nameMethod(Id id) => id.snake;
+  String nameEnum(Id id) => id.capSnake;
+  String nameEnumConst(Id id) => '${id.capSnake}_e';
+  String nameStaticConst(Id id) => id.shout;
+
+  // end <class EbisuCppNamer>
+}
+
 /// A base class of another class.
 ///
 ///
@@ -276,5 +321,7 @@ String evCap(v) => Id.capitalize(v.toString().split('.')[1]);
 ///
 /// if v is CppAccess.private => private
 String ev(v) => v.toString().split('.')[1];
+
+const defaultNamer = const EbisuCppNamer();
 
 // end <part utils>

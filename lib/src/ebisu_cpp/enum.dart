@@ -29,7 +29,7 @@ class Enum extends Entity {
     if (_values.any((String v) =>
         !Id.isSnake(v))) throw 'For CppEnum($id) *values* must be snake case';
     _ids = _values.map((v) => new Id(v)).toList();
-    _valueNames = _ids.map((id) => Id.capitalize(id.snake) + '_e').toList();
+    _valueNames = _ids.map((id) => namer.nameEnumConst(id)).toList();
   }
 
   set valueMap(Map<String, int> valueMap) {
@@ -65,7 +65,7 @@ class Enum extends Entity {
     return result;
   }
 
-  String get name => id.capSnake;
+  String get name => namer.nameEnum(id);
   String get _classDecl => isClass ? 'class $name' : name;
 
   String get toCString => isMask ? _maskToCString : _generalToCString;

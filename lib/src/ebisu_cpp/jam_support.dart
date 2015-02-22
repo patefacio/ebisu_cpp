@@ -118,7 +118,7 @@ test-suite ${test.basename} : [ ${test.name} ] ;
   void generate() {
     final targetFile = path.join(directory, 'Jamfile.v2');
     mergeBlocksWithFile('''
-project test_${lib.snake}
+project test_${lib.name}
     :
     :
     ;

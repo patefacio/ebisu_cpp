@@ -95,7 +95,8 @@ class Lib extends Entity with InstallationContainer implements CodeGenerator {
   // custom <class Lib>
 
   Lib(Id id) : super(id);
-  get snake => '${namespace.snake}';
+
+  get name => namer.nameLib(namespace, id);
 
   get allTests => new List.from(tests);
 

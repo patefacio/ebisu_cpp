@@ -233,8 +233,9 @@ class Member extends Entity {
   bool get isPublicStaticConst => isConst && isStatic && isPublic;
   set isStaticConst(bool v) => isConst = isStatic = v;
 
-  String get name => isStaticConst ? id.shout : id.snake;
-  String get vname => (isStaticConst || isPublic) ? name : '${name}_';
+  String get name =>
+      isStaticConst ? namer.nameStaticConst(id) : namer.nameMember(id);
+  String get vname => isStaticConst ? name : namer.nameMemberVar(id, isPublic);
   String get getter => access == ro || access == rw
       ? '''
 //! getter for ${vname} (access is ${evCap(access)})

@@ -196,6 +196,17 @@ The entity containing this entity (e.g. the [Class] containing the [Member]).
           ..type = 'List<Id>'
           ..access = RO
           ..classInit = [],
+          member('namer')
+          ..doc = '''
+Namer to be used when generating names during generation. There is a
+default namer, [EbisuCppNamer] that is used if one is not provide. To
+create your own naming conventions, provide an implementation of
+[Namer] and set an assign that namer to a top-level [Entity], such as
+the [Installation]. The assigned namer will be propogated to all
+genration utilities.
+'''
+          ..access = IA
+          ..type = 'Namer',
         ],
         class_('template')
         ..doc = '''
@@ -248,6 +259,15 @@ Represents a template declaration comprized of a list of [decls]
             member('snippets')..type = 'List<String>'..classInit = [],
             member('has_snippets_first')..classInit = false,
           ],
+          class_('namer')
+          ..doc = 'Provides support for consistent naming of C++ entities'
+          ..isAbstract = true,
+          class_('ebisu_cpp_namer')
+          ..implement = [ 'Namer' ]
+          ..doc = '''
+Default namer establishing reasonable conventions, that are fairly
+*snake* case heavy like the STL.
+''',
           class_('base')
           ..doc = '''
 A base class of another class.
