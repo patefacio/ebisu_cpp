@@ -214,6 +214,33 @@ class EbisuCppNamer implements Namer {
   // end <class EbisuCppNamer>
 }
 
+/// Namer based on google coding conventions
+class GoogleNamer implements Namer {
+  // custom <class GoogleNamer>
+
+  const GoogleNamer();
+
+  String nameApp(Id id) => id.capSnake;
+  String nameScript(Id id) => id.snake;
+  String nameLib(Namespace namespace, Id id) {
+    if (namespace.names.length > 0 && namespace.names.last == id.snake) {
+      return namespace.snake;
+    } else {
+      return namespace.snake + '_' + lib.id.snake;
+    }
+  }
+  String nameClass(Id id) => id.capCamel;
+  String nameMember(Id id) => id.snake;
+  String nameMemberVar(Id id, bool isPublic) =>
+      isPublic ? id.snake : '${id.snake}_';
+  String nameMethod(Id id) => id.capCamel;
+  String nameEnum(Id id) => id.capCamel;
+  String nameEnumConst(Id id) => id.shout;
+  String nameStaticConst(Id id) => 'k${id.capCamel}';
+
+  // end <class GoogleNamer>
+}
+
 /// A base class of another class.
 ///
 ///

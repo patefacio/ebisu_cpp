@@ -268,6 +268,9 @@ Represents a template declaration comprized of a list of [decls]
 Default namer establishing reasonable conventions, that are fairly
 *snake* case heavy like the STL.
 ''',
+          class_('google_namer')
+          ..implement = [ 'Namer' ]
+          ..doc = 'Namer based on google coding conventions',
           class_('base')
           ..doc = '''
 A base class of another class.
