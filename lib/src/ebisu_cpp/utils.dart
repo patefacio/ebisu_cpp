@@ -181,6 +181,8 @@ abstract class Namer {
   String nameMethod(Id id);
   String nameEnum(Id id);
   String nameEnumConst(Id id);
+  String nameHeader(Id id);
+  String nameImpl(Id id);
 
   // end <class Namer>
 }
@@ -199,7 +201,7 @@ class EbisuCppNamer implements Namer {
     if (namespace.names.length > 0 && namespace.names.last == id.snake) {
       return namespace.snake;
     } else {
-      return namespace.snake + '_' + lib.id.snake;
+      return namespace.snake + '_' + id.snake;
     }
   }
   String nameClass(Id id) => id.capSnake;
@@ -210,6 +212,8 @@ class EbisuCppNamer implements Namer {
   String nameEnum(Id id) => id.capSnake;
   String nameEnumConst(Id id) => '${id.capSnake}_e';
   String nameStaticConst(Id id) => id.shout;
+  String nameHeader(Id id) => '${id.snake}.hpp';
+  String nameImpl(Id id) => '${id.snake}.cpp';
 
   // end <class EbisuCppNamer>
 }
@@ -226,7 +230,7 @@ class GoogleNamer implements Namer {
     if (namespace.names.length > 0 && namespace.names.last == id.snake) {
       return namespace.snake;
     } else {
-      return namespace.snake + '_' + lib.id.snake;
+      return namespace.snake + '_' + id.snake;
     }
   }
   String nameClass(Id id) => id.capCamel;
@@ -237,6 +241,8 @@ class GoogleNamer implements Namer {
   String nameEnum(Id id) => id.capCamel;
   String nameEnumConst(Id id) => id.shout;
   String nameStaticConst(Id id) => 'k${id.capCamel}';
+  String nameHeader(Id id) => '${id.snake}.hpp';
+  String nameImpl(Id id) => '${id.snake}.cc';
 
   // end <class GoogleNamer>
 }

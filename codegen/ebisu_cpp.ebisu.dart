@@ -29,6 +29,7 @@ void main() {
       library('test_cpp_class'),
       library('test_cpp_method'),
       library('test_cpp_utils'),
+      library('test_cpp_namer'),
     ]
     ..libraries = [
       library('ebisu_cpp')
