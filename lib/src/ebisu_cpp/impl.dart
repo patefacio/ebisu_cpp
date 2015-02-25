@@ -12,7 +12,7 @@ class Impl extends CppFile {
   String get contents => _contentsWithBlocks;
 
   setLibFilePathFromRoot(String root) =>
-      _filePath = path.join(root, 'lib', namespace.asPath, '${id.snake}.cpp');
+    _filePath = path.join(root, 'lib', namespace.asPath, namer.nameImpl(id));
 
   setAppFilePathFromRoot(String root) =>
       _filePath = path.join(root, 'app', id.snake, '${id.snake}.cpp');

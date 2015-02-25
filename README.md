@@ -72,7 +72,9 @@ provided by the user in *snake case*. A utility library
 [id](https://pub.dartlang.org/packages/id) with class *Id* is used to
 ensure names are converted from the input *snake case* to whatever
 case is deemed appropriate. The naming conventions are guaranteed
-consistent and currently baked into the cake.
+consistent and can be modified to taste by assigning a [Namer]
+instance to the [Installation] prior to generation. Two namers are
+included, [EbisuCppNamer] and [GoogleNamer]. 
 
 ### Structural Targets
 

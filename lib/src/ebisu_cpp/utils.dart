@@ -173,15 +173,37 @@ CodeBlock codeBlock([String tag]) => new CodeBlock(tag);
 abstract class Namer {
   // custom <class Namer>
 
+  /// Name an [App] from its [Id]
   String nameApp(Id id);
+  /// Name a [Script] from its [Id]
   String nameScript(Id id);
+  /// Name a [Class] from its namespace and [Id].
+  ///
+  /// Namespaces are encouraged/required and the namespace name should be
+  /// incorporated into the name of the library. For the default namer,
+  /// [EbisuCppNamer] if the last entry in the namespace matches the lib id then
+  /// that finishes the name. Otherwise the lib name is the namespace name
+  /// concatenated with the lib id.
+  ///
+  /// nameLib(new Namespace(['foo', 'bar']), idFromString('bar')) => 'foo_bar'
+  /// nameLib(new Namespace(['foo', 'bar']), idFromString('goo')) => 'foo_bar_goo'
+  ///
   String nameLib(Namespace namespace, Id id);
+  /// Name a [Class] from its [Id]
   String nameClass(Id id);
+  /// Name a [Member] from its [Id] and whether it is public.  If the name is
+  /// *public* the default namer, [EbisuCppNamer] uses just the snake case of
+  /// the id. Otherwise it adds a '_' suffix
   String nameMember(Id id, bool isPublic);
+  /// Name a [Method] from its [Id]
   String nameMethod(Id id);
+  /// Name an [Enum] from its [Id]
   String nameEnum(Id id);
+  /// Name an [Enum] value from its [Id]
   String nameEnumConst(Id id);
+  /// Name a [Header] from its [Id]
   String nameHeader(Id id);
+  /// Name an [Impl] from its [Id]
   String nameImpl(Id id);
 
   // end <class Namer>
@@ -195,7 +217,7 @@ class EbisuCppNamer implements Namer {
 
   const EbisuCppNamer();
 
-  String nameApp(Id id) => id.capSnake;
+  String nameApp(Id id) => id.snake;
   String nameScript(Id id) => id.snake;
   String nameLib(Namespace namespace, Id id) {
     if (namespace.names.length > 0 && namespace.names.last == id.snake) {
@@ -224,7 +246,7 @@ class GoogleNamer implements Namer {
 
   const GoogleNamer();
 
-  String nameApp(Id id) => id.capSnake;
+  String nameApp(Id id) => id.snake;
   String nameScript(Id id) => id.snake;
   String nameLib(Namespace namespace, Id id) {
     if (namespace.names.length > 0 && namespace.names.last == id.snake) {

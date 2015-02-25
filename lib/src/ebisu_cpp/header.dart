@@ -34,7 +34,7 @@ class Header extends CppFile {
   Iterable get testFunctions => (includeTest ? [id.snake] : [])
     ..addAll(classes.where((c) => c.includeTest).map((c) => c.id.snake));
 
-  get includeFilePath => path.join(namespace.asPath, '${id.snake}.hpp');
+  get includeFilePath => path.join(namespace.asPath, namer.nameHeader(id));
 
   setFilePathFromRoot(String root) =>
       _filePath = path.join(root, includeFilePath);

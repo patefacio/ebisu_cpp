@@ -63,7 +63,7 @@ class AppArg extends Entity {
   // custom <class AppArg>
 
   // Name as variable
-  get name => id.snake;
+  get name => namer.nameApp(id);
 
   // Name as used in command
   get optName => id.emacs;
@@ -82,7 +82,7 @@ class AppArg extends Entity {
     _defaultValue = defaultValue;
   }
 
-  get vname => '${name}_';
+  get vname => namer.nameMemberVar(id, false);
   get isString => type == ArgType.STRING;
   get defaultValueLit => isString ? quote(defaultValue) : defaultValue;
 

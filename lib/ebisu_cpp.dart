@@ -364,7 +364,9 @@ abstract class Entity {
   set owner(Entity newOwner) {
     bool isRoot = _owner == null;
 
-    _namer = (isRoot && _namer == null) ? defaultNamer : newOwner.namer;
+    _namer = isRoot? ((_namer != null)? _namer : defaultNamer) :
+      newOwner.namer;
+    assert(_namer != null);
     _owner = newOwner;
     _finalizeEntity();
     _logger.info('Set owner $id to ${newOwner == null? "root" : newOwner.id}');

@@ -16,7 +16,7 @@ main() {
   group('default namer', () {
     final namer = const EbisuCppNamer();
     test('nameApp', () {
-      expect(namer.nameApp(idFromString('foo_bar')), 'Foo_bar');
+      expect(namer.nameApp(idFromString('foo_bar')), 'foo_bar');
       expect(namer.nameClass(idFromString('foo_bar')), 'Foo_bar');
       expect(namer.nameLib(new Namespace(['a', 'b_c']), idFromString('foo_bar')), 'a_b_c_foo_bar');
       expect(namer.nameLib(new Namespace(['a', 'b_c']), idFromString('b_c')), 'a_b_c');
@@ -35,7 +35,7 @@ main() {
   group('google namer', () {
     final namer = const GoogleNamer();
     test('nameApp', () {
-      expect(namer.nameApp(idFromString('foo_bar')), 'Foo_bar');
+      expect(namer.nameApp(idFromString('foo_bar')), 'foo_bar');
       expect(namer.nameClass(idFromString('foo_bar')), 'FooBar');
       expect(namer.nameLib(new Namespace(['a', 'b_c']), idFromString('foo_bar')), 'a_b_c_foo_bar');
       expect(namer.nameLib(new Namespace(['a', 'b_c']), idFromString('b_c')), 'a_b_c');
