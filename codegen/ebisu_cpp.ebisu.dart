@@ -202,7 +202,7 @@ The entity containing this entity (e.g. the [Class] containing the [Member]).
           ..type = 'Entity',
           member('entity_path')
           ..doc = 'Path from root to this entity'
-          ..type = 'List<Id>'
+          ..type = 'List<Entity>'
           ..access = RO
           ..classInit = [],
           member('namer')
@@ -1408,15 +1408,24 @@ Creates builder for an installation (ie ties together all build artifacts)
       ],
 
       library('hdf5_support')
+      ..imports = [
+        'package:ebisu_cpp/ebisu_cpp.dart',
+      ]
       ..doc = 'Provide C++ classes support for reading/writing to hdf5 packet table'
       ..parts = [
         part('packet_table')
         ..classes = [
           class_('class_not_found_exception')
-          ..immutable = true
+          ..doc = '''
+Indicates a class could not be found in the [Installation] for adding
+hdf5 packet table support
+'''
+          ..implement = ['Exception']
           ..members = [
-            member('class_name')
-            ..doc = 'Name of class, *snake case* not found in the installation',
+            member('message')
+            ..isFinal = true
+            ..access = RO
+            ..doc = 'Exception details',
           ],
           class_('log_group')
           ..ctorSansNew = true
@@ -1436,6 +1445,8 @@ log group. An empty list will include all members in the table.
             ..isFinal = true,
           ],
           class_('packet_table_decorator')
+          ..immutable = true
+          ..ctorSansNew = true
           ..implement = [
             'InstallationDecorator',
           ]

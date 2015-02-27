@@ -354,12 +354,14 @@ abstract class Entity {
   /// [Installation] is a top level entity and has no owner.
   Entity get owner => _owner;
   /// Path from root to this entity
-  List<Id> get entityPath => _entityPath;
+  List<Entity> get entityPath => _entityPath;
   // custom <class Entity>
 
   String get briefComment => brief != null ? '//! $brief' : null;
 
   String get detailedComment => descr != null ? blockComment(descr, ' ') : null;
+
+  Iterable<Id> get entityPathIds => _entityPath.map((e) => e.id);
 
   /// *doc* is a synonym for descr
   set doc(String d) => descr = d;
@@ -373,15 +375,21 @@ abstract class Entity {
   /// [_finalizeEntity] which is called after ownership is
   /// established.
   set owner(Entity newOwner) {
-    bool isRoot = _owner == null;
+    bool isRoot = newOwner == null;
     _owner = newOwner;
     _finalizeEntity();
-    _logger.info('Set owner $id to ${newOwner == null? "root" : newOwner.id}');
 
     if (!isRoot) {
-      _entityPath = new List<Id>.from(newOwner.entityPath)..add(id);
+      _entityPath
+        ..addAll(newOwner.entityPath)
+        ..add(this);
     }
-    visitChildren((Entity child) => child.owner = this);
+
+    _logger.info('Set owner $id to ${newOwner == null? "root" : newOwner.id}');
+
+    for (final child in children) {
+      child.owner = this;
+    }
   }
 
   set namer(Namer namer) {
@@ -391,8 +399,10 @@ abstract class Entity {
     _namer = namer;
   }
 
-  get namer => _namer == null ? defaultNamer : _namer;
+  /// Returns the [Namer] associated with the entity
+  Namer get namer => _namer == null ? defaultNamer : _namer;
 
+  /// All entities must provide iteration on [children] entities
   Iterable<Entity> get children;
 
   /// This is called after ownership has been established and provides a
@@ -408,38 +418,21 @@ abstract class Entity {
   ///
   void _finalizeEntity() {}
 
-  /// Performs visitation on all children recursively
-  void visitChildren(EntityVisitor visitor) {
-    for (Entity child in children) {
-      visitor(child);
-      child.visitChildren(visitor);
-    }
-  }
+  List<Entity> get progeny => children.fold([], (all, child) => all
+    ..add(child)
+    ..addAll(child.progeny));
 
   /// returns the root - i.e. the top of the chain
   Entity get root => _owner == null ? this : _owner.root;
 
   /// returns list of entities where predicate [test] is true
   /// [fromRoot] if true starts from root, if false starts from *this*
-  List<Entity> entitiesWhere(bool test(Entity), [bool fromRoot = true]) {
-    final start = fromRoot ? root : this;
-    final result = [];
-    start.visitChildren((Entity child) {
-      if (test(child)) result.add(child);
-    });
-    return result;
-  }
-
-  Entity firstEntityWhere(bool test(Entity), [bool fromRoot = true]) {
-    if(test(this)) return this;
-    for(Entity child in children) {
-
-    }
-  }
+  List<Entity> entitiesWherex(bool test(Entity), [bool fromRoot = true]) =>
+      (fromRoot ? root : this).progeny.where((entity) => test(entity)).toList();
 
   // end <class Entity>
   Entity _owner;
-  List<Id> _entityPath = [];
+  List<Entity> _entityPath = [];
   /// Namer to be used when generating names during generation. There is a
   /// default namer, [EbisuCppNamer] that is used if one is not provide. To
   /// create your own naming conventions, provide an implementation of
@@ -689,7 +682,5 @@ String cppStringLit(String original) =>
     original.split('\n').map((l) => '"$l\\n"').join('\n');
 
 Template template([Iterable<String> decls]) => new Template(decls);
-
-typedef void EntityVisitor(Entity);
 
 // end <library ebisu_cpp>

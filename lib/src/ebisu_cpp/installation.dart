@@ -84,7 +84,7 @@ Installation($root)
       _namer = defaultNamer;
     }
 
-    visitChildren((Entity child) => child._namer = _namer);
+    progeny.forEach((Entity child) => child._namer = _namer);
 
     concat([libs, apps]).forEach((CodeGenerator cg) => cg.generate());
 
