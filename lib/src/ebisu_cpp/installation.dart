@@ -60,6 +60,8 @@ class Installation extends Entity implements CodeGenerator {
     return result..addAll(tests);
   }
 
+  decorateWith(InstallationDecorator decorator) => decorator.decorate(this);
+
   get wantsJam => builders.any((b) => b is JamInstallationBuilder);
 
   String toString() => '''
@@ -77,6 +79,12 @@ Installation($root)
 
   generate([bool generateJamConfigs = false]) {
     owner = null;
+
+    if (_namer == null) {
+      _namer = defaultNamer;
+    }
+
+    visitChildren((Entity child) => child._namer = _namer);
 
     concat([libs, apps]).forEach((CodeGenerator cg) => cg.generate());
 

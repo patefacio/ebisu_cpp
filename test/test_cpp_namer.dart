@@ -18,8 +18,11 @@ main() {
     test('nameApp', () {
       expect(namer.nameApp(idFromString('foo_bar')), 'foo_bar');
       expect(namer.nameClass(idFromString('foo_bar')), 'Foo_bar');
-      expect(namer.nameLib(new Namespace(['a', 'b_c']), idFromString('foo_bar')), 'a_b_c_foo_bar');
-      expect(namer.nameLib(new Namespace(['a', 'b_c']), idFromString('b_c')), 'a_b_c');
+      expect(
+          namer.nameLib(new Namespace(['a', 'b_c']), idFromString('foo_bar')),
+          'a_b_c_foo_bar');
+      expect(namer.nameLib(new Namespace(['a', 'b_c']), idFromString('b_c')),
+          'a_b_c');
       expect(namer.nameMember(idFromString('foo_bar')), 'foo_bar');
       expect(namer.nameMemberVar(idFromString('foo_bar'), false), 'foo_bar_');
       expect(namer.nameMemberVar(idFromString('foo_bar'), true), 'foo_bar');
@@ -37,8 +40,11 @@ main() {
     test('nameApp', () {
       expect(namer.nameApp(idFromString('foo_bar')), 'foo_bar');
       expect(namer.nameClass(idFromString('foo_bar')), 'FooBar');
-      expect(namer.nameLib(new Namespace(['a', 'b_c']), idFromString('foo_bar')), 'a_b_c_foo_bar');
-      expect(namer.nameLib(new Namespace(['a', 'b_c']), idFromString('b_c')), 'a_b_c');
+      expect(
+          namer.nameLib(new Namespace(['a', 'b_c']), idFromString('foo_bar')),
+          'a_b_c_foo_bar');
+      expect(namer.nameLib(new Namespace(['a', 'b_c']), idFromString('b_c')),
+          'a_b_c');
       expect(namer.nameMember(idFromString('foo_bar')), 'foo_bar');
       expect(namer.nameMemberVar(idFromString('foo_bar'), false), 'foo_bar_');
       expect(namer.nameMemberVar(idFromString('foo_bar'), true), 'foo_bar');

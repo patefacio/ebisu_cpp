@@ -319,6 +319,17 @@ const PtrType scptr = PtrType.scptr;
 ///
 const PtrType ucptr = PtrType.ucptr;
 
+/// Establishes an interface to allow decoration of classes and updates
+/// (primarily additions) to an [Installation].
+///
+abstract class InstallationDecorator {
+  // custom <class InstallationDecorator>
+
+  void decorate(Installation);
+
+  // end <class InstallationDecorator>
+}
+
 /// Exposes common elements for named entities, including their [id] and
 /// documentation. Additionally tracks parentage/ownership of entities.
 ///
@@ -363,10 +374,6 @@ abstract class Entity {
   /// established.
   set owner(Entity newOwner) {
     bool isRoot = _owner == null;
-
-    _namer = isRoot? ((_namer != null)? _namer : defaultNamer) :
-      newOwner.namer;
-    assert(_namer != null);
     _owner = newOwner;
     _finalizeEntity();
     _logger.info('Set owner $id to ${newOwner == null? "root" : newOwner.id}');
@@ -399,7 +406,6 @@ abstract class Entity {
   /// [Interfaces] prior to generating the class needs to be done at a
   /// time when all declarations are complete but before generation.
   ///
-  ///     final h = header
   void _finalizeEntity() {}
 
   /// Performs visitation on all children recursively
@@ -422,6 +428,13 @@ abstract class Entity {
       if (test(child)) result.add(child);
     });
     return result;
+  }
+
+  Entity firstEntityWhere(bool test(Entity), [bool fromRoot = true]) {
+    if(test(this)) return this;
+    for(Entity child in children) {
+
+    }
   }
 
   // end <class Entity>

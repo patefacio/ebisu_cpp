@@ -163,6 +163,14 @@ This designation is used in multiple contexts such as:
         ],
       ]
       ..classes = [
+
+        class_('installation_decorator')
+        ..isAbstract = true
+        ..doc = '''
+Establishes an interface to allow decoration of classes and updates
+(primarily additions) to an [Installation].
+''',
+
         class_('entity')
         ..isAbstract = true
         ..doc = '''
@@ -1397,7 +1405,46 @@ Creates builder for an installation (ie ties together all build artifacts)
             member('path')..access = RO,
           ],
         ],
-      ]
+      ],
+
+      library('hdf5_support')
+      ..doc = 'Provide C++ classes support for reading/writing to hdf5 packet table'
+      ..parts = [
+        part('packet_table')
+        ..classes = [
+          class_('class_not_found_exception')
+          ..immutable = true
+          ..members = [
+            member('class_name')
+            ..doc = 'Name of class, *snake case* not found in the installation',
+          ],
+          class_('log_group')
+          ..ctorSansNew = true
+          ..members = [
+            member('class_name')
+            ..doc = 'Name of class, *snake case*, to add a packet table log group'
+            ..ctors = ['']
+            ..isFinal = true,
+            member('member_names')
+            ..doc = '''
+Name of members of class, *snake case*, to include in the packet table
+log group. An empty list will include all members in the table.
+'''
+            ..type = 'List<String>'
+            ..ctorInit = 'const []'
+            ..ctorsOpt = ['']
+            ..isFinal = true,
+          ],
+          class_('packet_table_decorator')
+          ..implement = [
+            'InstallationDecorator',
+          ]
+          ..members = [
+            member('log_groups')..type = 'List<LogGroup>'
+          ]
+        ]
+      ],
+
     ];
 
   ebisu.generate();
