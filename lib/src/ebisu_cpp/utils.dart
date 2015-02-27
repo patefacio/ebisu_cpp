@@ -69,6 +69,22 @@ abstract class CodeGenerator {
   // end <class CodeGenerator>
 }
 
+/// Friend class declaration
+class FriendClassDecl {
+  const FriendClassDecl(this.decl);
+
+  /// Declaration text without the *friend* and *class* keywords
+  final String decl;
+  // custom <class FriendClassDecl>
+
+  String toString() => 'friend class $decl;';
+
+  // end <class FriendClassDecl>
+}
+
+/// Create a FriendClassDecl sans new, for more declarative construction
+FriendClassDecl friendClassDecl([String decl]) => new FriendClassDecl(decl);
+
 /// Represents a c++ namespace which is essentially a list of names
 class Namespace {
   List<String> names = [];

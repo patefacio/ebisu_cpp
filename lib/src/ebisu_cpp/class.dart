@@ -584,6 +584,7 @@ class Class extends Entity {
   List<Enum> enumsForward = [];
   List<Enum> enums = [];
   List<Member> members = [];
+  List<FriendClassDecl> friendClassDecls = [];
   List<ClassCodeBlock> customBlocks = [];
   bool isSingleton = false;
   Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
@@ -815,6 +816,7 @@ class Class extends Entity {
     _wrapInAccess(struct ? null : public, indentBlock(combine([
       br(usings.map((u) => 'using $u;')),
       br([_enumDecls, _enumStreamers]),
+      br(friendClassDecls.map((fcd) => fcd.toString())),
       br(publicMembers
           .where((m) => m.isPublicStaticConst)
           .map((m) => _memberDefinition(m))),

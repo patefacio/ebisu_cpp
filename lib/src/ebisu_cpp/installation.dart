@@ -7,13 +7,6 @@ abstract class InstallationContainer {
   // end <class InstallationContainer>
 }
 
-/// A CodeGenerator tied to a c++ installation
-abstract class InstallationCodeGenerator extends Object
-    with InstallationContainer implements CodeGenerator {
-  // custom <class InstallationCodeGenerator>
-  // end <class InstallationCodeGenerator>
-}
-
 /// Creates builder for an installation (ie ties together all build artifacts)
 ///
 abstract class InstallationBuilder implements CodeGenerator {
@@ -50,10 +43,12 @@ class Installation extends Entity implements CodeGenerator {
   List<InstallationBuilder> builders = [];
   // custom <class Installation>
 
-  Installation(Id id) : super(id);
+  Installation(Id id) : super(id) {
+    root = '/tmp';
+  }
 
-  get name => id.snake;
-  get nameShout => id.shout;
+  String get name => id.snake;
+  String get nameShout => id.shout;
 
   get allTests {
     final result = libs.fold([], (prev, l) => prev..addAll(l.allTests));
@@ -73,9 +68,9 @@ Installation($root)
   paths: => [\n    ${paths.keys.map((k) => '$k => ${paths[k]}').join('\n    ')}\n  ]
 ''';
 
-  addLib(Lib lib) => libs.add(lib..installation = this);
+  addLib(Lib lib) => libs.add(lib);
   addLibs(Iterable<Lib> libs) => libs.forEach((l) => addLib(l));
-  addApp(App app) => apps.add(app..installation = this);
+  addApp(App app) => apps.add(app);
 
   generate([bool generateJamConfigs = false]) {
     owner = null;
@@ -168,8 +163,10 @@ class PathLocator {
 }
 // custom <part installation>
 
-App app(Object id) => new App(id is Id ? id : new Id(id));
-Script script(Object id) => new Script(id is Id ? id : new Id(id));
+_asId(id) => id is Id ? id : new Id(id);
+Installation installation(Object id) => new Installation(_asId(id));
+App app(Object id) => new App(_asId(id));
+Script script(Object id) => new Script(_asId(id));
 
 get _home => Platform.environment["HOME"];
 

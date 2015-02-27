@@ -30,6 +30,7 @@ void main() {
       library('test_cpp_method'),
       library('test_cpp_utils'),
       library('test_cpp_namer'),
+      library('test_hdf5_support'),
     ]
     ..libraries = [
       library('ebisu_cpp')
@@ -246,6 +247,14 @@ Represents a template declaration comprized of a list of [decls]
           class_('code_generator')
           ..doc = 'Establishes an interface for generating code'
           ..isAbstract = true,
+          class_('friend_class_decl')
+          ..doc = 'Friend class declaration'
+          ..immutable = true
+          ..ctorSansNew = true
+          ..members = [
+            member('decl')
+            ..doc = 'Declaration text without the *friend* and *class* keywords'
+          ],
           class_('namespace')
           ..doc = 'Represents a c++ namespace which is essentially a list of names'
           ..members = [
@@ -965,6 +974,7 @@ Base classes this class derives form.
             member('enums_forward')..type = 'List<Enum>'..classInit = [],
             member('enums')..type = 'List<Enum>'..classInit = [],
             member('members')..type = 'List<Member>'..classInit = [],
+            member('friend_class_decls')..type = 'List<FriendClassDecl>'..classInit = [],
             member('custom_blocks')..type = 'List<ClassCodeBlock>'..classInit = [],
             member('is_singleton')..classInit = false,
             member('code_blocks')
@@ -1167,7 +1177,6 @@ prints:
           ..doc = 'A c++ library'
           ..extend = 'Entity'
           ..implement = [ 'CodeGenerator' ]
-          ..mixins = [ 'InstallationContainer' ]
           ..members = [
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('headers')..type = 'List<Header>'..classInit = [],
@@ -1238,7 +1247,6 @@ application and not necessarily suited for a separate library.
 '''
           ..extend = 'Impl'
           ..implement = [ 'CodeGenerator' ]
-          ..mixins = [ 'InstallationContainer' ]
           ..members = [
             member('args')
             ..doc = 'Command line arguments specific to this application'
@@ -1329,7 +1337,6 @@ indicates bjam shoud be set up per app and tests in the installation.
           class_('script')
           ..extend = 'Entity'
           ..implement = [ 'CodeGenerator' ]
-          ..mixins = [ 'InstallationContainer' ]
           ..members = [
           ],
         ],
@@ -1338,7 +1345,6 @@ indicates bjam shoud be set up per app and tests in the installation.
           class_('test')
           ..extend = 'Impl'
           ..implement = [ 'CodeGenerator' ]
-          ..mixins = [ 'InstallationContainer' ]
           ..members = [
             member('file_path')..access = RO,
             member('header_under_test')..type = 'Header',
@@ -1366,11 +1372,6 @@ indicates bjam shoud be set up per app and tests in the installation.
           ..members = [
             member('installation')..type = 'Installation',
           ],
-          class_('installation_code_generator')
-          ..mixins = [ 'InstallationContainer' ]
-          ..isAbstract = true
-          ..implement = [ 'CodeGenerator' ]
-          ..doc = 'A CodeGenerator tied to a c++ installation',
           class_('installation_builder')
           ..isAbstract = true
           ..implement = [ 'CodeGenerator' ]
@@ -1410,6 +1411,7 @@ Creates builder for an installation (ie ties together all build artifacts)
       library('hdf5_support')
       ..imports = [
         'package:ebisu_cpp/ebisu_cpp.dart',
+        'package:id/id.dart',
       ]
       ..doc = 'Provide C++ classes support for reading/writing to hdf5 packet table'
       ..parts = [

@@ -422,8 +422,7 @@ abstract class Entity {
     ..add(child)
     ..addAll(child.progeny));
 
-  /// returns the root - i.e. the top of the chain
-  Entity get root => _owner == null ? this : _owner.root;
+  Installation get installation => _owner == null ? this : _owner.installation;
 
   // end <class Entity>
   Entity _owner;

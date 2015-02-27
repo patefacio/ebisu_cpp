@@ -8,6 +8,8 @@ class CmakeInstallationBuilder extends InstallationBuilder {
 
   CmakeInstallationBuilder() : super();
 
+  Installation get installation => super.installation;
+
   void generate() {
     final cmakeRoot = installationCmakeRoot(installation);
 

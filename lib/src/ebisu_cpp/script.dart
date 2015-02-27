@@ -1,7 +1,6 @@
 part of ebisu_cpp.ebisu_cpp;
 
-class Script extends Entity with InstallationContainer
-    implements CodeGenerator {
+class Script extends Entity implements CodeGenerator {
   // custom <class Script>
 
   Script(Id id) : super(id);

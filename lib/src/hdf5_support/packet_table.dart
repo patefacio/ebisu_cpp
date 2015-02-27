@@ -52,9 +52,12 @@ class PacketTableDecorator implements InstallationDecorator {
       assert(targetClass is Class);
 
       targetClass
-        .getCodeBlock(clsPublic)
-        .snippets
-        .addAll([ '/// hdf5 goodness added here' ]);
+        ..getCodeBlock(clsPublic).snippets
+            .addAll(['/// hdf5 goodness added here'])
+        ..friendClassDecls = [
+          friendClassDecl(installation.namer.nameClass(
+              idFromString('${targetClass.id.snake}_data_set_specifier'))),
+        ];
     });
   }
 

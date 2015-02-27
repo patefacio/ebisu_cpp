@@ -1,6 +1,6 @@
 part of ebisu_cpp.ebisu_cpp;
 
-class Test extends Impl with InstallationContainer implements CodeGenerator {
+class Test extends Impl implements CodeGenerator {
   String get filePath => _filePath;
   Header headerUnderTest;
   List<Header> headers = [];
