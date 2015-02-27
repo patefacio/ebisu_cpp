@@ -425,11 +425,6 @@ abstract class Entity {
   /// returns the root - i.e. the top of the chain
   Entity get root => _owner == null ? this : _owner.root;
 
-  /// returns list of entities where predicate [test] is true
-  /// [fromRoot] if true starts from root, if false starts from *this*
-  List<Entity> entitiesWherex(bool test(Entity), [bool fromRoot = true]) =>
-      (fromRoot ? root : this).progeny.where((entity) => test(entity)).toList();
-
   // end <class Entity>
   Entity _owner;
   List<Entity> _entityPath = [];
