@@ -1,5 +1,7 @@
 library ebisu_cpp.test.test_cpp_enum;
 
+import 'package:args/args.dart';
+import 'package:logging/logging.dart';
 import 'package:unittest/unittest.dart';
 // custom <additional imports>
 
@@ -7,9 +9,14 @@ import 'package:ebisu_cpp/ebisu_cpp.dart';
 
 // end <additional imports>
 
+final _logger = new Logger('test_cpp_enum');
+
 // custom <library test_cpp_enum>
 // end <library test_cpp_enum>
-main() {
+main([List<String> args]) {
+  Logger.root.onRecord.listen(
+      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
+  Logger.root.level = Level.OFF;
 // custom <main>
 
   final ws = new RegExp(r'\s+');

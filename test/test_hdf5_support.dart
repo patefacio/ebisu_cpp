@@ -1,14 +1,21 @@
 library ebisu_cpp.test.test_hdf5_support;
 
+import 'package:args/args.dart';
+import 'package:logging/logging.dart';
 import 'package:unittest/unittest.dart';
 // custom <additional imports>
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 import 'package:ebisu_cpp/hdf5_support.dart';
 // end <additional imports>
 
+final _logger = new Logger('test_hdf5_support');
+
 // custom <library test_hdf5_support>
 // end <library test_hdf5_support>
-main() {
+main([List<String> args]) {
+  Logger.root.onRecord.listen(
+      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
+  Logger.root.level = Level.OFF;
 // custom <main>
 
   newInstallation() => installation('sample')

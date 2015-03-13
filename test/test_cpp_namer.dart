@@ -1,5 +1,7 @@
 library ebisu_cpp.test.test_cpp_namer;
 
+import 'package:args/args.dart';
+import 'package:logging/logging.dart';
 import 'package:unittest/unittest.dart';
 // custom <additional imports>
 
@@ -8,9 +10,14 @@ import 'package:id/id.dart';
 
 // end <additional imports>
 
+final _logger = new Logger('test_cpp_namer');
+
 // custom <library test_cpp_namer>
 // end <library test_cpp_namer>
-main() {
+main([List<String> args]) {
+  Logger.root.onRecord.listen(
+      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
+  Logger.root.level = Level.OFF;
 // custom <main>
 
   group('default namer', () {
