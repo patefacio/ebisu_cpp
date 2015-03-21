@@ -580,7 +580,27 @@ Gives:
           ..members = [
             member('type')..doc = 'Type of member',
             member('init')
-            ..doc = 'Initialization of member (if type is null and Dart type is key in { int:int, double:double }, cpp type is set to value type)'..access = RO,
+            ..doc = """
+Initialization of member.
+
+If [type] of [Member] is null and [init] is set with a Dart type
+which can reasonably map to a C++ type, then type is inferred.
+Currently the mappings are:
+    {
+      int : int,
+      double : double,
+      string : std::string,
+      bool : bool,
+      List(...) : std::vector<...>,
+    }
+
+For example:
+
+    member('name')..init = 'UNASSIGNED' => name is std::string
+    member('x')..init = 0               => x is int
+    member('pi')..init = 3.14           => pi is double
+
+"""..access = RO,
             member('ctor_init')
             ..doc = '''
 Rare usage - member b depends on member a (e.g. b is just a string rep of a

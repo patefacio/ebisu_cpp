@@ -31,6 +31,21 @@ Wee willy winkee went through the town.'''
       ..init = '{"foo",1.2}, {"bar", 2.3}';
   });
 
+  test('type inference: int',
+      () => expect((member('foo')..init = 3).type, 'int'));
+
+  test('type inference: double',
+      () => expect((member('foo')..init = 3.14).type, 'double'));
+
+  test('type inference: string',
+      () => expect((member('foo')..init = 'goo').type, 'std::string'));
+
+  test('type inference: List', () =>
+      expect((member('foo')..init = [1, 2, 3]).type, 'std::vector< int >'));
+
+  test('type inference: List of lists', () => expect((member('foo')
+    ..init = [[1, 2, 3]]).type, 'std::vector< std::vector< int > >'));
+
   test('vref', () {
     final m = member('foo')
       ..brief = 'This is a foo'

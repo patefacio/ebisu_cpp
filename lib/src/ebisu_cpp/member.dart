@@ -142,7 +142,24 @@ part of ebisu_cpp.ebisu_cpp;
 class Member extends Entity {
   /// Type of member
   String type;
-  /// Initialization of member (if type is null and Dart type is key in { int:int, double:double }, cpp type is set to value type)
+  /// Initialization of member.
+  ///
+  /// If [type] of [Member] is null and [init] is set with a Dart type
+  /// which can reasonably map to a C++ type, then type is inferred.
+  /// Currently the mappings are:
+  ///     {
+  ///       int : int,
+  ///       double : double,
+  ///       string : std::string,
+  ///       bool : bool,
+  ///       List(...) : std::vector<...>,
+  ///     }
+  ///
+  /// For example:
+  ///
+  ///     member('name')..init = 'UNASSIGNED' => name is std::string
+  ///     member('x')..init = 0               => x is int
+  ///     member('pi')..init = 3.14           => pi is double
   String get init => _init;
   /// Rare usage - member b depends on member a (e.g. b is just a string rep of a
   /// which is int), a is passed in for construction but b can be initialized directly
@@ -185,7 +202,7 @@ class Member extends Entity {
   }
 
   get isByRef =>
-      _isByRef == null ? (type == 'std::string' ? true : false) : _byRef;
+      _isByRef == null ? (type == 'std::string' ? true : false) : _isByRef;
 
   set initText(String txt) => _init = txt;
   get isRefType => refType != value;
@@ -208,18 +225,32 @@ class Member extends Entity {
     if (isRefType) throw '$id can not have an init since it is a reference type ($refType)';
 
     if (type == null) {
-      if (init_ is double) {
-        type = 'double';
-      } else if (init_ is String) {
-        type = 'std::string';
-        init_ = quote(init_);
-      } else if (init_ is bool) {
-        type = 'bool';
-      } else {
-        type = 'int';
-      }
+      type = inferType(init_);
     }
     _init = init_.toString();
+  }
+
+  static inferType(Object datum) {
+    var inferredType = 'int';
+    if (datum is double) {
+      inferredType = 'double';
+    } else if (datum is String) {
+      inferredType = 'std::string';
+      datum = quote(datum);
+    } else if (datum is bool) {
+      inferredType = 'bool';
+    } else if (datum is List) {
+      final list = datum as List;
+      if (list.isEmpty) throw 'Can not infer type from emtpy list';
+      final first = datum.first;
+      final guess = inferType(first);
+      if (list.sublist(1).every((i) => guess == inferType(first))) {
+        inferredType = 'std::vector< $guess >';
+      } else {
+        throw 'Can not infer type from list with mixed types: $datum';
+      }
+    }
+    return inferredType;
   }
 
   //  String get _initValue => init is! String? init.toString() : init;
