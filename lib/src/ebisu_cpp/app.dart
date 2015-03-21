@@ -219,11 +219,11 @@ class App extends Impl implements CodeGenerator {
   get _hasHelp => args.any((a) => _isHelpArg(a));
 
   get _programOptions => class_('program_options')
-    ..struct = true
-    ..streamable = true
+    ..isStruct = true
+    ..isStreamable = true
     ..usesStreamers = _hasMultiple
     ..members = args.map((a) => member(a.id)
-      ..byRef = a.isMultiple || a.isString
+      ..isByRef = a.isMultiple || a.isString
       ..type = a.cppType
       ..access = ro).toList()
     ..getCodeBlock(clsPublic).snippets.add(_argvCtor);

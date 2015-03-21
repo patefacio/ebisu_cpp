@@ -307,7 +307,7 @@ scream for code generation. Here are some that are covered by
             class_('code_packages_value')
             ..opEqual
             ..opLess
-            ..streamable = true
+            ..isStreamable = true
             ..members = [
               member('name')..type = 'fcs::utils::Fixed_size_char_array<64>',
               member('descr')..type = 'fcs::utils::Fixed_size_char_array<256>',
@@ -358,7 +358,7 @@ scream for code generation. Here are some that are covered by
        Note, that it is accepting the name by value. Depending on your code this may not be desirable, and in this case it is not. A simple modification to the member will address it:
        
             member('name')
-            ..byRef = true
+            ..isByRef = true
             ..type = 'fcs::utils::Fixed_size_char_array<64>',
        Now we have pass by reference, much better:
 
@@ -413,10 +413,10 @@ members are determined programatically.
 
     _makeClass(String id, Iterable<Column> columns) {
       final result = class_(id)
-        ..struct = true
+        ..isStruct = true
         ..opEqual
         ..opLess
-        ..streamable = true
+        ..isStreamable = true
         ..members = columns.map((c) => _makeMember(c)).toList();
       result.getCodeBlock(clsPublic).snippets
           .add(_stringListSupport(result.members));

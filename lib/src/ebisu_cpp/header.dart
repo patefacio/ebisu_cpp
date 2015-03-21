@@ -3,7 +3,7 @@ part of ebisu_cpp.ebisu_cpp;
 /// A single c++ header
 class Header extends CppFile {
   String get filePath => _filePath;
-  bool includeTest = false;
+  bool includesTest = false;
   /// If true marks this header as special to the set of headers in its library in that:
   /// (1) It will be automatically included by all other headers
   /// (2) For windows systems it will be the place to provide the api decl support
@@ -29,10 +29,13 @@ class Header extends CppFile {
   ///     });
   withTest(void t(Test t)) => t(test);
 
+  /// Returns true if user requested [includesTest] = true or any
+  /// classes have [includesTest] = true
   bool get hasTest =>
-      includeTest || _test != null || classes.any((c) => c.includeTest);
-  Iterable get testFunctions => (includeTest ? [id.snake] : [])
-    ..addAll(classes.where((c) => c.includeTest).map((c) => c.id.snake));
+      includesTest || _test != null || classes.any((c) => c.includesTest);
+
+  Iterable get testFunctions => (includesTest ? [id.snake] : [])
+    ..addAll(classes.where((c) => c.includesTest).map((c) => c.id.snake));
 
   get includeFilePath => path.join(namespace.asPath, namer.nameHeader(id));
 
@@ -40,7 +43,7 @@ class Header extends CppFile {
       _filePath = path.join(root, includeFilePath);
 
   String get contents {
-    if (classes.any((c) => c.streamable) &&
+    if (classes.any((c) => c.isStreamable) &&
         !this.includes.contains('iostream')) {
       this.includes.add('iosfwd');
     }

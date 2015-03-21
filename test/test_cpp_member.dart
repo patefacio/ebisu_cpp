@@ -26,8 +26,8 @@ main([List<String> args]) {
       ..descr = '''
 Wee willy winkee went through the town.'''
       ..type = 'std::map<std::string, double>'
-      ..static = true
-      ..mutable = false
+      ..isStatic = true
+      ..isMutable = false
       ..init = '{"foo",1.2}, {"bar", 2.3}';
   });
 
@@ -38,7 +38,7 @@ Wee willy winkee went through the town.'''
       ..descr = '''
 Wee willy winkee went through the town.'''
       ..type = 'std::map<std::string, double>'
-      ..mutable = false;
+      ..isMutable = false;
     expect(m.toString().contains('volatile& foo'), true);
   });
 
@@ -49,7 +49,7 @@ Wee willy winkee went through the town.'''
       ..descr = '''
 Wee willy winkee went through the town.'''
       ..type = 'std::map<std::string, double>'
-      ..mutable = false;
+      ..isMutable = false;
     expect(m.toString().contains('const& foo'), true);
   });
 
@@ -60,7 +60,7 @@ Wee willy winkee went through the town.'''
       ..descr = '''
 Wee willy winkee went through the town.'''
       ..type = 'std::map<std::string, double>'
-      ..mutable = false;
+      ..isMutable = false;
     expect(m.toString().contains('const volatile& foo'), true);
   });
 
@@ -72,7 +72,7 @@ Wee willy winkee went through the town.'''
         ..descr = '''
 Wee willy winkee went through the town.'''
         ..type = 'std::map<std::string, double>'
-        ..mutable = false
+        ..isMutable = false
         ..init = '{"foo",1.2}, {"bar", 2.3}';
 
       fail('Excpected an exception since ref fields can not have init');

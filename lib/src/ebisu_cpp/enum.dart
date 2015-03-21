@@ -13,7 +13,7 @@ class Enum extends Entity {
   /// If true adds to_c_str method
   bool hasToCStr = false;
   /// If true adds streaming support
-  bool streamable = false;
+  bool isStreamable = false;
   /// If true the values are powers of two for bit masking
   bool isMask = false;
   /// If true is nested in class and requires *friend* stream support
@@ -44,8 +44,8 @@ class Enum extends Entity {
   }
 
   String get streamSupport => combine([
-    (streamable || hasToCStr) ? toCString : null,
-    streamable ? outStreamer : null,
+    (isStreamable || hasToCStr) ? toCString : null,
+    isStreamable ? outStreamer : null,
     hasFromCStr ? fromCString : null,
   ]);
 

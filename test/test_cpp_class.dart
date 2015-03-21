@@ -205,21 +205,21 @@ $tricky
               ..includes = ['cmath', 'boost/filesystem.hpp']
               ..classes = [
                 class_('c_1')
-                  ..streamable = true
+                  ..isStreamable = true
                   ..bases = [
                     base('Foo'),
                     base('Bar')..access = protected,
-                    base('Goo')..virtual = true
+                    base('Goo')..isVirtual = true
                   ]
                   ..enums = [
                     enum_('letters')
-                      ..streamable = true
+                      ..isStreamable = true
                       ..hasFromCStr = false
                       ..values = ['a', 'b', 'c'],
                   ]
                   ..enumsForward = [
                     enum_('abcs')
-                      ..streamable = true
+                      ..isStreamable = true
                       ..values = ['a', 'b', 'c'],
                   ]
                   ..members = [
@@ -253,7 +253,7 @@ $tricky
 
   group('immutable', () {
     final c1 = class_('c_1')
-      ..immutable = true
+      ..isImmutable = true
       ..members = [member('a')..type = 'int'];
     final definition = darkMatter(c1.definition);
     test('makes member const',

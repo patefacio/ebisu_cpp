@@ -88,7 +88,7 @@ const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
 abstract class ClassMethod {
   Class get parent => _parent;
   /// If true add logging
-  bool log = false;
+  bool isLogged = false;
   Template get template => _template;
   /// C++ style access of method
   CppAccess cppAccess = public;
@@ -115,16 +115,16 @@ abstract class DefaultMethod extends ClassMethod {
   /// Supports injecting code near the bottom of the method. *See*
   /// *topInject*
   String bottomInject = '';
-  bool useDefault = false;
-  bool delete = false;
+  bool usesDefault = false;
+  bool hasDelete = false;
   // custom <class DefaultMethod>
 
   String get customDefinition;
   String get prototype;
 
-  String get definition => useDefault
+  String get definition => usesDefault
       ? '$prototype = default;'
-      : delete ? '$prototype = delete;' : customDefinition;
+      : hasDelete ? '$prototype = delete;' : customDefinition;
 
   // end <class DefaultMethod>
 }
@@ -185,7 +185,7 @@ class AssignCopy extends DefaultMethod {
 
   String get prototype => '${className}& operator=(${className} const&)';
   String get customDefinition =>
-      throw 'AssignCopy not generated - specify useDefault or delete for ${className}';
+      throw 'AssignCopy not generated - specify usesDefault or hasDelete for ${className}';
 
   // end <class AssignCopy>
 }
@@ -195,23 +195,23 @@ class AssignMove extends DefaultMethod {
 
   String get prototype => '${className}& operator=(${className} &&)';
   String get customDefinition =>
-      throw 'AssignMove not generated - specify useDefault or delete for ${className}';
+      throw 'AssignMove not generated - specify usesDefault or hasDelete for ${className}';
 
   // end <class AssignMove>
 }
 
 /// Provides a destructor
 class Dtor extends DefaultMethod {
-  bool abstract = false;
+  bool isAbstract = false;
   // custom <class Dtor>
 
-  String get definition => delete
+  String get definition => hasDelete
       ? throw "Don't delete the destructor for $className"
       : super.definition;
 
   String get prototype => '~${className}()';
 
-  String get customDefinition => abstract
+  String get customDefinition => isAbstract
       ? '''
 virtual ~${className}() {
 $topInject
@@ -404,7 +404,7 @@ class MemberCtor extends ClassMethod {
   /// Label for custom protect block if desired
   set customLabel(String customLabel) => _customLabel = customLabel;
   /// If set automatically includes all members as args
-  bool allMembers = false;
+  bool hasAllMembers = false;
   // custom <class MemberCtor>
 
   static _makeParm(parm) => (parm is String)
@@ -424,7 +424,7 @@ member being initialized or a MemberCtorParm instance'''));
 
   /// The [MemberCtor] definition as it appears in the class
   String get definition {
-    if (allMembers) {
+    if (hasAllMembers) {
       assert(memberParms.isEmpty);
       memberParms =
           parent.members.map((m) => _makeParm(m.name)..member = m).toList();
@@ -563,7 +563,7 @@ combine(members.map((m) =>
 ///
 class Class extends Entity {
   /// Is this definition a *struct*
-  bool struct = false;
+  bool isStruct = false;
   /// The template by which the class is parameterized
   Template get template => _template;
   /// List of usings that will be scoped to this class near the top of
@@ -590,11 +590,11 @@ class Class extends Entity {
   bool isSingleton = false;
   Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
   /// If true adds streaming support
-  bool streamable = false;
+  bool isStreamable = false;
   /// If true adds {using fcs::utils::streamers::operator<<} to streamer
   bool usesStreamers = false;
   /// If true adds test function to tests of the header it belongs to
-  bool includeTest = false;
+  bool includesTest = false;
   /// If true makes all members const provides single member ctor
   /// initializing all.
   ///
@@ -604,7 +604,7 @@ class Class extends Entity {
   /// user. This can be achieved with use of [addFullMemberCtor] and the
   /// developer ensuring the members are not modified. This provides a
   /// stronger guarantee of immutability.
-  bool immutable = false;
+  bool isImmutable = false;
   /// List of processors supporting flavors of serialization
   List<Serializer> serializers = [];
   /// List of interfaces this class implements. The [Interface] determines
@@ -622,7 +622,7 @@ class Class extends Entity {
 
   Iterable<Entity> get children => concat([enumsForward, enums, members]);
 
-  String get classStyle => struct ? 'struct' : 'class';
+  String get classStyle => isStruct ? 'struct' : 'class';
 
   /// Auto-initializing accessor for the [DefaultCtor]
   DefaultCtor get defaultCtor =>
@@ -723,19 +723,19 @@ class Class extends Entity {
   /// Adds a member constructor that provides for initialization of
   /// all members
   ///
-  /// Used by [immutable].
+  /// Used when class [isImmutable] is set
   addFullMemberCtor() =>
       memberCtors.add(memberCtor(members.map((m) => m.name).toList()));
 
   /// Returns a string representation of the class definition
   String get definition {
     if (_definition == null) {
-      if (immutable) {
+      if (isImmutable) {
         members.forEach((Member m) {
           if (_defaultCtor == null) {
-            m.noInit = true;
+            m.hasNoInit = true;
           }
-          m.isConst = !m.mutable;
+          m.isConst = !m.isMutable;
           m.access = ro;
         });
         if (memberCtors.isEmpty) {
@@ -814,7 +814,7 @@ class Class extends Entity {
     detailedComment,
     _templateDecl,
     _classOpener,
-    _wrapInAccess(struct ? null : public, indentBlock(combine([
+    _wrapInAccess(isStruct ? null : public, indentBlock(combine([
       br(usings.map((u) => 'using $u;')),
       br([_enumDecls, _enumStreamers]),
       br(friendClassDecls.map((fcd) => fcd.toString())),
@@ -836,7 +836,7 @@ class Class extends Entity {
           .where((m) => !m.isPublicStaticConst)
           .map((m) => _memberDefinition(m))),
       chomp(combine(members.map((m) => br([m.getter, m.setter])))),
-      streamable ? outStreamer : null,
+      isStreamable ? outStreamer : null,
       serializers.map((s) => s.serialize(this)),
     ]))),
     _wrapInAccess(protected, indentBlock(combine([
@@ -910,7 +910,7 @@ ${_access(access)}${txt}'''
 
   String _streamBase(Base b) => 'out << static_cast<${b.className}>(item);';
   get _streamBases =>
-      bases.where((b) => b.streamable).map((b) => _streamBase(b));
+      bases.where((b) => b.isStreamable).map((b) => _streamBase(b));
 
   String _streamMember(Member m) =>
       'out << "\\n  ${m.name}: " << item.${m.vname};';

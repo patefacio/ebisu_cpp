@@ -45,13 +45,13 @@
 ///         ]
 ///         ..classes = [
 ///           class_('functor_scope_exit')
-///           ..includeTest = true
+///           ..includesTest = true
 ///           ..template = [ 'typename FUNCTOR = Void_func_t' ]
 ///           ..usings = [ 'Functor_t = FUNCTOR' ]
 ///           ..customBlocks = [ clsPublic ]
 ///           ..memberCtors = [ memberCtor(['functor']) ]
 ///           ..members = [
-///             member('functor')..type = 'Functor_t'..noInit = true..access = ro,
+///             member('functor')..type = 'Functor_t'..hasNoInit = true..access = ro,
 ///           ],
 ///           ...
 ///           class_('api_initializer')

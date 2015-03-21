@@ -39,7 +39,7 @@ class DsvSerializer implements Serializer {
   String serialize(Class cls) {
     return '''
 ${_out(cls)}
-${cls.immutable? _immutableIn(cls) : _in(cls)}
+${cls.isImmutable? _immutableIn(cls) : _in(cls)}
 ''';
     //TODO: add back
   }
@@ -71,7 +71,7 @@ if(!fcs::timestamp::convert_to_timestamp_from_ticks(*it__, ${m.vname})) {
   throw std::logic_error(msg);
 }
 '''
-      : m.serializeInt
+      : m.isSerializedAsInt
           ? '${m.vname} = ${m.type}(lexical_cast<int>(*it__));'
           : '${m.vname} = lexical_cast<${m.type}>(*it__);';
 

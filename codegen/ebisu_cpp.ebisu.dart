@@ -316,7 +316,7 @@ With overrides:
     class_('derived')
     ..bases = [
       base('Base')
-      ..virtual = true
+      ..isVirtual = true
       ..access = protected
     ];
 
@@ -337,10 +337,10 @@ Gives:
             ..type = 'CppAccess'..classInit = 'public',
             member('init')
             ..doc = 'How to initiailize the base class in ctor initializer',
-            member('virtual')
+            member('is_virtual')
             ..doc = 'If true inheritance is virtual'
             ..classInit = false,
-            member('streamable')
+            member('is_streamable')
             ..doc = 'If true and streamers are being provided, base is streamed first'
             ..classInit = false,
           ]
@@ -425,7 +425,7 @@ List of interfaces for this header. Interfaces result in either:
             ..doc = 'If true adds from_c_str method'..classInit = false,
             member('has_to_c_str')
             ..doc = 'If true adds to_c_str method'..classInit = false,
-            member('streamable')
+            member('is_streamable')
             ..doc = 'If true adds streaming support'..classInit = false,
             member('is_mask')
             ..doc = 'If true the values are powers of two for bit masking'..classInit = false,
@@ -593,24 +593,24 @@ initialize it''',
             ..doc = 'C++ style access of member'..type = 'CppAccess'..access = WO,
             member('ref_type')
             ..doc = 'Ref type of member'..type = 'RefType'..classInit = 'value',
-            member('by_ref')
+            member('is_by_ref')
             ..doc = 'Pass member around by reference'..type = 'bool'..access = WO,
-            member('static')..doc = 'Is the member static'
+            member('is_static')..doc = 'Is the member static'
             ..classInit = false,
-            member('mutable')..doc = 'Is the member mutable'
+            member('is_mutable')..doc = 'Is the member mutable'
             ..classInit = false,
             member('is_const')..doc = 'Is the member const'
             ..classInit = false
             ..access = WO,
             member('is_const_expr')..doc = 'Is the member a constexprt'
             ..classInit = false,
-            member('no_init')
+            member('has_no_init')
             ..doc = 'If set will not initialize variable - use sparingly'
             ..classInit = false,
-            member('serialize_int')
+            member('is_serialized_as_int')
             ..doc = 'Indicates this member is an enum and if serialized should be serialized as int'
             ..classInit = false,
-            member('cereal_transient')
+            member('is_cereal_transient')
             ..doc = 'Indicates this member should not be serialized via cereal'
             ..classInit = false,
           ],
@@ -681,7 +681,7 @@ Gives the following content:
           ..isAbstract = true
           ..members = [
             member('parent')..type = 'Class'..access = RO,
-            member('log')..doc = 'If true add logging'..classInit = false,
+            member('is_logged')..doc = 'If true add logging'..classInit = false,
             member('template')..type = 'Template'..access = RO,
             member('cpp_access')
             ..doc = 'C++ style access of method'
@@ -706,8 +706,8 @@ methods. This supports injection near the top of the method.'''
 Supports injecting code near the bottom of the method. *See*
 *topInject*'''
             ..classInit = '',
-            member('use_default')..classInit = false,
-            member('delete')..classInit = false,
+            member('uses_default')..classInit = false,
+            member('has_delete')..classInit = false,
           ],
           class_('default_ctor')
           ..doc = 'Default ctor, autoinitialized on read'..extend = 'DefaultMethod',
@@ -721,7 +721,7 @@ Supports injecting code near the bottom of the method. *See*
           ..doc = 'Provides a destructor'
           ..extend = 'DefaultMethod'
           ..members = [
-            member('abstract')..classInit = false
+            member('is_abstract')..classInit = false
           ],
           class_('member_ctor_parm')
           ..doc = '''
@@ -878,7 +878,7 @@ custom block. In that case the class might look like:
             ..doc = 'Has custom code, so needs protect block'..classInit = false..access = WO,
             member('custom_label')
             ..doc = 'Label for custom protect block if desired'..access = WO,
-            member('all_members')
+            member('has_all_members')
             ..doc = 'If set automatically includes all members as args'
             ..classInit = false,
           ],
@@ -937,7 +937,7 @@ The contents of the class definition. *Inaccessible* and established
 as a member so custom *definition* getter can be called multiple times
 on the same class and results lazy-inited here'''
             ..access = IA,
-            member('struct')
+            member('is_struct')
             ..doc = 'Is this definition a *struct*'
             ..classInit = false,
             member('template')
@@ -1000,15 +1000,15 @@ Base classes this class derives form.
             member('code_blocks')
             ..access = RO
             ..type = 'Map<ClassCodeBlock, CodeBlock>'..classInit = {},
-            member('streamable')
+            member('is_streamable')
             ..doc = 'If true adds streaming support'..classInit = false,
             member('uses_streamers')
             ..doc = 'If true adds {using fcs::utils::streamers::operator<<} to streamer'
             ..classInit = false,
-            member('include_test')
+            member('includes_test')
             ..doc = 'If true adds test function to tests of the header it belongs to'
             ..classInit = false,
-            member('immutable')
+            member('is_immutable')
             ..doc = '''
 If true makes all members const provides single member ctor
 initializing all.
@@ -1108,7 +1108,7 @@ polymorphic* base.
           ..extend = 'CppFile'
           ..members = [
             member('file_path')..access = RO,
-            member('include_test')..classInit = false,
+            member('includes_test')..classInit = false,
             member('test')..type = 'Test'..access = IA,
             member('is_api_header')
             ..doc = '''
@@ -1533,13 +1533,13 @@ acquisition is initialization* idiom.
         ]
         ..classes = [
           class_('functor_scope_exit')
-          ..includeTest = true
+          ..includesTest = true
           ..template = [ 'typename FUNCTOR = Void_func_t' ]
           ..usings = [ 'Functor_t = FUNCTOR' ]
           ..customBlocks = [ clsPublic ]
           ..memberCtors = [ memberCtor(['functor']) ]
           ..members = [
-            member('functor')..type = 'Functor_t'..noInit = true..access = ro,
+            member('functor')..type = 'Functor_t'..hasNoInit = true..access = ro,
           ],
           ...
           class_('api_initializer')

@@ -284,7 +284,7 @@ class GoogleNamer implements Namer {
 ///     class_('derived')
 ///     ..bases = [
 ///       base('Base')
-///       ..virtual = true
+///       ..isVirtual = true
 ///       ..access = protected
 ///     ];
 ///
@@ -305,13 +305,13 @@ class Base {
   /// How to initiailize the base class in ctor initializer
   String init;
   /// If true inheritance is virtual
-  bool virtual = false;
+  bool isVirtual = false;
   /// If true and streamers are being provided, base is streamed first
-  bool streamable = false;
+  bool isStreamable = false;
   // custom <class Base>
 
   String get decl => '${ev(access)} $_virtual$className';
-  String get _virtual => virtual ? 'virtual ' : '';
+  String get _virtual => isVirtual ? 'virtual ' : '';
 
   // end <class Base>
 }

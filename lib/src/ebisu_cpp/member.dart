@@ -156,21 +156,21 @@ class Member extends Entity {
   /// Ref type of member
   RefType refType = value;
   /// Pass member around by reference
-  set byRef(bool byRef) => _byRef = byRef;
+  set isByRef(bool isByRef) => _isByRef = isByRef;
   /// Is the member static
-  bool static = false;
+  bool isStatic = false;
   /// Is the member mutable
-  bool mutable = false;
+  bool isMutable = false;
   /// Is the member const
   set isConst(bool isConst) => _isConst = isConst;
   /// Is the member a constexprt
   bool isConstExpr = false;
   /// If set will not initialize variable - use sparingly
-  bool noInit = false;
+  bool hasNoInit = false;
   /// Indicates this member is an enum and if serialized should be serialized as int
-  bool serializeInt = false;
+  bool isSerializedAsInt = false;
   /// Indicates this member should not be serialized via cereal
-  bool cerealTransient = false;
+  bool isCerealTransient = false;
   // custom <class Member>
 
   Member(Id id) : super(id);
@@ -178,19 +178,20 @@ class Member extends Entity {
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
   String toString() {
-    if (static &&
-        mutable) throw "Member $id may not be both static and mutable";
+    if (isStatic &&
+        isMutable) throw "Member $id may not be both static and mutable";
 
     return combine(_parts);
   }
 
-  get byRef => _byRef == null ? (type == 'std::string' ? true : false) : _byRef;
+  get isByRef =>
+      _isByRef == null ? (type == 'std::string' ? true : false) : _byRef;
 
   set initText(String txt) => _init = txt;
   get isRefType => refType != value;
 
   get passType => refType == value
-      ? (byRef ? '$type const &' : type)
+      ? (isByRef ? '$type const &' : type)
       : refType == ref
           ? '$type &'
           : refType == cref
@@ -223,11 +224,9 @@ class Member extends Entity {
 
   //  String get _initValue => init is! String? init.toString() : init;
   String get initializer =>
-      noInit || isRefType ? '' : init == null ? ' {}' : ' { $init }';
+      hasNoInit || isRefType ? '' : init == null ? ' {}' : ' { $init }';
 
-  set isStatic(bool v) => static = v;
   bool get isConst => _isConst || isConstExpr;
-  bool get isStatic => static;
   bool get isStaticConst => isConst && isStatic;
   bool get isPublic => cppAccess == public;
   bool get isPublicStaticConst => isConst && isStatic && isPublic;
@@ -251,8 +250,8 @@ void $name($_argType $name) { $vname = $name; }'''
   CppAccess get cppAccess =>
       _cppAccess != null ? _cppAccess : (access != null) ? private : public;
 
-  get _argType => byRef ? '$type &' : type;
-  get _constAccess => byRef ? '$type const&' : type;
+  get _argType => isByRef ? '$type &' : type;
+  get _constAccess => isByRef ? '$type const&' : type;
 
   get _parts => [briefComment, detailedComment, _decl,];
 
@@ -273,8 +272,8 @@ void $name($_argType $name) { $vname = $name; }'''
     }
   }
 
-  get _static => static ? 'static ' : '';
-  get _mutable => mutable ? 'mutable ' : '';
+  get _static => isStatic ? 'static ' : '';
+  get _mutable => isMutable ? 'mutable ' : '';
   get _constDecl => _isConst ? 'const ' : '';
   get _decl => isConstExpr
       ? '${_static}constexpr $_mutable$_refType $vname$initializer;'
@@ -283,7 +282,7 @@ void $name($_argType $name) { $vname = $name; }'''
   // end <class Member>
   String _init;
   CppAccess _cppAccess;
-  bool _byRef;
+  bool _isByRef;
   bool _isConst = false;
 }
 // custom <part member>
