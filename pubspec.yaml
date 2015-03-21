@@ -9,12 +9,12 @@ dependencies:
 
 # custom <ebisu_cpp dependencies>
 
-  magus: ">=0.0.4<0.1.0"
+  magus: ">=0.0.7<0.1.0"
   quiver: ">=0.18.2<0.19.0"
   ini: ">=1.0.0<1.2.0"
   github: ">=2.1.2<2.2.0"
   sqljocky: ">=0.11.0<0.12.0"
-  ebisu: ">=0.0.13<0.1.0"
+  ebisu: "^0.2.1"
 
 # end <ebisu_cpp dependencies>
 
@@ -26,6 +26,10 @@ dev_dependencies:
   hop_docgen: "any"
 
 # custom <ebisu_cpp dev dependencies>
+
+environment:
+  sdk: ">=0.8.10+6 <2.0.0"
+
 # end <ebisu_cpp dev dependencies>
 
 dependency_overrides:

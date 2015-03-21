@@ -579,6 +579,7 @@ class Class extends Entity {
   List<String> usingsPostDecl = [];
   /// Base classes this class derives form.
   List<Base> bases = [];
+  /// A list of member constructors
   List<MemberCtor> memberCtors = [];
   List<PtrType> forwardPtrs = [];
   List<Enum> enumsForward = [];
@@ -955,11 +956,17 @@ $classStyle $className$_baseDecl
   /// on the same class and results lazy-inited here
   String _definition;
   Template _template;
+  /// The default constructor
   DefaultCtor _defaultCtor;
+  /// The copy constructor
   CopyCtor _copyCtor;
+  /// The move constructor
   MoveCtor _moveCtor;
+  /// The assignment operator
   AssignCopy _assignCopy;
+  /// The assignment move operator
   AssignMove _assignMove;
+  /// The destructor
   Dtor _dtor;
   OpEqual _opEqual;
   OpLess _opLess;

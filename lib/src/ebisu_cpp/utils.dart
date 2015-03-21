@@ -2,8 +2,11 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// Simple variable constexprs
 class ConstExpr extends Entity {
+  /// The c++ type of the constexpr
   String type;
+  /// The initialization for the constexpr
   String get value => _value;
+  /// Any namespace to wrap the constexpr in
   Namespace namespace;
   // custom <class ConstExpr>
 
@@ -44,7 +47,9 @@ class ConstExpr extends Entity {
 class ForwardDecl {
   ForwardDecl(this.type, [this.namespace]);
 
+  /// The c++ type being forward declared
   String type;
+  /// The namespace to which the class being forward declared belongs
   Namespace namespace;
   // custom <class ForwardDecl>
 
@@ -87,6 +92,7 @@ FriendClassDecl friendClassDecl([String decl]) => new FriendClassDecl(decl);
 
 /// Represents a c++ namespace which is essentially a list of names
 class Namespace {
+  /// The individual names in the namespace
   List<String> names = [];
   // custom <class Namespace>
 
@@ -119,6 +125,7 @@ ${_helper(it, txt)}
 
 /// Collection of header includes
 class Includes {
+  /// Set of strings representing the includes
   Set<String> get included => _included;
   // custom <class Includes>
 
@@ -155,35 +162,6 @@ class Includes {
   // end <class Includes>
   Set<String> _included;
 }
-
-/// Wraps an optional protection block with optional code injection
-class CodeBlock {
-  CodeBlock(this.tag);
-
-  /// Tag for protect block. If present includes protect block
-  String tag;
-  List<String> snippets = [];
-  bool hasSnippetsFirst = false;
-  // custom <class CodeBlock>
-
-  bool get hasTag => tag != null && tag.length > 0;
-
-  String toString() {
-    if (hasTag) {
-      return hasSnippetsFirst
-          ? combine([]
-        ..addAll(snippets)
-        ..add(customBlock(tag)))
-          : combine([customBlock(tag)]..addAll(snippets));
-    }
-    return combine(snippets);
-  }
-
-  // end <class CodeBlock>
-}
-
-/// Create a CodeBlock sans new, for more declarative construction
-CodeBlock codeBlock([String tag]) => new CodeBlock(tag);
 
 /// Provides support for consistent naming of C++ entities
 abstract class Namer {
@@ -320,6 +298,7 @@ class GoogleNamer implements Namer {
 class Base {
   Base(this.className);
 
+  /// The name of the class being derived from
   String className;
   /// Is base class public, protected, or private
   CppAccess access = public;

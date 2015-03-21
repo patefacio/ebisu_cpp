@@ -14,7 +14,7 @@ void main() {
   _topDir = path.dirname(path.dirname(here));
   useDartFormatter = true;
   System ebisu = system('ebisu_cpp')
-    ..includeHop = true
+    ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
     ..pubSpec.version = '0.0.6'
@@ -22,7 +22,7 @@ void main() {
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
     ..rootPath = _topDir
-    ..doc = 'A library that supports code generation of cpp and others'
+    ..doc = 'A library that supports code generation of cpp'
     ..testLibraries = [
       library('test_cpp_enum'),
       library('test_cpp_member'),
@@ -35,7 +35,7 @@ void main() {
     ..libraries = [
       library('ebisu_cpp')
       ..doc = cppLibraryDoc
-      ..includeLogger = true
+      ..includesLogger = true
       ..imports = [
         'package:id/id.dart',
         'package:ebisu/ebisu.dart',
@@ -97,7 +97,7 @@ accessors, set *cppAccess* to *public* andd set *access* to null.
       std::string x_ {};
     };
 '''
-        ..libraryScopedValues = true
+        ..hasLibraryScopedValues = true
         ..values = [
           enumValue(id('ia'))
           ..doc = '**Inaccessible**. Designates a member that is *private* by default and no accessors',
@@ -125,7 +125,7 @@ This designation is used in multiple contexts such as:
   * On *Base* instances to indicate the access associated with inheritance
   * On class methods (ctor, dtor, ...) to designate access
 '''
-        ..libraryScopedValues = true
+        ..hasLibraryScopedValues = true
         ..values = [
           enumValue(id('public'))
           ..doc = 'C++ public designation',
@@ -136,7 +136,7 @@ This designation is used in multiple contexts such as:
         ],
         enum_('ref_type')
         ..doc = 'Reference type'
-        ..libraryScopedValues = true
+        ..hasLibraryScopedValues = true
         ..values = [
           enumValue(id('ref'))
           ..doc = 'Indicates a reference to type: *T &*',
@@ -151,7 +151,7 @@ This designation is used in multiple contexts such as:
         ],
         enum_('ptr_type')
         ..doc = 'Standard pointer type declaration'
-        ..libraryScopedValues = true
+        ..hasLibraryScopedValues = true
         ..values = [
           enumValue(id('sptr'))
           ..doc = 'Indicates *std::shared_ptr< T >*',
@@ -223,7 +223,9 @@ genration utilities.
 Represents a template declaration comprized of a list of [decls]
 '''
         ..members = [
-          member('decls')..type = 'List<String>',
+          member('decls')
+          ..doc = 'List of decls in the template (i.e. the typename entries)'
+          ..type = 'List<String>',
         ],
       ]
       ..parts = [
@@ -233,24 +235,33 @@ Represents a template declaration comprized of a list of [decls]
           ..doc = 'Simple variable constexprs'
           ..extend = 'Entity'
           ..members = [
-            member('type'),
-            member('value')..access = RO,
-            member('namespace')..type = 'Namespace',
+            member('type')
+            ..doc = 'The c++ type of the constexpr',
+            member('value')
+            ..doc = 'The initialization for the constexpr'
+            ..access = RO,
+            member('namespace')
+            ..doc = 'Any namespace to wrap the constexpr in'
+            ..type = 'Namespace',
           ],
           class_('forward_decl')
           ..doc = 'A forward declaration'
-          ..ctorSansNew = true
+          ..hasCtorSansNew = true
           ..members = [
-            member('type')..ctors = [''],
-            member('namespace')..type = 'Namespace'..ctorsOpt = [''],
+            member('type')
+            ..doc = 'The c++ type being forward declared'
+            ..ctors = [''],
+            member('namespace')
+            ..doc = 'The namespace to which the class being forward declared belongs'
+            ..type = 'Namespace'..ctorsOpt = [''],
           ],
           class_('code_generator')
           ..doc = 'Establishes an interface for generating code'
           ..isAbstract = true,
           class_('friend_class_decl')
           ..doc = 'Friend class declaration'
-          ..immutable = true
-          ..ctorSansNew = true
+          ..isImmutable = true
+          ..hasCtorSansNew = true
           ..members = [
             member('decl')
             ..doc = 'Declaration text without the *friend* and *class* keywords'
@@ -258,24 +269,17 @@ Represents a template declaration comprized of a list of [decls]
           class_('namespace')
           ..doc = 'Represents a c++ namespace which is essentially a list of names'
           ..members = [
-            member('names')..type = 'List<String>'..classInit = [],
+            member('names')
+            ..doc = 'The individual names in the namespace'
+            ..type = 'List<String>'..classInit = [],
           ],
           class_('includes')
           ..doc = 'Collection of header includes'
           ..members = [
             member('included')
+            ..doc = 'Set of strings representing the includes'
             ..access = RO
             ..type = 'Set<String>'
-          ],
-          class_('code_block')
-          ..doc = 'Wraps an optional protection block with optional code injection'
-          ..ctorSansNew = true
-          ..members = [
-            member('tag')
-            ..doc = 'Tag for protect block. If present includes protect block'
-            ..ctors = [''],
-            member('snippets')..type = 'List<String>'..classInit = [],
-            member('has_snippets_first')..classInit = false,
           ],
           class_('namer')
           ..doc = 'Provides support for consistent naming of C++ entities'
@@ -323,9 +327,11 @@ Gives:
     {
     };
 '''
-          ..ctorSansNew = true
+          ..hasCtorSansNew = true
           ..members = [
-            member('class_name')..ctors = [''],
+            member('class_name')
+            ..doc = 'The name of the class being derived from'
+            ..ctors = [''],
             member('access')
             ..doc = 'Is base class public, protected, or private'
             ..type = 'CppAccess'..classInit = 'public',
@@ -656,7 +662,7 @@ Gives the following content:
     // custom <ClsPostDecl C>
     // end <ClsPostDecl C>
 '''
-          ..libraryScopedValues = true
+          ..hasLibraryScopedValues = true
           ..values = [
             enumValue(id('cls_public'))
             ..doc = 'The custom block appearing in the standard *public* section',
@@ -766,7 +772,7 @@ which produces:
     };
 
 '''
-          ..ctorSansNew = true
+          ..hasCtorSansNew = true
           ..members = [
             member('name')
             ..doc = 'Name of member initialized by argument to member ctor'
@@ -960,13 +966,27 @@ Base classes this class derives form.
 
 '''
             ..type = 'List<Base>'..classInit = [],
-            member('default_ctor')..type = 'DefaultCtor'..access = IA,
-            member('copy_ctor')..type = 'CopyCtor'..access = IA,
-            member('move_ctor')..type = 'MoveCtor'..access = IA,
-            member('assign_copy')..type = 'AssignCopy'..access = IA,
-            member('assign_move')..type = 'AssignMove'..access = IA,
-            member('dtor')..type = 'Dtor'..access = IA,
-            member('member_ctors')..type = 'List<MemberCtor>'..classInit = [],
+            member('default_ctor')
+            ..doc = 'The default constructor'
+            ..type = 'DefaultCtor'..access = IA,
+            member('copy_ctor')
+            ..doc = 'The copy constructor'
+            ..type = 'CopyCtor'..access = IA,
+            member('move_ctor')
+            ..doc = 'The move constructor'
+            ..type = 'MoveCtor'..access = IA,
+            member('assign_copy')
+            ..doc = 'The assignment operator'
+            ..type = 'AssignCopy'..access = IA,
+            member('assign_move')
+            ..doc = 'The assignment move operator'
+            ..type = 'AssignMove'..access = IA,
+            member('dtor')
+            ..doc = 'The destructor'
+            ..type = 'Dtor'..access = IA,
+            member('member_ctors')
+            ..doc = 'A list of member constructors'
+            ..type = 'List<MemberCtor>'..classInit = [],
             member('op_equal')..type = 'OpEqual'..access = IA,
             member('op_less')..type = 'OpLess'..access = IA,
             member('op_out')..type = 'OpOut'..access = IA,
@@ -1057,7 +1077,7 @@ polymorphic* base.
         ..enums = [
           enum_('serialization_style')
           ..doc = 'Serialization using *cereal* supports these types of serialization'
-          ..libraryScopedValues = true
+          ..hasLibraryScopedValues = true
           ..values = [
             id('json_serialization'),
             id('xml_serialization'),
@@ -1158,7 +1178,7 @@ prints:
     #endif // __FOO_FOO_HPP__
 
 '''
-          ..libraryScopedValues = true
+          ..hasLibraryScopedValues = true
           ..values = [
             enumValue(id('fcb_custom_includes'))
             ..doc = 'Custom block for any additional includes appearing just after generated includes',
@@ -1430,7 +1450,7 @@ hdf5 packet table support
             ..doc = 'Exception details',
           ],
           class_('log_group')
-          ..ctorSansNew = true
+          ..hasCtorSansNew = true
           ..members = [
             member('class_name')
             ..doc = 'Name of class, *snake case*, to add a packet table log group'
@@ -1447,8 +1467,8 @@ log group. An empty list will include all members in the table.
             ..isFinal = true,
           ],
           class_('packet_table_decorator')
-          ..immutable = true
-          ..ctorSansNew = true
+          ..isImmutable = true
+          ..hasCtorSansNew = true
           ..implement = [
             'InstallationDecorator',
           ]

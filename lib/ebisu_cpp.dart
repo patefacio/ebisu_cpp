@@ -439,6 +439,7 @@ abstract class Entity {
 /// Represents a template declaration comprized of a list of [decls]
 ///
 class Template {
+  /// List of decls in the template (i.e. the typename entries)
   List<String> decls;
   // custom <class Template>
 

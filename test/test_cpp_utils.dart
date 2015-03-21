@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 import 'package:unittest/unittest.dart';
 // custom <additional imports>
 
+import 'package:ebisu/ebisu.dart';
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 
 // end <additional imports>
