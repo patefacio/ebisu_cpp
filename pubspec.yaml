@@ -28,7 +28,7 @@ dev_dependencies:
 # custom <ebisu_cpp dev dependencies>
 
 environment:
-  sdk: ">=0.8.10+6 <2.0.0"
+  sdk: ">=1.8.0 <2.0.0"
 
 # end <ebisu_cpp dev dependencies>
 
