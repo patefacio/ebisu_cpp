@@ -5,6 +5,8 @@ class Script extends Entity implements CodeGenerator {
 
   Script(Id id) : super(id);
 
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+
   void generate() => print('TBD');
 
   // end <class Script>

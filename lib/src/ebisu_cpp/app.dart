@@ -62,13 +62,15 @@ class AppArg extends Entity {
   Object get defaultValue => _defaultValue;
   // custom <class AppArg>
 
+  AppArg(Id id) : super(id);
+
   // Name as variable
   get name => namer.nameApp(id);
 
   // Name as used in command
   get optName => id.emacs;
 
-  AppArg(Id id) : super(id);
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
   set defaultValue(Object defaultValue) {
     type = defaultValue is String

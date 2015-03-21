@@ -240,7 +240,7 @@ class Member extends Entity {
     } else if (datum is bool) {
       inferredType = 'bool';
     } else if (datum is List) {
-      final list = datum as List;
+      List list = datum;
       if (list.isEmpty) throw 'Can not infer type from emtpy list';
       final first = datum.first;
       final guess = inferType(first);
@@ -283,10 +283,7 @@ void $name($_argType $name) { $vname = $name; }'''
 
   get _argType => isByRef ? '$type &' : type;
   get _constAccess => isByRef ? '$type const&' : type;
-
-  get _parts => [briefComment, detailedComment, _decl,];
-
-  get _descr => descr != null ? blockComment(descr) : descr;
+  get _parts => [briefComment, detailedComment, _decl ];
 
   get _refType {
     switch (refType) {

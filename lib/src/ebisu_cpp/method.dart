@@ -6,12 +6,14 @@ class ParmDecl extends Entity {
 
   ParmDecl(id) : super(id);
 
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+
   static RegExp declRe = new RegExp(r'^(.*?)\s+(\w+)\s*$');
 
   factory ParmDecl.fromDecl(String decl) {
     final declMatch = declRe.firstMatch(decl.trim());
     if (declMatch == null) {
-      throw ArgumentError('''
+      throw new ArgumentError('''
 Invalid parm decl: <$decl>
 Try something familiar like these:
   int x
@@ -38,12 +40,14 @@ class MethodDecl extends Entity {
 
   MethodDecl(id) : super(id);
 
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+
   static RegExp declRe = new RegExp(r'^(.*?)\s+(\w+)\s*\(([^\)]*)\)\s*$');
 
   factory MethodDecl.fromDecl(String decl) {
     final declMatch = declRe.firstMatch(decl);
     if (declMatch == null) {
-      throw ArgumentError('''
+      throw new ArgumentError('''
 Invalid method decl: $decl
 Try something familiar like: "void add(int a, int b)"
 ''');
@@ -90,6 +94,8 @@ class Interface extends Entity {
   // custom <class Interface>
 
   Interface(id) : super(id);
+
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
   set methodDecls(Iterable decls) {
     _methodDecls = decls.map((var decl) => decl is String

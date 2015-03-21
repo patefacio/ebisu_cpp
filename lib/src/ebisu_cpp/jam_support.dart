@@ -11,10 +11,10 @@ class JamInstallationBuilder extends InstallationBuilder {
   JamInstallationBuilder() : super();
 
   generate() {
-    new SiteConfig(installation).generate();
-    new UserConfig(installation).generate();
-    new JamRoot(installation).generate();
-    new JamFileTop(installation).generate();
+    new SiteConfig(this.installation).generate();
+    new UserConfig(this.installation).generate();
+    new JamRoot(this.installation).generate();
+    new JamFileTop(this.installation).generate();
   }
 
   // end <class JamInstallationBuilder>

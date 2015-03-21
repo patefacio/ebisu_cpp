@@ -14,6 +14,8 @@ class ConstExpr extends Entity {
     value = value_;
   }
 
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+
   set value(Object value_) {
     if (type == null) {
       type = value_ is String
@@ -185,14 +187,21 @@ abstract class Namer {
   String nameLib(Namespace namespace, Id id);
   /// Name a [Class] from its [Id]
   String nameClass(Id id);
+  /// Name of member in a generic sense
+  /// Essentially this is used to determine case of the member in general
+  /// but the actual declared variable may use a different convention based
+  /// on [CppAccess]
+  String nameMember(Id id);
   /// Name a [Member] from its [Id] and whether it is public.  If the name is
   /// *public* the default namer, [EbisuCppNamer] uses just the snake case of
   /// the id. Otherwise it adds a '_' suffix
-  String nameMember(Id id, bool isPublic);
+  String nameMemberVar(Id id, bool isPublic);
   /// Name a [Method] from its [Id]
   String nameMethod(Id id);
   /// Name an [Enum] from its [Id]
   String nameEnum(Id id);
+  /// Name a static const variable from its [Id]
+  String nameStaticConst(Id id);
   /// Name an [Enum] value from its [Id]
   String nameEnumConst(Id id);
   /// Name a [Header] from its [Id]
