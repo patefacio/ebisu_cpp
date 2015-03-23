@@ -633,6 +633,17 @@ initialize it''',
             member('is_cereal_transient')
             ..doc = 'Indicates this member should not be serialized via cereal'
             ..classInit = false,
+            member('is_streamable')
+            ..doc = '''
+Indicates member should be streamed if class is streamable.
+One of the few flags defaulted to *true*, this flag provides
+an opportunity to *not* stream specific members'''
+            ..classInit = true,
+            member('has_custom_streamable')
+            ..doc = '''
+Indicates a custom protect block is needed to hand code
+the streamable for this member'''
+            ..classInit = false
           ],
         ],
         part('class')

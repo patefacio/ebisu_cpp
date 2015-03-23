@@ -188,6 +188,13 @@ class Member extends Entity {
   bool isSerializedAsInt = false;
   /// Indicates this member should not be serialized via cereal
   bool isCerealTransient = false;
+  /// Indicates member should be streamed if class is streamable.
+  /// One of the few flags defaulted to *true*, this flag provides
+  /// an opportunity to *not* stream specific members
+  bool isStreamable = true;
+  /// Indicates a custom protect block is needed to hand code
+  /// the streamable for this member
+  bool hasCustomStreamable = false;
   // custom <class Member>
 
   Member(Id id) : super(id);
@@ -283,7 +290,7 @@ void $name($_argType $name) { $vname = $name; }'''
 
   get _argType => isByRef ? '$type &' : type;
   get _constAccess => isByRef ? '$type const&' : type;
-  get _parts => [briefComment, detailedComment, _decl ];
+  get _parts => [briefComment, detailedComment, _decl];
 
   get _refType {
     switch (refType) {

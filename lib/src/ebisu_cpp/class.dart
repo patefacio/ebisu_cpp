@@ -912,8 +912,10 @@ ${_access(access)}${txt}'''
   get _streamBases =>
       bases.where((b) => b.isStreamable).map((b) => _streamBase(b));
 
-  String _streamMember(Member m) =>
-      'out << "\\n  ${m.name}: " << item.${m.vname};';
+  String _streamMember(Member m) => m.hasCustomStreamable
+      ? customBlock('${id.snake}::${m.id}::out')
+      : m.isStreamable ? 'out << "\\n  ${m.name}: " << item.${m.vname};' : '';
+
   get _streamMembers => members.map((m) => _streamMember(m));
 
   /// Returns the *operator<<* method for this class
