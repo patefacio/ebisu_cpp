@@ -1069,6 +1069,12 @@ time via call forwarding. The entries in the list must be either:
 '''
             ..type = 'List'
             ..classInit = [],
+            member('pack_align')
+            ..doc = r'''
+If set, will include *#pragma pack(push, $packAlign)* before the class
+and *#pragma pack(pop)* after.
+'''
+            ..type = 'int',
           ],
         ],
         part('method')

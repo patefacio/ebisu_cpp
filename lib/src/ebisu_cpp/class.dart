@@ -616,6 +616,9 @@ class Class extends Entity {
   ///
   /// * AccessInterface: which will be used directly
   List implementedInterfaces = [];
+  /// If set, will include *#pragma pack(push, $packAlign)* before the class
+  /// and *#pragma pack(pop)* after.
+  int packAlign;
   // custom <class Class>
 
   Class(Id id) : super(id);
@@ -806,6 +809,10 @@ class Class extends Entity {
     ..addAll(_ctorMethods)
     ..addAll(_opMethods);
 
+  get _pragmaPackPush =>
+      packAlign != null ? '#pragma pack(push, $packAlign)' : '';
+  get _pragmaPackPop => packAlign != null ? '#pragma pack(pop)' : '';
+
   get _parts => [
     _forwardPtrs,
     enumsForward.map((e) => e.toString()).join('\n'),
@@ -813,6 +820,7 @@ class Class extends Entity {
     briefComment,
     detailedComment,
     _templateDecl,
+    _pragmaPackPush,
     _classOpener,
     _wrapInAccess(isStruct ? null : public, indentBlock(combine([
       br(usings.map((u) => 'using $u;')),
@@ -865,7 +873,7 @@ class Class extends Entity {
           .map((i) => i.definition)),
       br(privateMembers.map((m) => _memberDefinition(m)))
     ]))),
-    br(_classCloser),
+    br([_classCloser, _pragmaPackPop]),
     br(usingsPostDecl.map((u) => 'using $u;')),
     _codeBlockText(clsPostDecl),
   ];
