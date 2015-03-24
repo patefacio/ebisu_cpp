@@ -9,6 +9,7 @@ main() {
     ..level = Level.INFO;
 
   final scareTactics = interface('scare_tactics')
+    ..isVirtual = true
     ..methodDecls = [
       methodDecl('void makeAudibleWarning(int intensity)'),
       'void makeVisibleWarning(int intensity)',
@@ -17,7 +18,7 @@ main() {
 
   final eatingHabbits = interface('eating_habbits')
     ..methodDecls = [
-      'void eatMeat()',
+      'void eatMeat(int proteinContent)',
       'void eatVeggies()',
     ];
 

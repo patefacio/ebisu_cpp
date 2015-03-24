@@ -71,17 +71,21 @@ Try something familiar like: "void add(int a, int b)"
 
   String get signature => '$returnType ${id.snake}(${parmDecls.join(',')})';
 
-  String get declaration => '''
+  String get _declaration => '''
 $signature {
 ${customBlock(id.snake)}
 }
 ''';
 
-  String get asVirtual => 'virtual $declaration';
-
+  String get asVirtual => 'virtual $_declaration';
+  String get asNonVirtual => _declaration;
   String get asPureVirtual => 'virtual $signature = 0;';
 
-  toString() => asPureVirtual;
+  String declaration(bool isVirtual) =>
+    isVirtual? asVirtual : asNonVirtual;
+
+  toString() => _declaration;
+
 
   // end <class MethodDecl>
 }
@@ -99,9 +103,9 @@ class Interface extends Entity {
 
   set methodDecls(Iterable decls) {
     _methodDecls = decls.map((var decl) => decl is String
-        ? methodDecl(decl)
+        ? methodDecl(decl).declaration(isVirtual)
         : decl is MethodDecl
-            ? decl
+        ? decl.declaration(isVirtual)
             : throw new ArgumentError('''
 MethodDecls must be initialized with String or MethodDecl
 ''')).toList();
