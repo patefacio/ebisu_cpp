@@ -33,6 +33,8 @@ main([List<String> args]) {
         final parmDecl = new ParmDecl.fromDecl(decl);
         expect(parmDecl.id.snake, 'name');
         expect(parmDecl.type, 'char const*');
+        print(new ParmDecl.fromDecl(
+            'std::vector< std::vector < double > > matrix'));
       });
     }
 

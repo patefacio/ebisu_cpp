@@ -781,6 +781,8 @@ class Class extends Entity {
       if (interface is Interface) {
         implementedInterfaces[i] = new AccessInterface(interface);
       }
+      if (implementedInterfaces[i].isVirtual) bases
+          .add(base(implementedInterfaces[i].name));
       assert(implementedInterfaces[i] is AccessInterface);
     }
     _logger.info('Class ($id) finalized supporting: ${implementedInterfaces}');

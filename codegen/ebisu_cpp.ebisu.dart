@@ -174,7 +174,7 @@ Establishes an interface to allow decoration of classes and updates
 
         class_('entity')
         ..isAbstract = true
-        ..doc = '''
+        ..doc = """
 Exposes common elements for named entities, including their [id] and
 documentation. Additionally tracks parentage/ownership of entities.
 
@@ -185,11 +185,49 @@ can trick down establishing ownership.
 
 The purpose of linking all [Entity] instances in a virtual tree type
 structure is so lookups can be done for entities.
-'''
+
+[Entity] must be created with an argument representing an Id.  That
+argument may be a string, in which case it is converted to an [Id].
+That argument may be an [Id].
+
+For many/most [Entity] subclasses there is often a corresponding
+method that simply creates in instance of the subclass. For example,
+
+    class Lib extends Entity... {
+       Lib(Id id) : super(id);
+       ...
+    }
+
+    Lib lib(Object id) => new Lib(id is Id ? id : new Id(id));
+
+This now allows this approach:
+
+      final myLib = lib('my_awesome_lib')
+        ..headers = [
+          header('my_header')
+          ..classes = [
+            class_('my_class')
+            ..members = [
+              member('my_member')
+            ]
+          ]
+        ];
+
+      print(myLib);
+
+prints:
+
+    lib(myAwesomeLib)
+      headers:
+        header(myHeader)
+          classes:[My_class]
+
+      tests:
+"""
         ..members = [
           member('id')
           ..doc = 'Id for the entity'
-          ..type = 'Id'..ctors = [''],
+          ..type = 'Id',
           member('brief')
           ..doc = 'Brief description for the entity',
           member('descr')
@@ -1080,17 +1118,118 @@ and *#pragma pack(pop)* after.
         part('method')
         ..classes = [
           class_('parm_decl')
+          ..doc = r"""
+A parameter declaration.
+
+Method signatures consist of a [List<ParmDecl>] and a return type.
+[ParmDecl]s may be constructed from declaration text:
+
+      var pd = new ParmDecl.fromDecl('std::vector< std::vector < double > > matrix');
+      print('''
+    id    => ${pd.id} (${pd.id.runtimeType})
+    type  => ${pd.type}
+    ''');
+
+prints:
+
+    id    => matrix (Id)
+    type  => std::vector< std::vector < double > >
+
+[ParmDecl]s may be constructed with Id, declaratively:
+
+      var pd = new ParmDecl('matrix')..type = 'std::vector< std::vector < double > >';
+      print('''
+    id    => ${pd.id} (${pd.id.runtimeType})
+    type  => ${pd.type}
+    ''');
+
+prints:
+
+    id    => matrix (Id)
+    type  => std::vector< std::vector < double > >
+"""
           ..extend = 'Entity'
           ..members = [
             member('type'),
           ],
           class_('method_decl')
+          ..doc = r"""
+A method declaration, which consist of a [List<ParmDecl>] (i.e. the
+parameters) and a [returnType]
+
+[MethodDecl]s may be constructed from declaration text:
+
+      var md = new MethodDecl.fromDecl('Row_list_t find_row(std::string s)');
+      print(md);
+
+prints:
+
+    Row_list_t find_row(std::string s) {
+    // custom <find_row>
+    // end <find_row>
+
+    }
+
+[MethodDecl]s may be constructed with [id] declaratively:
+
+  var md = new MethodDecl('find_row')
+    ..parmDecls = [ new ParmDecl.fromDecl('std::string s') ]
+    ..returnType = 'Row_list_t';
+
+prints:
+
+Row_list_t find_row(std::string s) {
+// custom <find_row>
+// end <find_row>
+
+}
+"""
           ..extend = 'Entity'
           ..members = [
             member('parm_decls')..type = 'List<ParmDecl>'..classInit = [],
             member('return_type'),
           ],
           class_('interface')
+          ..doc = """
+A collection of methods that as a group are either virtual or not.  A
+*virtual* interface expresses a desire to have code generated that
+will implement (i.e. derive from) the set of methods virtually. If the
+interface is *not* virtual, it is an indication that the implementers
+of the interface will provide implementations to be used via static
+polymorphism.
+
+      var md = new Interface('alarmist')
+        ..doc = 'Methods that cause alarm'
+        ..methodDecls = [
+          'void shoutsFireInTheater(int volume)',
+          'void wontStopWithTheGlobalWarming()',
+          new MethodDecl.fromDecl('void growl()')..doc = 'Scare them'
+        ];
+      print(md);
+
+prints:
+
+    /**
+     Methods that cause alarm
+    */
+    interface Alarmist
+      void shouts_fire_in_theater(int volume) {
+        // custom <shouts_fire_in_theater>
+        // end <shouts_fire_in_theater>
+      }
+      void wont_stop_with_the_global_warming() {
+        // custom <wont_stop_with_the_global_warming>
+        // end <wont_stop_with_the_global_warming>
+      }
+      /**
+       Scare them
+      */
+      void growl() {
+        // custom <growl>
+        // end <growl>
+      }
+    }
+"""
           ..extend = 'Entity'
           ..members = [
             member('is_virtual')
@@ -1105,6 +1244,7 @@ polymorphic* base.
             ..classInit = [],
           ],
           class_('access_interface')
+          ..doc = 'An [interface] with a [CppAccess], so interfaces can be scoped'
           ..members = [
             member('interface')..type = 'Interface'..ctors = [''],
             member('cpp_access')..type = 'CppAccess'..classInit = 'public'

@@ -1,5 +1,22 @@
 part of ebisu_cpp.ebisu_cpp;
 
+/// A parameter declaration.
+///
+/// Method signatures consist of a [List<ParmDecl>] and a return type.
+/// [ParmDecl]s may be constructed from declaration text:
+///
+///       var pd = new ParmDecl.fromDecl('std::vector< std::vector < double > > matrix');
+///       print('''
+///     id    => ${pd.id}
+///     type  => ${pd.type}
+///     ''');
+///
+/// prints:
+///
+///     id    => matrix
+///     type  => std::vector< std::vector < double > >
+///
+///
 class ParmDecl extends Entity {
   String type;
   // custom <class ParmDecl>
@@ -33,6 +50,8 @@ Try something familiar like these:
   // end <class ParmDecl>
 }
 
+/// A method declaration.
+///
 class MethodDecl extends Entity {
   List<ParmDecl> parmDecls = [];
   String returnType;
@@ -72,20 +91,17 @@ Try something familiar like: "void add(int a, int b)"
   String get signature => '$returnType ${id.snake}(${parmDecls.join(',')})';
 
   String get _declaration => '''
-$signature {
-${customBlock(id.snake)}
-}
-''';
+${this.docComment}$signature {
+${chomp(indentBlock(customBlock(id.snake)))}
+}''';
 
   String get asVirtual => 'virtual $_declaration';
   String get asNonVirtual => _declaration;
   String get asPureVirtual => 'virtual $signature = 0;';
 
-  String declaration(bool isVirtual) =>
-    isVirtual? asVirtual : asNonVirtual;
+  String declaration(bool isVirtual) => isVirtual ? asVirtual : asNonVirtual;
 
   toString() => _declaration;
-
 
   // end <class MethodDecl>
 }
@@ -101,11 +117,13 @@ class Interface extends Entity {
 
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
+  get name => namer.nameClass(id);
+
   set methodDecls(Iterable decls) {
     _methodDecls = decls.map((var decl) => decl is String
         ? methodDecl(decl).declaration(isVirtual)
         : decl is MethodDecl
-        ? decl.declaration(isVirtual)
+            ? decl.declaration(isVirtual)
             : throw new ArgumentError('''
 MethodDecls must be initialized with String or MethodDecl
 ''')).toList();
@@ -116,6 +134,12 @@ MethodDecls must be initialized with String or MethodDecl
 
   String get definition => '''
 ${_methodDecls.join('\n')}
+''';
+
+  toString() => '''
+${this.docComment}interface ${id.capCamel}
+${chomp(indentBlock(definition))}
+}
 ''';
 
   // end <class Interface>
@@ -129,7 +153,9 @@ class AccessInterface {
   CppAccess cppAccess = public;
   // custom <class AccessInterface>
 
+  String get name => interface.name;
   String get definition => interface.definition;
+  bool get isVirtual => interface.isVirtual;
 
   toString() => '${ev(cppAccess)}: ${interface.id.snake}';
 

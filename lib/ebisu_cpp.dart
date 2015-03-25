@@ -342,8 +342,6 @@ abstract class InstallationDecorator {
 /// structure is so lookups can be done for entities.
 ///
 abstract class Entity {
-  Entity(this.id);
-
   /// Id for the entity
   Id id;
   /// Brief description for the entity
@@ -357,14 +355,23 @@ abstract class Entity {
   List<Entity> get entityPath => _entityPath;
   // custom <class Entity>
 
+  Entity(Object id) : this.id = id is String
+          ? idFromString(id)
+          : id is Id
+              ? id
+              : throw '''
+Entities must be created with an id of type String or Id''';
+
   String get briefComment => brief != null ? '//! $brief' : null;
 
   String get detailedComment => descr != null ? blockComment(descr, ' ') : null;
 
+  String get docComment => br([briefComment, detailedComment]);
+
   Iterable<Id> get entityPathIds => _entityPath.map((e) => e.id);
 
   /// *doc* is a synonym for descr
-  set doc(String d) => descr = d;
+  set doc(String d) { print('For $id Doc set to $d'); descr = d; }
   get doc => descr;
 
   /// Establishes the [Entity] that *this* [Entity] is owned by. This
@@ -447,6 +454,8 @@ class Template {
 
   String get decl => '''
 template< ${decls.join(',\n          ')} >''';
+
+  toString() => decl;
 
   // end <class Template>
 }
