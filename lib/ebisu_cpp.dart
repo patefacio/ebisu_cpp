@@ -341,6 +341,44 @@ abstract class InstallationDecorator {
 /// The purpose of linking all [Entity] instances in a virtual tree type
 /// structure is so lookups can be done for entities.
 ///
+/// [Entity] must be created with an argument representing an Id.  That
+/// argument may be a string, in which case it is converted to an [Id].
+/// That argument may be an [Id].
+///
+/// For many/most [Entity] subclasses there is often a corresponding
+/// method that simply creates in instance of the subclass. For example,
+///
+///     class Lib extends Entity... {
+///        Lib(Id id) : super(id);
+///        ...
+///     }
+///
+///     Lib lib(Object id) => new Lib(id is Id ? id : new Id(id));
+///
+/// This now allows this approach:
+///
+///       final myLib = lib('my_awesome_lib')
+///         ..headers = [
+///           header('my_header')
+///           ..classes = [
+///             class_('my_class')
+///             ..members = [
+///               member('my_member')
+///             ]
+///           ]
+///         ];
+///
+///       print(myLib);
+///
+/// prints:
+///
+///     lib(myAwesomeLib)
+///       headers:
+///         header(myHeader)
+///           classes:[My_class]
+///
+///       tests:
+///
 abstract class Entity {
   /// Id for the entity
   Id id;
@@ -371,7 +409,10 @@ Entities must be created with an id of type String or Id''';
   Iterable<Id> get entityPathIds => _entityPath.map((e) => e.id);
 
   /// *doc* is a synonym for descr
-  set doc(String d) { print('For $id Doc set to $d'); descr = d; }
+  set doc(String d) {
+    print('For $id Doc set to $d');
+    descr = d;
+  }
   get doc => descr;
 
   /// Establishes the [Entity] that *this* [Entity] is owned by. This

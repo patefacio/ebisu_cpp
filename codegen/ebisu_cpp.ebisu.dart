@@ -17,7 +17,7 @@ void main() {
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.7'
+    ..pubSpec.version = '0.0.8'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))

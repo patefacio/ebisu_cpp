@@ -7,15 +7,27 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 ///       var pd = new ParmDecl.fromDecl('std::vector< std::vector < double > > matrix');
 ///       print('''
-///     id    => ${pd.id}
+///     id    => ${pd.id} (${pd.id.runtimeType})
 ///     type  => ${pd.type}
 ///     ''');
 ///
 /// prints:
 ///
-///     id    => matrix
+///     id    => matrix (Id)
 ///     type  => std::vector< std::vector < double > >
 ///
+/// [ParmDecl]s may be constructed with Id, declaratively:
+///
+///       var pd = new ParmDecl('matrix')..type = 'std::vector< std::vector < double > >';
+///       print('''
+///     id    => ${pd.id} (${pd.id.runtimeType})
+///     type  => ${pd.type}
+///     ''');
+///
+/// prints:
+///
+///     id    => matrix (Id)
+///     type  => std::vector< std::vector < double > >
 ///
 class ParmDecl extends Entity {
   String type;
@@ -50,7 +62,35 @@ Try something familiar like these:
   // end <class ParmDecl>
 }
 
-/// A method declaration.
+/// A method declaration, which consist of a [List<ParmDecl>] (i.e. the
+/// parameters) and a [returnType]
+///
+/// [MethodDecl]s may be constructed from declaration text:
+///
+///       var md = new MethodDecl.fromDecl('Row_list_t find_row(std::string s)');
+///       print(md);
+///
+/// prints:
+///
+///     Row_list_t find_row(std::string s) {
+///     // custom <find_row>
+///     // end <find_row>
+///
+///     }
+///
+/// [MethodDecl]s may be constructed with [id] declaratively:
+///
+///   var md = new MethodDecl('find_row')
+///     ..parmDecls = [ new ParmDecl.fromDecl('std::string s') ]
+///     ..returnType = 'Row_list_t';
+///
+/// prints:
+///
+/// Row_list_t find_row(std::string s) {
+/// // custom <find_row>
+/// // end <find_row>
+///
+/// }
 ///
 class MethodDecl extends Entity {
   List<ParmDecl> parmDecls = [];
@@ -106,6 +146,45 @@ ${chomp(indentBlock(customBlock(id.snake)))}
   // end <class MethodDecl>
 }
 
+/// A collection of methods that as a group are either virtual or not.  A
+/// *virtual* interface expresses a desire to have code generated that
+/// will implement (i.e. derive from) the set of methods virtually. If the
+/// interface is *not* virtual, it is an indication that the implementers
+/// of the interface will provide implementations to be used via static
+/// polymorphism.
+///
+///       var md = new Interface('alarmist')
+///         ..doc = 'Methods that cause alarm'
+///         ..methodDecls = [
+///           'void shoutsFireInTheater(int volume)',
+///           'void wontStopWithTheGlobalWarming()',
+///           new MethodDecl.fromDecl('void growl()')..doc = 'Scare them'
+///         ];
+///       print(md);
+///
+/// prints:
+///
+///     /**
+///      Methods that cause alarm
+///     */
+///     interface Alarmist
+///       void shouts_fire_in_theater(int volume) {
+///         // custom <shouts_fire_in_theater>
+///         // end <shouts_fire_in_theater>
+///       }
+///       void wont_stop_with_the_global_warming() {
+///         // custom <wont_stop_with_the_global_warming>
+///         // end <wont_stop_with_the_global_warming>
+///       }
+///       /**
+///        Scare them
+///       */
+///       void growl() {
+///         // custom <growl>
+///         // end <growl>
+///       }
+///     }
+///
 class Interface extends Entity {
   /// If true interface results in pure abstract class, else *static
   /// polymorphic* base.
@@ -146,6 +225,7 @@ ${chomp(indentBlock(definition))}
   List<MethodDecl> _methodDecls = [];
 }
 
+/// An [interface] with a [CppAccess], so interfaces can be scoped
 class AccessInterface {
   AccessInterface(this.interface);
 
