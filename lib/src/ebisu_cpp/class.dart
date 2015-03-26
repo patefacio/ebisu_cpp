@@ -607,15 +607,9 @@ class Class extends Entity {
   bool isImmutable = false;
   /// List of processors supporting flavors of serialization
   List<Serializer> serializers = [];
-  /// List of interfaces this class implements. The [Interface] determines
-  /// whether the polymorphism is runtime via virtual methods or compile
-  /// time via call forwarding. The entries in the list must be either:
   ///
-  /// * Interface: identifying the interface implemented. The interface will
-  ///   be wrapped in an [AccessInterface] with [public] access.
-  ///
-  /// * AccessInterface: which will be used directly
-  List implementedInterfaces = [];
+  List<InterfaceImplementation> get interfaceImplementations =>
+      _interfaceImplementations;
   /// If set, will include *#pragma pack(push, $packAlign)* before the class
   /// and *#pragma pack(pop)* after.
   int packAlign;
@@ -624,6 +618,12 @@ class Class extends Entity {
   Class(Id id) : super(id);
 
   Iterable<Entity> get children => concat([enumsForward, enums, members]);
+
+  set interfaceImplementations(Iterable impls) =>
+    _interfaceImplementations = impls
+    .map((i) => i is InterfaceImplementation? i :
+        i is Interface? new InterfaceImplementation(i) : throw '*interfaceImplementatinos may be set with Iterable of [Interface] in which case defaults will be used, or [InterfaceImplementation]')
+    .toList();
 
   String get classStyle => isStruct ? 'struct' : 'class';
 
@@ -751,7 +751,7 @@ class Class extends Entity {
       }
 
       enums.forEach((e) => e.isNested = true);
-      _methods.forEach((m) {
+      _standardMethods.forEach((m) {
         if (m != null) m._parent = this;
       });
       memberCtors.forEach((m) {
@@ -776,16 +776,12 @@ class Class extends Entity {
       members.where((m) => m.cppAccess == private);
 
   void _finalizeEntity() {
-    for (int i = 0; i < implementedInterfaces.length; ++i) {
-      final interface = implementedInterfaces[i];
-      if (interface is Interface) {
-        implementedInterfaces[i] = new AccessInterface(interface);
-      }
-      if (implementedInterfaces[i].isVirtual) bases
-          .add(base(implementedInterfaces[i].name));
-      assert(implementedInterfaces[i] is AccessInterface);
-    }
-    _logger.info('Class ($id) finalized supporting: ${implementedInterfaces}');
+    interfaceImplementations
+      .where((i) => i.isVirtual)
+      .forEach((i) => bases.add(base(i.name)));
+
+    _logger
+        .info('Class ($id) finalized supporting: ${interfaceImplementations}');
   }
 
   List<String> get _baseDecls => []
@@ -807,7 +803,7 @@ class Class extends Entity {
   get _opMethods =>
       [_assignCopy, _assignMove, _dtor, _opEqual, _opLess, _opOut];
 
-  get _methods => []
+  get _standardMethods => []
     ..addAll(_ctorMethods)
     ..addAll(_opMethods);
 
@@ -837,9 +833,9 @@ class Class extends Entity {
       br(_opMethods
           .where((m) => m != null && m.cppAccess == public)
           .map((m) => m.definition)),
-      br(implementedInterfaces
+      br(interfaceImplementations
           .where((i) => i.cppAccess == public)
-          .map((i) => i.definition)),
+          .map((i) => i.methodDecls)),
       br(_singleton),
       _codeBlockText(clsPublic),
       br(publicMembers
@@ -857,9 +853,9 @@ class Class extends Entity {
       br(_opMethods
           .where((m) => m != null && m.cppAccess == protected)
           .map((m) => m.definition)),
-      br(implementedInterfaces
+      br(interfaceImplementations
           .where((i) => i.cppAccess == protected)
-          .map((i) => i.definition)),
+          .map((i) => i.methodDecls)),
       br(protectedMembers.map((m) => _memberDefinition(m)))
     ]))),
     _wrapInAccess(private, indentBlock(combine([
@@ -870,9 +866,9 @@ class Class extends Entity {
       br(_opMethods
           .where((m) => m != null && m.cppAccess == private)
           .map((m) => m.definition)),
-      br(implementedInterfaces
+      br(interfaceImplementations
           .where((i) => i.cppAccess == private)
-          .map((i) => i.definition)),
+          .map((i) => i.methodDecls)),
       br(privateMembers.map((m) => _memberDefinition(m)))
     ]))),
     br([_classCloser, _pragmaPackPop]),
@@ -984,6 +980,15 @@ $classStyle $className$_baseDecl
   OpLess _opLess;
   OpOut _opOut;
   Map<ClassCodeBlock, CodeBlock> _codeBlocks = {};
+  List<InterfaceImplementation> _interfaceImplementations = [];
+  /// The [Method]s that are implemented by this [Class]. A [Class]
+  /// implements the union of methods in its [implementedInterfaces]. Each
+  /// [Method] is identified by its qualified id *string* which is:
+  ///
+  ///    interface.method_name.signature
+  ///
+  /// Lookup is done by pattern match.
+  Map<String, Method> _methods = {};
 }
 // custom <part class>
 

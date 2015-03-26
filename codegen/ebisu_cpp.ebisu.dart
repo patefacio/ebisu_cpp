@@ -270,7 +270,19 @@ Represents a template declaration comprized of a list of [decls]
         part('utils')
         ..classes = [
           class_('const_expr')
-          ..doc = 'Simple variable constexprs'
+          ..doc = """
+Simple variable constexprs.
+
+      print(new ConstExpr('secret', 42));
+      print(new ConstExpr(new Id('voo_doo'), 'foo'));
+      print(new ConstExpr('pi', 3.14));
+
+prints:
+
+    constexpr int Secret { 42 };
+    constexpr char const* Voo_doo { "foo" };
+    constexpr double Pi { 3.14 };
+"""
           ..extend = 'Entity'
           ..members = [
             member('type')
@@ -610,8 +622,6 @@ Gives:
     protected:
       std::string more_control_ { "foo" };
     };
-
-
 
 '''
           ..extend = 'Entity'
@@ -1093,20 +1103,24 @@ stronger guarantee of immutability.'''
             ..doc = 'List of processors supporting flavors of serialization'
             ..type = 'List<Serializer>'
             ..classInit = [],
-            member('implemented_interfaces')
-            ..doc = '''
-List of interfaces this class implements. The [Interface] determines
-whether the polymorphism is runtime via virtual methods or compile
-time via call forwarding. The entries in the list must be either:
-
-* Interface: identifying the interface implemented. The interface will
-  be wrapped in an [AccessInterface] with [public] access.
-
-* AccessInterface: which will be used directly
-
-'''
-            ..type = 'List'
+            member('interface_implementations')
+            ..doc = ''
+            ..type = 'List<InterfaceImplementation>'
+            ..access = RO
             ..classInit = [],
+            member('methods')
+            ..doc = '''
+The [Method]s that are implemented by this [Class]. A [Class]
+implements the union of methods in its [implementedInterfaces]. Each
+[Method] is identified by its qualified id *string* which is:
+
+   interface.method_name.signature
+
+Lookup is done by pattern match.
+'''
+            ..type = 'Map<String, Method>'
+            ..access = IA
+            ..classInit = {},
             member('pack_align')
             ..doc = r'''
 If set, will include *#pragma pack(push, $packAlign)* before the class
@@ -1121,7 +1135,7 @@ and *#pragma pack(pop)* after.
           ..doc = r"""
 A parameter declaration.
 
-Method signatures consist of a [List<ParmDecl>] and a return type.
+Method signatures consist of a List of [ParmDecl] and a return type.
 [ParmDecl]s may be constructed from declaration text:
 
       var pd = new ParmDecl.fromDecl('std::vector< std::vector < double > > matrix');
@@ -1137,7 +1151,9 @@ prints:
 
 [ParmDecl]s may be constructed with Id, declaratively:
 
-      var pd = new ParmDecl('matrix')..type = 'std::vector< std::vector < double > >';
+      var pd = new ParmDecl('matrix')
+        ..type = 'std::vector< std::vector < double > >';
+
       print('''
     id    => ${pd.id} (${pd.id.runtimeType})
     type  => ${pd.type}
@@ -1154,7 +1170,7 @@ prints:
           ],
           class_('method_decl')
           ..doc = r"""
-A method declaration, which consist of a [List<ParmDecl>] (i.e. the
+A method declaration, which consists of a List of [ParmDecl] (i.e. the
 parameters) and a [returnType]
 
 [MethodDecl]s may be constructed from declaration text:
@@ -1188,6 +1204,27 @@ Row_list_t find_row(std::string s) {
           ..members = [
             member('parm_decls')..type = 'List<ParmDecl>'..classInit = [],
             member('return_type'),
+            member('is_const')
+            ..doc = 'True if this [MethodDecl] is *const*'
+            ..classInit = false
+          ],
+          class_('method')
+          ..doc = '''
+A [Method] represents a single class method that will be *owned* by
+the class implementing it. A [Method] method is *owned* by a single
+class and therefore has an implementation defined in that class. The
+[Method] *has a* signature which it refers to via
+[MethodDecl]. [Method] will have its own [CodeBlock] for purpose of
+allowing custom code and code insertion.
+
+When defining a class, declaratively or otherwise, [Method]s are
+created and owned by the [Class] based on the [implementedInterfaces]
+specified. To access the [CodeBlock] of a [Method] in a [Class], use
+the [getMethod] function.
+'''
+          ..members = [
+            member('method_decl')..type = 'MethodDecl',
+            member('code_block')..type = 'CodeBlock',
           ],
           class_('interface')
           ..doc = """
@@ -1243,11 +1280,12 @@ polymorphic* base.
             ..access = RO
             ..classInit = [],
           ],
-          class_('access_interface')
-          ..doc = 'An [interface] with a [CppAccess], so interfaces can be scoped'
+          class_('interface_implementation')
+          ..doc = 'An [interface] with a [CppAccess] to be implemented by a [Class]'
           ..members = [
             member('interface')..type = 'Interface'..ctors = [''],
-            member('cpp_access')..type = 'CppAccess'..classInit = 'public'
+            member('cpp_access')..type = 'CppAccess'..classInit = 'public',
+            member('is_virtual')..classInit = false
           ],
         ],
         part('serializer')

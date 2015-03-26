@@ -76,6 +76,7 @@ abstract class CppFile extends Entity {
       _codeBlockText(fcbPreNamespace),
       namespace.wrap(combine([
         _codeBlockText(fcbBeginNamespace),
+        br(interfaces.map((i) => i.definition)),
         br(constExprs),
         forwardDecls,
         br(usings.map((u) => 'using $u;')),

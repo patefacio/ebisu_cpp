@@ -702,27 +702,18 @@ bool isSystemHeader(String h) => _systemHeaders.contains(h) ||
 final _accessRegex =
     new RegExp(r"\s*public:|private:|protected:\s*", multiLine: true);
 
-String cleanAccess(String txt) {
-  var result = [];
-  var prior = null;
-  var start = 0;
-
-  _accessRegex.allMatches(txt).forEach((Match m) {
-    final pre = txt.substring(start, m.start);
-    final current = txt.substring(m.start, m.end);
-    final rest = txt.substring(m.end);
-
-    result.add(pre);
-    result.add(current);
-    prior = current;
-    start = m.end;
-  });
-
-  result.add(txt.substring(start));
-
-  return result.join('');
-}
-
+/// Returns [original] as a C++ string literal
+///
+///    print("std::string x = ${cppStringLit('''
+///    This is a test
+///    Of the emergency
+///    ''')};");
+///
+/// prints:
+///
+///    std::string x = "This is a test\n"
+///    "Of the emergency\n"
+///    "\n";
 String cppStringLit(String original) =>
     original.split('\n').map((l) => '"$l\\n"').join('\n');
 

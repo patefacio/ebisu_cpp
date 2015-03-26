@@ -17,8 +17,9 @@ main() {
     ];
 
   final eatingHabbits = interface('eating_habbits')
+    ..isVirtual = false
     ..methodDecls = [
-      'void eatMeat(int proteinContent)',
+      'void eatMeat(int proteinContent) const',
       'void eatVeggies()',
     ];
 
@@ -27,9 +28,9 @@ main() {
     ..namespace = namespace(['animal'])
     ..classes = [
       class_('dog')
-      ..implementedInterfaces = [
+      ..interfaceImplementations = [
         scareTactics,
-        accessInterface(eatingHabbits, protected)
+        new InterfaceImplementation(eatingHabbits, protected)
       ]
     ];
 

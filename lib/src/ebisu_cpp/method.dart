@@ -2,7 +2,7 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// A parameter declaration.
 ///
-/// Method signatures consist of a [List<ParmDecl>] and a return type.
+/// Method signatures consist of a List of [ParmDecl] and a return type.
 /// [ParmDecl]s may be constructed from declaration text:
 ///
 ///       var pd = new ParmDecl.fromDecl('std::vector< std::vector < double > > matrix');
@@ -18,7 +18,9 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 /// [ParmDecl]s may be constructed with Id, declaratively:
 ///
-///       var pd = new ParmDecl('matrix')..type = 'std::vector< std::vector < double > >';
+///       var pd = new ParmDecl('matrix')
+///         ..type = 'std::vector< std::vector < double > >';
+///
 ///       print('''
 ///     id    => ${pd.id} (${pd.id.runtimeType})
 ///     type  => ${pd.type}
@@ -62,7 +64,7 @@ Try something familiar like these:
   // end <class ParmDecl>
 }
 
-/// A method declaration, which consist of a [List<ParmDecl>] (i.e. the
+/// A method declaration, which consists of a List of [ParmDecl] (i.e. the
 /// parameters) and a [returnType]
 ///
 /// [MethodDecl]s may be constructed from declaration text:
@@ -95,13 +97,16 @@ Try something familiar like these:
 class MethodDecl extends Entity {
   List<ParmDecl> parmDecls = [];
   String returnType;
+  /// True if this [MethodDecl] is *const*
+  bool isConst = false;
   // custom <class MethodDecl>
 
   MethodDecl(id) : super(id);
 
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
-  static RegExp declRe = new RegExp(r'^(.*?)\s+(\w+)\s*\(([^\)]*)\)\s*$');
+  static RegExp declRe =
+      new RegExp(r'^(.*?)\s+(\w+)\s*\(([^\)]*)\)\s*(const)?\s*$');
 
   factory MethodDecl.fromDecl(String decl) {
     final declMatch = declRe.firstMatch(decl);
@@ -115,6 +120,7 @@ Try something familiar like: "void add(int a, int b)"
     final returnType = declMatch.group(1);
     final id = idFromString(declMatch.group(2));
     final parmsText = declMatch.group(3);
+    final isConst = declMatch.group(4) != null;
 
     final parmDecls = parmsText
         .split(',')
@@ -125,18 +131,21 @@ Try something familiar like: "void add(int a, int b)"
 
     return new MethodDecl(id)
       ..returnType = returnType
-      ..parmDecls = parmDecls;
+      ..parmDecls = parmDecls
+      ..isConst = isConst;
   }
 
-  String get signature => '$returnType ${id.snake}(${parmDecls.join(',')})';
+  get _const => isConst ? ' const' : '';
+  String get signature =>
+      '$returnType ${id.snake}(${parmDecls.join(',')})$_const';
 
   String get _declaration => '''
 ${this.docComment}$signature {
 ${chomp(indentBlock(customBlock(id.snake)))}
 }''';
 
-  String get asVirtual => 'virtual $_declaration';
-  String get asNonVirtual => _declaration;
+  String get asVirtual => 'virtual $_signature;';
+  String get asNonVirtual => signature;
   String get asPureVirtual => 'virtual $signature = 0;';
 
   String declaration(bool isVirtual) => isVirtual ? asVirtual : asNonVirtual;
@@ -144,6 +153,25 @@ ${chomp(indentBlock(customBlock(id.snake)))}
   toString() => _declaration;
 
   // end <class MethodDecl>
+}
+
+/// A [Method] represents a single class method that will be *owned* by
+/// the class implementing it. A [Method] method is *owned* by a single
+/// class and therefore has an implementation defined in that class. The
+/// [Method] *has a* signature which it refers to via
+/// [MethodDecl]. [Method] will have its own [CodeBlock] for purpose of
+/// allowing custom code and code insertion.
+///
+/// When defining a class, declaratively or otherwise, [Method]s are
+/// created and owned by the [Class] based on the [implementedInterfaces]
+/// specified. To access the [CodeBlock] of a [Method] in a [Class], use
+/// the [getMethod] function.
+///
+class Method {
+  MethodDecl methodDecl;
+  CodeBlock codeBlock;
+  // custom <class Method>
+  // end <class Method>
 }
 
 /// A collection of methods that as a group are either virtual or not.  A
@@ -192,7 +220,17 @@ class Interface extends Entity {
   List<MethodDecl> get methodDecls => _methodDecls;
   // custom <class Interface>
 
-  Interface(id) : super(id);
+  Interface(id) : super(_forceInterfacePrefix(id));
+
+  static _hasPrefix(String s) => s.startsWith('i_');
+
+  static _forceInterfacePrefix(id) => id is Id
+      ? (_hasPrefix(id.snake) ? id : idFromString('i_${id.snake}'))
+      : id is String
+          ? (_hasPrefix(id)
+              ? idFromString(id)
+              : idFromString('i_${idFromString(id).snake}'))
+          : throw 'Interface *id* must be an Id or String';
 
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
@@ -200,46 +238,55 @@ class Interface extends Entity {
 
   set methodDecls(Iterable decls) {
     _methodDecls = decls.map((var decl) => decl is String
-        ? methodDecl(decl).declaration(isVirtual)
+        ? methodDecl(decl)
         : decl is MethodDecl
-            ? decl.declaration(isVirtual)
+            ? decl
             : throw new ArgumentError('''
 MethodDecls must be initialized with String or MethodDecl
-''')).toList();
+''')).map((var md) => md.asPureVirtual).toList();
   }
 
   /// The interface is empty if there are no methods
   bool get isEmpty => methodDecls.isEmpty;
 
-  String get definition => '''
+  String get definition => (class_(id)
+    ..getCodeBlock(clsPublic).snippets.addAll(
+        ['//my virtual $isVirtual\n', chomp(br(_methodDecls))])).definition;
+
+  String get description => '''
 ${_methodDecls.join('\n')}
 ''';
 
   toString() => '''
-${this.docComment}interface ${id.capCamel}
-${chomp(indentBlock(definition))}
-}
+${chomp(this.docComment)}
+${chomp(definition)}
 ''';
 
   // end <class Interface>
   List<MethodDecl> _methodDecls = [];
 }
 
-/// An [interface] with a [CppAccess], so interfaces can be scoped
-class AccessInterface {
-  AccessInterface(this.interface);
+/// An [interface] with a [CppAccess] to be implemented by a [Class]
+class InterfaceImplementation {
 
   Interface interface;
   CppAccess cppAccess = public;
-  // custom <class AccessInterface>
+  bool isVirtual = false;
+  // custom <class InterfaceImplementation>
+
+  InterfaceImplementation(this.interface,
+      [ CppAccess cppAccess = public, bool isVirtual = false ]) {
+    this.cppAccess = cppAccess;
+    this.isVirtual = isVirtual;
+  }
 
   String get name => interface.name;
   String get definition => interface.definition;
-  bool get isVirtual => interface.isVirtual;
+  List<MethodDecl> get methodDecls => interface.methodDecls;
 
   toString() => '${ev(cppAccess)}: ${interface.id.snake}';
 
-  // end <class AccessInterface>
+  // end <class InterfaceImplementation>
 }
 // custom <part method>
 

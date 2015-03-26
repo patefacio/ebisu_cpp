@@ -137,8 +137,6 @@ part of ebisu_cpp.ebisu_cpp;
 ///     };
 ///
 ///
-///
-///
 class Member extends Entity {
   /// Type of member
   String type;

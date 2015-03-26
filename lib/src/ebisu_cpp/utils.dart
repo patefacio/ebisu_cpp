@@ -1,6 +1,17 @@
 part of ebisu_cpp.ebisu_cpp;
 
-/// Simple variable constexprs
+/// Simple variable constexprs.
+///
+///       print(new ConstExpr('secret', 42));
+///       print(new ConstExpr(new Id('voo_doo'), 'foo'));
+///       print(new ConstExpr('pi', 3.14));
+///
+/// prints:
+///
+///     constexpr int Secret { 42 };
+///     constexpr char const* Voo_doo { "foo" };
+///     constexpr double Pi { 3.14 };
+///
 class ConstExpr extends Entity {
   /// The c++ type of the constexpr
   String type;
@@ -10,7 +21,10 @@ class ConstExpr extends Entity {
   Namespace namespace;
   // custom <class ConstExpr>
 
-  ConstExpr(Id id, Object value_, [this.type]) : super(id) {
+  /// Create a constant expression from an [id]
+  /// [value_] the value of the const expression
+  /// [type] the type of the expression
+  ConstExpr(Object id, Object value_, [this.type]) : super(id) {
     value = value_;
   }
 
@@ -319,6 +333,7 @@ class Base {
   bool isStreamable = false;
   // custom <class Base>
 
+  /// Return this [Base] as it would appear in a declaration
   String get decl => '${ev(access)} $_virtual$className';
   String get _virtual => isVirtual ? 'virtual ' : '';
 
@@ -353,6 +368,10 @@ final _commonTypes = const {
   'std::stringstream': 'sstream',
 };
 
+/// Given an iterable of [types] for any that represent common
+/// system (STL) includes, add appropriate include to [includes].
+/// [Includes] models the actual included files as a set so there
+/// will be no duplications
 addIncludesForCommonTypes(Iterable<String> types, Includes includes) {
   types.forEach((String type) {
     if (_commonTypes.containsKey(type)) {
@@ -361,6 +380,9 @@ addIncludesForCommonTypes(Iterable<String> types, Includes includes) {
   });
 }
 
+/// Returns [contents] formatted by *clang* formmatter.
+/// [fname] is an optional filename where contents will be written by
+/// clang
 String clangFormat(String contents, [String fname = 'ebisu_txt.cpp']) {
   final tmpDir = Directory.systemTemp.createTempSync();
   var tmpFile = new File(path.join(tmpDir.path, fname));
