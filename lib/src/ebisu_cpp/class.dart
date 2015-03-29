@@ -620,10 +620,14 @@ class Class extends Entity {
   Iterable<Entity> get children => concat([enumsForward, enums, members]);
 
   set interfaceImplementations(Iterable impls) =>
-    _interfaceImplementations = impls
-    .map((i) => i is InterfaceImplementation? i :
-        i is Interface? new InterfaceImplementation(i) : throw '*interfaceImplementatinos may be set with Iterable of [Interface] in which case defaults will be used, or [InterfaceImplementation]')
-    .toList();
+      _interfaceImplementations = impls.map((i) => i is InterfaceImplementation
+          ? i
+          : i is Interface
+              ? new InterfaceImplementation(i)
+              : throw '''
+[interfaceImplementations] set requires Iterable of [Interface]
+or [Interfaceimplementations]. If an [Interface] is provided an
+default [Interfaceimplementation] is used''').toList();
 
   String get classStyle => isStruct ? 'struct' : 'class';
 
@@ -777,8 +781,8 @@ class Class extends Entity {
 
   void _finalizeEntity() {
     interfaceImplementations
-      .where((i) => i.isVirtual)
-      .forEach((i) => bases.add(base(i.name)));
+        .where((i) => i.isVirtual)
+        .forEach((i) => bases.add(base(i.name)));
 
     _logger
         .info('Class ($id) finalized supporting: ${interfaceImplementations}');
@@ -982,8 +986,9 @@ $classStyle $className$_baseDecl
   Map<ClassCodeBlock, CodeBlock> _codeBlocks = {};
   List<InterfaceImplementation> _interfaceImplementations = [];
   /// The [Method]s that are implemented by this [Class]. A [Class]
-  /// implements the union of methods in its [implementedInterfaces]. Each
-  /// [Method] is identified by its qualified id *string* which is:
+  /// implements the union of methods in its
+  /// [interfaceimplementations]. Each [Method] is identified by its
+  /// qualified id *string* which is:
   ///
   ///    interface.method_name.signature
   ///

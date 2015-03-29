@@ -268,14 +268,13 @@ ${chomp(definition)}
 
 /// An [interface] with a [CppAccess] to be implemented by a [Class]
 class InterfaceImplementation {
-
   Interface interface;
   CppAccess cppAccess = public;
   bool isVirtual = false;
   // custom <class InterfaceImplementation>
 
   InterfaceImplementation(this.interface,
-      [ CppAccess cppAccess = public, bool isVirtual = false ]) {
+      [CppAccess cppAccess = public, bool isVirtual = false]) {
     this.cppAccess = cppAccess;
     this.isVirtual = isVirtual;
   }

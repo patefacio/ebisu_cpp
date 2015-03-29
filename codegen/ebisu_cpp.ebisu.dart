@@ -1111,8 +1111,9 @@ stronger guarantee of immutability.'''
             member('methods')
             ..doc = '''
 The [Method]s that are implemented by this [Class]. A [Class]
-implements the union of methods in its [implementedInterfaces]. Each
-[Method] is identified by its qualified id *string* which is:
+implements the union of methods in its
+[interfaceimplementations]. Each [Method] is identified by its
+qualified id *string* which is:
 
    interface.method_name.signature
 
@@ -1283,7 +1284,7 @@ polymorphic* base.
           class_('interface_implementation')
           ..doc = 'An [interface] with a [CppAccess] to be implemented by a [Class]'
           ..members = [
-            member('interface')..type = 'Interface'..ctors = [''],
+            member('interface')..type = 'Interface',
             member('cpp_access')..type = 'CppAccess'..classInit = 'public',
             member('is_virtual')..classInit = false
           ],
