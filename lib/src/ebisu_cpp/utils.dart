@@ -222,6 +222,8 @@ abstract class Namer {
   String nameHeader(Id id);
   /// Name an [Impl] from its [Id]
   String nameImpl(Id id);
+  /// Name using type identifier introduced by using statement
+  String nameUsingType(Id id);
 
   // end <class Namer>
 }
@@ -253,6 +255,7 @@ class EbisuCppNamer implements Namer {
   String nameStaticConst(Id id) => id.shout;
   String nameHeader(Id id) => '${id.snake}.hpp';
   String nameImpl(Id id) => '${id.snake}.cpp';
+  String nameUsingType(Id id) => addSuffix('t', id);
 
   // end <class EbisuCppNamer>
 }
@@ -282,6 +285,7 @@ class GoogleNamer implements Namer {
   String nameStaticConst(Id id) => 'k${id.capCamel}';
   String nameHeader(Id id) => '${id.snake}.hpp';
   String nameImpl(Id id) => '${id.snake}.cc';
+  String nameUsingType(Id id) => addSuffix('t', id).capCamel;
 
   // end <class GoogleNamer>
 }

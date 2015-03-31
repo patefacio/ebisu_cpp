@@ -466,6 +466,72 @@ private:
     });
   });
 
+  group('nested classes', () {
+    final expectations = {
+      public: '''
+class C_1
+{
+public:
+  class Inner_c_1
+  {
+  private:
+    int m_1_ { 1 };
+    int m_2_ { 2 };
+  };
+
+private:
+  int m_1_ { 1 };
+  int m_2_ { 2 };
+};
+''',
+      protected: '''
+class C_1
+{
+protected:
+  class Inner_c_1
+  {
+  private:
+    int m_1_ { 1 };
+    int m_2_ { 2 };
+  };
+
+private:
+  int m_1_ { 1 };
+  int m_2_ { 2 };
+};
+''',
+      private: '''
+class C_1
+{
+private:
+  class Inner_c_1
+  {
+  private:
+    int m_1_ { 1 };
+    int m_2_ { 2 };
+  };
+
+  int m_1_ { 1 };
+  int m_2_ { 2 };
+};
+'''
+    };
+
+    int _i = 0;
+    i() => _i++;
+    expectations.forEach((cppAccess, expected) {
+      final c1 = class_('c_1')
+        ..members = [member('m_1')..init = 1, member('m_2')..init = 2]
+        ..nestedClasses = [
+          class_('inner_c_1')
+            ..cppAccess = cppAccess
+            ..members = [member('m_1')..init = 1, member('m_2')..init = 2]
+        ];
+      test('$cppAccess nesting',
+          () => expect(darkMatter(c1.definition), darkMatter(expected)));
+    });
+  });
+
 // end <main>
 
 }

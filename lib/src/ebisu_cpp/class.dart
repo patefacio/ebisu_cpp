@@ -610,6 +610,10 @@ class Class extends Entity {
   ///
   List<InterfaceImplementation> get interfaceImplementations =>
       _interfaceImplementations;
+  /// A [CppAccess] specifier - only pertinent if class is nested
+  CppAccess cppAccess = public;
+  /// Classes nested within this class
+  List<Class> nestedClasses = [];
   /// If set, will include *#pragma pack(push, $packAlign)* before the class
   /// and *#pragma pack(pop)* after.
   int packAlign;
@@ -828,6 +832,9 @@ default [Interfaceimplementation] is used''').toList();
       br(usings.map((u) => 'using $u;')),
       br([_enumDecls, _enumStreamers]),
       br(friendClassDecls.map((fcd) => fcd.toString())),
+      combine(nestedClasses
+          .where((c) => c.cppAccess == public)
+          .map((c) => c.definition)),
       br(publicMembers
           .where((m) => m.isPublicStaticConst)
           .map((m) => _memberDefinition(m))),
@@ -842,15 +849,18 @@ default [Interfaceimplementation] is used''').toList();
           .map((i) => i.methodDecls)),
       br(_singleton),
       _codeBlockText(clsPublic),
-      br(publicMembers
+      chomp(br(publicMembers
           .where((m) => !m.isPublicStaticConst)
-          .map((m) => _memberDefinition(m))),
+          .map((m) => _memberDefinition(m)))),
       chomp(combine(members.map((m) => br([m.getter, m.setter])))),
       isStreamable ? outStreamer : null,
       serializers.map((s) => s.serialize(this)),
     ]))),
     _wrapInAccess(protected, indentBlock(combine([
       _codeBlockText(clsProtected),
+      br(nestedClasses
+          .where((c) => c.cppAccess == protected)
+          .map((c) => c.definition)),
       br(_allCtors
           .where((m) => m.cppAccess == protected)
           .map((m) => m.definition)),
@@ -860,10 +870,13 @@ default [Interfaceimplementation] is used''').toList();
       br(interfaceImplementations
           .where((i) => i.cppAccess == protected)
           .map((i) => i.methodDecls)),
-      br(protectedMembers.map((m) => _memberDefinition(m)))
+      chomp(br(protectedMembers.map((m) => _memberDefinition(m))))
     ]))),
     _wrapInAccess(private, indentBlock(combine([
       _codeBlockText(clsPrivate),
+      br(nestedClasses
+          .where((c) => c.cppAccess == private)
+          .map((c) => c.definition)),
       br(_allCtors
           .where((m) => m.cppAccess == private)
           .map((m) => m.definition)),
@@ -873,7 +886,7 @@ default [Interfaceimplementation] is used''').toList();
       br(interfaceImplementations
           .where((i) => i.cppAccess == private)
           .map((i) => i.methodDecls)),
-      br(privateMembers.map((m) => _memberDefinition(m)))
+      chomp(br(privateMembers.map((m) => _memberDefinition(m))))
     ]))),
     br([_classCloser, _pragmaPackPop]),
     br(usingsPostDecl.map((u) => 'using $u;')),

@@ -30,6 +30,7 @@ void main() {
       library('test_cpp_method'),
       library('test_cpp_utils'),
       library('test_cpp_namer'),
+      library('test_cpp_generic'),
       library('test_hdf5_support'),
     ]
     ..libraries = [
@@ -256,6 +257,19 @@ genration utilities.
           ..access = IA
           ..type = 'Namer',
         ],
+        class_('using')
+        ..doc = 'Object corresponding to a using statement'
+        ..members = [
+          member('lhs')
+          ..doc = '''
+The left hand side of using statement (ie the name introduced)'''
+          ..type = 'Id'
+          ..access = RO,
+          member('rhs')
+          ..doc = '''
+The right hand side of using (ie the type decl being named)'''
+          ..access = RO,
+        ],
         class_('template')
         ..doc = '''
 Represents a template declaration comprized of a list of [decls]
@@ -267,6 +281,26 @@ Represents a template declaration comprized of a list of [decls]
         ],
       ]
       ..parts = [
+        part('generic')
+        ..classes = [
+          class_('traits')
+          ..members = [
+            member('usings')..type = 'Map<String, Using>'..classInit = [],
+            member('const_exprs')..type = 'List<ConstExpr>'..classInit = [],
+          ],
+          class_('traits_requirements')
+          ..doc = 'Collection of requirements for a [Traits] entry in a [TraitsFamily]'
+          ..members = [
+            member('usings')..type = 'List<Id>'..access = RO,
+            member('const_exprs')..type = 'List<Id>'..access = RO,
+          ],
+          class_('traits_family')
+          ..extend = 'Entity'
+          ..members = [
+            member('traits_requirements')..type = 'TraitsRequirements',
+            member('traits')..type = 'List<Traits>',
+          ],
+        ],
         part('utils')
         ..classes = [
           class_('const_expr')
@@ -1122,6 +1156,13 @@ Lookup is done by pattern match.
             ..type = 'Map<String, Method>'
             ..access = IA
             ..classInit = {},
+            member('cpp_access')
+            ..doc = 'A [CppAccess] specifier - only pertinent if class is nested'
+            ..type = 'CppAccess'..classInit = 'public',
+            member('nested_classes')
+            ..doc = 'Classes nested within this class'
+            ..type = 'List<Class>'
+            ..classInit = [],
             member('pack_align')
             ..doc = r'''
 If set, will include *#pragma pack(push, $packAlign)* before the class

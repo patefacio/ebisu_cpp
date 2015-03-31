@@ -96,6 +96,7 @@ import 'package:quiver/iterables.dart';
 // custom <additional imports>
 // end <additional imports>
 
+part 'src/ebisu_cpp/generic.dart';
 part 'src/ebisu_cpp/utils.dart';
 part 'src/ebisu_cpp/file.dart';
 part 'src/ebisu_cpp/enum.dart';
@@ -484,6 +485,24 @@ Entities must be created with an id of type String or Id''';
   Namer _namer;
 }
 
+/// Object corresponding to a using statement
+class Using {
+  /// The left hand side of using statement (ie the name introduced)
+  Id get lhs => _lhs;
+  /// The right hand side of using (ie the type decl being named)
+  String get rhs => _rhs;
+  // custom <class Using>
+
+  Using(lhs_, String this._rhs)
+      : _lhs = addSuffixToId('t', lhs_ is Id ? lhs_ : idFromString(lhs_));
+
+  toString() => 'using $lhs = $rhs;';
+
+  // end <class Using>
+  Id _lhs;
+  String _rhs;
+}
+
 /// Represents a template declaration comprized of a list of [decls]
 ///
 class Template {
@@ -718,5 +737,32 @@ String cppStringLit(String original) =>
     original.split('\n').map((l) => '"$l\\n"').join('\n');
 
 Template template([Iterable<String> decls]) => new Template(decls);
+
+final _usingSpecRe = new RegExp(r"(\w+)\s*=\s*(.*)", multiLine: true);
+
+Using using(u) {
+  if (u is Using) return u;
+  else {
+    final match = _usingSpecRe.firstMatch(u);
+    return new Using(match.group(1), match.group(2));
+  }
+}
+
+//// TODO: Remove this - get from ebisu
+Id makeId(id) => id is Id ? id : idFromString(id);
+Id addPrefixToId(prefix, id, [preventDupe = true]) {
+  prefix = makeId(prefix);
+  id = makeId(id);
+  return (preventDupe && id.snake.startsWith(prefix.snake))
+      ? id
+      : idFromString('${prefix.snake}_${id.snake}');
+}
+Id addSuffixToId(suffix, id, [preventDupe = true]) {
+  suffix = makeId(suffix);
+  id = makeId(id);
+  return (preventDupe && id.snake.endsWith(suffix.snake))
+      ? id
+      : idFromString('${id.snake}_${suffix.snake}');
+}
 
 // end <library ebisu_cpp>
