@@ -163,6 +163,11 @@ This designation is used in multiple contexts such as:
           enumValue(id('ucptr'))
           ..doc = 'Indicates *std::unique_ptr< const T >*',
         ],
+        enum_('template_parm_type')
+        ..values = [
+          enumValue('type'),
+          enumValue('non_type'),
+        ],
       ]
       ..classes = [
 
@@ -259,25 +264,36 @@ genration utilities.
         ],
         class_('using')
         ..doc = 'Object corresponding to a using statement'
+        ..extend = 'Entity'
         ..members = [
-          member('lhs')
-          ..doc = '''
-The left hand side of using statement (ie the name introduced)'''
-          ..type = 'Id'
-          ..access = RO,
           member('rhs')
           ..doc = '''
 The right hand side of using (ie the type decl being named)'''
           ..access = RO,
         ],
+        class_('template_parm')
+        ..isAbstract = true
+        ..extend = 'Entity',
+        class_('type_template_parm')
+        ..extend = 'TemplateParm'
+        ..members = [
+          member('type_id'),
+        ],
+        class_('decl_template_parm')
+        ..extend = 'TemplateParm'
+        ..members = [
+          member('terms')..type = 'List<String>',
+          member('id_index')..doc = 'Index into the terms indicating the id'
+          ..type = 'int',
+        ],
         class_('template')
+        ..extend = 'Entity'
         ..doc = '''
 Represents a template declaration comprized of a list of [decls]
 '''
         ..members = [
-          member('decls')
-          ..doc = 'List of decls in the template (i.e. the typename entries)'
-          ..type = 'List<String>',
+          member('parms')
+          ..type = 'List<TemplateParm>',
         ],
       ]
       ..parts = [
@@ -467,7 +483,7 @@ Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
             ..type = 'List<ForwardDecl>'..classInit = [],
             member('usings')
             ..doc = 'List of using statements that will appear near the top of the file'
-            ..type = 'List<String>'..classInit = [],
+            ..type = 'List<Using>'..access = RO..classInit = [],
             member('enums')
             ..doc = 'List of enumerations that will appear near the top of the file'
             ..type = 'List<Enum>'..classInit = [],
@@ -1060,7 +1076,7 @@ on the same class and results lazy-inited here'''
             ..doc = '''
 List of usings that will be scoped to this class near the top of
 the class definition.'''
-            ..type = 'List<String>'..classInit = [],
+            ..type = 'List<Using>'..access = RO..classInit = [],
             member('usings_post_decl')
             ..doc = '''
 List of usings to occur after the class declaration. Sometimes it is
@@ -1072,7 +1088,7 @@ just after the class definition will work:
     using Foo = std::vector<Foo>;
 
 '''
-            ..type = 'List<String>'..classInit = [],
+            ..type = 'List<Using>'..classInit = []..access = RO,
             member('bases')
             ..doc = '''
 Base classes this class derives form.

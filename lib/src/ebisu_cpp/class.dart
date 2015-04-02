@@ -97,7 +97,8 @@ abstract class ClassMethod {
   String get definition;
   String get className => _parent.className;
   List<Member> get members => _parent.members;
-  set template(Object t) => _template = _makeTemplate(t);
+  set template(Object t) =>
+      _template = _makeTemplate('class_method', t); // TODO: make entity
 
   // end <class ClassMethod>
   Class _parent;
@@ -568,7 +569,7 @@ class Class extends Entity {
   Template get template => _template;
   /// List of usings that will be scoped to this class near the top of
   /// the class definition.
-  List<String> usings = [];
+  List<Using> get usings => _usings;
   /// List of usings to occur after the class declaration. Sometimes it is
   /// useful to establish some type definitions directly following the class
   /// so they may be reused among any client of the class. For instance if
@@ -576,7 +577,7 @@ class Class extends Entity {
   /// just after the class definition will work:
   ///
   ///     using Foo = std::vector<Foo>;
-  List<String> usingsPostDecl = [];
+  List<Using> get usingsPostDecl => _usingsPostDecl;
   /// Base classes this class derives form.
   List<Base> bases = [];
   /// A list of member constructors
@@ -621,7 +622,13 @@ class Class extends Entity {
 
   Class(Id id) : super(id);
 
-  Iterable<Entity> get children => concat([enumsForward, enums, members]);
+  Iterable<Entity> get children =>
+      concat([enumsForward, enums, members, usings, usingsPostDecl, [template]])
+          .where((child) => child != null);
+
+  set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();
+  set usingsPostDecl(Iterable items) =>
+      _usingsPostDecl = items.map((u) => using(u)).toList();
 
   set interfaceImplementations(Iterable impls) =>
       _interfaceImplementations = impls.map((i) => i is InterfaceImplementation
@@ -703,7 +710,7 @@ default [Interfaceimplementation] is used''').toList();
   void withCustomBlock(ClassCodeBlock cb, void f(CodeBlock)) =>
       f(getCodeBlock(cb));
 
-  set template(Object t) => _template = _makeTemplate(t);
+  set template(Object t) => _template = _makeTemplate(id, t);
 
   usesType(String type) => members.any((m) => m.type == type);
   get typesReferenced => members.map((m) => m.type);
@@ -829,7 +836,7 @@ default [Interfaceimplementation] is used''').toList();
     _pragmaPackPush,
     _classOpener,
     _wrapInAccess(isStruct ? null : public, indentBlock(combine([
-      br(usings.map((u) => 'using $u;')),
+      br(usings.map((u) => u.usingStatement(namer))),
       br([_enumDecls, _enumStreamers]),
       br(friendClassDecls.map((fcd) => fcd.toString())),
       combine(nestedClasses
@@ -889,7 +896,7 @@ default [Interfaceimplementation] is used''').toList();
       chomp(br(privateMembers.map((m) => _memberDefinition(m))))
     ]))),
     br([_classCloser, _pragmaPackPop]),
-    br(usingsPostDecl.map((u) => 'using $u;')),
+    br(usingsPostDecl.map((u) => u.usingStatement(namer))),
     _codeBlockText(clsPostDecl),
   ];
 
@@ -981,6 +988,8 @@ $classStyle $className$_baseDecl
   /// on the same class and results lazy-inited here
   String _definition;
   Template _template;
+  List<Using> _usings = [];
+  List<Using> _usingsPostDecl = [];
   /// The default constructor
   DefaultCtor _defaultCtor;
   /// The copy constructor
@@ -1018,9 +1027,9 @@ Class class_(Object id) => new Class(id is Id ? id : new Id(id));
 
 /// Create a template from (1) a single string (2) [Iterable] of arguments for
 /// construction
-Template _makeTemplate(Object t) => t is Iterable
-    ? new Template(t)
-    : t is String ? new Template([t]) : t as Template;
+Template _makeTemplate(id, Object t) => t is Iterable
+    ? new Template(id, t)
+    : t is String ? new Template(id, [t]) : t as Template;
 
 /// Convenience returning empty [DefaultCtor]
 DefaultCtor defaultCtor() => new DefaultCtor();

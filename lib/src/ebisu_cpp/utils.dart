@@ -216,6 +216,8 @@ abstract class Namer {
   String nameEnum(Id id);
   /// Name a static const variable from its [Id]
   String nameStaticConst(Id id);
+  /// Name a template parameter that is non-type template parameter
+  String nameTemplateDeclParm(Id id) => id.shout;
   /// Name an [Enum] value from its [Id]
   String nameEnumConst(Id id);
   /// Name a [Header] from its [Id]
@@ -253,6 +255,7 @@ class EbisuCppNamer implements Namer {
   String nameEnum(Id id) => id.capSnake;
   String nameEnumConst(Id id) => '${id.capSnake}_e';
   String nameStaticConst(Id id) => id.shout;
+  String nameTemplateDeclParm(Id id) => id.shout;
   String nameHeader(Id id) => '${id.snake}.hpp';
   String nameImpl(Id id) => '${id.snake}.cpp';
   String nameUsingType(Id id) => addSuffix('t', id);
@@ -283,6 +286,7 @@ class GoogleNamer implements Namer {
   String nameEnum(Id id) => id.capCamel;
   String nameEnumConst(Id id) => id.shout;
   String nameStaticConst(Id id) => 'k${id.capCamel}';
+  String nameTemplateDeclParm(Id id) => id.shout;
   String nameHeader(Id id) => '${id.snake}.hpp';
   String nameImpl(Id id) => '${id.snake}.cc';
   String nameUsingType(Id id) => addSuffix('t', id).capCamel;

@@ -20,7 +20,7 @@ abstract class CppFile extends Entity {
   /// List of forward declarations that will appear near the top of the file
   List<ForwardDecl> forwardDecls = [];
   /// List of using statements that will appear near the top of the file
-  List<String> usings = [];
+  List<Using> get usings => _usings;
   /// List of enumerations that will appear near the top of the file
   List<Enum> enums = [];
   /// List of interfaces for this header. Interfaces result in either:
@@ -36,6 +36,7 @@ abstract class CppFile extends Entity {
   String get filePath;
 
   set includes(Object h) => _includes = _makeIncludes(h);
+  set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();
 
   Iterable<Entity> get children => concat([classes, constExprs, enums]);
 
@@ -79,7 +80,7 @@ abstract class CppFile extends Entity {
         br(interfaces.map((i) => i.definition)),
         br(constExprs),
         forwardDecls,
-        br(usings.map((u) => 'using $u;')),
+        br(usings.map((u) => u.usingStatement(namer))),
         br(enums.map((Enum e) => br(e.decl))),
         br(classes.map((Class cls) => br(cls.definition))),
         _codeBlockText(fcbEndNamespace)
@@ -97,6 +98,7 @@ abstract class CppFile extends Entity {
   /// Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.
   Map<FileCodeBlock, CodeBlock> _codeBlocks = {};
   Includes _includes = new Includes();
+  List<Using> _usings = [];
 }
 // custom <part file>
 

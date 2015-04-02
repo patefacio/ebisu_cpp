@@ -320,6 +320,8 @@ const PtrType scptr = PtrType.scptr;
 ///
 const PtrType ucptr = PtrType.ucptr;
 
+enum TemplateParmType { type, nonType }
+
 /// Establishes an interface to allow decoration of classes and updates
 /// (primarily additions) to an [Installation].
 ///
@@ -399,21 +401,18 @@ abstract class Entity {
           : id is Id
               ? id
               : throw '''
-Entities must be created with an id of type String or Id''';
+Entities must be created with an id of type String or Id: ${id.runtimeType}=$id''';
 
   String get briefComment => brief != null ? '//! $brief' : null;
 
   String get detailedComment => descr != null ? blockComment(descr, ' ') : null;
 
-  String get docComment => br([briefComment, detailedComment]);
+  String get docComment => combine([briefComment, detailedComment]);
 
   Iterable<Id> get entityPathIds => _entityPath.map((e) => e.id);
 
   /// *doc* is a synonym for descr
-  set doc(String d) {
-    print('For $id Doc set to $d');
-    descr = d;
-  }
+  set doc(String d) => descr = d;
   get doc => descr;
 
   /// Establishes the [Entity] that *this* [Entity] is owned by. This
@@ -434,7 +433,8 @@ Entities must be created with an id of type String or Id''';
         ..add(this);
     }
 
-    _logger.info('Set owner $id to ${newOwner == null? "root" : newOwner.id}');
+    _logger.info(
+        'Set owner ($id:${runtimeType}) to ${newOwner == null? "root" : "(${newOwner.id}:${newOwner.runtimeType})"}');
 
     for (final child in children) {
       child.owner = this;
@@ -486,34 +486,76 @@ Entities must be created with an id of type String or Id''';
 }
 
 /// Object corresponding to a using statement
-class Using {
-  /// The left hand side of using statement (ie the name introduced)
-  Id get lhs => _lhs;
+class Using extends Entity {
   /// The right hand side of using (ie the type decl being named)
   String get rhs => _rhs;
   // custom <class Using>
 
   Using(lhs_, String this._rhs)
-      : _lhs = addSuffixToId('t', lhs_ is Id ? lhs_ : idFromString(lhs_));
+      : super(addSuffixToId('t', lhs_));
+
+  Iterable<Entity> get children => [];
 
   toString() => 'using $lhs = $rhs;';
 
+  get lhs => id;
+
+  usingStatement(Namer namer) =>
+      combine([this.docComment, 'using ${namer.nameClass(lhs)} = $rhs;']);
+
   // end <class Using>
-  Id _lhs;
   String _rhs;
+}
+
+abstract class TemplateParm extends Entity {
+  // custom <class TemplateParm>
+  TemplateParm(id) : super(id);
+  Iterable<Entity> get children => [];
+  // end <class TemplateParm>
+}
+
+class TypeTemplateParm extends TemplateParm {
+  String typeId;
+  // custom <class TypeTemplateParm>
+
+  TypeTemplateParm(id, this.typeId) : super(id);
+
+  toString() =>
+      typeId != null ? 'typename $typename = $typeId' : 'typename $typename';
+
+  get typename => id.shout;
+
+  // end <class TypeTemplateParm>
+}
+
+class DeclTemplateParm extends TemplateParm {
+  List<String> terms;
+  /// Index into the terms indicating the id
+  int idIndex;
+  // custom <class DeclTemplateParm>
+
+  DeclTemplateParm(id, this.terms, this.idIndex) : super(id);
+
+  toString() => (new List.from(terms)
+    ..[idIndex] = namer.nameTemplateDeclParm(id)).join(' ');
+
+  // end <class DeclTemplateParm>
 }
 
 /// Represents a template declaration comprized of a list of [decls]
 ///
-class Template {
-  /// List of decls in the template (i.e. the typename entries)
-  List<String> decls;
+class Template extends Entity {
+  List<TemplateParm> parms;
   // custom <class Template>
 
-  Template(Iterable<String> decls_) : decls = new List<String>.from(decls_);
+  Iterable<Entity> get children => parms;
+
+  Template(id, Iterable<String> decls_)
+      : super(id),
+        parms = decls_.map((d) => templateParm(d)).toList();
 
   String get decl => '''
-template< ${decls.join(',\n          ')} >''';
+template< ${parms.join(',\n          ')} >''';
 
   toString() => decl;
 
@@ -736,16 +778,82 @@ final _accessRegex =
 String cppStringLit(String original) =>
     original.split('\n').map((l) => '"$l\\n"').join('\n');
 
-Template template([Iterable<String> decls]) => new Template(decls);
+Template template([Iterable<String> decls]) => new Template('id', decls);
 
-final _usingSpecRe = new RegExp(r"(\w+)\s*=\s*(.*)", multiLine: true);
+final _usingSpecRe = new RegExp(r"(\w+)\s*=\s*((?:.|\n)*)", multiLine: true);
 
-Using using(u) {
-  if (u is Using) return u;
-  else {
-    final match = _usingSpecRe.firstMatch(u);
-    return new Using(match.group(1), match.group(2));
+Using using([u, decl]) {
+  if (u is Using) {
+    return u;
+  } else if (u is String) {
+    if (decl == null) {
+      final match = _usingSpecRe.firstMatch(u);
+      return new Using(match.group(1), match.group(2));
+    } else {
+      return new Using(u, decl);
+    }
+  } else {
+    throw 'using(u) requires string like r"\w+\s*=\s(.*)" or Using';
   }
 }
+
+final _templateTypeParmRe = new RegExp(r'\s*typename\s+(\w+)(?:\s+(.+))?');
+final _whiteSpaceRe = new RegExp(r'\s+');
+final _equalsTextRe = new RegExp(r'\s*=\s*(.+?)\s*$');
+final _word = new RegExp(r'^\w+$');
+
+_makeTemplatepParm(tparm) {
+  var match = _templateTypeParmRe.firstMatch(tparm);
+  if (match != null) {
+    var defaultType = match.group(2);
+    if (defaultType != null) {
+      var rhs = _equalsTextRe.firstMatch(defaultType);
+      if (rhs != null) {
+        defaultType = rhs.group(1);
+      }
+    }
+    final id = makeId(match.group(1));
+    _logger.info('making typeTemplateParm $id from $tparm with $defaultType');
+    return new TypeTemplateParm(id, defaultType);
+  } else {
+    final terms = tparm.split(_whiteSpaceRe);
+    var equalIndex = terms.indexOf('=');
+    var id;
+    var idIndex;
+    if (equalIndex >= 0) {
+      assert(equalIndex > 0);
+      idIndex = equalIndex - 1;
+      id = idFromString(terms[idIndex]);
+    } else {
+      for (final indexValue in enumerate(terms.reversed)) {
+        if (_word.firstMatch(indexValue.value) != null) {
+          idIndex = terms.length - indexValue.index - 1;
+          id = idFromString(indexValue.value);
+          break;
+        }
+      }
+    }
+    _logger.info('making declTemplateParm $id from $tparm');
+    return new DeclTemplateParm(id, terms, idIndex);
+  }
+}
+
+TemplateParm templateParm(tparm) => tparm is TemplateParm
+    ? tparm
+    : tparm is String
+        ? _makeTemplatepParm(tparm)
+        : throw 'templateParm(..) takes TemplateParm or String';
+
+_isStandardTypeStr(String id) => id.endsWith('_ptr') ||
+    id.endsWith('_sptr') ||
+    id.endsWith('_uptr') ||
+    id.endsWith('_scptr') ||
+    id.endsWith('_ucptr') ||
+    id.endsWith('_map') ||
+    id.endsWith('_set') ||
+    id.endsWith('_list');
+
+_isStandardType(id) =>
+    id is Id ? _isStandardTypeStr(id.snake) : _isStandardTypeStr(id);
 
 // end <library ebisu_cpp>
