@@ -106,6 +106,7 @@ part 'src/ebisu_cpp/method.dart';
 part 'src/ebisu_cpp/serializer.dart';
 part 'src/ebisu_cpp/header.dart';
 part 'src/ebisu_cpp/impl.dart';
+part 'src/ebisu_cpp/test_provider.dart';
 part 'src/ebisu_cpp/lib.dart';
 part 'src/ebisu_cpp/app.dart';
 part 'src/ebisu_cpp/cmake_support.dart';
@@ -491,8 +492,7 @@ class Using extends Entity {
   String get rhs => _rhs;
   // custom <class Using>
 
-  Using(lhs_, String this._rhs)
-      : super(addSuffixToId('t', lhs_));
+  Using(lhs_, String this._rhs) : super(addSuffixToId('t', lhs_));
 
   Iterable<Entity> get children => [];
 

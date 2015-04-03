@@ -13,6 +13,7 @@ class Test extends Impl implements CodeGenerator {
   Test(Header header)
       : super(header.id),
         headerUnderTest = header {
+    _logger.info('Creating test with $header');
     _includes.addAll(['boost/test/included/unit_test.hpp',]);
   }
 

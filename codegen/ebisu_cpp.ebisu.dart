@@ -17,7 +17,7 @@ void main() {
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.10'
+    ..pubSpec.version = '0.0.11'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -1401,6 +1401,15 @@ If true marks this header as special to the set of headers in its library in tha
           ..members = [
             member('file_path')..access = RO,
           ]
+        ],
+        part('test_provider')
+        ..classes = [
+          class_('test_provider')
+          ..isAbstract = true,
+          class_('boost_test_provider')
+          ..extend = 'TestProvider',
+          class_('catch_test_provider')
+          ..extend = 'TestProvider',
         ],
         part('lib')
         ..enums = [

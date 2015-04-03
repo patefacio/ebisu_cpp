@@ -1,5 +1,5 @@
 name: ebisu_cpp
-version: 0.0.10
+version: 0.0.11
 author: Daniel Davidson <dbdavidson@yahoo.com>
 homepage: https://github.com/patefacio/ebisu_cpp
 description: >
@@ -14,7 +14,8 @@ dependencies:
   ini: ">=1.0.0<1.2.0"
   github: ">=2.1.2<2.2.0"
   sqljocky: ">=0.11.0<0.12.0"
-  ebisu: "^0.2.3"
+  id: ">=1.0.6<1.1.0"  
+  ebisu: "^0.2.5"
 
 # end <ebisu_cpp dependencies>
 
@@ -34,6 +35,10 @@ environment:
 
 dependency_overrides:
 # custom <ebisu_cpp dependency overrides>
+
+#  ebisu:
+#    path: /home/dbdavidson/dev/open_source/ebisu
+
 # end <ebisu_cpp dependency overrides>
 
 transformers:
