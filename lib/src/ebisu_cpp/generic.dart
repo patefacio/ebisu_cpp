@@ -21,6 +21,11 @@ class TraitsFamily extends Entity {
   TraitsRequirements traitsRequirements;
   List<Traits> traits;
   // custom <class TraitsFamily>
+
+  TraitsFamily(Id id) : super(id);
+
+  Iterable<Entity> get children => [];
+
   // end <class TraitsFamily>
 }
 // custom <part generic>
