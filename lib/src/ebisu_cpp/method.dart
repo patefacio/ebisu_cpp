@@ -33,6 +33,7 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 class ParmDecl extends Entity {
   String type;
+
   // custom <class ParmDecl>
 
   ParmDecl(id) : super(id);
@@ -62,6 +63,7 @@ Try something familiar like these:
   toString() => '$type ${id.snake}';
 
   // end <class ParmDecl>
+
 }
 
 /// A method declaration, which consists of a List of [ParmDecl] (i.e. the
@@ -99,6 +101,7 @@ class MethodDecl extends Entity {
   String returnType;
   /// True if this [MethodDecl] is *const*
   bool isConst = false;
+
   // custom <class MethodDecl>
 
   MethodDecl(id) : super(id);
@@ -153,6 +156,7 @@ ${chomp(indentBlock(customBlock(id.snake)))}
   toString() => _declaration;
 
   // end <class MethodDecl>
+
 }
 
 /// A [Method] represents a single class method that will be *owned* by
@@ -170,8 +174,10 @@ ${chomp(indentBlock(customBlock(id.snake)))}
 class Method {
   MethodDecl methodDecl;
   CodeBlock codeBlock;
+
   // custom <class Method>
   // end <class Method>
+
 }
 
 /// A collection of methods that as a group are either virtual or not.  A
@@ -214,10 +220,12 @@ class Method {
 ///     }
 ///
 class Interface extends Entity {
+
   /// If true interface results in pure abstract class, else *static
   /// polymorphic* base.
   bool isVirtual = false;
   List<MethodDecl> get methodDecls => _methodDecls;
+
   // custom <class Interface>
 
   Interface(id) : super(_forceInterfacePrefix(id));
@@ -263,6 +271,7 @@ ${chomp(definition)}
 ''';
 
   // end <class Interface>
+
   List<MethodDecl> _methodDecls = [];
 }
 
@@ -271,6 +280,7 @@ class InterfaceImplementation {
   Interface interface;
   CppAccess cppAccess = public;
   bool isVirtual = false;
+
   // custom <class InterfaceImplementation>
 
   InterfaceImplementation(this.interface,
@@ -286,7 +296,9 @@ class InterfaceImplementation {
   toString() => '${ev(cppAccess)}: ${interface.id.snake}';
 
   // end <class InterfaceImplementation>
+
 }
+
 // custom <part method>
 
 /// Convenience fucnction for creating an [Interface]

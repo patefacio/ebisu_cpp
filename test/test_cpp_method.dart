@@ -30,11 +30,14 @@ main([List<String> args]) {
     {
       final decl = 'char const* name';
       test('"$decl" parsed', () {
-        final parmDecl = new ParmDecl.fromDecl(decl);
+        var parmDecl = new ParmDecl.fromDecl(decl);
         expect(parmDecl.id.snake, 'name');
         expect(parmDecl.type, 'char const*');
-        print(new ParmDecl.fromDecl(
-            'std::vector< std::vector < double > > matrix'));
+        parmDecl = new ParmDecl.fromDecl(
+            'std::vector< std::vector < double > > matrix');
+        expect(parmDecl.id.snake, 'matrix');
+        expect(parmDecl.toString(),
+            'std::vector< std::vector < double > > matrix');
       });
     }
 

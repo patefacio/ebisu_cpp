@@ -13,12 +13,14 @@ part of ebisu_cpp.ebisu_cpp;
 ///     constexpr double Pi { 3.14 };
 ///
 class ConstExpr extends Entity {
+
   /// The c++ type of the constexpr
   String type;
   /// The initialization for the constexpr
   String get value => _value;
   /// Any namespace to wrap the constexpr in
   Namespace namespace;
+
   // custom <class ConstExpr>
 
   /// Create a constant expression from an [id]
@@ -56,6 +58,7 @@ class ConstExpr extends Entity {
       : namespace.wrap(unqualDecl);
 
   // end <class ConstExpr>
+
   String _value;
 }
 
@@ -67,6 +70,7 @@ class ForwardDecl {
   String type;
   /// The namespace to which the class being forward declared belongs
   Namespace namespace;
+
   // custom <class ForwardDecl>
 
   toString() => namespace == null || namespace.length == 0
@@ -75,6 +79,7 @@ class ForwardDecl {
           'class $type;', (prev, n) => 'namespace $n { $prev }');
 
   // end <class ForwardDecl>
+
 }
 
 /// Create a ForwardDecl sans new, for more declarative construction
@@ -83,11 +88,13 @@ ForwardDecl forwardDecl(String type, [Namespace namespace]) =>
 
 /// Establishes an interface for generating code
 abstract class CodeGenerator {
+
   // custom <class CodeGenerator>
 
   void generate();
 
   // end <class CodeGenerator>
+
 }
 
 /// Friend class declaration
@@ -96,11 +103,13 @@ class FriendClassDecl {
 
   /// Declaration text without the *friend* and *class* keywords
   final String decl;
+
   // custom <class FriendClassDecl>
 
   String toString() => 'friend class $decl;';
 
   // end <class FriendClassDecl>
+
 }
 
 /// Create a FriendClassDecl sans new, for more declarative construction
@@ -108,8 +117,10 @@ FriendClassDecl friendClassDecl([String decl]) => new FriendClassDecl(decl);
 
 /// Represents a c++ namespace which is essentially a list of names
 class Namespace {
+
   /// The individual names in the namespace
   List<String> names = [];
+
   // custom <class Namespace>
 
   Namespace([Iterable<String> n])
@@ -137,12 +148,15 @@ ${_helper(it, txt)}
   String get snake => names.join('_');
 
   // end <class Namespace>
+
 }
 
 /// Collection of header includes
 class Includes {
+
   /// Set of strings representing the includes
   Set<String> get included => _included;
+
   // custom <class Includes>
 
   Includes([Iterable<String> from])
@@ -176,11 +190,13 @@ class Includes {
   static _include(String include) => '#include "$include"';
 
   // end <class Includes>
+
   Set<String> _included;
 }
 
 /// Provides support for consistent naming of C++ entities
 abstract class Namer {
+
   // custom <class Namer>
 
   /// Name an [App] from its [Id]
@@ -228,12 +244,14 @@ abstract class Namer {
   String nameUsingType(Id id);
 
   // end <class Namer>
+
 }
 
 /// Default namer establishing reasonable conventions, that are fairly
 /// *snake* case heavy like the STL.
 ///
 class EbisuCppNamer implements Namer {
+
   // custom <class EbisuCppNamer>
 
   const EbisuCppNamer();
@@ -261,10 +279,12 @@ class EbisuCppNamer implements Namer {
   String nameUsingType(Id id) => addSuffix('t', id);
 
   // end <class EbisuCppNamer>
+
 }
 
 /// Namer based on google coding conventions
 class GoogleNamer implements Namer {
+
   // custom <class GoogleNamer>
 
   const GoogleNamer();
@@ -292,6 +312,7 @@ class GoogleNamer implements Namer {
   String nameUsingType(Id id) => addSuffix('t', id).capCamel;
 
   // end <class GoogleNamer>
+
 }
 
 /// A base class of another class.
@@ -339,6 +360,7 @@ class Base {
   bool isVirtual = false;
   /// If true and streamers are being provided, base is streamed first
   bool isStreamable = false;
+
   // custom <class Base>
 
   /// Return this [Base] as it would appear in a declaration
@@ -346,10 +368,12 @@ class Base {
   String get _virtual => isVirtual ? 'virtual ' : '';
 
   // end <class Base>
+
 }
 
 /// Create a Base sans new, for more declarative construction
 Base base([String className]) => new Base(className);
+
 // custom <part utils>
 
 Namespace namespace(List<String> ns) => new Namespace()..names = ns;

@@ -1,6 +1,7 @@
 part of ebisu_cpp.ebisu_cpp;
 
 class Script extends Entity implements CodeGenerator {
+
   // custom <class Script>
 
   Script(Id id) : super(id);
@@ -10,6 +11,8 @@ class Script extends Entity implements CodeGenerator {
   void generate() => print('TBD');
 
   // end <class Script>
+
 }
+
 // custom <part script>
 // end <part script>

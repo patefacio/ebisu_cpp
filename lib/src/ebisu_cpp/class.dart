@@ -92,6 +92,7 @@ abstract class ClassMethod {
   Template get template => _template;
   /// C++ style access of method
   CppAccess cppAccess = public;
+
   // custom <class ClassMethod>
 
   String get definition;
@@ -101,11 +102,13 @@ abstract class ClassMethod {
       _template = _makeTemplate('class_method', t); // TODO: make entity
 
   // end <class ClassMethod>
+
   Class _parent;
   Template _template;
 }
 
 abstract class DefaultMethod extends ClassMethod {
+
   /// Has custom code, so needs protect block
   bool hasCustom = false;
   /// Code snippet to inject at beginning of method. The intent is for the
@@ -118,6 +121,7 @@ abstract class DefaultMethod extends ClassMethod {
   String bottomInject = '';
   bool usesDefault = false;
   bool hasDelete = false;
+
   // custom <class DefaultMethod>
 
   String get customDefinition;
@@ -128,10 +132,12 @@ abstract class DefaultMethod extends ClassMethod {
       : hasDelete ? '$prototype = delete;' : customDefinition;
 
   // end <class DefaultMethod>
+
 }
 
 /// Default ctor, autoinitialized on read
 class DefaultCtor extends DefaultMethod {
+
   // custom <class DefaultCtor>
 
   String get prototype => '${className}()';
@@ -148,10 +154,12 @@ $bottomInject
   }
 
   // end <class DefaultCtor>
+
 }
 
 /// Copy ctor, autoinitialized on read
 class CopyCtor extends DefaultMethod {
+
   // custom <class CopyCtor>
 
   String get prototype => '${className}(${className} const& other)';
@@ -168,10 +176,12 @@ $bottomInject
   }
 
   // end <class CopyCtor>
+
 }
 
 /// Move ctor, autoinitialized on read
 class MoveCtor extends DefaultMethod {
+
   // custom <class MoveCtor>
 
   String get prototype => '${className}(${className} && other)';
@@ -179,9 +189,11 @@ class MoveCtor extends DefaultMethod {
   String get customDefinition => 'Move Ctor';
 
   // end <class MoveCtor>
+
 }
 
 class AssignCopy extends DefaultMethod {
+
   // custom <class AssignCopy>
 
   String get prototype => '${className}& operator=(${className} const&)';
@@ -189,9 +201,11 @@ class AssignCopy extends DefaultMethod {
       throw 'AssignCopy not generated - specify usesDefault or hasDelete for ${className}';
 
   // end <class AssignCopy>
+
 }
 
 class AssignMove extends DefaultMethod {
+
   // custom <class AssignMove>
 
   String get prototype => '${className}& operator=(${className} &&)';
@@ -199,11 +213,13 @@ class AssignMove extends DefaultMethod {
       throw 'AssignMove not generated - specify usesDefault or hasDelete for ${className}';
 
   // end <class AssignMove>
+
 }
 
 /// Provides a destructor
 class Dtor extends DefaultMethod {
   bool isAbstract = false;
+
   // custom <class Dtor>
 
   String get definition => hasDelete
@@ -225,6 +241,7 @@ $bottomInject
 }''';
 
   // end <class Dtor>
+
 }
 
 /// A *Member Constructor Parameter*. Defines a single parameter to be passed to a
@@ -336,6 +353,7 @@ class MemberCtorParm {
   ///
   ///     Cls(int x = 42) : x_{x}
   String defaultValue;
+
   // custom <class MemberCtorParm>
 
   /// The parameter as declared in the ctor, including any defaultValue. So, the:
@@ -371,6 +389,7 @@ class MemberCtorParm {
           : '${member.vname} { ${member.name} }';
 
   // end <class MemberCtorParm>
+
   String _init;
 }
 
@@ -396,6 +415,7 @@ MemberCtorParm memberCtorParm([String name]) => new MemberCtorParm(name);
 ///     }
 ///
 class MemberCtor extends ClassMethod {
+
   /// List of members that are passed as arguments for initialization
   List<MemberCtorParm> memberParms = [];
   /// List of additional decls ["Type Argname", ...]
@@ -406,6 +426,7 @@ class MemberCtor extends ClassMethod {
   set customLabel(String customLabel) => _customLabel = customLabel;
   /// If set automatically includes all members as args
   bool hasAllMembers = false;
+
   // custom <class MemberCtor>
 
   static _makeParm(parm) => (parm is String)
@@ -461,12 +482,14 @@ ${indentBlock(_protectBlock)}}''';
       hasCustom ? customBlock('${className}($customLabel)') : '';
 
   // end <class MemberCtor>
+
   bool _hasCustom = false;
   String _customLabel;
 }
 
 /// Provides *operator==()*
 class OpEqual extends ClassMethod {
+
   // custom <class OpEqual>
 
   String get definition => '''bool operator==(${className} const& rhs) const {
@@ -481,10 +504,12 @@ bool operator!=($className const& rhs) const {
 }''';
 
   // end <class OpEqual>
+
 }
 
 /// Provides *operator<()*
 class OpLess extends ClassMethod {
+
   // custom <class OpLess>
 
   String get definition {
@@ -501,10 +526,12 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
   }
 
   // end <class OpLess>
+
 }
 
 /// Provides *operator<<()*
 class OpOut extends ClassMethod {
+
   // custom <class OpOut>
 
   String get definition => '''
@@ -524,6 +551,7 @@ combine(members.map((m) =>
 }''';
 
   // end <class OpOut>
+
 }
 
 /// A C++ class.
@@ -563,6 +591,7 @@ combine(members.map((m) =>
 ///   [CodeBlock].
 ///
 class Class extends Entity {
+
   /// Is this definition a *struct*
   bool isStruct = false;
   /// The template by which the class is parameterized
@@ -618,6 +647,7 @@ class Class extends Entity {
   /// If set, will include *#pragma pack(push, $packAlign)* before the class
   /// and *#pragma pack(pop)* after.
   int packAlign;
+
   // custom <class Class>
 
   Class(Id id) : super(id);
@@ -775,7 +805,7 @@ default [Interfaceimplementation] is used''').toList();
       customBlocks.forEach((ClassCodeBlock cb) {
         getCodeBlock(cb).tag = '${evCap(cb)} $className';
       });
-      _definition = combine(_parts);
+      _definition = br(_parts);
     }
     return _definition;
   }
@@ -826,25 +856,23 @@ default [Interfaceimplementation] is used''').toList();
       packAlign != null ? '#pragma pack(push, $packAlign)' : '';
   get _pragmaPackPop => packAlign != null ? '#pragma pack(pop)' : '';
 
+  _memberJoinFormat(mems) =>
+      brCompact(mems.map((m) => m.hasComment ? '\n$m' : '$m'));
+
   get _parts => [
     _forwardPtrs,
-    enumsForward.map((e) => e.toString()).join('\n'),
+    enumsForward.map((e) => e.toString()),
     _codeBlockText(clsPreDecl),
     briefComment,
-    detailedComment,
-    _templateDecl,
-    _pragmaPackPush,
-    _classOpener,
-    _wrapInAccess(isStruct ? null : public, indentBlock(combine([
-      br(usings.map((u) => u.usingStatement(namer))),
-      br([_enumDecls, _enumStreamers]),
-      br(friendClassDecls.map((fcd) => fcd.toString())),
-      combine(nestedClasses
+    brCompact([detailedComment, _templateDecl, _pragmaPackPush, _classOpener]),
+    _wrapInAccess(isStruct ? null : public, indentBlock(br([
+      brCompact(usings.map((u) => u.usingStatement(namer))),
+      brCompact([_enumDecls, _enumStreamers]),
+      brCompact(friendClassDecls.map((fcd) => fcd.toString())),
+      br(nestedClasses
           .where((c) => c.cppAccess == public)
           .map((c) => c.definition)),
-      br(publicMembers
-          .where((m) => m.isPublicStaticConst)
-          .map((m) => _memberDefinition(m))),
+      br(publicMembers.where((m) => m.isPublicStaticConst)),
       br(_allCtors
           .where((m) => m.cppAccess == public)
           .map((m) => m.definition)),
@@ -856,10 +884,8 @@ default [Interfaceimplementation] is used''').toList();
           .map((i) => i.methodDecls)),
       br(_singleton),
       _codeBlockText(clsPublic),
-      chomp(br(publicMembers
-          .where((m) => !m.isPublicStaticConst)
-          .map((m) => _memberDefinition(m)))),
-      chomp(combine(members.map((m) => br([m.getter, m.setter])))),
+      _memberJoinFormat(publicMembers.where((m) => !m.isPublicStaticConst)),
+      br(members.map((m) => br([m.getter, m.setter]))),
       isStreamable ? outStreamer : null,
       serializers.map((s) => s.serialize(this)),
     ]))),
@@ -877,7 +903,7 @@ default [Interfaceimplementation] is used''').toList();
       br(interfaceImplementations
           .where((i) => i.cppAccess == protected)
           .map((i) => i.methodDecls)),
-      chomp(br(protectedMembers.map((m) => _memberDefinition(m))))
+      _memberJoinFormat(protectedMembers)
     ]))),
     _wrapInAccess(private, indentBlock(combine([
       _codeBlockText(clsPrivate),
@@ -893,7 +919,7 @@ default [Interfaceimplementation] is used''').toList();
       br(interfaceImplementations
           .where((i) => i.cppAccess == private)
           .map((i) => i.methodDecls)),
-      chomp(br(privateMembers.map((m) => _memberDefinition(m))))
+      _memberJoinFormat(privateMembers)
     ]))),
     br([_classCloser, _pragmaPackPop]),
     br(usingsPostDecl.map((u) => u.usingStatement(namer))),
@@ -929,8 +955,6 @@ ${_access(access)}${txt}'''
     return codeBlock != null ? codeBlock.toString() : null;
   }
 
-  _memberDefinition(Member m) => '$m';
-
   /// Class names are capitalized *snake case*
   String get className => namer.nameClass(id);
 
@@ -955,7 +979,7 @@ friend inline
 std::ostream& operator<<(std::ostream& out,
                          $className const& item) {''',
     usesStreamers ? '  using fcs::utils::streamers::operator<<;' : null,
-    indentBlock(chomp(br([
+    indentBlock(chomp(brCompact([
       _streamBases,
       _streamInstanceOpener,
       _streamMembers,
@@ -983,6 +1007,7 @@ $classStyle $className$_baseDecl
   }
 
   // end <class Class>
+
   /// The contents of the class definition. *Inaccessible* and established
   /// as a member so custom *definition* getter can be called multiple times
   /// on the same class and results lazy-inited here
@@ -1017,6 +1042,7 @@ $classStyle $className$_baseDecl
   /// Lookup is done by pattern match.
   Map<String, Method> _methods = {};
 }
+
 // custom <part class>
 
 /// Convenience fucnction for creating a [Class]

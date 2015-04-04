@@ -88,6 +88,7 @@ library ebisu_cpp.ebisu_cpp;
 
 import 'dart:collection';
 import 'dart:io';
+import 'dart:math';
 import 'package:ebisu/ebisu.dart';
 import 'package:id/id.dart';
 import 'package:logging/logging.dart';
@@ -327,11 +328,13 @@ enum TemplateParmType { type, nonType }
 /// (primarily additions) to an [Installation].
 ///
 abstract class InstallationDecorator {
+
   // custom <class InstallationDecorator>
 
   void decorate(Installation);
 
   // end <class InstallationDecorator>
+
 }
 
 /// Exposes common elements for named entities, including their [id] and
@@ -384,6 +387,7 @@ abstract class InstallationDecorator {
 ///       tests:
 ///
 abstract class Entity {
+
   /// Id for the entity
   Id id;
   /// Brief description for the entity
@@ -395,6 +399,7 @@ abstract class Entity {
   Entity get owner => _owner;
   /// Path from root to this entity
   List<Entity> get entityPath => _entityPath;
+
   // custom <class Entity>
 
   Entity(Object id) : this.id = id is String
@@ -415,6 +420,8 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
   /// *doc* is a synonym for descr
   set doc(String d) => descr = d;
   get doc => descr;
+
+  get hasComment => brief != null || descr != null;
 
   /// Establishes the [Entity] that *this* [Entity] is owned by. This
   /// function should be called only when all declarative information
@@ -475,6 +482,7 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
   Installation get installation => _owner == null ? this : _owner.installation;
 
   // end <class Entity>
+
   Entity _owner;
   List<Entity> _entityPath = [];
   /// Namer to be used when generating names during generation. There is a
@@ -488,8 +496,10 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
 
 /// Object corresponding to a using statement
 class Using extends Entity {
+
   /// The right hand side of using (ie the type decl being named)
   String get rhs => _rhs;
+
   // custom <class Using>
 
   Using(lhs_, String this._rhs) : super(addSuffixToId('t', lhs_));
@@ -504,18 +514,22 @@ class Using extends Entity {
       combine([this.docComment, 'using ${namer.nameClass(lhs)} = $rhs;']);
 
   // end <class Using>
+
   String _rhs;
 }
 
 abstract class TemplateParm extends Entity {
+
   // custom <class TemplateParm>
   TemplateParm(id) : super(id);
   Iterable<Entity> get children => [];
   // end <class TemplateParm>
+
 }
 
 class TypeTemplateParm extends TemplateParm {
   String typeId;
+
   // custom <class TypeTemplateParm>
 
   TypeTemplateParm(id, this.typeId) : super(id);
@@ -526,12 +540,14 @@ class TypeTemplateParm extends TemplateParm {
   get typename => id.shout;
 
   // end <class TypeTemplateParm>
+
 }
 
 class DeclTemplateParm extends TemplateParm {
   List<String> terms;
   /// Index into the terms indicating the id
   int idIndex;
+
   // custom <class DeclTemplateParm>
 
   DeclTemplateParm(id, this.terms, this.idIndex) : super(id);
@@ -540,12 +556,14 @@ class DeclTemplateParm extends TemplateParm {
     ..[idIndex] = namer.nameTemplateDeclParm(id)).join(' ');
 
   // end <class DeclTemplateParm>
+
 }
 
 /// Represents a template declaration comprized of a list of [decls]
 ///
 class Template extends Entity {
   List<TemplateParm> parms;
+
   // custom <class Template>
 
   Iterable<Entity> get children => parms;
@@ -560,6 +578,7 @@ template< ${parms.join(',\n          ')} >''';
   toString() => decl;
 
   // end <class Template>
+
 }
 
 // custom <library ebisu_cpp>

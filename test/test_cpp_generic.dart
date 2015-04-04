@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 import 'package:unittest/unittest.dart';
 // custom <additional imports>
 
+import 'package:ebisu/ebisu.dart';
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 
 // end <additional imports>
@@ -19,11 +20,15 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
-  group('traits', () {
-    print(new Using('a', 'vector<int>'));
+  darkSame(a, b) => expect(darkMatter(a), darkMatter(b));
 
-    print(using('a = vector<it>'));
-    print(using(new Using('goo', 'vector<vector<x>>')));
+  group('traits', () {
+    test('using', () {
+      darkSame(new Using('a', 'vector<int>'), 'using aT = vector<int>;');
+      darkSame(using('a = vector<it>'), 'using aT = vector<it>;');
+      darkSame(using(new Using('goo', 'vector<vector<x>>')),
+          'using gooT = vector<vector<x>>;');
+    });
   });
 
 // end <main>

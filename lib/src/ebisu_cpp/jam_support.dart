@@ -4,6 +4,7 @@ part of ebisu_cpp.ebisu_cpp;
 /// indicates bjam shoud be set up per app and tests in the installation.
 ///
 class JamInstallationBuilder extends InstallationBuilder {
+
   // custom <class JamInstallationBuilder>
 
   JamInstallationBuilder.fromInstallation(installation)
@@ -18,9 +19,11 @@ class JamInstallationBuilder extends InstallationBuilder {
   }
 
   // end <class JamInstallationBuilder>
+
 }
 
 class JamAppBuilder extends AppBuilder {
+
   // custom <class JamAppBuilder>
 
   get app => super.app;
@@ -93,9 +96,11 @@ explicit install_app ;
   }
 
   // end <class JamAppBuilder>
+
 }
 
 class JamTestBuilder extends TestBuilder {
+
   // custom <class JamTestBuilder>
 
   get lib => super.lib;
@@ -129,12 +134,14 @@ ${chomp(br(tests.map((t) => _testRuleAddition(t))))}''', targetFile);
   }
 
   // end <class JamTestBuilder>
+
 }
 
 class SiteConfig implements CodeGenerator {
   SiteConfig(this.installation);
 
   Installation installation;
+
   // custom <class SiteConfig>
 
   void generate() {
@@ -170,12 +177,14 @@ _boostMtStatics.contains(l) ?
   get _boostLibs => [];
 
   // end <class SiteConfig>
+
 }
 
 class UserConfig implements CodeGenerator {
   UserConfig(this.installation);
 
   Installation installation;
+
   // custom <class UserConfig>
 
   void generate() {
@@ -185,16 +194,19 @@ class UserConfig implements CodeGenerator {
   }
 
   // end <class UserConfig>
+
 }
 
 class JamConstant {
   String constant;
   String value;
+
   // custom <class JamConstant>
 
   toString() => 'constant $constant : $value ;';
 
   // end <class JamConstant>
+
 }
 
 class JamFileTop implements CodeGenerator {
@@ -203,6 +215,7 @@ class JamFileTop implements CodeGenerator {
   Installation installation;
   List<String> includePaths = [];
   List<JamConstant> constants = [];
+
   // custom <class JamFileTop>
 
   get id => installation.id;
@@ -266,12 +279,14 @@ ${scriptCustomBlock('additional_libs')}
   }
 
   // end <class JamFileTop>
+
 }
 
 class JamRoot implements CodeGenerator {
   JamRoot(this.installation);
 
   Installation installation;
+
   // custom <class JamRoot>
 
   void generate() {
@@ -283,7 +298,9 @@ class JamRoot implements CodeGenerator {
   }
 
   // end <class JamRoot>
+
 }
+
 // custom <part jam_support>
 
 final _boostLibs = [

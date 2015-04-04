@@ -60,6 +60,7 @@ class AppArg extends Entity {
   bool isMultiple = false;
   bool isRequired = false;
   Object get defaultValue => _defaultValue;
+
   // custom <class AppArg>
 
   AppArg(Id id) : super(id);
@@ -113,6 +114,7 @@ class AppArg extends Entity {
       : '($flagDecl, value< $cppType >()$_defaultValueSet,\n  "${descr}")';
 
   // end <class AppArg>
+
   Object _defaultValue;
 }
 
@@ -145,6 +147,7 @@ class AppArg extends Entity {
 /// application and not necessarily suited for a separate library.
 ///
 class App extends Impl implements CodeGenerator {
+
   /// Command line arguments specific to this application
   List<AppArg> args = [];
   /// Additional headers that are associated with the application itself, as
@@ -161,6 +164,7 @@ class App extends Impl implements CodeGenerator {
   List<String> requiredLibs = [];
   /// List of builders to generate build scripts of a desired flavor (bjam,...)
   List<AppBuilder> builders = [];
+
   // custom <class App>
 
   App(Id id) : super(id);
@@ -339,6 +343,7 @@ if(options.help()) {
       : combine(['Program_options options = { argc, argv };', _showHelp,]);
 
   // end <class App>
+
   /// Namespace associated with application code
   Namespace _namespace;
 }
@@ -347,6 +352,7 @@ if(options.help()) {
 /// libraries, apps, and tests
 abstract class AppBuilder implements CodeGenerator {
   App app;
+
   // custom <class AppBuilder>
 
   AppBuilder();
@@ -381,7 +387,9 @@ abstract class AppBuilder implements CodeGenerator {
   };
 
   // end <class AppBuilder>
+
 }
+
 // custom <part app>
 
 AppArg arg(Object name) => new AppArg(name is String ? new Id(name) : name);

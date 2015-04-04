@@ -92,6 +92,7 @@ class Lib extends Entity implements CodeGenerator {
   Namespace namespace = new Namespace();
   List<Header> headers = [];
   List<Test> tests = [];
+
   // custom <class Lib>
 
   Lib(Id id) : super(id);
@@ -163,7 +164,9 @@ class Lib extends Entity implements CodeGenerator {
 ''';
 
   // end <class Lib>
+
 }
+
 // custom <part lib>
 
 Lib lib(Object id) => new Lib(id is Id ? id : new Id(id));

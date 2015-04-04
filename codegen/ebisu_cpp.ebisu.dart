@@ -17,7 +17,7 @@ void main() {
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.12'
+    ..pubSpec.version = '0.0.13'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -42,8 +42,9 @@ void main() {
         'package:ebisu/ebisu.dart',
         'package:quiver/iterables.dart',
         "'package:path/path.dart' as path",
-        'dart:io',
-        'dart:collection',
+        'io',
+        'collection',
+        'math',
       ]
       ..enums = [
         enum_('access')
@@ -500,7 +501,129 @@ List of interfaces for this header. Interfaces result in either:
         part('enum')
         ..classes = [
           class_('enum')
-          ..doc = 'A c++ enumeration'
+          ..doc = """
+A c++ enumeration.
+
+There are two main styles of enumerations, *standard* and
+*mask*.
+
+Enumerations are often used to establish values to be used in
+masks. The actual manipulation with masks is done in the *int* space,
+but enums are convenient for setting up the mask values:
+
+      print(enum_('gl_buffer')
+          ..values = [ 'gl_color_buffer', 'gl_depth_buffer',
+            'gl_accum_buffer', 'gl_stencil_buffer' ]
+          ..isMask = true);
+
+will print:
+
+    enum Gl_buffer {
+      Gl_color_buffer_e = 1 << 0,
+      Gl_depth_buffer_e = 1 << 1,
+      Gl_accum_buffer_e = 1 << 2,
+      Gl_stencil_buffer_e = 1 << 3
+    };
+
+The *values* for enumeration entries can be ignored when their only
+purpose is to draw distinction:
+
+    print(enum_('region')..values = ['north', 'south', 'east', 'west']);
+
+will print:
+
+    enum Region {
+      North_e,
+      South_e,
+      East_e,
+      West_e
+    };
+
+Sometimes it is important not only to distinguish, but also to assign
+values. For this purpose the values associated with the entries may be
+provided via the [valueMap]
+
+    print(enum_('thresholds')
+          ..valueMap = { 'high' : 100, 'medium' : 50, 'low' : 10 });
+
+gives:
+
+    enum Thresholds {
+      High_e = 100,
+      Medium_e = 50,
+      Low_e = 10
+    };
+
+Optionally the [isClass] field can be set to improve scoping by making
+the enum a *class* enum.
+
+    print(enum_('color_as_class')
+          ..values = ['red', 'green', 'blue']
+          ..isClass = true);
+
+gives:
+
+    enum class Color_as_class {
+      Red_e,
+      Green_e,
+      Blue_e
+    };
+
+Optionally the [enumBase] can be used to specify the base type. This
+is particularly where the enum is a field in a *packed* structure.
+
+    print(enum_('color_with_base')
+          ..values = ['red', 'green', 'blue']
+          ..enumBase = 'std::int8_t');
+
+gives:
+
+    enum Color_with_base : std::int8_t {
+      Red_e,
+      Green_e,
+      Blue_e
+    };
+
+[isClass] may be combined with [enumBase].
+
+The [isStreamable] flag will provide *to_c_str* and *operator<<* methods:
+
+    print(enum_('color')
+          ..values = ['red', 'green', 'blue']
+          ..enumBase = 'std::int8_t'
+          ..isStreamable = true
+          );
+
+gives:
+
+    enum class Color : std::int8_t {
+      Red_e,
+      Green_e,
+      Blue_e
+    };
+    inline char const* to_c_str(Color e) {
+      switch(e) {
+        case Color::Red_e: return "Red_e";
+        case Color::Green_e: return "Green_e";
+        case Color::Blue_e: return "Blue_e";
+      }
+    }
+    inline std::ostream& operator<<(std::ostream &out, Color e) {
+      return out << to_c_str(e);
+    }
+
+For the *standard* style enum you can use the [hasFromCStr] to include
+a c-string to enum conversion method:
+
+    inline void from_c_str(char const* str, Color &e) {
+      using namespace std;
+      if(0 == strcmp("Red_e", str)) { e = Color::Red_e; return; }
+      if(0 == strcmp("Green_e", str)) { e = Color::Green_e; return; }
+      if(0 == strcmp("Blue_e", str)) { e = Color::Blue_e; return; }
+      string msg { "No Color matching:" };
+      throw std::runtime_error(msg + str);
+    }
+"""
           ..extend = 'Entity'
           ..members = [
             member('values')
@@ -520,7 +643,10 @@ List of interfaces for this header. Interfaces result in either:
             ..type = 'Map<String, int>'
             ..access = RO,
             member('is_class')
-            ..doc = 'If true the enum is a class enum as opposed to "plain" enum'..classInit = false,
+            ..doc = 'If true the enum is a class enum as opposed to "plain" enum'
+            ..classInit = false,
+            member('enum_base')
+            ..doc = 'Base of enum - if set must be an integral type',
             member('has_from_c_str')
             ..doc = 'If true adds from_c_str method'..classInit = false,
             member('has_to_c_str')
@@ -528,9 +654,16 @@ List of interfaces for this header. Interfaces result in either:
             member('is_streamable')
             ..doc = 'If true adds streaming support'..classInit = false,
             member('is_mask')
-            ..doc = 'If true the values are powers of two for bit masking'..classInit = false,
+            ..doc = 'If true the values are powers of two for bit masking'
+            ..classInit = false,
             member('is_nested')
-            ..doc = 'If true is nested in class and requires *friend* stream support'..classInit = false,
+            ..doc = 'If true is nested in class and requires *friend* stream support'
+            ..classInit = false,
+            member('is_displayed_hex')
+            ..doc = '''
+If the map has values assigned by user, this can be used to display
+them in the enum as hex'''
+            ..classInit = false
           ],
         ],
         part('member')

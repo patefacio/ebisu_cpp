@@ -4,8 +4,10 @@ part of ebisu_cpp.hdf5_support;
 /// hdf5 packet table support
 ///
 class ClassNotFoundException implements Exception {
+
   /// Exception details
   String get message => _message;
+
   // custom <class ClassNotFoundException>
 
   ClassNotFoundException(String className, Installation installation)
@@ -17,6 +19,7 @@ ClassNotFoundException: $_message
 ''';
 
   // end <class ClassNotFoundException>
+
   final String _message;
 }
 
@@ -28,8 +31,10 @@ class LogGroup {
   /// Name of members of class, *snake case*, to include in the packet table
   /// log group. An empty list will include all members in the table.
   final List<String> memberNames;
+
   // custom <class LogGroup>
   // end <class LogGroup>
+
 }
 
 /// Create a LogGroup sans new, for more declarative construction
@@ -40,6 +45,7 @@ class PacketTableDecorator implements InstallationDecorator {
   const PacketTableDecorator(this.logGroups);
 
   final List<LogGroup> logGroups;
+
   // custom <class PacketTableDecorator>
 
   void decorate(Installation installation) {
@@ -62,10 +68,12 @@ class PacketTableDecorator implements InstallationDecorator {
   }
 
   // end <class PacketTableDecorator>
+
 }
 
 /// Create a PacketTableDecorator sans new, for more declarative construction
 PacketTableDecorator packetTableDecorator([List<LogGroup> logGroups]) =>
     new PacketTableDecorator(logGroups);
+
 // custom <part packet_table>
 // end <part packet_table>

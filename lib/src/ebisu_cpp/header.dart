@@ -9,6 +9,7 @@ class Header extends CppFile {
   /// (2) For windows systems it will be the place to provide the api decl support
   /// (3) Will have code that initializes the api
   bool isApiHeader = false;
+
   // custom <class Header>
 
   Header(Id id) : super(id);
@@ -84,9 +85,11 @@ $text
 ''';
 
   // end <class Header>
+
   String _filePath;
   Test _test;
 }
+
 // custom <part header>
 Header header(Object id) => new Header(id is Id ? id : new Id(id));
 // end <part header>

@@ -8,6 +8,7 @@ class Test extends Impl implements CodeGenerator {
   List<String> get testFunctions => _testFunctions;
   Map<String, String> get testImplementations => _testImplementations;
   List<String> requiredLibs = [];
+
   // custom <class Test>
 
   Test(Header header)
@@ -79,6 +80,7 @@ indentBlock(
   }
 
   // end <class Test>
+
   String _filePath;
   List<String> _testFunctions = [];
   Map<String, String> _testImplementations = {};
@@ -91,9 +93,12 @@ abstract class TestBuilder implements CodeGenerator {
   Lib lib;
   String directory;
   List<Test> tests;
+
   // custom <class TestBuilder>
 
   // end <class TestBuilder>
+
 }
+
 // custom <part test>
 // end <part test>

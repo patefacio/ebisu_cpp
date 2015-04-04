@@ -3,6 +3,7 @@ part of ebisu_cpp.ebisu_cpp;
 /// Establishes an interface and common elements for c++ file, such as
 /// *Header* and *Impl*.
 abstract class CppFile extends Entity {
+
   /// Namespace associated with this file
   Namespace namespace;
   /// List of blocks requiring custom code and therefore inserted into the
@@ -28,6 +29,7 @@ abstract class CppFile extends Entity {
   /// * abstract base class with pure virtual methods
   /// * static polymorphic base class with inline forwarding methods
   List<Interface> interfaces = [];
+
   // custom <class CppFile>
 
   CppFile(Id id) : super(id);
@@ -71,16 +73,16 @@ abstract class CppFile extends Entity {
           'Yikes! provide a namespace: ${runtimeType} ${id.snake}');
     }
 
-    return combine([
-      br(_includes.includes),
+    return br([
+      _includes.includes,
       _codeBlockText(fcbCustomIncludes),
       _codeBlockText(fcbPreNamespace),
-      namespace.wrap(combine([
+      namespace.wrap(br([
         _codeBlockText(fcbBeginNamespace),
         br(interfaces.map((i) => i.definition)),
         br(constExprs),
         forwardDecls,
-        br(usings.map((u) => u.usingStatement(namer))),
+        brCompact(usings.map((u) => u.usingStatement(namer))),
         br(enums.map((Enum e) => br(e.decl))),
         br(classes.map((Class cls) => br(cls.definition))),
         _codeBlockText(fcbEndNamespace)
@@ -95,11 +97,13 @@ abstract class CppFile extends Entity {
   }
 
   // end <class CppFile>
+
   /// Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.
   Map<FileCodeBlock, CodeBlock> _codeBlocks = {};
   Includes _includes = new Includes();
   List<Using> _usings = [];
 }
+
 // custom <part file>
 
 bool useClangFormatter = false;

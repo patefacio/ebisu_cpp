@@ -3,6 +3,7 @@ part of ebisu_cpp.ebisu_cpp;
 /// A single implementation file (i.e. *cpp* file)
 class Impl extends CppFile {
   String get filePath => _filePath;
+
   // custom <class Impl>
 
   Impl(Id id) : super(id);
@@ -18,8 +19,10 @@ class Impl extends CppFile {
       _filePath = path.join(root, 'app', id.snake, '${id.snake}.cpp');
 
   // end <class Impl>
+
   String _filePath;
 }
+
 // custom <part impl>
 
 Impl impl(Object id) => new Impl(id is Id ? id : new Id(id));

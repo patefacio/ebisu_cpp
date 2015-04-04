@@ -22,16 +22,19 @@ const SerializationStyle binarySerialization =
 
 /// Establishes an interface for instance serialization
 abstract class Serializer {
+
   // custom <class Serializer>
 
   String serialize(Class cls);
 
   // end <class Serializer>
+
 }
 
 /// Provides support for serialization as *delimited separated values*
 class DsvSerializer implements Serializer {
   String delimiter = ':';
+
   // custom <class DsvSerializer>
 
   DsvSerializer(this.delimiter);
@@ -128,11 +131,13 @@ return ${cls.className}(${cls.members.map((Member m) => m.vname).join(', ')});
 ''';
 
   // end <class DsvSerializer>
+
 }
 
 /// Adds support for serialization using *cereal*
 class Cereal implements Serializer {
   List<SerializationStyle> styles = [];
+
   // custom <class Cereal>
 
   Cereal(this.styles);
@@ -183,7 +188,9 @@ void serialize(Archive &ar__) {''',
   }
 
   // end <class Cereal>
+
 }
+
 // custom <part serializer>
 
 final json = jsonSerialization;

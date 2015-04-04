@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 import 'package:unittest/unittest.dart';
 // custom <additional imports>
 
+import 'package:ebisu/ebisu.dart';
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 
 // end <additional imports>
@@ -55,7 +56,7 @@ inline void from_c_str(char const* str, Color_$isClass &e) {
 
       expect(sample.toString().replaceAll(ws, ''), expected.replaceAll(ws, ''));
 
-      final sample_map = enum_('${id}_map')
+      final sample_map = enum_('${id}_mapper')
         ..isClass = isClass
         ..hasToCStr = true
         ..hasFromCStr = true
@@ -68,7 +69,22 @@ inline void from_c_str(char const* str, Color_$isClass &e) {
         ..values = ['red', 'green', 'blue']
         ..isMask = true;
 
-      if (false) print(sample_mask.toString());
+      expect(darkMatter(sample_mask.toString()), darkMatter('''
+enum ${isClass? "class ":""}Color_${isClass}_mask {
+  Red_e = 1 << 0,
+  Green_e = 1 << 1,
+  Blue_e = 1 << 2
+};
+'''));
+
+      final sample_mask_base = enum_('${id}_mask')
+        ..isClass = isClass
+        ..enumBase = 'std::int8_t'
+        ..isStreamable = true
+        ..values = ['red', 'green', 'blue']
+        ..isMask = true;
+
+      //print(sample_mask_base);
     });
   });
 // end <main>

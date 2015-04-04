@@ -138,6 +138,7 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 ///
 class Member extends Entity {
+
   /// Type of member
   String type;
   /// Initialization of member.
@@ -193,6 +194,7 @@ class Member extends Entity {
   /// Indicates a custom protect block is needed to hand code
   /// the streamable for this member
   bool hasCustomStreamable = false;
+
   // custom <class Member>
 
   Member(Id id) : super(id);
@@ -202,8 +204,7 @@ class Member extends Entity {
   String toString() {
     if (isStatic &&
         isMutable) throw "Member $id may not be both static and mutable";
-
-    return combine(_parts);
+    return brCompact(_parts);
   }
 
   get isByRef =>
@@ -313,11 +314,13 @@ void $name($_argType $name) { $vname = $name; }'''
       : '$_static$_mutable$_refType $_constDecl$vname$initializer;';
 
   // end <class Member>
+
   String _init;
   CppAccess _cppAccess;
   bool _isByRef;
   bool _isConst = false;
 }
+
 // custom <part member>
 
 Member member(Object id) => new Member(id is Id ? id : new Id(id));

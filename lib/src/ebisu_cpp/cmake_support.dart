@@ -1,6 +1,7 @@
 part of ebisu_cpp.ebisu_cpp;
 
 class CmakeInstallationBuilder extends InstallationBuilder {
+
   // custom <class CmakeInstallationBuilder>
 
   CmakeInstallationBuilder.fromInstallation(installation)
@@ -42,8 +43,7 @@ ${chomp(scriptCustomBlock('${test.name} link requirements'))}
   \${Boost_THREAD_LIBRARY}
 )
 
-add_test(${test.name} ${test.name})
-''';
+add_test(${test.name} ${test.name})''';
     }
 
     scriptMergeWithFile('''
@@ -85,12 +85,12 @@ ${scriptCustomBlock('include directories')}
 ######################################################################
 # Application build directives
 ######################################################################
-${br(apps.map((app) => appCmake(app)))}
+${chomp(br(apps.map((app) => appCmake(app))))}
 
 ######################################################################
 # Test directives
 ######################################################################
-${br(tests.map((test) => testCmake(test)))}
+${chomp(br(tests.map((test) => testCmake(test))))}
 
 ''', cmakeRoot);
 
@@ -103,7 +103,9 @@ cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
   }
 
   // end <class CmakeInstallationBuilder>
+
 }
+
 // custom <part cmake_support>
 
 CmakeInstallationBuilder cmakeInstallationBuilder() =>

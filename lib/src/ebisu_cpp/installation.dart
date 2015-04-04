@@ -3,14 +3,17 @@ part of ebisu_cpp.ebisu_cpp;
 /// Mixin that brings in the installation that this child belongs to
 abstract class InstallationContainer {
   Installation installation;
+
   // custom <class InstallationContainer>
   // end <class InstallationContainer>
+
 }
 
 /// Creates builder for an installation (ie ties together all build artifacts)
 ///
 abstract class InstallationBuilder implements CodeGenerator {
   Installation installation;
+
   // custom <class InstallationBuilder>
 
   get name => installation.id.snake;
@@ -29,9 +32,11 @@ abstract class InstallationBuilder implements CodeGenerator {
   }
 
   // end <class InstallationBuilder>
+
 }
 
 class Installation extends Entity implements CodeGenerator {
+
   /// Fully qualified path to installation
   String get root => _root;
   Map<String, String> get paths => _paths;
@@ -41,6 +46,7 @@ class Installation extends Entity implements CodeGenerator {
   List<Script> scripts = [];
   /// List of builders for the installation (bjam, cmake)
   List<InstallationBuilder> builders = [];
+
   // custom <class Installation>
 
   Installation(Id id) : super(id) {
@@ -121,16 +127,19 @@ Installation($root)
   Iterable<Entity> get children => concat([apps, libs, tests, scripts]);
 
   // end <class Installation>
+
   String _root;
   Map<String, String> _paths = {};
 }
 
 class PathLocator {
+
   /// Environment variable specifying location of path, if set this path is used
   final String envVar;
   /// Default path for the item in question
   final String defaultPath;
   String get path => _path;
+
   // custom <class PathLocator>
 
   PathLocator(this.envVar, this.defaultPath) {
@@ -159,8 +168,10 @@ class PathLocator {
   }
 
   // end <class PathLocator>
+
   String _path;
 }
+
 // custom <part installation>
 
 _asId(id) => id is Id ? id : new Id(id);
