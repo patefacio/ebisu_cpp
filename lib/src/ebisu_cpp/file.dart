@@ -73,6 +73,8 @@ abstract class CppFile extends Entity {
           'Yikes! provide a namespace: ${runtimeType} ${id.snake}');
     }
 
+    _usingFormatted(u) => (u.hasComment ? '\n' : '') + u.usingStatement(namer);
+
     return br([
       _includes.includes,
       _codeBlockText(fcbCustomIncludes),
@@ -82,7 +84,7 @@ abstract class CppFile extends Entity {
         br(interfaces.map((i) => i.definition)),
         br(constExprs),
         forwardDecls,
-        brCompact(usings.map((u) => u.usingStatement(namer))),
+        brCompact(usings.map((u) => _usingFormatted(u))),
         br(enums.map((Enum e) => br(e.decl))),
         br(classes.map((Class cls) => br(cls.definition))),
         _codeBlockText(fcbEndNamespace)

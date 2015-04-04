@@ -511,7 +511,7 @@ class Using extends Entity {
   get lhs => id;
 
   usingStatement(Namer namer) =>
-      combine([this.docComment, 'using ${namer.nameClass(lhs)} = $rhs;']);
+      brCompact([this.docComment, 'using ${namer.nameClass(lhs)} = $rhs;']);
 
   // end <class Using>
 
