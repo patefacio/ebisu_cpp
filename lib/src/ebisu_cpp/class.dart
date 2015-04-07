@@ -596,6 +596,8 @@ class Class extends Entity {
   bool isStruct = false;
   /// The template by which the class is parameterized
   Template get template => _template;
+  /// List of forward declarations that will appear near the top of the file
+  List<ForwardDecl> forwardDecls = [];
   /// List of usings that will be scoped to this class near the top of
   /// the class definition.
   List<Using> get usings => _usings;
@@ -737,6 +739,9 @@ default [Interfaceimplementation] is used''').toList();
       bases.where((b) => b.access == protected);
   Iterable<Base> get basesPrivate => bases.where((b) => b.access == private);
 
+  get requiredIncludes =>
+      (hasToCStr ? new Includes(['sstream']) : new Includes())..mergeIncludes();
+
   void withCustomBlock(ClassCodeBlock cb, void f(CodeBlock)) =>
       f(getCodeBlock(cb));
 
@@ -866,7 +871,7 @@ default [Interfaceimplementation] is used''').toList();
     briefComment,
     brCompact([detailedComment, _templateDecl, _pragmaPackPush, _classOpener]),
     _wrapInAccess(isStruct ? null : public, indentBlock(br([
-      brCompact(usings.map((u) => u.usingStatement(namer))),
+      brCompact([forwardDecls, usings.map((u) => u.usingStatement(namer))]),
       brCompact([_enumDecls, _enumStreamers]),
       brCompact(friendClassDecls.map((fcd) => fcd.toString())),
       br(nestedClasses

@@ -38,6 +38,7 @@ abstract class CppFile extends Entity {
   String get filePath;
 
   set includes(Object h) => _includes = _makeIncludes(h);
+
   set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();
 
   Iterable<Entity> get children => concat([classes, constExprs, enums]);
@@ -76,7 +77,7 @@ abstract class CppFile extends Entity {
     _usingFormatted(u) => (u.hasComment ? '\n' : '') + u.usingStatement(namer);
 
     return br([
-      _includes.includes,
+      allIncludes.includes,
       _codeBlockText(fcbCustomIncludes),
       _codeBlockText(fcbPreNamespace),
       namespace.wrap(br([
@@ -85,7 +86,7 @@ abstract class CppFile extends Entity {
         br(constExprs),
         forwardDecls,
         brCompact(usings.map((u) => _usingFormatted(u))),
-        br(enums.map((Enum e) => br(e.decl))),
+        br(enums),
         br(classes.map((Class cls) => br(cls.definition))),
         _codeBlockText(fcbEndNamespace)
       ])),

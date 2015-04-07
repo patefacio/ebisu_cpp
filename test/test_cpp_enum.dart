@@ -42,6 +42,11 @@ inline char const* to_c_str(Color_$isClass e) {
     case Color_$isClass::Red_e: return "Red_e";
     case Color_$isClass::Green_e: return "Green_e";
     case Color_$isClass::Blue_e: return "Blue_e";
+    default: {
+      std::ostringstream msg;
+      msg << "to_c_str(Color_$isClass) encountered invalid value:" << int(e);
+      throw std::logic_error(msg.str());
+    }
   }
 }
 inline void from_c_str(char const* str, Color_$isClass &e) {

@@ -28,6 +28,8 @@ main([List<String> args]) {
       darkSame(using('a = vector<it>'), 'using aT = vector<it>;');
       darkSame(using(new Using('goo', 'vector<vector<x>>')),
           'using gooT = vector<vector<x>>;');
+      darkSame(using('this_is_a_test', 'List<int>'),
+          'using thisIsATestT = List<int>;');
     });
   });
 

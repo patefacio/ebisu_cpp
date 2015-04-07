@@ -67,8 +67,9 @@ part of ebisu_cpp.ebisu_cpp;
 ///       Blue_e
 ///     };
 ///
-/// Optionally the [enumBase] can be used to specify the base type. This
-/// is particularly where the enum is a field in a *packed* structure.
+/// Optionally the [enumBase] can be used to specify the
+/// base type. This is particularly useful where the enum
+/// is a field in a *packed* structure.
 ///
 ///     print(enum_('color_with_base')
 ///           ..values = ['red', 'green', 'blue']
@@ -152,6 +153,10 @@ class Enum extends Entity {
 
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
+  get includes => hasToCStr
+      ? new Includes(['iosfwd', 'sstream', 'stdexcept', 'cstring'])
+      : new Includes();
+
   set values(Iterable<String> values) {
     _values = new List<String>.from(values);
     if (_values.any((String v) =>
@@ -214,6 +219,11 @@ ${_friend}inline char const* to_c_str($name e) {
 ${
   indentBlock(_valueNames.map((n) => 'case $name::$n: return ${quote(n)}').join(';\n'), '    ')
 };
+    default: {
+      std::ostringstream msg;
+      msg << "to_c_str($name) encountered invalid value:" << $_intType(e);
+      throw std::logic_error(msg.str());
+    }
   }
 }''';
 

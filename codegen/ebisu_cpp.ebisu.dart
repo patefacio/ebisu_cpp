@@ -569,8 +569,9 @@ gives:
       Blue_e
     };
 
-Optionally the [enumBase] can be used to specify the base type. This
-is particularly where the enum is a field in a *packed* structure.
+Optionally the [enumBase] can be used to specify the
+base type. This is particularly useful where the enum
+is a field in a *packed* structure.
 
     print(enum_('color_with_base')
           ..values = ['red', 'green', 'blue']
@@ -663,7 +664,7 @@ a c-string to enum conversion method:
             ..doc = '''
 If the map has values assigned by user, this can be used to display
 them in the enum as hex'''
-            ..classInit = false
+            ..classInit = false,
           ],
         ],
         part('member')
@@ -1205,6 +1206,9 @@ on the same class and results lazy-inited here'''
             member('template')
             ..doc = 'The template by which the class is parameterized'
             ..type = 'Template'..access = RO,
+            member('forward_decls')
+            ..doc = 'List of forward declarations that will appear near the top of the file'
+            ..type = 'List<ForwardDecl>'..classInit = [],
             member('usings')
             ..doc = '''
 List of usings that will be scoped to this class near the top of
@@ -1225,7 +1229,6 @@ just after the class definition will work:
             member('bases')
             ..doc = '''
 Base classes this class derives form.
-
 '''
             ..type = 'List<Base>'..classInit = [],
             member('default_ctor')

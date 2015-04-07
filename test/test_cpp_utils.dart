@@ -67,6 +67,15 @@ namespace c {
         true);
   });
 
+  test('mergeIncludes', () {
+    expect((includes(['iostream', 'sstream'])
+      ..mergeIncludes(includes(['stdexcept', 'iostream']))).includes,
+        includes(['iostream', 'sstream', 'stdexcept']).includes);
+
+    expect((includes(['iostream', 'sstream'])..mergeIncludes(null)).includes,
+        includes(['sstream', 'iostream']).includes);
+  });
+
   test('template', () {
     final txt = template(['int T']).decl;
     expect(['template', '<', 'int T', '>'].every((t) => txt.contains(t)), true);

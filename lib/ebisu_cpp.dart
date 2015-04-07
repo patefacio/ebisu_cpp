@@ -423,6 +423,11 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
 
   get hasComment => brief != null || descr != null;
 
+  get includes => null;
+
+  get allIncludes => children.fold(new Includes()..mergeIncludes(includes),
+      (prev, child) => prev.mergeIncludes(child.allIncludes));
+
   /// Establishes the [Entity] that *this* [Entity] is owned by. This
   /// function should be called only when all declarative information
   /// is available and the [Installation] is ready to be
@@ -510,8 +515,10 @@ class Using extends Entity {
 
   get lhs => id;
 
+  get type => namer.nameClass(id);
+
   usingStatement(Namer namer) =>
-      brCompact([this.docComment, 'using ${namer.nameClass(lhs)} = $rhs;']);
+      brCompact([this.docComment, 'using $type = $rhs;']);
 
   // end <class Using>
 

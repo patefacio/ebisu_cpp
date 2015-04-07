@@ -180,6 +180,13 @@ class Includes {
 
   String get includes => includeEntries.map((h) => h).join('\n');
 
+  mergeIncludes(Includes other) {
+    if (other != null) {
+      _included.addAll(other._included);
+    }
+    return this;
+  }
+
   add(String include) => _included.add(include);
   addAll(Iterable<String> more) => _included.addAll(more);
   contains(String include) => _included.contains(include);

@@ -180,10 +180,6 @@ class App extends Impl implements CodeGenerator {
   /// List of sources names *snake case* required for this application.
   /// Primarily here for determining what to put in build scripts
   get sources => [id.snake]..addAll(impls.map((i) => i.id.snake));
-  /// List of all includes from all [headers] and [impls]
-  get allIncludes => new Includes(_includes.includeEntries)
-    ..addAll(concat(headers.map((h) => h.includes.includeEntries)))
-    ..addAll(concat(impls.map((i) => i.includes.includeEntries)));
 
   /// Generate the application, including the primary file containing *main* any
   /// additional [headers] and [impls]. As with other facitilities, should only
