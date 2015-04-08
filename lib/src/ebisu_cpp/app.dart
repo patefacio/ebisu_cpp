@@ -228,7 +228,7 @@ class App extends Impl implements CodeGenerator {
       ..isByRef = a.isMultiple || a.isString
       ..type = a.cppType
       ..access = ro).toList()
-    ..getCodeBlock(clsPublic).snippets.add(_argvCtor);
+    ..getCodeBlock(clsOpen).snippets.add(_argvCtor);
 
   get _argvCtor => '''
 Program_options(int argc, char** argv) {

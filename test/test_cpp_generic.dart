@@ -20,16 +20,15 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
-  darkSame(a, b) => expect(darkMatter(a), darkMatter(b));
-
   group('traits', () {
     test('using', () {
-      darkSame(new Using('a', 'vector<int>'), 'using aT = vector<int>;');
-      darkSame(using('a = vector<it>'), 'using aT = vector<it>;');
-      darkSame(using(new Using('goo', 'vector<vector<x>>')),
-          'using gooT = vector<vector<x>>;');
-      darkSame(using('this_is_a_test', 'List<int>'),
-          'using thisIsATestT = List<int>;');
+      expect(darkSame(new Using('a', 'vector<int>'), 'using aT = vector<int>;'),
+          true);
+      expect(darkSame(using('a = vector<it>'), 'using aT = vector<it>;'), true);
+      expect(darkSame(using(new Using('goo', 'vector<vector<x>>')),
+          'using gooT = vector<vector<x>>;'), true);
+      expect(darkSame(using('this_is_a_test', 'List<int>'),
+          'using thisIsATestT = List<int>;'), true);
     });
   });
 

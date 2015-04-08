@@ -164,7 +164,16 @@ $tricky
           final c = class_('c_1')
             ..members.add(member('x')..type = 'std::string')
             ..members.add(member('y')..type = 'std::string')
-            ..withOpOut((op) => op.cppAccess = access);
+            ..members.add(member('zing')
+              ..type = 'std::string'
+              ..withCustomStreamable((cb) {
+                cb.tag = null;
+                cb.snippets
+                    .add([r"""out << '\n' << indent << "  <zinger>";"""]);
+              }))
+            ..withOpOut((op) => op
+              ..cppAccess = access
+              ..usesIndent = true);
 
           // if access is not private there should be two access sections, the
           // first is *access*, the second private. Otherwise it's all private
@@ -176,12 +185,12 @@ $tag
   friend inline
   std::ostream& operator<<(std::ostream &out,
                            C_1 const& item) {
-    using fcs::utils::streamers::operator<<;
     fcs::utils::Block_indenter indenter;
     char const* indent(indenter.current_indentation_text());
-    out << '\\n' << indent << "C_1(" << &item << ") {";
+    out << indent << "C_1(" << &item << ") {";
     out << '\\n' << indent << "  x:" << item.x_;
     out << '\\n' << indent << "  y:" << item.y_;
+    out << '\\n' << indent << "  <zinger>";
     out << '\\n' << indent << "}\\n";
     return out;
   }
@@ -189,7 +198,7 @@ $tag
 $tricky
   std::string x_ {};
   std::string y_ {};
-
+  std::string zing_ {};
 };
 '''));
         });

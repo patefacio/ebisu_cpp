@@ -44,17 +44,27 @@ part of ebisu_cpp.ebisu_cpp;
 ///     // end <ClsPostDecl C>
 ///
 enum ClassCodeBlock {
+  /// The custom block appearing just after class is opened
+  clsOpen,
   /// The custom block appearing in the standard *public* section
   clsPublic,
   /// The custom block appearing in the standard *protected* section
   clsProtected,
   /// The custom block appearing in the standard *private* section
   clsPrivate,
+  /// The custom block appearing just before class is closed
+  clsClose,
   /// The custom block appearing just before the class definition
   clsPreDecl,
   /// The custom block appearing just after the class definition
   clsPostDecl
 }
+/// Convenient access to ClassCodeBlock.clsOpen with *clsOpen* see [ClassCodeBlock].
+///
+/// The custom block appearing just after class is opened
+///
+const ClassCodeBlock clsOpen = ClassCodeBlock.clsOpen;
+
 /// Convenient access to ClassCodeBlock.clsPublic with *clsPublic* see [ClassCodeBlock].
 ///
 /// The custom block appearing in the standard *public* section
@@ -72,6 +82,12 @@ const ClassCodeBlock clsProtected = ClassCodeBlock.clsProtected;
 /// The custom block appearing in the standard *private* section
 ///
 const ClassCodeBlock clsPrivate = ClassCodeBlock.clsPrivate;
+
+/// Convenient access to ClassCodeBlock.clsClose with *clsClose* see [ClassCodeBlock].
+///
+/// The custom block appearing just before class is closed
+///
+const ClassCodeBlock clsClose = ClassCodeBlock.clsClose;
 
 /// Convenient access to ClassCodeBlock.clsPreDecl with *clsPreDecl* see [ClassCodeBlock].
 ///
@@ -532,21 +548,62 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
 /// Provides *operator<<()*
 class OpOut extends ClassMethod {
 
+  /// If true uses tls indentation tracking to indent nested
+  /// components when streaming
+  bool usesIndent = false;
+
   // custom <class OpOut>
+
+  get _nl => r"\n";
+
+  _outputMember(name, value) => usesIndent
+      ? 'out << \'$_nl\' << indent << "  $name:" << $value;'
+      : 'out << "$_nl  $name:" << $value;';
+
+  _outputText(text) => usesIndent
+      ? 'out << \'$_nl\' << indent << "$text";'
+      : 'out << "$_nl$text";';
+
+  _outputOpener(text) =>
+      usesIndent ? 'out << indent << "$text";' : 'out << "$text";';
+
+  _streamMember(Member m) {
+    if (m.hasCustomStreamable) {
+      final codeBlock = m.customStreamable;
+      if (codeBlock.tag != null) {
+        codeBlock.tag = '${parent.className}::${m.name}';
+      }
+      return codeBlock;
+    } else {
+      return m.isStreamable ? _outputMember(m.name, 'item.${m.vname}') : '';
+    }
+  }
+
+  get _usesStreamersNamespace => parent.usesStreamers
+      ? '''
+using fcs::utils::streamers::operator<<;
+'''
+      : '';
+  get _indentSupport => br([
+    _usesStreamersNamespace,
+    usesIndent
+        ? '''
+fcs::utils::Block_indenter indenter;
+char const* indent(indenter.current_indentation_text());
+'''
+        : ''
+  ]);
 
   String get definition => '''
 friend inline
 std::ostream& operator<<(std::ostream &out,
                          $className const& item) {
-  using fcs::utils::streamers::operator<<;
-  fcs::utils::Block_indenter indenter;
-  char const* indent(indenter.current_indentation_text());
-  out << \'\\n\' << indent << "$className(" << &item << ") {";
-${
-combine(members.map((m) =>
-'  out << \'\\n\' << indent << "  ${m.name}:" << item.${m.vname};'))
-}
-  out << \'\\n\' << indent << "}\\n";
+${indentBlock(chomp(brCompact([
+  _indentSupport,
+  _outputOpener('$className(" << &item << ") {'),
+  brCompact(members.map((m) => _streamMember(m))),
+  _outputText('}\\n'),
+])))}
   return out;
 }''';
 
@@ -621,8 +678,6 @@ class Class extends Entity {
   List<ClassCodeBlock> customBlocks = [];
   bool isSingleton = false;
   Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
-  /// If true adds streaming support
-  bool isStreamable = false;
   /// If true adds {using fcs::utils::streamers::operator<<} to streamer
   bool usesStreamers = false;
   /// If true adds test function to tests of the header it belongs to
@@ -674,54 +729,57 @@ default [Interfaceimplementation] is used''').toList();
 
   String get classStyle => isStruct ? 'struct' : 'class';
 
+  set isStreamable(bool s) => s ? opOut : (_opOut = null);
+  get isStreamable => _opOut != null;
+
   /// Auto-initializing accessor for the [DefaultCtor]
   DefaultCtor get defaultCtor =>
       _defaultCtor = _defaultCtor == null ? new DefaultCtor() : _defaultCtor;
-  withDefaultCtor(void f(DefaultCtor)) => f(defaultCtor);
+  withDefaultCtor(void f(DefaultCtor)) => f == null ? f : f(defaultCtor);
   bool get hasDefaultCtor => _defaultCtor != null;
 
   /// Auto-initializing accessor for the [CopyCtor]
   CopyCtor get copyCtor =>
       _copyCtor = _copyCtor == null ? new CopyCtor() : _copyCtor;
-  withCopyCtor(void f(CopyCtor)) => f(copyCtor);
+  withCopyCtor(void f(CopyCtor)) => f == null ? f : f(copyCtor);
   bool get hasCopyCtor => _copyCtor != null;
 
   /// Auto-initializing accessor for the [MoveCtor]
   MoveCtor get moveCtor =>
       _moveCtor = _moveCtor == null ? new MoveCtor() : _moveCtor;
-  withMoveCtor(void f(MoveCtor)) => f(moveCtor);
+  withMoveCtor(void f(MoveCtor)) => f == null ? f : f(moveCtor);
   bool get hasMoveCtor => _moveCtor != null;
 
   /// Auto-initializing accessor for the [AssignCopy]
   AssignCopy get assignCopy =>
       _assignCopy = _assignCopy == null ? new AssignCopy() : _assignCopy;
-  withAssignCopy(void f(AssignCopy)) => f(assignCopy);
+  withAssignCopy(void f(AssignCopy)) => f == null ? f : f(assignCopy);
   bool get hasAssignCopy => _assignCopy != null;
 
   /// Auto-initializing accessor for the [AssignMove]
   AssignMove get assignMove =>
       _assignMove = _assignMove == null ? new AssignMove() : _assignMove;
-  withAssignMove(void f(AssignMove)) => f(assignMove);
+  withAssignMove(void f(AssignMove)) => f == null ? f : f(assignMove);
   bool get hasAssignMove => _assignMove != null;
 
   /// Auto-initializing accessor for the [Dtor]
   Dtor get dtor => _dtor = _dtor == null ? new Dtor() : _dtor;
-  withDtor(void f(Dtor)) => f(dtor);
+  withDtor(void f(Dtor)) => f == null ? f : f(dtor);
   bool get hasDtor => _dtor != null;
 
   /// Auto-initializing accessor for the [OpEqual]
   OpEqual get opEqual => _opEqual = _opEqual == null ? new OpEqual() : _opEqual;
-  withOpEqual(void f(OpEqual)) => f(opEqual);
+  withOpEqual(void f(OpEqual)) => f == null ? f : f(opEqual);
   bool get hasOpEqual => _opEqual != null;
 
   /// Auto-initializing accessor for the [OpLess]
   OpLess get opLess => _opLess = _opLess == null ? new OpLess() : _opLess;
-  withOpLess(void f(OpLess)) => f(opLess);
+  withOpLess(void f(OpLess)) => f == null ? f : f(opLess);
   bool get hasOpLess => _opLess != null;
 
   /// Auto-initializing accessor for the [OpOut]
   OpOut get opOut => _opOut = _opOut == null ? new OpOut() : _opOut;
-  withOpOut(void f(OpOut)) => f(opOut);
+  withOpOut(void f(OpOut)) => f == null ? f : f(opOut);
   bool get hasOpOut => _opOut != null;
 
   set defaultCtor(DefaultCtor defaultCtor) => _defaultCtor = defaultCtor;
@@ -869,7 +927,13 @@ default [Interfaceimplementation] is used''').toList();
     enumsForward.map((e) => e.toString()),
     _codeBlockText(clsPreDecl),
     briefComment,
-    brCompact([detailedComment, _templateDecl, _pragmaPackPush, _classOpener]),
+    brCompact([
+      detailedComment,
+      _templateDecl,
+      _pragmaPackPush,
+      _classOpener,
+      _codeBlockText(clsOpen)
+    ]),
     _wrapInAccess(isStruct ? null : public, indentBlock(br([
       brCompact([forwardDecls, usings.map((u) => u.usingStatement(namer))]),
       brCompact([_enumDecls, _enumStreamers]),
@@ -891,7 +955,6 @@ default [Interfaceimplementation] is used''').toList();
       _codeBlockText(clsPublic),
       _memberJoinFormat(publicMembers.where((m) => !m.isPublicStaticConst)),
       br(members.map((m) => br([m.getter, m.setter]))),
-      isStreamable ? outStreamer : null,
       serializers.map((s) => s.serialize(this)),
     ]))),
     _wrapInAccess(protected, indentBlock(combine([
@@ -926,7 +989,7 @@ default [Interfaceimplementation] is used''').toList();
           .map((i) => i.methodDecls)),
       _memberJoinFormat(privateMembers)
     ]))),
-    br([_classCloser, _pragmaPackPop]),
+    br([_codeBlockText(clsClose), _classCloser, _pragmaPackPop]),
     br(usingsPostDecl.map((u) => u.usingStatement(namer))),
     _codeBlockText(clsPostDecl),
   ];
@@ -965,34 +1028,11 @@ ${_access(access)}${txt}'''
 
   String get _streamInstanceOpener =>
       'out << "${className}(" << &item << ") {";';
-  String get _streamInstanceCloser => r'out << "\n}\n";';
+  String get _streamInstanceCloser => r'outX << "\n}\n";';
 
   String _streamBase(Base b) => 'out << static_cast<${b.className}>(item);';
   get _streamBases =>
       bases.where((b) => b.isStreamable).map((b) => _streamBase(b));
-
-  String _streamMember(Member m) => m.hasCustomStreamable
-      ? customBlock('${id.snake}::${m.id}::out')
-      : m.isStreamable ? 'out << "\\n  ${m.name}: " << item.${m.vname};' : '';
-
-  get _streamMembers => members.map((m) => _streamMember(m));
-
-  /// Returns the *operator<<* method for this class
-  get outStreamer => combine([
-    '''
-friend inline
-std::ostream& operator<<(std::ostream& out,
-                         $className const& item) {''',
-    usesStreamers ? '  using fcs::utils::streamers::operator<<;' : null,
-    indentBlock(chomp(brCompact([
-      _streamBases,
-      _streamInstanceOpener,
-      _streamMembers,
-      _streamInstanceCloser,
-      'return out;',
-    ]))),
-    '}'
-  ]);
 
   get _classOpener => '''
 $classStyle $className$_baseDecl

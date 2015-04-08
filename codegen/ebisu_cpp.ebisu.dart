@@ -17,7 +17,7 @@ void main() {
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.15'
+    ..pubSpec.version = '0.0.16'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -871,11 +871,13 @@ Indicates member should be streamed if class is streamable.
 One of the few flags defaulted to *true*, this flag provides
 an opportunity to *not* stream specific members'''
             ..classInit = true,
-            member('has_custom_streamable')
+            member('custom_streamable')
             ..doc = '''
-Indicates a custom protect block is needed to hand code
-the streamable for this member'''
-            ..classInit = false
+If not-null a custom streamable block. Use this to either hand code or
+generate a streamable entry in the containing [Class].
+'''
+            ..type = 'CodeBlock'
+            ..access = RO,
           ],
         ],
         part('class')
@@ -927,12 +929,16 @@ Gives the following content:
 '''
           ..hasLibraryScopedValues = true
           ..values = [
+            enumValue(id('cls_open'))
+            ..doc = 'The custom block appearing just after class is opened',
             enumValue(id('cls_public'))
             ..doc = 'The custom block appearing in the standard *public* section',
             enumValue(id('cls_protected'))
             ..doc = 'The custom block appearing in the standard *protected* section',
             enumValue(id('cls_private'))
             ..doc = 'The custom block appearing in the standard *private* section',
+            enumValue(id('cls_close'))
+            ..doc = 'The custom block appearing just before class is closed',
             enumValue(id('cls_pre_decl'))
             ..doc = 'The custom block appearing just before the class definition',
             enumValue(id('cls_post_decl'))
@@ -1153,7 +1159,14 @@ custom block. In that case the class might look like:
           ..extend = 'ClassMethod',
           class_('op_out')
           ..doc = 'Provides *operator<<()*'
-          ..extend = 'ClassMethod',
+          ..extend = 'ClassMethod'
+          ..members = [
+            member('uses_indent')
+            ..doc = '''
+If true uses tls indentation tracking to indent nested
+components when streaming'''
+            ..classInit = false
+          ],
           class_('class')
           ..doc = '''
 A C++ class.
@@ -1265,8 +1278,6 @@ Base classes this class derives form.
             member('code_blocks')
             ..access = RO
             ..type = 'Map<ClassCodeBlock, CodeBlock>'..classInit = {},
-            member('is_streamable')
-            ..doc = 'If true adds streaming support'..classInit = false,
             member('uses_streamers')
             ..doc = 'If true adds {using fcs::utils::streamers::operator<<} to streamer'
             ..classInit = false,
@@ -1804,12 +1815,6 @@ indicates bjam shoud be set up per app and tests in the installation.
         ],
         part('installation')
         ..classes = [
-          class_('installation_container')
-          ..doc = 'Mixin that brings in the installation that this child belongs to'
-          ..isAbstract = true
-          ..members = [
-            member('installation')..type = 'Installation',
-          ],
           class_('installation_builder')
           ..isAbstract = true
           ..implement = [ 'CodeGenerator' ]

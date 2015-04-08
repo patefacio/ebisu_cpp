@@ -1,14 +1,5 @@
 part of ebisu_cpp.ebisu_cpp;
 
-/// Mixin that brings in the installation that this child belongs to
-abstract class InstallationContainer {
-  Installation installation;
-
-  // custom <class InstallationContainer>
-  // end <class InstallationContainer>
-
-}
-
 /// Creates builder for an installation (ie ties together all build artifacts)
 ///
 abstract class InstallationBuilder implements CodeGenerator {

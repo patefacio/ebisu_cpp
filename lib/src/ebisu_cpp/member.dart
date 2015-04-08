@@ -191,15 +191,26 @@ class Member extends Entity {
   /// One of the few flags defaulted to *true*, this flag provides
   /// an opportunity to *not* stream specific members
   bool isStreamable = true;
-  /// Indicates a custom protect block is needed to hand code
-  /// the streamable for this member
-  bool hasCustomStreamable = false;
+  /// If not-null a custom streamable block. Use this to either hand code or
+  /// generate a streamable entry in the containing [Class].
+  CodeBlock get customStreamable => _customStreamable;
 
   // custom <class Member>
 
   Member(Id id) : super(id);
 
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+
+  get hasCustomStreamable => _customStreamable != null;
+
+  getCustomStreamable() {
+    _customStreamable != null
+        ? _customStreamable
+        : (_customStreamable = codeBlock('${id}::out'));
+    return _customStreamable;
+  }
+
+  withCustomStreamable(void f(CodeBlock)) => f(getCustomStreamable());
 
   String toString() {
     if (isStatic &&
@@ -319,6 +330,7 @@ void $name($_argType $name) { $vname = $name; }'''
   CppAccess _cppAccess;
   bool _isByRef;
   bool _isConst = false;
+  CodeBlock _customStreamable;
 }
 
 // custom <part member>
