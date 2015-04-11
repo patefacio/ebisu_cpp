@@ -143,9 +143,11 @@ abstract class DefaultMethod extends ClassMethod {
   String get customDefinition;
   String get prototype;
 
-  String get definition => usesDefault
+  String get definition => _templateWrap(usesDefault
       ? '$prototype = default;'
-      : hasDelete ? '$prototype = delete;' : customDefinition;
+      : hasDelete ? '$prototype = delete;' : customDefinition);
+
+  _templateWrap(s) => _template != null ? '$_template\n$s' : s;
 
   // end <class DefaultMethod>
 
@@ -618,12 +620,67 @@ ${indentBlock(chomp(brCompact([
 /// * A [template]
 /// * A collection of [bases]
 /// * A collection of [members]
+/// * A collection of class local [forwardDecls]
 /// * A collection of class local [usings]
 /// * A collection of class local [enums]
 /// * A collection of class local [forward_ptrs] which are like [usings] but standardized for pointer type
-/// * A collection of *optionally included* standard methods including:
+/// * A collection of *optionally included* standard methods.
+///   In general these methods are not included unless requested. There
+///   are two approaches to *requesting* their presence:
 ///
-///   * Constructors including:
+///   1 - just mention their name (i.e. invoke the getter for the member on the
+///   class which autoinitializes the member) and the default function will be
+///   included. This is a *funky* use of function side-effects, but the effect is
+///   fewer calls required to declaratively describe your class.
+///
+///   2 - when more configuration of the method is required, call the *with...()*
+///   function to get scoped access to the function object.
+///
+///   Example - Case 1:
+///
+///       print(clangFormat((class_('x')).definition));
+///       print(clangFormat((class_('x')..copyCtor).definition));
+///       print(clangFormat((class_('x')..copyCtor.usesDefault = true).definition));
+///
+///   Prints:
+///
+///         class X {};
+///
+///         class X {
+///          public:
+///           X(X const& other) {}
+///         };
+///
+///         class X {
+///          public:
+///           X(X const& other) = default;
+///         };
+///
+///
+///   Note that simply naming the copy constructor member of the class will inlude
+///   its definition. Sometimes you might want to do more with a [ClassMethod]
+///   definition declaratively in place which is why the *with...()* methods exist.
+///
+///   Example - Case 2:
+///
+///       print(clangFormat((
+///                   class_('x')
+///                   ..withCopyCtor((ctor) =>
+///                       ctor..cppAccess = protected
+///                       /// ... do more with ctor, like inject logging code
+///                       ))
+///               .definition));
+///
+///   Prints:
+///
+///         class X {
+///          protected:
+///           X(X const& other) {}
+///         };
+///
+///   The functions are:
+///
+///   * Optionally included constructors including:
 ///
 ///     * [CopyCtor]
 ///     * [MoveCtor]
@@ -647,7 +704,7 @@ ${indentBlock(chomp(brCompact([
 ///   providing *CustomBlocks* and/or for dynamically injecting code - see
 ///   [CodeBlock].
 ///
-class Class extends Entity {
+class Class extends Entity with Testable {
 
   /// Is this definition a *struct*
   bool isStruct = false;
@@ -678,10 +735,14 @@ class Class extends Entity {
   List<ClassCodeBlock> customBlocks = [];
   bool isSingleton = false;
   Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
-  /// If true adds {using fcs::utils::streamers::operator<<} to streamer
-  bool usesStreamers = false;
+  /// If true adds {using fcs::utils::streamers::operator<<} to streamer.
+  /// Also, when set assumes streaming required and [isStreamable]
+  /// is *set* as well. So not required to set both.
+  bool get usesStreamers => _usesStreamers;
   /// If true adds test function to tests of the header it belongs to
   bool includesTest = false;
+  /// If true adds final keyword to class
+  bool isFinal = false;
   /// If true makes all members const provides single member ctor
   /// initializing all.
   ///
@@ -732,54 +793,60 @@ default [Interfaceimplementation] is used''').toList();
   set isStreamable(bool s) => s ? opOut : (_opOut = null);
   get isStreamable => _opOut != null;
 
+  set usesStreamers(bool s) {
+    /// Note: usesStreamers *implies* isStreamable, so ensure opOut initialized
+    if (s) opOout;
+    _usesStreamers = s;
+  }
+
   /// Auto-initializing accessor for the [DefaultCtor]
   DefaultCtor get defaultCtor =>
       _defaultCtor = _defaultCtor == null ? new DefaultCtor() : _defaultCtor;
-  withDefaultCtor(void f(DefaultCtor)) => f == null ? f : f(defaultCtor);
+  withDefaultCtor(void f(DefaultCtor)) => f(defaultCtor);
   bool get hasDefaultCtor => _defaultCtor != null;
 
   /// Auto-initializing accessor for the [CopyCtor]
   CopyCtor get copyCtor =>
       _copyCtor = _copyCtor == null ? new CopyCtor() : _copyCtor;
-  withCopyCtor(void f(CopyCtor)) => f == null ? f : f(copyCtor);
+  withCopyCtor(void f(CopyCtor)) => f(copyCtor);
   bool get hasCopyCtor => _copyCtor != null;
 
   /// Auto-initializing accessor for the [MoveCtor]
   MoveCtor get moveCtor =>
       _moveCtor = _moveCtor == null ? new MoveCtor() : _moveCtor;
-  withMoveCtor(void f(MoveCtor)) => f == null ? f : f(moveCtor);
+  withMoveCtor(void f(MoveCtor)) => f(moveCtor);
   bool get hasMoveCtor => _moveCtor != null;
 
   /// Auto-initializing accessor for the [AssignCopy]
   AssignCopy get assignCopy =>
       _assignCopy = _assignCopy == null ? new AssignCopy() : _assignCopy;
-  withAssignCopy(void f(AssignCopy)) => f == null ? f : f(assignCopy);
+  withAssignCopy(void f(AssignCopy)) => f(assignCopy);
   bool get hasAssignCopy => _assignCopy != null;
 
   /// Auto-initializing accessor for the [AssignMove]
   AssignMove get assignMove =>
       _assignMove = _assignMove == null ? new AssignMove() : _assignMove;
-  withAssignMove(void f(AssignMove)) => f == null ? f : f(assignMove);
+  withAssignMove(void f(AssignMove)) => f(assignMove);
   bool get hasAssignMove => _assignMove != null;
 
   /// Auto-initializing accessor for the [Dtor]
   Dtor get dtor => _dtor = _dtor == null ? new Dtor() : _dtor;
-  withDtor(void f(Dtor)) => f == null ? f : f(dtor);
+  withDtor(void f(Dtor)) => f(dtor);
   bool get hasDtor => _dtor != null;
 
   /// Auto-initializing accessor for the [OpEqual]
   OpEqual get opEqual => _opEqual = _opEqual == null ? new OpEqual() : _opEqual;
-  withOpEqual(void f(OpEqual)) => f == null ? f : f(opEqual);
+  withOpEqual(void f(OpEqual)) => f(opEqual);
   bool get hasOpEqual => _opEqual != null;
 
   /// Auto-initializing accessor for the [OpLess]
   OpLess get opLess => _opLess = _opLess == null ? new OpLess() : _opLess;
-  withOpLess(void f(OpLess)) => f == null ? f : f(opLess);
+  withOpLess(void f(OpLess)) => f(opLess);
   bool get hasOpLess => _opLess != null;
 
   /// Auto-initializing accessor for the [OpOut]
   OpOut get opOut => _opOut = _opOut == null ? new OpOut() : _opOut;
-  withOpOut(void f(OpOut)) => f == null ? f : f(opOut);
+  withOpOut(void f(OpOut)) => f(opOut);
   bool get hasOpOut => _opOut != null;
 
   set defaultCtor(DefaultCtor defaultCtor) => _defaultCtor = defaultCtor;
@@ -796,9 +863,6 @@ default [Interfaceimplementation] is used''').toList();
   Iterable<Base> get basesProtected =>
       bases.where((b) => b.access == protected);
   Iterable<Base> get basesPrivate => bases.where((b) => b.access == private);
-
-  get requiredIncludes =>
-      (hasToCStr ? new Includes(['sstream']) : new Includes())..mergeIncludes();
 
   void withCustomBlock(ClassCodeBlock cb, void f(CodeBlock)) =>
       f(getCodeBlock(cb));
@@ -1034,8 +1098,10 @@ ${_access(access)}${txt}'''
   get _streamBases =>
       bases.where((b) => b.isStreamable).map((b) => _streamBase(b));
 
+  get _finalDecl => isFinal ? ' final' : '';
+
   get _classOpener => '''
-$classStyle $className$_baseDecl
+$classStyle $className$_baseDecl$_finalDecl
 {''';
   get _classCloser => '};';
 
@@ -1076,6 +1142,7 @@ $classStyle $className$_baseDecl
   OpLess _opLess;
   OpOut _opOut;
   Map<ClassCodeBlock, CodeBlock> _codeBlocks = {};
+  bool _usesStreamers = false;
   List<InterfaceImplementation> _interfaceImplementations = [];
   /// The [Method]s that are implemented by this [Class]. A [Class]
   /// implements the union of methods in its

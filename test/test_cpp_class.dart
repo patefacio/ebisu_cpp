@@ -541,6 +541,12 @@ private:
     });
   });
 
+  test('final class', () {
+    expect(
+        darkSame((class_('a')..isFinal = true).definition, 'class A final {};'),
+        true);
+  });
+
 // end <main>
 
 }

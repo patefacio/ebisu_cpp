@@ -7,6 +7,7 @@ import 'test_cpp_method.dart' as test_cpp_method;
 import 'test_cpp_utils.dart' as test_cpp_utils;
 import 'test_cpp_namer.dart' as test_cpp_namer;
 import 'test_cpp_generic.dart' as test_cpp_generic;
+import 'test_cpp_test_provider.dart' as test_cpp_test_provider;
 import 'test_hdf5_support.dart' as test_hdf5_support;
 
 void testCore(Configuration config) {
@@ -27,5 +28,6 @@ main() {
   test_cpp_utils.main();
   test_cpp_namer.main();
   test_cpp_generic.main();
+  test_cpp_test_provider.main();
   test_hdf5_support.main();
 }

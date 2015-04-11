@@ -17,7 +17,7 @@ void main() {
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.16'
+    ..pubSpec.version = '0.0.17'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -31,6 +31,7 @@ void main() {
       library('test_cpp_utils'),
       library('test_cpp_namer'),
       library('test_cpp_generic'),
+      library('test_cpp_test_provider'),
       library('test_hdf5_support'),
     ]
     ..libraries = [
@@ -302,7 +303,7 @@ Represents a template declaration comprized of a list of [decls]
         ..classes = [
           class_('traits')
           ..members = [
-            member('usings')..type = 'Map<String, Using>'..classInit = [],
+            member('usings')..type = 'Map<String, Using>'..classInit = {},
             member('const_exprs')..type = 'List<ConstExpr>'..classInit = [],
           ],
           class_('traits_requirements')
@@ -454,6 +455,7 @@ Establishes an interface and common elements for c++ file, such as
 *Header* and *Impl*.'''
           ..isAbstract = true
           ..extend = 'Entity'
+          ..mixins = [ 'Testable' ]
           ..members = [
             member('namespace')
             ..doc = 'Namespace associated with this file'
@@ -1176,12 +1178,67 @@ Classes optionally have these items:
 * A [template]
 * A collection of [bases]
 * A collection of [members]
+* A collection of class local [forwardDecls]
 * A collection of class local [usings]
 * A collection of class local [enums]
 * A collection of class local [forward_ptrs] which are like [usings] but standardized for pointer type
-* A collection of *optionally included* standard methods including:
+* A collection of *optionally included* standard methods.
+  In general these methods are not included unless requested. There
+  are two approaches to *requesting* their presence:
 
-  * Constructors including:
+  1 - just mention their name (i.e. invoke the getter for the member on the
+  class which autoinitializes the member) and the default function will be
+  included. This is a *funky* use of function side-effects, but the effect is
+  fewer calls required to declaratively describe your class.
+
+  2 - when more configuration of the method is required, call the *with...()*
+  function to get scoped access to the function object.
+
+  Example - Case 1:
+
+      print(clangFormat((class_('x')).definition));
+      print(clangFormat((class_('x')..copyCtor).definition));
+      print(clangFormat((class_('x')..copyCtor.usesDefault = true).definition));
+
+  Prints:
+
+        class X {};
+
+        class X {
+         public:
+          X(X const& other) {}
+        };
+
+        class X {
+         public:
+          X(X const& other) = default;
+        };
+
+
+  Note that simply naming the copy constructor member of the class will inlude
+  its definition. Sometimes you might want to do more with a [ClassMethod]
+  definition declaratively in place which is why the *with...()* methods exist.
+
+  Example - Case 2:
+
+      print(clangFormat((
+                  class_('x')
+                  ..withCopyCtor((ctor) =>
+                      ctor..cppAccess = protected
+                      /// ... do more with ctor, like inject logging code
+                      ))
+              .definition));
+
+  Prints:
+
+        class X {
+         protected:
+          X(X const& other) {}
+        };
+
+  The functions are:
+
+  * Optionally included constructors including:
 
     * [CopyCtor]
     * [MoveCtor]
@@ -1206,6 +1263,7 @@ Classes optionally have these items:
   [CodeBlock].
 '''
           ..extend = 'Entity'
+          ..mixins = [ 'Testable' ]
           ..members = [
             member('definition')
             ..doc = '''
@@ -1279,10 +1337,18 @@ Base classes this class derives form.
             ..access = RO
             ..type = 'Map<ClassCodeBlock, CodeBlock>'..classInit = {},
             member('uses_streamers')
-            ..doc = 'If true adds {using fcs::utils::streamers::operator<<} to streamer'
+            ..doc = '''
+If true adds {using fcs::utils::streamers::operator<<} to streamer.
+Also, when set assumes streaming required and [isStreamable]
+is *set* as well. So not required to set both.
+'''
+            ..access = RO
             ..classInit = false,
             member('includes_test')
             ..doc = 'If true adds test function to tests of the header it belongs to'
+            ..classInit = false,
+            member('is_final')
+            ..doc = 'If true adds final keyword to class'
             ..classInit = false,
             member('is_immutable')
             ..doc = '''
@@ -1430,6 +1496,10 @@ the [getMethod] function.
           ..members = [
             member('method_decl')..type = 'MethodDecl',
             member('code_block')..type = 'CodeBlock',
+            //// TODO: figure best way to support final methods
+            // member('is_final')
+            // ..doc = 'If true adds final keyword to method'
+            // ..classInit = false,
           ],
           class_('interface')
           ..doc = """
@@ -1550,7 +1620,62 @@ If true marks this header as special to the set of headers in its library in tha
           ]
         ],
         part('test_provider')
+        ..enums = [
+          enum_('tc_code_block')
+          ..doc = '''
+The various supported code blocks associated with *TestClause*.
+The *TestClauses* are modeled after the *Catch* library *BDD* approach.
+'''
+          ..hasLibraryScopedValues = true
+          ..values = [
+            enumValue(id('tc_open'))
+            ..doc = 'The custom block appearing at the start of the clause',
+            enumValue(id('tc_close'))
+            ..doc = 'The custom block appearing at the end of the clause',
+          ],
+        ]
         ..classes = [
+          class_('test_clause')
+          ..doc = '''
+Models common elements of the *Given*, *When*, *Then* clauses.
+Each *TestClause* has its own [clause] text associated with it
+and [CodeBlock]s to augment/initialize/teardown.
+'''
+          ..members = [
+            member('clause')..type = 'Id',
+            member('start_code_block')..type = 'CodeBlock',
+            member('end_code_block')..type = 'CodeBlock',
+          ],
+          class_('then')
+          ..extend = 'TestClause'
+          ..members = [
+            member('is_and')
+            ..classInit = false
+          ],
+          class_('when')
+          ..extend = 'TestClause'
+          ..members = [
+            member('thens')
+            ..type = 'List<Then>'
+            ..classInit = []
+          ],
+          class_('given')
+          ..extend = 'TestClause'
+          ..members = [
+            member('whens')
+            ..type = 'List<When>'
+            ..classInit = []
+          ],
+          class_('scenario')
+          ..members = [
+            member('id')..type = 'Id',
+            member('givens')..type = 'List<Given>'
+            ..classInit = []
+          ],
+          class_('testable')
+          ..members = [
+            member('scenarios')..type = 'List<Scenario>'..classInit = [],
+          ],
           class_('test_provider')
           ..isAbstract = true,
           class_('boost_test_provider')
@@ -1625,6 +1750,7 @@ prints:
           class_('lib')
           ..doc = 'A c++ library'
           ..extend = 'Entity'
+          ..mixins = [ 'Testable' ]
           ..implement = [ 'CodeGenerator' ]
           ..members = [
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',

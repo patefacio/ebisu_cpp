@@ -147,7 +147,7 @@ ${this.docComment}$signature {
 ${chomp(indentBlock(customBlock(id.snake)))}
 }''';
 
-  String get asVirtual => 'virtual $_signature;';
+  String get asVirtual => 'virtual $signature;';
   String get asNonVirtual => signature;
   String get asPureVirtual => 'virtual $signature = 0;';
 
@@ -310,9 +310,5 @@ Interface interface(Object id) => new Interface(id is Id ? id : new Id(id));
 /// Convenience fucnction for creating a [MethodDecl]
 ///
 MethodDecl methodDecl(String decl) => new MethodDecl.fromDecl(decl);
-
-AccessInterface accessInterface(Interface interface,
-        [CppAccess cppAccess = public]) =>
-    new AccessInterface(interface)..cppAccess = cppAccess;
 
 // end <part method>

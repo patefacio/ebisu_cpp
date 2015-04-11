@@ -1,7 +1,7 @@
 part of ebisu_cpp.ebisu_cpp;
 
 class Traits {
-  Map<String, Using> usings = [];
+  Map<String, Using> usings = {};
   List<ConstExpr> constExprs = [];
 
   // custom <class Traits>

@@ -120,13 +120,11 @@ Wee willy winkee went through the town.'''
       test('ro gives reader no writer', () {
         final definition = memberWithAccess(ro, cppAccess).definition;
 
-        if (false) {
-          print('''
+        _logger.info('''
 *cppAccess* $cppAccess with *access* *ro* gives:
 
 ${indentBlock(definition, '    ')}
 ''');
-        }
 
         expect(aContainsB(definition, accessDecl), true);
         expect(aContainsB(definition, reader), true);

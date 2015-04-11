@@ -2,7 +2,7 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// Establishes an interface and common elements for c++ file, such as
 /// *Header* and *Impl*.
-abstract class CppFile extends Entity {
+abstract class CppFile extends Entity with Testable {
 
   /// Namespace associated with this file
   Namespace namespace;
