@@ -511,7 +511,7 @@ class Using extends Entity {
 
   Iterable<Entity> get children => [];
 
-  toString() => 'using $lhs = $rhs;';
+  toString() => 'using $type = $rhs;';
 
   get lhs => id;
 
@@ -811,7 +811,7 @@ final _usingSpecRe = new RegExp(r"(\w+)\s*=\s*((?:.|\n)*)", multiLine: true);
 Using using([u, decl]) {
   if (u is Using) {
     return u;
-  } else if (u is String) {
+  } else if (u is String || u is Id) {
     if (decl == null) {
       final match = _usingSpecRe.firstMatch(u);
       return new Using(match.group(1), match.group(2));
@@ -819,7 +819,7 @@ Using using([u, decl]) {
       return new Using(u, decl);
     }
   } else {
-    throw 'using(u) requires string like r"\w+\s*=\s(.*)" or Using';
+    throw 'using($u) requires string like r"\w+\s*=\s(.*)" or Using';
   }
 }
 
@@ -881,5 +881,45 @@ _isStandardTypeStr(String id) => id.endsWith('_ptr') ||
 
 _isStandardType(id) =>
     id is Id ? _isStandardTypeStr(id.snake) : _isStandardTypeStr(id);
+
+/// Provide standardized using of shared pointer to referenced
+///
+///    print(usingSptr('an_id', 'SomeType'));
+///
+/// Prints:
+///
+///    using An_id_sptr_t = std::shared_ptr<SomeType>;
+usingSptr(name, referenced) =>
+  using(addSuffixToId('sptr', name), 'std::shared_ptr<$referenced>');
+
+/// Provide standardized using of unique pointer to referenced
+///
+///    print(usingUptr('an_id', 'SomeType'));
+///
+/// Prints:
+///
+///    using An_id_uptr_t = std::unique_ptr<SomeType>;
+usingUptr(name, referenced) =>
+  using(addSuffixToId('uptr', name), 'std::unique_ptr<$referenced>');
+
+/// Provide standardized using of shared pointer to const referenced
+///
+///    print(usingScptr('an_id', 'SomeType'));
+///
+/// Prints:
+///
+///    using An_id_scptr_t = std::shared_ptr<SomeType const>;
+usingScptr(name, referenced) =>
+  using(addSuffixToId('scptr', name), 'std::shared_ptr<$referenced const>');
+
+/// Provide standardized using of unique pointer to const referenced
+///
+///    print(usingUcptr('an_id', 'SomeType'));
+///
+/// Prints:
+///
+///    using An_id_ucptr_t = std::unique_ptr<SomeType const>;
+usingUcptr(name, referenced) =>
+  using(addSuffixToId('ucptr', name), 'std::unique_ptr<$referenced const>');
 
 // end <library ebisu_cpp>

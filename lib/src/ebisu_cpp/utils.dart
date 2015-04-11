@@ -290,7 +290,7 @@ class EbisuCppNamer implements Namer {
   String nameTemplateDeclParm(Id id) => id.shout;
   String nameHeader(Id id) => '${id.snake}.hpp';
   String nameImpl(Id id) => '${id.snake}.cpp';
-  String nameUsingType(Id id) => addSuffixToId('t', id).capCamel;
+  String nameUsingType(Id id) => addSuffixToId('t', id).capSnake;
 
   // end <class EbisuCppNamer>
 
