@@ -547,6 +547,16 @@ private:
         true);
   });
 
+  test('class constexprs are static', () {
+    expect(darkSame((class_('a')..constExprs = [constExpr('f', 42)]).definition,
+        'class A { public: static constexpr int F { 42 }; };'), true);
+  });
+
+  test('const expr asHex', () {
+    expect(darkSame(constExpr('f', 42)..isHex = true,
+            'constexpr int F { 0x2a };'), true);
+  });
+
 // end <main>
 
 }

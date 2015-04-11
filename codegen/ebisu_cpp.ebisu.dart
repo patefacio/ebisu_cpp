@@ -17,7 +17,7 @@ void main() {
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.17'
+    ..pubSpec.version = '0.0.18'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -341,10 +341,20 @@ prints:
             ..doc = 'The c++ type of the constexpr',
             member('value')
             ..doc = 'The initialization for the constexpr'
-            ..access = RO,
+            ..type = 'Object'
+            ..access = IA,
             member('namespace')
             ..doc = 'Any namespace to wrap the constexpr in'
             ..type = 'Namespace',
+            member('is_class_scoped')
+            ..doc = 'If class scoped the expr should be static'
+            ..classInit = false,
+            member('is_hex')
+            ..doc = '''
+If true and literal is numeric it is assigned as hex.
+The idea is to make C++ more readable when large constants are used.
+'''
+            ..classInit = false,
           ],
           class_('forward_decl')
           ..doc = 'A forward declaration'
@@ -842,7 +852,9 @@ which is int), a is passed in for construction but b can be initialized directly
 from a. If ctorInit is set on a member, any memberCtor will include this text to
 initialize it''',
             member('access')
-            ..doc = 'Idiomatic access of member'..type = 'Access'..classInit = 'ia',
+            ..doc = 'Idiomatic access of member'
+            ..type = 'Access'
+            ..access = WO,
             member('cpp_access')
             ..doc = 'C++ style access of member'..type = 'CppAccess'..access = WO,
             member('ref_type')
@@ -1280,6 +1292,9 @@ on the same class and results lazy-inited here'''
             member('forward_decls')
             ..doc = 'List of forward declarations that will appear near the top of the file'
             ..type = 'List<ForwardDecl>'..classInit = [],
+            member('const_exprs')
+            ..doc = '*constexpr*s associated with the class'
+            ..type = 'List<ConstExpr>'..classInit = [],
             member('usings')
             ..doc = '''
 List of usings that will be scoped to this class near the top of
@@ -1398,6 +1413,9 @@ If set, will include *#pragma pack(push, $packAlign)* before the class
 and *#pragma pack(pop)* after.
 '''
             ..type = 'int',
+            member('default_member_access')
+            ..doc = 'If set and member has no [access] set, this is used'
+            ..type = 'Access',
           ],
         ],
         part('method')

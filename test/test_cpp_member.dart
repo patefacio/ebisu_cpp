@@ -152,6 +152,18 @@ ${indentBlock(definition, '    ')}
     expect(aContainsB(definition, writer), false);
   });
 
+  test('class defaultMemberAccess', () {
+
+    /// Note the ..owner = null, this triggers the ownership walk. Normally
+    /// triggered at top level installation.generate. But for testing this needs
+    /// to be triggered.
+    final c1 = class_('c_1')
+      ..defaultMemberAccess = ro
+      ..members.add(member('xy')..type = 'std::string')
+      ..owner = null;
+    expect(c1.members.first.access, ro);
+  });
+
 // end <main>
 
 }

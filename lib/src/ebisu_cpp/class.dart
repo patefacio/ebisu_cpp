@@ -712,6 +712,8 @@ class Class extends Entity with Testable {
   Template get template => _template;
   /// List of forward declarations that will appear near the top of the file
   List<ForwardDecl> forwardDecls = [];
+  /// *constexpr*s associated with the class
+  List<ConstExpr> constExprs = [];
   /// List of usings that will be scoped to this class near the top of
   /// the class definition.
   List<Using> get usings => _usings;
@@ -765,6 +767,8 @@ class Class extends Entity with Testable {
   /// If set, will include *#pragma pack(push, $packAlign)* before the class
   /// and *#pragma pack(pop)* after.
   int packAlign;
+  /// If set and member has no [access] set, this is used
+  Access defaultMemberAccess;
 
   // custom <class Class>
 
@@ -999,7 +1003,11 @@ default [Interfaceimplementation] is used''').toList();
       _codeBlockText(clsOpen)
     ]),
     _wrapInAccess(isStruct ? null : public, indentBlock(br([
-      brCompact([forwardDecls, usings.map((u) => u.usingStatement(namer))]),
+      brCompact([
+        constExprs..forEach((ce) => ce.isClassScoped = true),
+        forwardDecls,
+        usings.map((u) => u.usingStatement(namer))
+      ]),
       brCompact([_enumDecls, _enumStreamers]),
       brCompact(friendClassDecls.map((fcd) => fcd.toString())),
       br(nestedClasses

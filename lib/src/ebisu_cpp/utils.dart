@@ -16,10 +16,13 @@ class ConstExpr extends Entity {
 
   /// The c++ type of the constexpr
   String type;
-  /// The initialization for the constexpr
-  String get value => _value;
   /// Any namespace to wrap the constexpr in
   Namespace namespace;
+  /// If class scoped the expr should be static
+  bool isClassScoped = false;
+  /// If true and literal is numeric it is assigned as hex.
+  /// The idea is to make C++ more readable when large constants are used.
+  bool isHex = false;
 
   // custom <class ConstExpr>
 
@@ -42,24 +45,28 @@ class ConstExpr extends Entity {
                   ? 'double'
                   : throw 'ConstExpr does not infer types from ${value.runtimeType} => $value';
     }
-    if (value_ is String) {
-      value_ = quote(value_);
-    }
-    _value = value_.toString();
+    _value = value_;
   }
 
-  set valueText(String txt) => _value = txt;
+  get valueText => (_value is String)?
+    _quote(_value) :
+    ((_value is num)? (isHex? '0x${_value.toRadixString(16)}' : _value.toString()) :
+        throw 'ConstExpr value must be String or number');
 
   get vname => id.capSnake;
-  get unqualDecl => 'constexpr $type $vname { $value };';
+  get _static => isClassScoped ? 'static ' : '';
+  get unqualDecl => '${_static}constexpr $type $vname { $valueText };';
 
-  toString() => namespace == null || namespace.length == 0
+  get _decl => namespace == null || namespace.length == 0
       ? unqualDecl
       : namespace.wrap(unqualDecl);
 
+  toString() => chomp(brCompact([detailedComment, _decl]));
+
   // end <class ConstExpr>
 
-  String _value;
+  /// The initialization for the constexpr
+  Object _value;
 }
 
 /// A forward declaration

@@ -166,7 +166,7 @@ class Member extends Entity {
   /// initialize it
   String ctorInit;
   /// Idiomatic access of member
-  Access access = ia;
+  set access(Access access) => _access = access;
   /// C++ style access of member
   set cppAccess(CppAccess cppAccess) => _cppAccess = cppAccess;
   /// Ref type of member
@@ -202,6 +202,12 @@ class Member extends Entity {
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
   get hasCustomStreamable => _customStreamable != null;
+
+  get access => _access == null
+      ? ((owner != null && owner.defaultMemberAccess != null)
+          ? owner.defaultMemberAccess
+          : ia)
+      : _access;
 
   getCustomStreamable() {
     _customStreamable != null
@@ -327,6 +333,7 @@ void $name($_argType $name) { $vname = $name; }'''
   // end <class Member>
 
   String _init;
+  Access _access;
   CppAccess _cppAccess;
   bool _isByRef;
   bool _isConst = false;
