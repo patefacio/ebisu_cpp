@@ -774,9 +774,15 @@ class Class extends Entity with Testable {
 
   Class(Id id) : super(id);
 
-  Iterable<Entity> get children =>
-      concat([enumsForward, enums, members, usings, usingsPostDecl, [template]])
-          .where((child) => child != null);
+  Iterable<Entity> get children => concat([
+    enumsForward,
+    enums,
+    members,
+    usings,
+    usingsPostDecl,
+    [template],
+    scenarios
+  ]).where((child) => child != null);
 
   set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();
   set usingsPostDecl(Iterable items) =>

@@ -1654,13 +1654,14 @@ The *TestClauses* are modeled after the *Catch* library *BDD* approach.
         ]
         ..classes = [
           class_('test_clause')
+          ..isAbstract = true
+          ..extend = 'Entity'
           ..doc = '''
 Models common elements of the *Given*, *When*, *Then* clauses.
 Each *TestClause* has its own [clause] text associated with it
 and [CodeBlock]s to augment/initialize/teardown.
 '''
           ..members = [
-            member('clause')..type = 'Id',
             member('start_code_block')..type = 'CodeBlock',
             member('end_code_block')..type = 'CodeBlock',
           ],
@@ -1675,20 +1676,17 @@ and [CodeBlock]s to augment/initialize/teardown.
           ..members = [
             member('thens')
             ..type = 'List<Then>'
-            ..classInit = []
           ],
           class_('given')
           ..extend = 'TestClause'
           ..members = [
             member('whens')
             ..type = 'List<When>'
-            ..classInit = []
           ],
           class_('scenario')
+          ..extend = 'Entity'
           ..members = [
-            member('id')..type = 'Id',
             member('givens')..type = 'List<Given>'
-            ..classInit = []
           ],
           class_('testable')
           ..members = [

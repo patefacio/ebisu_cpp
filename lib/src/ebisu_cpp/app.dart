@@ -494,7 +494,13 @@ abstract class AppBuilder implements CodeGenerator {
 
 // custom <part app>
 
+/// Alias for [appArg]
 AppArg arg(Object name) => new AppArg(name is String ? new Id(name) : name);
+
+/// Convenience function for creating an [AppArg]
+///
+/// All [AppArg]s must be named wiht an [Id]. This method accepts an [Id] or
+/// creates one. Creation of [Id] requires a string in *snake case*
 AppArg appArg(name) => arg(name);
 
 // end <part app>

@@ -25,14 +25,14 @@ const TcCodeBlock tcClose = TcCodeBlock.tcClose;
 /// Each *TestClause* has its own [clause] text associated with it
 /// and [CodeBlock]s to augment/initialize/teardown.
 ///
-class TestClause {
-  Id clause;
+abstract class TestClause extends Entity {
   CodeBlock startCodeBlock;
   CodeBlock endCodeBlock;
 
   // custom <class TestClause>
 
-  TestClause(testClause) : clause = idFromString(testClause);
+  TestClause(testClause) : super(makeId(testClause));
+  get clause => id;
 
   // end <class TestClause>
 
@@ -43,29 +43,38 @@ class Then extends TestClause {
 
   // custom <class Then>
 
-  Then(String thenClause, [this.isAnd]) : super(thenClause);
+  Then(Id thenClause, [this.isAnd]) : super(thenClause);
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
   // end <class Then>
 
 }
 
 class When extends TestClause {
-  List<Then> thens = [];
+  List<Then> thens;
 
   // custom <class When>
 
-  When(String whenClause, [this.thens]) : super(whenClause);
+  When(Id whenClause, this.thens) : super(whenClause);
+  Iterable<Entity> get children => thens;
+
+  addThen(clause, [isAnd]) => (thens..add(then(clause, isAnd))).last;
+
+  addAndThen(clause) => (thens..add(then(clause, true))).last;
 
   // end <class When>
 
 }
 
 class Given extends TestClause {
-  List<When> whens = [];
+  List<When> whens;
 
   // custom <class Given>
 
-  Given(String givenClause, [this.whens]) : super(givenClause);
+  Given(Id givenClause, this.whens) : super(givenClause);
+  Iterable<Entity> get children => whens;
+
+  addWhen(clause, [withThens]) => (whens..add(when(clause, withThens))).last;
 
   toString() => '''
 Given(${clause.snake})
@@ -76,12 +85,14 @@ ${indentBlock(br(whens))}
 
 }
 
-class Scenario {
-  Id id;
-  List<Given> givens = [];
+class Scenario extends Entity {
+  List<Given> givens;
 
   // custom <class Scenario>
-  Scenario(this.id, [this.givens]);
+  Scenario(id, this.givens) : super(id);
+  Iterable<Entity> get children => givens;
+
+  addGiven(clause, [withWhens]) => (givens..add(given(clause, withWhens))).last;
 
   toString() => '''
 Scenario(${id.snake})
@@ -124,13 +135,15 @@ class CatchTestProvider extends TestProvider {
 // custom <part test_provider>
 
 /// Create a Then sans new, for more declarative construction
-Then then([String clause, bool isAnd]) => new Then(clause, isAnd);
+Then then([String clause, bool isAnd]) => new Then(idFromWords(clause), isAnd);
 /// Create a When sans new, for more declarative construction
-When when([String clause, List<Then> thens]) => new When(clause, thens);
+When when([String clause, List<Then> thens]) =>
+    new When(idFromWords(clause), thens == null ? [] : thens);
 /// Create a Given sans new, for more declarative construction
-Given given([String clause, List<When> when]) => new Given(clause, when);
+Given given([String clause, List<When> whens]) =>
+    new Given(idFromWords(clause), whens == null ? [] : whens);
 /// Create a Scenario sans new, for more declarative construction
 Scenario scenario(id, [List<Given> givens]) =>
-    new Scenario(id is String ? idFromString(id) : id, givens);
+    new Scenario(idFromWords(id), givens == null ? [] : givens);
 
 // end <part test_provider>
