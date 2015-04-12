@@ -890,7 +890,7 @@ _isStandardType(id) =>
 ///
 ///    using An_id_sptr_t = std::shared_ptr<SomeType>;
 usingSptr(name, referenced) =>
-  using(addSuffixToId('sptr', name), 'std::shared_ptr<$referenced>');
+    using(addSuffixToId('sptr', name), 'std::shared_ptr<$referenced>');
 
 /// Provide standardized using of unique pointer to referenced
 ///
@@ -900,7 +900,7 @@ usingSptr(name, referenced) =>
 ///
 ///    using An_id_uptr_t = std::unique_ptr<SomeType>;
 usingUptr(name, referenced) =>
-  using(addSuffixToId('uptr', name), 'std::unique_ptr<$referenced>');
+    using(addSuffixToId('uptr', name), 'std::unique_ptr<$referenced>');
 
 /// Provide standardized using of shared pointer to const referenced
 ///
@@ -910,7 +910,7 @@ usingUptr(name, referenced) =>
 ///
 ///    using An_id_scptr_t = std::shared_ptr<SomeType const>;
 usingScptr(name, referenced) =>
-  using(addSuffixToId('scptr', name), 'std::shared_ptr<$referenced const>');
+    using(addSuffixToId('scptr', name), 'std::shared_ptr<$referenced const>');
 
 /// Provide standardized using of unique pointer to const referenced
 ///
@@ -920,6 +920,6 @@ usingScptr(name, referenced) =>
 ///
 ///    using An_id_ucptr_t = std::unique_ptr<SomeType const>;
 usingUcptr(name, referenced) =>
-  using(addSuffixToId('ucptr', name), 'std::unique_ptr<$referenced const>');
+    using(addSuffixToId('ucptr', name), 'std::unique_ptr<$referenced const>');
 
 // end <library ebisu_cpp>

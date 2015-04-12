@@ -553,8 +553,9 @@ private:
   });
 
   test('const expr asHex', () {
-    expect(darkSame(constExpr('f', 42)..isHex = true,
-            'constexpr int F { 0x2a };'), true);
+    expect(
+        darkSame(constExpr('f', 42)..isHex = true, 'constexpr int F { 0x2a };'),
+        true);
   });
 
 // end <main>

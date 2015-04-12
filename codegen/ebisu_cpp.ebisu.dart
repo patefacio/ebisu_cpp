@@ -17,7 +17,7 @@ void main() {
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.18'
+    ..pubSpec.version = '0.0.19'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -1798,7 +1798,94 @@ Set of argument types supported by command line option processing.
           class_('app_arg')
           ..doc = '''
 Metadata associated with an argument to an application.  Requires and
-geared to features supported by boost::program_options.
+geared to features supported by boost::program_options. The supporting
+code for arguments is spread over a few places in the main file of an
+[App]. Examples of declarations follow:
+
+      print(br([
+        appArg('filename')
+        ..shortName = 'f',
+
+        appArg('in_file')
+        ..shortName = 'f'
+        ..defaultValue = 'input.txt',
+
+        appArg('pi')
+        ..shortName = 'p'
+        ..isRequired = true
+        ..defaultValue = 3.14,
+
+        appArg('source_file')
+        ..shortName = 's'
+        ..isMultiple = true
+      ]));
+
+Prints:
+
+    AppArg(filename)
+      argType: String
+      cppType: std::string
+      flagDecl: "filename,f"
+      isRequired: false
+      isMultiple: false
+      defaultValue: null
+
+    AppArg(in_file)
+      argType: String
+      cppType: std::string
+      flagDecl: "in-file,f"
+      isRequired: false
+      isMultiple: false
+      defaultValue: input.txt
+
+    AppArg(pi)
+      argType: Double
+      cppType: double
+      flagDecl: "pi,p"
+      isRequired: true
+      isMultiple: false
+      defaultValue: 3.14
+
+    AppArg(source_file)
+      argType: String
+      cppType: std::vector< std::string >
+      flagDecl: "source-file,s"
+      isRequired: false
+      isMultiple: true
+      defaultValue: null
+
+
+For an [App], if no [Arg] in [args] is named *help* or has [shortName]
+of *h* then the following *help* argument is provided. The help text
+will include the doc string of the [App].
+
+      args.insert(0, new AppArg(new Id('help'))
+        ..shortName = 'h'
+        ..defaultValue = false
+        ..descr = 'Display help information');
+
+
+Example: Here are the [AppArg]s of an simple application:
+
+    arg('timestamp')
+    ..shortName = 't'
+    ..descr = 'Some form of timestamp'
+    ..isMultiple = true
+    ..type = ArgType.STRING,
+    arg('date')
+    ..shortName = 'd'
+    ..descr = 'Some form of date'
+    ..isMultiple = true
+    ..type = ArgType.STRING,
+
+When run, the help looks something like:
+
+    App for converting between various forms of date/time
+
+    AllowedOptions:
+      -h [ --help ]          Display help information
+      -t [ --timestamp ] arg Some form of timestamp
+      -d [ --date ] arg      Some form of date
 '''
           ..extend = 'Entity'
           ..members = [
@@ -1854,8 +1941,9 @@ opposed to belonging to a reusable library.'''
             ..type = 'List<Header>'..classInit = [],
             member('impls')
             ..doc = '''
-Additional implementation files associated with the application
-itself, as opposed to belonging to a reusable library.'''
+Additional implementation files associated with the
+application itself, as opposed to belonging to a reusable
+library.'''
             ..type = 'List<Impl>'..classInit = [],
             member('required_libs')
             ..doc = '''
@@ -1869,6 +1957,15 @@ protect blocks where the required libs could be easily added.
             member('builders')
             ..doc = 'List of builders to generate build scripts of a desired flavor (bjam,...)'
             ..type = 'List<AppBuilder>'..classInit = [],
+            member('main_code_block')
+            ..doc = '''
+An App is an Impl and therefore contains accesors to FileCodeBlock
+sections (e.g. fcbBeginNamespace, fcbPostNamespace, ...). The heart of
+an application impl file is the main, so this [CodeBlock] supports
+injecting code in main
+'''
+            ..type = 'CodeBlock'
+            ..classInit = "new CodeBlock('main')",
           ],
           class_('app_builder')
           ..doc = '''
@@ -2046,6 +2143,43 @@ log group. An empty list will include all members in the table.
       ],
 
     ];
+
+  ebisu.scripts = [
+    script('bootstrap_ebisu_cpp')
+    ..imports = [
+      'package:id/id.dart',
+      'package:path/path.dart',
+      "'package:ebisu/ebisu.dart' as ebisu",
+      'package:ebisu/ebisu_dart_meta.dart',
+    ]
+    ..doc = 'Creates an ebisu_cpp setup'
+    ..classes = [
+      class_('project')
+      ..hasJsonToString = true
+      ..members = [
+        member('id')..type = 'Id',
+        member('root_path'),
+        member('codegen_path'),
+        member('script_name'),
+        member('ebisu_file_path'),
+        member('cpp_file_path'),
+      ]
+    ]
+    ..args = [
+      scriptArg('project_path')
+      ..doc = 'Path to top level of desired ebisu project'
+      ..abbr = 'p',
+      scriptArg('add_app')
+      ..doc = 'Add library to project'
+      ..abbr = 'a',
+      scriptArg('add_lib')
+      ..doc = 'Add library to project'
+      ..abbr = 'l',
+      scriptArg('add_script')
+      ..doc = 'Add script to project'
+      ..abbr = 's',
+    ]
+  ];
 
   ebisu.generate();
 }

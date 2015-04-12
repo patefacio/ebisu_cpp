@@ -799,7 +799,7 @@ default [Interfaceimplementation] is used''').toList();
 
   set usesStreamers(bool s) {
     /// Note: usesStreamers *implies* isStreamable, so ensure opOut initialized
-    if (s) opOout;
+    if (s) opOut;
     _usesStreamers = s;
   }
 

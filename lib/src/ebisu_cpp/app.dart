@@ -52,7 +52,94 @@ class ArgType implements Comparable<ArgType> {
 }
 
 /// Metadata associated with an argument to an application.  Requires and
-/// geared to features supported by boost::program_options.
+/// geared to features supported by boost::program_options. The supporting
+/// code for arguments is spread over a few places in the main file of an
+/// [App]. Examples of declarations follow:
+///
+///       print(br([
+///         appArg('filename')
+///         ..shortName = 'f',
+///
+///         appArg('in_file')
+///         ..shortName = 'f'
+///         ..defaultValue = 'input.txt',
+///
+///         appArg('pi')
+///         ..shortName = 'p'
+///         ..isRequired = true
+///         ..defaultValue = 3.14,
+///
+///         appArg('source_file')
+///         ..shortName = 's'
+///         ..isMultiple = true
+///       ]));
+///
+/// Prints:
+///
+///     AppArg(filename)
+///       argType: String
+///       cppType: std::string
+///       flagDecl: "filename,f"
+///       isRequired: false
+///       isMultiple: false
+///       defaultValue: null
+///
+///     AppArg(in_file)
+///       argType: String
+///       cppType: std::string
+///       flagDecl: "in-file,f"
+///       isRequired: false
+///       isMultiple: false
+///       defaultValue: input.txt
+///
+///     AppArg(pi)
+///       argType: Double
+///       cppType: double
+///       flagDecl: "pi,p"
+///       isRequired: true
+///       isMultiple: false
+///       defaultValue: 3.14
+///
+///     AppArg(source_file)
+///       argType: String
+///       cppType: std::vector< std::string >
+///       flagDecl: "source-file,s"
+///       isRequired: false
+///       isMultiple: true
+///       defaultValue: null
+///
+///
+/// For an [App], if no [Arg] in [args] is named *help* or has [shortName]
+/// of *h* then the following *help* argument is provided. The help text
+/// will include the doc string of the [App].
+///
+///       args.insert(0, new AppArg(new Id('help'))
+///         ..shortName = 'h'
+///         ..defaultValue = false
+///         ..descr = 'Display help information');
+///
+///
+/// Example: Here are the [AppArg]s of an simple application:
+///
+///     arg('timestamp')
+///     ..shortName = 't'
+///     ..descr = 'Some form of timestamp'
+///     ..isMultiple = true
+///     ..type = ArgType.STRING,
+///     arg('date')
+///     ..shortName = 'd'
+///     ..descr = 'Some form of date'
+///     ..isMultiple = true
+///     ..type = ArgType.STRING,
+///
+/// When run, the help looks something like:
+///
+///     App for converting between various forms of date/time
+///
+///     AllowedOptions:
+///       -h [ --help ]          Display help information
+///       -t [ --timestamp ] arg Some form of timestamp
+///       -d [ --date ] arg      Some form of date
 ///
 class AppArg extends Entity {
   ArgType type = ArgType.STRING;
@@ -113,6 +200,16 @@ class AppArg extends Entity {
       ? '($flagDecl, "$descr")'
       : '($flagDecl, value< $cppType >()$_defaultValueSet,\n  "${descr}")';
 
+  toString() => '''
+AppArg(${id.snake})
+  argType: $type
+  cppType: $cppType
+  flagDecl: $flagDecl
+  isRequired: $isRequired
+  isMultiple: $isMultiple
+  defaultValue: $defaultValue
+''';
+
   // end <class AppArg>
 
   Object _defaultValue;
@@ -153,8 +250,9 @@ class App extends Impl implements CodeGenerator {
   /// Additional headers that are associated with the application itself, as
   /// opposed to belonging to a reusable library.
   List<Header> headers = [];
-  /// Additional implementation files associated with the application
-  /// itself, as opposed to belonging to a reusable library.
+  /// Additional implementation files associated with the
+  /// application itself, as opposed to belonging to a reusable
+  /// library.
   List<Impl> impls = [];
   /// Libraries required to build this executable. *Warning* potentially
   /// deprecated in the future. Originally when generating boost jam files
@@ -164,6 +262,11 @@ class App extends Impl implements CodeGenerator {
   List<String> requiredLibs = [];
   /// List of builders to generate build scripts of a desired flavor (bjam,...)
   List<AppBuilder> builders = [];
+  /// An App is an Impl and therefore contains accesors to FileCodeBlock
+  /// sections (e.g. fcbBeginNamespace, fcbPostNamespace, ...). The heart of
+  /// an application impl file is the main, so this [CodeBlock] supports
+  /// injecting code in main
+  CodeBlock mainCodeBlock = new CodeBlock('main');
 
   // custom <class App>
 
@@ -196,6 +299,15 @@ class App extends Impl implements CodeGenerator {
     if (args.isNotEmpty) _includes.add('boost/program_options.hpp');
 
     setAppFilePathFromRoot(cppPath);
+
+    getCodeBlock(fcbBeginNamespace).snippets.add('''
+namespace {
+  char const* app_descr = R"(
+$descr
+
+AllowedOptions)";
+}''');
+
     getCodeBlock(fcbPostNamespace).snippets.add(_cppContents);
     classes.add(_programOptions);
 
@@ -242,12 +354,7 @@ indentBlock(combine(_orderedArgs.map((a) => br(_pullOption(a)))))
 
 static boost::program_options::options_description const& description() {
   using namespace boost::program_options;
-  char const* descr = R"(
-$descr
-
-AllowedOptions)";
-
-  static options_description options { descr };
+  static options_description options { app_descr };
 
   if(options.options().empty()) {
     options.add_options()
@@ -304,15 +411,14 @@ if(parsed_options.count("${arg.optName}") > 0) {
       : '';
 
   get _cppContents => '''
-
 int main(int argc, char** argv) {
 ${
   combine([
     indentBlock(namespace.using) + ';',
     indentBlock('''
 try{
-${indentBlock(_readProgramOptions)}
-${indentBlock(customBlock('main'))}
+${_readProgramOptions}
+${indentBlock(mainCodeBlock.toString())}
 } catch(std::exception const& e) {
   std::cout << "Caught exception: " << e.what() << std::endl;
   Program_options::show_help(std::cout);
@@ -389,5 +495,6 @@ abstract class AppBuilder implements CodeGenerator {
 // custom <part app>
 
 AppArg arg(Object name) => new AppArg(name is String ? new Id(name) : name);
+AppArg appArg(name) => arg(name);
 
 // end <part app>

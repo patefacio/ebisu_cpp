@@ -48,10 +48,11 @@ class ConstExpr extends Entity {
     _value = value_;
   }
 
-  get valueText => (_value is String)?
-    _quote(_value) :
-    ((_value is num)? (isHex? '0x${_value.toRadixString(16)}' : _value.toString()) :
-        throw 'ConstExpr value must be String or number');
+  get valueText => (_value is String)
+      ? _quote(_value)
+      : ((_value is num)
+          ? (isHex ? '0x${_value.toRadixString(16)}' : _value.toString())
+          : throw 'ConstExpr value must be String or number');
 
   get vname => id.capSnake;
   get _static => isClassScoped ? 'static ' : '';
@@ -145,7 +146,7 @@ namespace $name {
 ${_helper(it, txt)}
 } // namespace $name''';
     } else {
-      return indentBlock(txt);
+      return txt;
     }
   }
 

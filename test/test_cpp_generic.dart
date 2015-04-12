@@ -22,9 +22,11 @@ main([List<String> args]) {
 
   group('traits', () {
     test('using', () {
-      expect(darkSame(new Using('a', 'vector<int>'), 'using A_t = vector<int>;'),
+      expect(
+          darkSame(new Using('a', 'vector<int>'), 'using A_t = vector<int>;'),
           true);
-      expect(darkSame(using('a = vector<it>'), 'using A_t = vector<it>;'), true);
+      expect(
+          darkSame(using('a = vector<it>'), 'using A_t = vector<it>;'), true);
       expect(darkSame(using(new Using('goo', 'vector<vector<x>>')),
           'using Goo_t = vector<vector<x>>;'), true);
       expect(darkSame(using('this_is_a_test', 'List<int>'),
