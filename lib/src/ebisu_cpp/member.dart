@@ -204,8 +204,8 @@ class Member extends Entity {
   get hasCustomStreamable => _customStreamable != null;
 
   get access => _access == null
-      ? ((owner != null && owner.defaultMemberAccess != null)
-          ? owner.defaultMemberAccess
+      ? ((owner != null && (owner as Class).defaultMemberAccess != null)
+          ? (owner as Class).defaultMemberAccess
           : ia)
       : _access;
 

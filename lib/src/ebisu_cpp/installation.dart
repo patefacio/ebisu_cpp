@@ -19,7 +19,7 @@ abstract class InstallationBuilder implements CodeGenerator {
 
   generateInstallationBuilder(Installation installation) {
     this.installation = installation;
-    generate();
+    this.generate();
   }
 
   // end <class InstallationBuilder>

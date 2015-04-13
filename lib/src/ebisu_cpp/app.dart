@@ -479,7 +479,7 @@ abstract class AppBuilder implements CodeGenerator {
 
   generateBuildScripts(App app) {
     this.app = app;
-    generate();
+    this.generate();
   }
 
   static const Map _headerToLibRequirement = const {

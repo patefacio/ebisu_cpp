@@ -41,7 +41,7 @@ abstract class CppFile extends Entity with Testable {
 
   set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();
 
-  Iterable<Entity> get children => concat([classes, constExprs, enums]);
+  Iterable<Entity> get children => concat([classes, constExprs, enums, scenarios]);
 
   _makeIncludes(Object h) => h is Iterable
       ? new Includes(h)

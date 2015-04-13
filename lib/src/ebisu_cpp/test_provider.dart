@@ -46,6 +46,10 @@ class Then extends TestClause {
   Then(Id thenClause, [this.isAnd]) : super(thenClause);
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
+  toString() => '''
+Then(${clause.snake})
+''';
+
   // end <class Then>
 
 }
@@ -62,6 +66,11 @@ class When extends TestClause {
 
   addAndThen(clause) => (thens..add(then(clause, true))).last;
 
+  toString() => '''
+When(${clause.snake})
+${indentBlock(br(thens))}
+''';
+
   // end <class When>
 
 }
@@ -75,6 +84,8 @@ class Given extends TestClause {
   Iterable<Entity> get children => whens;
 
   addWhen(clause, [withThens]) => (whens..add(when(clause, withThens))).last;
+
+  withWhen(clause, f(when)) => f((whens..add(when(clause))).last);
 
   toString() => '''
 Given(${clause.snake})
@@ -93,6 +104,8 @@ class Scenario extends Entity {
   Iterable<Entity> get children => givens;
 
   addGiven(clause, [withWhens]) => (givens..add(given(clause, withWhens))).last;
+
+  withGiven(clause, f(given)) => f((givens..add(given(clause))).last);
 
   toString() => '''
 Scenario(${id.snake})
@@ -135,15 +148,20 @@ class CatchTestProvider extends TestProvider {
 // custom <part test_provider>
 
 /// Create a Then sans new, for more declarative construction
-Then then([String clause, bool isAnd]) => new Then(idFromWords(clause), isAnd);
+Then then([String clause, bool isAnd = false]) => new Then(idFromWords(clause), isAnd);
+
+/// Create a Then sans new, for more declarative construction
+Then andThen([String clause]) => new Then(idFromWords(clause), true);
+
 /// Create a When sans new, for more declarative construction
-When when([String clause, List<Then> thens]) =>
-    new When(idFromWords(clause), thens == null ? [] : thens);
+When when([String clause, thens]) =>
+  new When(idFromWords(clause), thens == null ? [] : thens is Then? [thens] : thens);
+
 /// Create a Given sans new, for more declarative construction
-Given given([String clause, List<When> whens]) =>
-    new Given(idFromWords(clause), whens == null ? [] : whens);
+Given given([String clause, whens]) =>
+  new Given(idFromWords(clause), whens == null ? [] : whens is When? [whens] : whens);
 /// Create a Scenario sans new, for more declarative construction
-Scenario scenario(id, [List<Given> givens]) =>
-    new Scenario(idFromWords(id), givens == null ? [] : givens);
+Scenario scenario(id, [givens]) =>
+  new Scenario(idFromWords(id), givens == null ? [] : givens is Given? [givens] : givens);
 
 // end <part test_provider>
