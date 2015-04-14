@@ -42,7 +42,20 @@ class Installation extends Entity implements CodeGenerator {
 
   // custom <class Installation>
 
-  Installation(Id id, [this._root = '/tmp']) : super(id);
+
+  Installation(Id id) : super(id) {
+    root = '/tmp';
+  }
+
+  set root(String root) {
+    _root = root;
+    _paths = {
+      'usr_lib': '/usr/lib',
+      'usr_include': 'usr/include',
+      'cpp': '${_root}/cpp',
+    };
+  }
+
 
   String get name => id.snake;
   String get nameShout => id.shout;
@@ -90,15 +103,6 @@ Installation($root)
     for (var builder in builders) {
       builder.generateInstallationBuilder(this);
     }
-  }
-
-  set root(String root) {
-    _root = root;
-    _paths = {
-      'usr_lib': '/usr/lib',
-      'usr_include': 'usr/include',
-      'cpp': '${_root}/cpp',
-    };
   }
 
   String path(String key) {
