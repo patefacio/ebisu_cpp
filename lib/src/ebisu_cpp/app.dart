@@ -260,7 +260,8 @@ class App extends Impl implements CodeGenerator {
   /// code generation scripts. With cmake it was simpler to just incorporate
   /// protect blocks where the required libs could be easily added.
   List<String> requiredLibs = [];
-  /// List of builders to generate build scripts of a desired flavor (bjam,...)
+  /// List of builders to generate build scripts of a desired flavor (cmake
+  /// is only one supported at this time)
   List<AppBuilder> builders = [];
   /// An App is an Impl and therefore contains accesors to FileCodeBlock
   /// sections (e.g. fcbBeginNamespace, fcbPostNamespace, ...). The heart of
@@ -318,10 +319,6 @@ AllowedOptions)";
     if (_hasString) _includes.add('string');
 
     super.generate();
-
-    if (this.installation.wantsJam) {
-      builders.add(new JamAppBuilder.fromApp(this));
-    }
 
     for (var appBuilder in builders) {
       appBuilder.generateBuildScripts(this);

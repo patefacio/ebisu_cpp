@@ -35,26 +35,31 @@ class Installation extends Entity implements CodeGenerator {
   List<App> apps = [];
   List<Test> tests = [];
   List<Script> scripts = [];
-  /// List of builders for the installation (bjam, cmake)
+  /// Provider for generating tests
+  TestProvider testProvider = new CatchTestProvider();
+  /// List of builders for the installation (cmake is only one supported at this time)
   List<InstallationBuilder> builders = [];
 
   // custom <class Installation>
 
-  Installation(Id id) : super(id) {
-    root = '/tmp';
-  }
+  Installation(Id id, [this._root = '/tmp']) : super(id);
 
   String get name => id.snake;
   String get nameShout => id.shout;
 
+  Iterable<Testable> get testables => progeny.where(
+      (offspring) => offspring is Testable &&
+          (offspring as Testable).testScenarios.isNotEmpty);
+
   get allTests {
     final result = libs.fold([], (prev, l) => prev..addAll(l.allTests));
+
+    print('Getting all tests - mainly to get good make representation');
+
     return result..addAll(tests);
   }
 
   decorateWith(InstallationDecorator decorator) => decorator.decorate(this);
-
-  get wantsJam => builders.any((b) => b is JamInstallationBuilder);
 
   String toString() => '''
 Installation($root)
@@ -69,7 +74,7 @@ Installation($root)
   addLibs(Iterable<Lib> libs) => libs.forEach((l) => addLib(l));
   addApp(App app) => apps.add(app);
 
-  generate([bool generateJamConfigs = false]) {
+  generate() {
     owner = null;
 
     if (_namer == null) {
@@ -80,11 +85,7 @@ Installation($root)
 
     concat([libs, apps]).forEach((CodeGenerator cg) => cg.generate());
 
-    if (generateJamConfigs) {
-      if (!builders.any((b) => b is JamInstallationBuilder)) {
-        builders.add(new JamInstallationBuilder.fromInstallation(this));
-      }
-    }
+    testProvider.generateTests(testables);
 
     for (var builder in builders) {
       builder.generateInstallationBuilder(this);

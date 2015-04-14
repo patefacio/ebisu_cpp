@@ -781,7 +781,7 @@ class Class extends Entity with Testable {
     usings,
     usingsPostDecl,
     [template],
-    scenarios
+    testScenarios
   ]).where((child) => child != null);
 
   set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();

@@ -1683,14 +1683,14 @@ and [CodeBlock]s to augment/initialize/teardown.
             member('whens')
             ..type = 'List<When>'
           ],
-          class_('scenario')
+          class_('test_scenario')
           ..extend = 'Entity'
           ..members = [
             member('givens')..type = 'List<Given>'
           ],
           class_('testable')
           ..members = [
-            member('scenarios')..type = 'List<Scenario>'..classInit = [],
+            member('test_scenarios')..type = 'List<TestScenario>'..classInit = [],
           ],
           class_('test_provider')
           ..isAbstract = true,
@@ -1953,7 +1953,9 @@ protect blocks where the required libs could be easily added.
 '''
             ..type = 'List<String>'..classInit = [],
             member('builders')
-            ..doc = 'List of builders to generate build scripts of a desired flavor (bjam,...)'
+            ..doc = '''
+List of builders to generate build scripts of a desired flavor (cmake
+is only one supported at this time)'''
             ..type = 'List<AppBuilder>'..classInit = [],
             member('main_code_block')
             ..doc = '''
@@ -1979,46 +1981,6 @@ libraries, apps, and tests'''
         ..classes = [
           class_('cmake_installation_builder')
           ..extend = 'InstallationBuilder',
-        ],
-        part('jam_support')
-        ..classes = [
-          class_('jam_installation_builder')
-          ..doc = '''
-Effectively just a placeholder, the presence of which in an installation
-indicates bjam shoud be set up per app and tests in the installation.
-'''
-          ..extend = 'InstallationBuilder',
-          class_('jam_app_builder')
-          ..extend = 'AppBuilder',
-          class_('jam_test_builder')
-          ..extend = 'TestBuilder',
-          class_('site_config')
-          ..implement = [ 'CodeGenerator' ]
-          ..members = [
-            member('installation')..type = 'Installation'..ctors = [''],
-          ],
-          class_('user_config')
-          ..implement = [ 'CodeGenerator' ]
-          ..members = [
-            member('installation')..type = 'Installation'..ctors = [''],
-          ],
-          class_('jam_constant')
-          ..members = [
-            member('constant'),
-            member('value'),
-          ],
-          class_('jam_file_top')
-          ..implement = [ 'CodeGenerator' ]
-          ..members = [
-            member('installation')..type = 'Installation'..ctors = [''],
-            member('include_paths')..type = 'List<String>'..classInit = [],
-            member('constants')..type = 'List<JamConstant>'..classInit = [],
-          ],
-          class_('jam_root')
-          ..implement = [ 'CodeGenerator' ]
-          ..members = [
-            member('installation')..type = 'Installation'..ctors = [''],
-          ],
         ],
         part('script')
         ..classes = [
@@ -2073,8 +2035,12 @@ Creates builder for an installation (ie ties together all build artifacts)
             member('apps')..type = 'List<App>'..classInit = [],
             member('tests')..type = 'List<Test>'..classInit = [],
             member('scripts')..type = 'List<Script>'..classInit = [],
+            member('test_provider')
+            ..doc = 'Provider for generating tests'
+            ..type = 'TestProvider'
+            ..classInit = 'new CatchTestProvider()',
             member('builders')
-            ..doc = 'List of builders for the installation (bjam, cmake)'
+            ..doc = 'List of builders for the installation (cmake is only one supported at this time)'
             ..type = 'List<InstallationBuilder>'..classInit = [],
           ],
           class_('path_locator')

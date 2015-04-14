@@ -149,12 +149,6 @@ class Lib extends Entity with Testable implements CodeGenerator {
       dirTests.add(test);
       tests.add(test);
     });
-
-    if (installation.wantsJam) {
-      pathToTests.forEach((directory, tests) {
-        new JamTestBuilder(this, directory, tests).generate();
-      });
-    }
   }
 
   String toString() => '''

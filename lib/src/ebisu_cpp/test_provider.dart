@@ -96,11 +96,12 @@ ${indentBlock(br(whens))}
 
 }
 
-class Scenario extends Entity {
+class TestScenario extends Entity {
   List<Given> givens;
 
-  // custom <class Scenario>
-  Scenario(id, this.givens) : super(id);
+  // custom <class TestScenario>
+
+  TestScenario(id, this.givens) : super(id);
   Iterable<Entity> get children => givens;
 
   addGiven(clause, [withWhens]) => (givens..add(given(clause, withWhens))).last;
@@ -108,18 +109,23 @@ class Scenario extends Entity {
   withGiven(clause, f(given)) => f((givens..add(given(clause))).last);
 
   toString() => '''
-Scenario(${id.snake})
+TestScenario(${id.snake})
 ${indentBlock(br(givens))}
 ''';
 
-  // end <class Scenario>
+  // end <class TestScenario>
 
 }
 
 class Testable {
-  List<Scenario> scenarios = [];
+  List<TestScenario> testScenarios = [];
 
   // custom <class Testable>
+
+  toString() => '''
+Catch Test: ${runtimeType}:${id}:${br(testScenarios)}
+''';
+
   // end <class Testable>
 
 }
@@ -127,6 +133,9 @@ class Testable {
 abstract class TestProvider {
 
   // custom <class TestProvider>
+
+  generateTests(Iterable<Testable> testables);
+
   // end <class TestProvider>
 
 }
@@ -141,6 +150,15 @@ class BoostTestProvider extends TestProvider {
 class CatchTestProvider extends TestProvider {
 
   // custom <class CatchTestProvider>
+
+  generateTests(Iterable<Testable> testables) {
+    if (testables.isNotEmpty) {
+      final installation = testables.first.installation;
+      print(
+          'For installation ${installation.id} Generating tests for ${br(testables)}');
+    }
+  }
+
   // end <class CatchTestProvider>
 
 }
@@ -148,20 +166,21 @@ class CatchTestProvider extends TestProvider {
 // custom <part test_provider>
 
 /// Create a Then sans new, for more declarative construction
-Then then([String clause, bool isAnd = false]) => new Then(idFromWords(clause), isAnd);
+Then then([String clause, bool isAnd = false]) =>
+    new Then(idFromWords(clause), isAnd);
 
 /// Create a Then sans new, for more declarative construction
 Then andThen([String clause]) => new Then(idFromWords(clause), true);
 
 /// Create a When sans new, for more declarative construction
-When when([String clause, thens]) =>
-  new When(idFromWords(clause), thens == null ? [] : thens is Then? [thens] : thens);
+When when([String clause, thens]) => new When(
+    idFromWords(clause), thens == null ? [] : thens is Then ? [thens] : thens);
 
 /// Create a Given sans new, for more declarative construction
-Given given([String clause, whens]) =>
-  new Given(idFromWords(clause), whens == null ? [] : whens is When? [whens] : whens);
-/// Create a Scenario sans new, for more declarative construction
-Scenario scenario(id, [givens]) =>
-  new Scenario(idFromWords(id), givens == null ? [] : givens is Given? [givens] : givens);
+Given given([String clause, whens]) => new Given(
+    idFromWords(clause), whens == null ? [] : whens is When ? [whens] : whens);
+/// Create a TestScenario sans new, for more declarative construction
+TestScenario testScenario(id, [givens]) => new TestScenario(
+    idFromWords(id), givens == null ? [] : givens is Given ? [givens] : givens);
 
 // end <part test_provider>

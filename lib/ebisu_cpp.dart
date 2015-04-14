@@ -111,7 +111,6 @@ part 'src/ebisu_cpp/test_provider.dart';
 part 'src/ebisu_cpp/lib.dart';
 part 'src/ebisu_cpp/app.dart';
 part 'src/ebisu_cpp/cmake_support.dart';
-part 'src/ebisu_cpp/jam_support.dart';
 part 'src/ebisu_cpp/script.dart';
 part 'src/ebisu_cpp/test.dart';
 part 'src/ebisu_cpp/installation.dart';

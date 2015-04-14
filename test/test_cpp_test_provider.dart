@@ -20,8 +20,8 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
-  test('scenario', () {
-    _logger.info(scenario('foo_bar'));
+  test('test_scenario', () {
+    _logger.info(testScenario('foo_bar'));
   });
 
 // end <main>

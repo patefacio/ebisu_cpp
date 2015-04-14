@@ -68,8 +68,11 @@ class Header extends CppFile {
   }
 
   String toString() => '''
-        header($id)
-          classes:[${classes.map((cls) => cls.className).join(', ')}]
+header($id)
+  classes:
+${indentBlock(br(classes.map((cls) => cls.className)))}
+  testScenarios:
+${indentBlock(br(testScenarios))}
 ''';
 
   String get _includeGuard => namespace == null
