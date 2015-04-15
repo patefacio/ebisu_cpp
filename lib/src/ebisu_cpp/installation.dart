@@ -42,7 +42,6 @@ class Installation extends Entity implements CodeGenerator {
 
   // custom <class Installation>
 
-
   Installation(Id id) : super(id) {
     root = '/tmp';
   }
@@ -55,7 +54,6 @@ class Installation extends Entity implements CodeGenerator {
       'cpp': '${_root}/cpp',
     };
   }
-
 
   String get name => id.snake;
   String get nameShout => id.shout;
