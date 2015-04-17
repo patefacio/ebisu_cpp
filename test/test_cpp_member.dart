@@ -14,6 +14,7 @@ final _logger = new Logger('test_cpp_member');
 
 // custom <library test_cpp_member>
 // end <library test_cpp_member>
+
 main([List<String> args]) {
   Logger.root.onRecord.listen(
       (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
@@ -162,6 +163,24 @@ ${indentBlock(definition, '    ')}
       ..members.add(member('xy')..type = 'std::string')
       ..owner = null;
     expect(c1.members.first.access, ro);
+  });
+
+  test('member getReturnModifier', () {
+    expect(darkSame(
+          (member('message_length')
+              ..type = 'int32_t'
+              ..access = ro
+              ..getterReturnModifier =
+                ((member, oldValue) => 'endian_convert($oldValue)'))
+          .getter,
+          '''
+//! getter for message_length_ (access is Ro)
+int32_t message_length() const {
+  return endian_convert(message_length_);
+}
+'''), true);
+
+
   });
 
 // end <main>

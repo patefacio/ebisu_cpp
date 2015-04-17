@@ -39,6 +39,11 @@ class Installation extends Entity implements CodeGenerator {
   TestProvider testProvider = new CatchTestProvider();
   /// List of builders for the installation (cmake is only one supported at this time)
   List<InstallationBuilder> builders = [];
+  /// If set will generate a single cpp per header that includes that header.
+  /// If that cpp compiles it is an indication the header is doing a proper
+  /// job of including all its dependencies. If there are compile errors,
+  /// revisit the header and add required includes
+  bool includesHeaderCompiles = false;
 
   // custom <class Installation>
 
@@ -94,9 +99,31 @@ Installation($root)
 
     progeny.forEach((Entity child) => child._namer = _namer);
 
-    concat([libs, apps]).forEach((CodeGenerator cg) => cg.generate());
+    concat([libs]).forEach((CodeGenerator cg) => cg.generate());
 
-    testProvider.generateTests(testables);
+    if (includesHeaderCompiles) {
+      final smokeLib = lib('smoke')
+        ..namespace = namespace(['smoke'])
+        ..impls = progeny
+            .where((Entity child) => child is Header)
+            .map((Header header) {
+          _logger.warning(
+              'smoking ${header.id} issues with ns ${header.namespace}');
+          final impl = new Impl(idFromString('smoke_${header.id.snake}'))
+            ..namespace = namespace(['smoke'])
+            ..setLibFilePathFromRoot(root)
+            ..includes = [header.includeFilePath];
+          return impl;
+        }).toList();
+      smokeLib.owner = this;
+      smokeLib.generate();
+    }
+
+    concat([apps]).forEach((CodeGenerator cg) => cg.generate());
+
+    testProvider.generateTests(this);
+
+    new BoostTestProvider().generateTests(this);
 
     for (var builder in builders) {
       builder.generateInstallationBuilder(this);

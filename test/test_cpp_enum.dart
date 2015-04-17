@@ -14,6 +14,7 @@ final _logger = new Logger('test_cpp_enum');
 
 // custom <library test_cpp_enum>
 // end <library test_cpp_enum>
+
 main([List<String> args]) {
   Logger.root.onRecord.listen(
       (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));

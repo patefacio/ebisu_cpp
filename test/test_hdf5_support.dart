@@ -12,6 +12,7 @@ final _logger = new Logger('test_hdf5_support');
 
 // custom <library test_hdf5_support>
 // end <library test_hdf5_support>
+
 main([List<String> args]) {
   Logger.root.onRecord.listen(
       (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));

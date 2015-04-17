@@ -187,6 +187,35 @@ class Member extends Entity {
   bool isSerializedAsInt = false;
   /// Indicates this member should not be serialized via cereal
   bool isCerealTransient = false;
+  /// A function that may be used to modify the value returned from a
+  /// getter.  If a modifier function of type [GetReturnModifier] is
+  /// provided it will be used to update what the accessor returns.
+  ///
+  /// For example:
+  ///
+  ///     print(clangFormat(
+  ///             (member('message_length')
+  ///                 ..type = 'int32_t'
+  ///                 ..access = ro
+  ///                 ..getterReturnModifier =
+  ///                   ((member, oldValue) => 'endian_convert($oldValue)'))
+  ///             .getter));
+  ///
+  /// prints:
+  ///
+  ///     //! getter for message_length_ (access is Ro)
+  ///     int32_t message_length() const { return endian_convert(message_length_); }
+  ///
+  /// Notes: No required *parens* when used inline with cascades. A trailing
+  /// semicolon is *not* required and the modifier accessor must return the
+  /// same type as the member.
+  GetterReturnModifier getterReturnModifier;
+  /// A single customBlock that will be injected in the public section
+  /// of the owning class. For example, if generating code that needs
+  /// special getters/setters (e.g. atypical coding pattern) then the
+  /// member could be set with *access = ro* and custom accessors may
+  /// be provided.
+  CodeBlock customBlock = new CodeBlock(null);
   /// Indicates member should be streamed if class is streamable.
   /// One of the few flags defaulted to *true*, this flag provides
   /// an opportunity to *not* stream specific members
@@ -217,6 +246,8 @@ class Member extends Entity {
   }
 
   withCustomStreamable(void f(CodeBlock)) => f(getCustomStreamable());
+
+  withCustomBlock(void f(CodeBlock)) => f(customBlock);
 
   String toString() {
     if (isStatic &&
@@ -289,16 +320,26 @@ class Member extends Entity {
   String get name =>
       isStaticConst ? namer.nameStaticConst(id) : namer.nameMember(id);
   String get vname => isStaticConst ? name : namer.nameMemberVar(id, isPublic);
-  String get getter => access == ro || access == rw
-      ? '''
+
+  String get _getterOpener => '''
 //! getter for ${vname} (access is ${evCap(access)})
-$_constAccess $name() const { return $vname; }'''
+$_constAccess $name() const {''';
+  get _getterReturnValue =>
+      getterReturnModifier != null ? getterReturnModifier(this, vname) : vname;
+  get _getterImpl => 'return $_getterReturnValue;';
+  get _getterCloser => '}';
+
+  String get getter => access == ro || access == rw
+      ? brCompact([_getterOpener, _getterImpl, _getterCloser])
       : null;
 
-  String get setter => (access == rw || access == wo)
-      ? '''
+  String get _setterOpener => '''
 //! setter for ${vname} (access is $access)
-void $name($_argType $name) { $vname = $name; }'''
+void $name($_argType $name) {''';
+  String get _setterImpl => '$vname = $name;';
+  String get _setterCloser => '}';
+  String get setter => (access == rw || access == wo)
+      ? brCompact([_setterOpener, _setterImpl, _setterCloser])
       : null;
 
   CppAccess get cppAccess =>
@@ -343,5 +384,7 @@ void $name($_argType $name) { $vname = $name; }'''
 // custom <part member>
 
 Member member(Object id) => new Member(id is Id ? id : new Id(id));
+
+typedef String GetterReturnModifier(Member member, String oldValue);
 
 // end <part member>

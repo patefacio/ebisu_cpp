@@ -14,6 +14,7 @@ final _logger = new Logger('test_cpp_class');
 
 // custom <library test_cpp_class>
 // end <library test_cpp_class>
+
 main([List<String> args]) {
   Logger.root.onRecord.listen(
       (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
@@ -556,6 +557,47 @@ private:
     expect(
         darkSame(constExpr('f', 42)..isHex = true, 'constexpr int F { 0x2a };'),
         true);
+  });
+
+  test('class with members with custom code', () {
+    expect(
+        darkSame((class_('a')
+        ..members = [
+          member('goo')
+          ..init = 42
+          ..customBlock.snippets.add('''
+int extraCounter { 43 };
+''')]).definition,
+            '''
+class A
+{
+
+public:
+  int extraCounter { 43 };
+
+private:
+  int goo_ { 42 };
+
+};
+'''), true);
+
+    expect(darkSame((class_('a')
+            ..members = [
+              member('x')..withCustomBlock((cb) => cb.tag = 'gimme')
+            ]).definition,
+            '''
+class A
+{
+
+public:
+  // custom <gimme>
+  // end <gimme>
+
+private:
+  null x_ {};
+
+};
+'''), true);
   });
 
 // end <main>

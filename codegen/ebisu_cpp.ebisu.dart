@@ -879,6 +879,42 @@ initialize it''',
             member('is_cereal_transient')
             ..doc = 'Indicates this member should not be serialized via cereal'
             ..classInit = false,
+            member('getter_return_modifier')
+            ..doc = '''
+A function that may be used to modify the value returned from a
+getter.  If a modifier function of type [GetReturnModifier] is
+provided it will be used to update what the accessor returns.
+
+For example:
+
+    print(clangFormat(
+            (member('message_length')
+                ..type = 'int32_t'
+                ..access = ro
+                ..getterReturnModifier =
+                  ((member, oldValue) => 'endian_convert(\$oldValue)'))
+            .getter));
+
+prints:
+
+    //! getter for message_length_ (access is Ro)
+    int32_t message_length() const { return endian_convert(message_length_); }
+
+Notes: No required *parens* when used inline with cascades. A trailing
+semicolon is *not* required and the modifier accessor must return the
+same type as the member.
+'''
+            ..type = 'GetterReturnModifier',
+            member('custom_block')
+            ..doc = '''
+A single customBlock that will be injected in the public section
+of the owning class. For example, if generating code that needs
+special getters/setters (e.g. atypical coding pattern) then the
+member could be set with *access = ro* and custom accessors may
+be provided.
+'''
+            ..type = 'CodeBlock'
+            ..classInit = 'new CodeBlock(null)',
             member('is_streamable')
             ..doc = '''
 Indicates member should be streamed if class is streamable.
@@ -1662,8 +1698,12 @@ Each *TestClause* has its own [clause] text associated with it
 and [CodeBlock]s to augment/initialize/teardown.
 '''
           ..members = [
-            member('start_code_block')..type = 'CodeBlock',
-            member('end_code_block')..type = 'CodeBlock',
+            member('start_code_block')
+            ..type = 'CodeBlock'
+            ..classInit = 'new CodeBlock(null)',
+            member('end_code_block')
+            ..type = 'CodeBlock'
+            ..classInit = 'new CodeBlock(null)',
           ],
           class_('then')
           ..extend = 'TestClause'
@@ -1771,6 +1811,7 @@ prints:
           ..members = [
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('headers')..type = 'List<Header>'..classInit = [],
+            member('impls')..type = 'List<Impls>'..classInit = [],
             member('tests')..type = 'List<Test>'..classInit = [],
           ],
         ],
@@ -2042,6 +2083,13 @@ Creates builder for an installation (ie ties together all build artifacts)
             member('builders')
             ..doc = 'List of builders for the installation (cmake is only one supported at this time)'
             ..type = 'List<InstallationBuilder>'..classInit = [],
+            member('includes_header_compiles')
+            ..doc = '''
+If set will generate a single cpp per header that includes that header.
+If that cpp compiles it is an indication the header is doing a proper
+job of including all its dependencies. If there are compile errors,
+revisit the header and add required includes'''
+            ..classInit = false,
           ],
           class_('path_locator')
           ..members = [

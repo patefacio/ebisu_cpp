@@ -14,6 +14,7 @@ final _logger = new Logger('test_cpp_namer');
 
 // custom <library test_cpp_namer>
 // end <library test_cpp_namer>
+
 main([List<String> args]) {
   Logger.root.onRecord.listen(
       (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));

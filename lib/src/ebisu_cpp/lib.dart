@@ -91,6 +91,7 @@ const FileCodeBlock fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
 class Lib extends Entity with Testable implements CodeGenerator {
   Namespace namespace = new Namespace();
   List<Header> headers = [];
+  List<Impls> impls = [];
   List<Test> tests = [];
 
   // custom <class Lib>
@@ -131,7 +132,16 @@ class Lib extends Entity with Testable implements CodeGenerator {
       header.generate();
     });
 
-    generateTests();
+    impls.forEach((Impl impl) {
+      if (impl.namespace == null) {
+        impl.namespace = namespace;
+      }
+      impl.setLibFilePathFromRoot(installation.cppPath);
+
+      impl.generate();
+    });
+
+    //generateTests();
   }
 
   generateTests() {

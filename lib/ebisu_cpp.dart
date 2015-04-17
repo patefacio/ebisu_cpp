@@ -453,6 +453,21 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
     }
   }
 
+  _typedOwningEntity(typePred) {
+    var up = owner;
+    while (up != null) {
+      if (typePred(up)) return up;
+      up = up.owner;
+    }
+    return null;
+  }
+
+  /// Walk up the entities to find owning [Lib]
+  Lib get owningLib => _typedOwningEntity((t) => t is Lib);
+
+  /// Walk up the entities to find owning [App]
+  App get owningApp => _typedOwningEntity((t) => t is App);
+
   set namer(Namer namer) {
     if (_owner != null) {
       throw new Exception('Namer should only be set on root entity');
