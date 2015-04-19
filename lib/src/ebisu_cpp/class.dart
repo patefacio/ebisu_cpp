@@ -101,6 +101,9 @@ const ClassCodeBlock clsPreDecl = ClassCodeBlock.clsPreDecl;
 ///
 const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
 
+/// Establishes an interface for generated class methods like
+/// consructors, destructors, overloaded operators, etc.
+///
 abstract class ClassMethod {
   Class get parent => _parent;
   /// If true add logging
@@ -123,6 +126,11 @@ abstract class ClassMethod {
   Template _template;
 }
 
+/// Unifies the [ClassMethod]s that can be specified as *default*,
+/// like [DefaultCtor], [CopyCtor], etc.
+///
+/// Also provides for *delete*d methods.
+///
 abstract class DefaultMethod extends ClassMethod {
 
   /// Has custom code, so needs protect block
@@ -741,8 +749,6 @@ class Class extends Entity with Testable {
   /// Also, when set assumes streaming required and [isStreamable]
   /// is *set* as well. So not required to set both.
   bool get usesStreamers => _usesStreamers;
-  /// If true adds test function to tests of the header it belongs to
-  bool includesTest = false;
   /// If true adds final keyword to class
   bool isFinal = false;
   /// If true makes all members const provides single member ctor

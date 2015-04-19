@@ -17,7 +17,7 @@ void main() {
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.21'
+    ..pubSpec.version = '0.0.22'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -321,6 +321,30 @@ Represents a template declaration comprized of a list of [decls]
         ],
         part('utils')
         ..classes = [
+
+          class_('cpp_logger')
+          ..doc = '''
+Establishes an abstract interface to provide customizable c++ log messages
+
+Not wanting to commit to a single logging solution, this class allows
+client code to make certain items [Loggable] and not tie the generated
+code to a particular logging solution. A default [CppLogger] that makes
+use of *spdlog* is provided.
+'''
+          ..isAbstract = true,
+
+          class_('loggable')
+          ..doc = '''
+Mixin to indicate an item is loggable.
+
+Examples might be member accessors, member constructors, etc
+'''
+          ..members = [
+            member('is_logged')
+            ..doc = 'If true the [Loggable] item is logged'
+            ..classInit = false,
+          ],
+
           class_('const_expr')
           ..doc = """
 Simple variable constexprs.
@@ -999,6 +1023,10 @@ Gives the following content:
         ]
         ..classes = [
           class_('class_method')
+          ..doc = '''
+Establishes an interface for generated class methods like
+consructors, destructors, overloaded operators, etc.
+'''
           ..isAbstract = true
           ..members = [
             member('parent')..type = 'Class'..access = RO,
@@ -1010,6 +1038,12 @@ Gives the following content:
             ..classInit = 'public',
           ],
           class_('default_method')
+          ..doc = '''
+Unifies the [ClassMethod]s that can be specified as *default*,
+like [DefaultCtor], [CopyCtor], etc.
+
+Also provides for *delete*d methods.
+'''
           ..isAbstract = true
           ..extend = 'ClassMethod'
           ..members = [
@@ -1397,9 +1431,6 @@ is *set* as well. So not required to set both.
 '''
             ..access = RO
             ..classInit = false,
-            member('includes_test')
-            ..doc = 'If true adds test function to tests of the header it belongs to'
-            ..classInit = false,
             member('is_final')
             ..doc = 'If true adds final keyword to class'
             ..classInit = false,
@@ -1654,8 +1685,6 @@ polymorphic* base.
           ..extend = 'CppFile'
           ..members = [
             member('file_path')..access = RO,
-            member('includes_test')..classInit = false,
-            member('test')..type = 'Test'..access = IA,
             member('is_api_header')
             ..doc = '''
 If true marks this header as special to the set of headers in its library in that:
@@ -1730,12 +1759,23 @@ and [CodeBlock]s to augment/initialize/teardown.
           ..members = [
             member('givens')..type = 'List<Given>',
           ],
+
           class_('testable')
           ..members = [
             member('test_scenarios')..type = 'List<TestScenario>'..classInit = [],
+
             member('test_impl')
             ..doc = 'The implementation file for this test'
             ..type = 'Impl',
+
+            member('test')
+            ..doc = 'The single test for this [Testable]'
+            ..type = 'Test'
+            ..access = WO,
+
+            member('includes_test')
+            ..doc = 'If set will provide a blank test for the [Testable]'
+            ..classInit = false,
           ],
 
           class_('test_provider')

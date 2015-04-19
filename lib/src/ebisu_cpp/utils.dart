@@ -1,5 +1,39 @@
 part of ebisu_cpp.ebisu_cpp;
 
+/// Establishes an abstract interface to provide customizable c++ log messages
+///
+/// Not wanting to commit to a single logging solution, this class allows
+/// client code to make certain items [Loggable] and not tie the generated
+/// code to a particular logging solution. A default [CppLogger] that makes
+/// use of *spdlog* is provided.
+///
+abstract class CppLogger {
+
+  // custom <class CppLogger>
+
+  List<String> includeRequirements();
+  String logMemberReadAccess(Member member);
+  String logMemberWriteAccess(Member member);
+  String logClassMethodInvoked(ClassMethod classMethod);
+
+  // end <class CppLogger>
+
+}
+
+/// Mixin to indicate an item is loggable.
+///
+/// Examples might be member accessors, member constructors, etc
+///
+class Loggable {
+
+  /// If true the [Loggable] item is logged
+  bool isLogged = false;
+
+  // custom <class Loggable>
+  // end <class Loggable>
+
+}
+
 /// Simple variable constexprs.
 ///
 ///       print(new ConstExpr('secret', 42));

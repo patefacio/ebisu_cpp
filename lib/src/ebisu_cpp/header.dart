@@ -3,7 +3,6 @@ part of ebisu_cpp.ebisu_cpp;
 /// A single c++ header
 class Header extends CppFile {
   String get filePath => _filePath;
-  bool includesTest = false;
   /// If true marks this header as special to the set of headers in its library in that:
   /// (1) It will be automatically included by all other headers
   /// (2) For windows systems it will be the place to provide the api decl support
@@ -15,20 +14,6 @@ class Header extends CppFile {
   Header(Id id) : super(id);
 
   Namespace get namespace => super.namespace;
-
-  Test get test => _test == null ? (_test = new Test(this)) : _test;
-
-  /// Provides access to this header's test as function for declarative
-  /// manipulation:
-  ///
-  ///     header('h')
-  ///     ..doc
-  ///     ..withTest((Test test) {
-  ///        test
-  ///        ..includes.addAll([...])
-  ///        ...
-  ///     });
-  withTest(void t(Test t)) => t(test);
 
   /// Returns true if user requested [includesTest] = true or any
   /// classes have [includesTest] = true
@@ -92,7 +77,6 @@ $text
   // end <class Header>
 
   String _filePath;
-  Test _test;
 }
 
 // custom <part header>

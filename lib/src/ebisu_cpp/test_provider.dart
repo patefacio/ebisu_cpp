@@ -137,8 +137,26 @@ class Testable {
   List<TestScenario> testScenarios = [];
   /// The implementation file for this test
   Impl testImpl;
+  /// The single test for this [Testable]
+  set test(Test test) => _test = test;
+  /// If set will provide a blank test for the [Testable]
+  bool includesTest = false;
 
   // custom <class Testable>
+
+  Test get test => _test == null ? (_test = new Test(this)) : _test;
+
+  /// Provides access to this [Testable]'s test as function for
+  /// declarative manipulation:
+  ///
+  ///     header('h')
+  ///     ..doc
+  ///     ..withTest((Test test) {
+  ///        test
+  ///        ..includes.addAll([...])
+  ///        ...
+  ///     });
+  withTest(void t(Test t)) => t(test);
 
   get _dottedId {
     final me = this as Entity;
@@ -187,6 +205,7 @@ Catch Test: ${runtimeType}:${id}:${br(testScenarios)}
 
   // end <class Testable>
 
+  Test _test;
 }
 
 abstract class TestProvider {

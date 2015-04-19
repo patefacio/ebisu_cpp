@@ -27,9 +27,6 @@ class Test extends Impl implements CodeGenerator {
   get testFilePathFromRoot => path.join(namespace.asPath, testCppFile);
   get cppPath => path.dirname(_filePath);
 
-  addTestFunctions(Iterable<String> testFunction) =>
-      _testFunctions.addAll(testFunction);
-
   addTestImplementations(Map<String, String> impls) =>
       _testImplementations.addAll(impls);
 
@@ -95,7 +92,6 @@ abstract class TestBuilder implements CodeGenerator {
   List<Test> tests;
 
   // custom <class TestBuilder>
-
   // end <class TestBuilder>
 
 }
