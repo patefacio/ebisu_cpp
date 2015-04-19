@@ -17,7 +17,7 @@ void main() {
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.20'
+    ..pubSpec.version = '0.0.21'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -507,7 +507,9 @@ List of interfaces for this header. Interfaces result in either:
 * abstract base class with pure virtual methods
 * static polymorphic base class with inline forwarding methods
 '''
-            ..type = 'List<Interface>'..classInit = []
+            ..type = 'List<Interface>'..classInit = [],
+            member('basename')
+            ..access = RO,
           ],
         ],
         part('enum')
@@ -1726,18 +1728,32 @@ and [CodeBlock]s to augment/initialize/teardown.
           class_('test_scenario')
           ..extend = 'Entity'
           ..members = [
-            member('givens')..type = 'List<Given>'
+            member('givens')..type = 'List<Given>',
           ],
           class_('testable')
           ..members = [
             member('test_scenarios')..type = 'List<TestScenario>'..classInit = [],
+            member('test_impl')
+            ..doc = 'The implementation file for this test'
+            ..type = 'Impl',
           ],
+
           class_('test_provider')
           ..isAbstract = true,
+
           class_('boost_test_provider')
           ..extend = 'TestProvider',
+
           class_('catch_test_provider')
-          ..extend = 'TestProvider',
+          ..extend = 'TestProvider'
+          ..members = [
+            member('generated_test_impls')
+            ..doc = '''
+The [Impl]s generated to support the tests that need to be
+included in the build scripts.
+'''
+            ..classInit = [],
+          ],
         ],
         part('lib')
         ..enums = [
@@ -2090,6 +2106,9 @@ If that cpp compiles it is an indication the header is doing a proper
 job of including all its dependencies. If there are compile errors,
 revisit the header and add required includes'''
             ..classInit = false,
+            member('doxy_config')
+            ..type = 'DoxyConfig'
+            ..classInit = 'new DoxyConfig()',
           ],
           class_('path_locator')
           ..members = [
@@ -2102,6 +2121,23 @@ revisit the header and add required includes'''
             member('path')..access = RO,
           ],
         ],
+
+        part('doxy')
+        ..classes = [
+          class_('doxy_config')
+          ..members = [
+            member('project_name')..classInit = '',
+            member('project_brief')..classInit = '',
+            member('output_directory')..classInit = '',
+            member('input')..classInit = '',
+            member('exclude')..classInit = '',
+            member('example_path')..classInit = '',
+            member('image_path')..classInit = '',
+            member('html_stylesheet')..classInit = '',
+            member('chm_file')..classInit = '',
+            member('include_path')..classInit = '',
+          ]
+        ]
       ],
 
       library('hdf5_support')

@@ -247,7 +247,7 @@ class Member extends Entity {
 
   withCustomStreamable(void f(CodeBlock)) => f(getCustomStreamable());
 
-  withCustomBlock(void f(CodeBlock)) => f(customBlock);
+  withCustomBlock(void f(Member, CodeBlock)) => f(this, customBlock);
 
   String toString() {
     if (isStatic &&

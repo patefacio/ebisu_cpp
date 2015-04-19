@@ -14,6 +14,27 @@ class CmakeInstallationBuilder extends InstallationBuilder {
   void generate() {
     final cmakeRoot = installationCmakeRoot(installation);
 
+    if (installation.testProvider != null) {
+      _logger.info('''FOUND FOLLOWING GENERATED TEST FILES:
+${
+brCompact(
+installation
+.testProvider
+.generatedTestImpls
+.map((impl) => "<${impl.basename}>")
+)
+
+
+}
+''');
+
+      installation.testProvider.generatedTestImpls.forEach((Impl impl) {
+        _logger.info('An test impl ${impl.filePath}');
+      });
+
+      ///.generatedTestImpls.map((i) => br(i.entityPathIds, i.id.snake, i))}
+    }
+
     appCmake(app) {
       final relPath = path.relative(app.appPath, from: installation.cppPath);
       return '''
@@ -92,6 +113,10 @@ ${chomp(br(apps.map((app) => appCmake(app))))}
 ######################################################################
 ${chomp(br(tests.map((test) => testCmake(test))))}
 
+######################################################################
+# Test implementations
+######################################################################
+${_testImplSupport}
 ''', cmakeRoot);
 
     final cmakeGenerator = path.join(path.dirname(cmakeRoot), 'cmake.gen.sh');
@@ -101,6 +126,13 @@ cmake -DCMAKE_BUILD_TYPE=Release -B../cmake_build/release -H.
 cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
 ''', cmakeGenerator);
   }
+
+  _testImplBuildScript(testImpl) => '''
+### Building test impl ${testImpl.filePath}
+''';
+
+  get _testImplSupport => br(installation.testProvider.generatedTestImpls
+      .map((testImpl) => _testImplBuildScript(testImpl)));
 
   // end <class CmakeInstallationBuilder>
 

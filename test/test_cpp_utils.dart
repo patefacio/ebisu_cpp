@@ -83,6 +83,10 @@ namespace c {
   });
 
   test('pointer usings', () {
+    expect(darkSame(usingPtr('foo_bar', 'List<Goo>'),
+        'using Foo_bar_ptr_t = List<Goo> *;'), true);
+    expect(darkSame(usingCptr('foo_bar', 'List<Goo>'),
+        'using Foo_bar_cptr_t = List<Goo> const*;'), true);
     expect(darkSame(usingSptr('foo_bar', 'List<Goo>'),
         'using Foo_bar_sptr_t = std::shared_ptr<List<Goo>>;'), true);
     expect(darkSame(usingUptr('foo_bar', 'List<Goo>'),

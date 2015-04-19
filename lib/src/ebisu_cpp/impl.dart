@@ -12,11 +12,22 @@ class Impl extends CppFile {
 
   String get contents => _contentsWithBlocks;
 
-  setLibFilePathFromRoot(String root) =>
-      _filePath = path.join(root, 'lib', namespace.asPath, namer.nameImpl(id));
+  setLibFilePathFromRoot(String root, [name]) {
+    _basename = name == null ? namer.nameImpl(id) : name;
+    print('basename is $_basename from $name');
+    print(path.join('/goo/bar/', '/goo/bar/moo/a.x'));
+    _filePath = path.join(root, 'lib', namespace.asPath, _basename);
+  }
 
-  setAppFilePathFromRoot(String root) =>
-      _filePath = path.join(root, 'app', id.snake, '${id.snake}.cpp');
+  setLibFilePath(String libFilePath) {
+    _basename = path.basename(libFilePath);
+    _filePath = libFilePath;
+  }
+
+  setAppFilePathFromRoot(String root, [name]) {
+    _basename = name == null ? namer.nameImpl(id) : name;
+    return _filePath = path.join(root, 'app', id.snake, _basename);
+  }
 
   // end <class Impl>
 

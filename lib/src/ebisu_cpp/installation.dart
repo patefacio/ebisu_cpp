@@ -9,6 +9,7 @@ abstract class InstallationBuilder implements CodeGenerator {
 
   get name => installation.id.snake;
   get rootPath => installation.root;
+  get docPath => path.join(rootPath, 'doc');
   get cppPath => path.join(rootPath, 'cpp');
   get tests => installation.allTests;
   get apps => installation.apps;
@@ -16,6 +17,8 @@ abstract class InstallationBuilder implements CodeGenerator {
 
   InstallationBuilder.fromInstallation(this.installation);
   InstallationBuilder();
+
+  Iterable<Impl> generatedTestImpls;
 
   generateInstallationBuilder(Installation installation) {
     this.installation = installation;
@@ -44,6 +47,7 @@ class Installation extends Entity implements CodeGenerator {
   /// job of including all its dependencies. If there are compile errors,
   /// revisit the header and add required includes
   bool includesHeaderCompiles = false;
+  DoxyConfig doxyConfig = new DoxyConfig();
 
   // custom <class Installation>
 
@@ -56,6 +60,7 @@ class Installation extends Entity implements CodeGenerator {
     _paths = {
       'usr_lib': '/usr/lib',
       'usr_include': 'usr/include',
+      'doc': '${_root}/doc',
       'cpp': '${_root}/cpp',
     };
   }
@@ -69,9 +74,6 @@ class Installation extends Entity implements CodeGenerator {
 
   get allTests {
     final result = libs.fold([], (prev, l) => prev..addAll(l.allTests));
-
-    print('Getting all tests - mainly to get good make representation');
-
     return result..addAll(tests);
   }
 
@@ -128,9 +130,18 @@ Installation($root)
     for (var builder in builders) {
       builder.generateInstallationBuilder(this);
     }
+
+    final docPath = path.join(_root, 'doc');
+
+    mergeWithFile((doxyConfig
+      ..projectName = id.snake
+      ..projectBrief = doc
+      ..input = cppPath
+      ..outputDirectory = path.join(docPath, 'doxydoc')).config,
+        path.join(docPath, '${id.snake}.doxy'));
   }
 
-  String path(String key) {
+  String _pathLookup(String key) {
     var result = getPath(key);
 
     if (result == null) {
@@ -143,7 +154,7 @@ Installation($root)
     return result;
   }
 
-  get cppPath => path('cpp');
+  get cppPath => _pathLookup('cpp');
 
   Iterable<Entity> get children => concat([apps, libs, tests, scripts]);
 

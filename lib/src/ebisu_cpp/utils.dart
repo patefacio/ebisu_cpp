@@ -434,6 +434,7 @@ addIncludesForCommonTypes(Iterable<String> types, Includes includes) {
 /// [fname] is an optional filename where contents will be written by
 /// clang
 String clangFormat(String contents, [String fname = 'ebisu_txt.cpp']) {
+  _logger.info('Clang-Formatting text of length ${contents.length}');
   final tmpDir = Directory.systemTemp.createTempSync();
   var tmpFile = new File(path.join(tmpDir.path, fname));
   tmpFile.writeAsStringSync(contents);

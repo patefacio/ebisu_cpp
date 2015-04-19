@@ -31,11 +31,22 @@ abstract class TestClause extends Entity {
 
   // custom <class TestClause>
 
-  TestClause(testClause) : super(makeId(testClause));
+  TestClause(testClause) : super(makeId(testClause)) {
+    startCodeBlock = new CodeBlock(id.sentence);
+  }
+
   get clause => id;
 
-  get startBlockText =>
-      startCodeBlock.hasContent ? startCodeBlock.toString() : '';
+  /// Give the clause codeblock a uniqueId to allow for clauses in different
+  /// places in the same file with the same name. The uniqueId is simply a hash
+  /// of the *entityPathIds* so its value is unique and random looking but
+  /// reproducibly determinnistic by virtue of its plath in the entity tree
+  get _uniqueTag => '(${uniqueId}) ${id.sentence}';
+
+  get startBlockText => startCodeBlock.hasContent
+      ? (startCodeBlock..tag = _uniqueTag).toString()
+      : '';
+
   get endBlockText => endCodeBlock.hasContent ? endCodeBlock.toString() : '';
 
   // end <class TestClause>
@@ -106,6 +117,7 @@ class TestScenario extends Entity {
   // custom <class TestScenario>
 
   TestScenario(id, this.givens) : super(id);
+
   Iterable<Entity> get children => givens;
 
   addGiven(clause, [withWhens]) => (givens..add(given(clause, withWhens))).last;
@@ -123,18 +135,29 @@ ${indentBlock(br(givens))}
 
 class Testable {
   List<TestScenario> testScenarios = [];
+  /// The implementation file for this test
+  Impl testImpl;
 
   // custom <class Testable>
 
-  get _dottedId => (this as Entity).entityPathIds.map((e) => e.snake).join('.');
+  get _dottedId {
+    final me = this as Entity;
+    /// Note if it is not a lib, it will already be in a lib folder so exclude
+    final isLib = this is Lib;
+    if (isLib) {
+      return me.entityPathIds.map((e) => e.snake).join('.');
+    } else {
+      return me.entityPathIds.skip(1).map((e) => e.snake).join('.');
+    }
+  }
 
-  _libTestFile(Lib lib) =>
-      path.join('tests', lib.id.snake, 'lib.${_dottedId}.cpp');
+  _libTestFile(Lib lib) => path.join(
+      lib.installation.cppPath, 'tests', lib.id.snake, 'lib.${_dottedId}.cpp');
 
-  _classTestFile(Class class_) =>
-      path.join('tests', _ownerBasedPathPart(class_, 'class.${_dottedId}.cpp'));
+  _classTestFile(Class class_) => path.join(class_.installation.cppPath,
+      'tests', _ownerBasedPathPart(class_, 'class.${_dottedId}.cpp'));
 
-  _headerTestFile(Header header_) => path.join(
+  _headerTestFile(Header header_) => path.join(header_.installation.cppPath,
       'tests', _ownerBasedPathPart(header_, 'header.${_dottedId}.cpp'));
 
   _implTestFile(Impl impl_) =>
@@ -182,7 +205,23 @@ class BoostTestProvider extends TestProvider {
 
   generateTests(Installation installation) {
     _logger.info('generating boost tests for ${installation.name}');
-    installation.libs.forEach((Lib lib) => lib.generateTests());
+    installation.libs.forEach((Lib lib) {
+
+      //lib.generateTests();
+
+      lib.headers.where((header) => header.hasTest).forEach((Header header) {
+        _logger.info('Header with test ${header.id.snake}');
+
+        header.test
+          ..namespace = header.namespace
+          ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'))
+          ..generate();
+
+        final test = header.test;
+        final directory = path.dirname(test.filePath);
+        lib.tests.add(test);
+      });
+    });
   }
 
   // end <class BoostTestProvider>
@@ -191,6 +230,10 @@ class BoostTestProvider extends TestProvider {
 
 class CatchTestProvider extends TestProvider {
 
+  /// The [Impl]s generated to support the tests that need to be
+  /// included in the build scripts.
+  List generatedTestImpls = [];
+
   // custom <class CatchTestProvider>
 
   generateTests(Installation installation) {
@@ -198,13 +241,40 @@ class CatchTestProvider extends TestProvider {
     if (testables.isNotEmpty) {
       final installation = testables.first.installation;
       testables.forEach((Testable testable) {
+        _logger.info('Found testable in '
+            '${(testable as Entity).owningLib.id.snake}');
+
+        if (testable.testImpl == null) {
+          testable.testImpl = impl('test');
+        }
+
+        final testImpl = testable.testImpl;
+
         _logger.info(
             '${installation.id} processing test ${testable.runtimeType}'
             ':${testable.entityPathIds.map((id) => id.snake)}');
 
+        final contents = new StringBuffer();
+
         testable.testScenarios.forEach((TestScenario ts) {
           _logger.info(_scenarioTestText(testable, ts));
+
+          final theLib = testable.owningLib;
+          _logger.fine('The testable is ${testable.id} '
+              '=> ${testable.runtimeType} ${theLib}');
+
+          final entry = (testImpl
+            ..includes = ['catch.hpp']
+            ..namespace = testable.owningLib.namespace
+            ..getCodeBlock(fcbBeginNamespace).snippets
+                .add(_scenarioTestText(testable, ts))).contents;
+
+          contents.writeln(entry);
         });
+
+        generatedTestImpls.add(testImpl
+          ..setLibFilePath(testable.testFileName)
+          ..generate());
       });
     }
   }
@@ -218,7 +288,7 @@ ${brCompact([ then.startBlockText, then.endBlockText ])}
 
   _whenTestText(When when) {
     return '''
-WHEN("${when.id.snake}") {
+WHEN("${when.id.sentence}") {
 ${
 brCompact([
   when.startBlockText,
@@ -229,7 +299,7 @@ brCompact([
 
   _givenTestText(Given given) {
     return '''
-GIVEN("${given.id.snake}") {
+GIVEN("${given.id.sentence}") {
 ${
 brCompact([
   given.startBlockText,
@@ -241,8 +311,7 @@ brCompact([
 
   _scenarioTestText(Testable testable, TestScenario ts) {
     return '''
-// Testable is: ${testable.testFileName}
-SCENARIO("${ts.id.snake}") {
+SCENARIO("${ts.id.sentence}") {
 ${indentBlock(chomp(brCompact(ts.givens.map((g) => _givenTestText(g)))))}
 }''';
   }

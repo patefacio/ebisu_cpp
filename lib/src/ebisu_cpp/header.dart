@@ -40,8 +40,10 @@ class Header extends CppFile {
 
   get includeFilePath => path.join(namespace.asPath, namer.nameHeader(id));
 
-  setFilePathFromRoot(String root) =>
-      _filePath = path.join(root, includeFilePath);
+  setFilePathFromRoot(String root, [name]) {
+    __basename = name == null ? namer.nameHeader(id) : name;
+    return _filePath = path.join(root, namespace.asPath, _basename);
+  }
 
   String get contents {
     if (classes.any((c) => c.isStreamable) &&

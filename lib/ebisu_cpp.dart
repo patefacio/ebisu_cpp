@@ -114,6 +114,7 @@ part 'src/ebisu_cpp/cmake_support.dart';
 part 'src/ebisu_cpp/script.dart';
 part 'src/ebisu_cpp/test.dart';
 part 'src/ebisu_cpp/installation.dart';
+part 'src/ebisu_cpp/doxy.dart';
 
 final _logger = new Logger('ebisu_cpp');
 
@@ -416,6 +417,8 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
 
   Iterable<Id> get entityPathIds => _entityPath.map((e) => e.id);
 
+  get uniqueId => entityPathIds.toString().hashCode;
+
   /// *doc* is a synonym for descr
   set doc(String d) => descr = d;
   get doc => descr;
@@ -445,22 +448,17 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
         ..add(this);
     }
 
-    _logger.info(
-        'Set owner ($id:${runtimeType}) to ${newOwner == null? "root" : "(${newOwner.id}:${newOwner.runtimeType})"}');
+    _logger.info('Set owner ($id:${runtimeType}) to '
+        '${newOwner == null? "root" : "(${newOwner.id}:${newOwner.runtimeType})"}');
 
     for (final child in children) {
       child.owner = this;
     }
   }
 
-  _typedOwningEntity(typePred) {
-    var up = owner;
-    while (up != null) {
-      if (typePred(up)) return up;
-      up = up.owner;
-    }
-    return null;
-  }
+  _typedOwningEntity(typePred) => typePred(this)
+      ? this
+      : owner == null ? owner : owner._typedOwningEntity(typePred);
 
   /// Walk up the entities to find owning [Lib]
   Lib get owningLib => _typedOwningEntity((t) => t is Lib);
@@ -895,6 +893,26 @@ _isStandardTypeStr(String id) => id.endsWith('_ptr') ||
 
 _isStandardType(id) =>
     id is Id ? _isStandardTypeStr(id.snake) : _isStandardTypeStr(id);
+
+/// Provide standardized using of dumb pointer to referenced
+///
+///    print(usingPtr('an_id', 'SomeType'));
+///
+/// Prints:
+///
+///    using An_id_ptr_t = SomeType*;
+usingPtr(name, referenced) =>
+    using(addSuffixToId('ptr', name), '$referenced *');
+
+/// Provide standardized using of dumb pointer to const referenced
+///
+///    print(usingCptr('an_id', 'SomeType'));
+///
+/// Prints:
+///
+///    using An_id_cptr_t = SomeType*;
+usingCptr(name, referenced) =>
+    using(addSuffixToId('cptr', name), '$referenced const*');
 
 /// Provide standardized using of shared pointer to referenced
 ///

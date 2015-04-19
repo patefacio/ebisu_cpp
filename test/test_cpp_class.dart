@@ -560,15 +560,14 @@ private:
   });
 
   test('class with members with custom code', () {
-    expect(
-        darkSame((class_('a')
-        ..members = [
-          member('goo')
+    expect(darkSame((class_('a')
+      ..members = [
+        member('goo')
           ..init = 42
           ..customBlock.snippets.add('''
 int extraCounter { 43 };
-''')]).definition,
-            '''
+''')
+      ]).definition, '''
 class A
 {
 
@@ -582,10 +581,9 @@ private:
 '''), true);
 
     expect(darkSame((class_('a')
-            ..members = [
-              member('x')..withCustomBlock((cb) => cb.tag = 'gimme')
-            ]).definition,
-            '''
+      ..members = [
+        member('x')..withCustomBlock((member, cb) => cb.tag = 'gimme')
+      ]).definition, '''
 class A
 {
 

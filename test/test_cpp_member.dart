@@ -166,21 +166,47 @@ ${indentBlock(definition, '    ')}
   });
 
   test('member getReturnModifier', () {
-    expect(darkSame(
-          (member('message_length')
-              ..type = 'int32_t'
-              ..access = ro
-              ..getterReturnModifier =
-                ((member, oldValue) => 'endian_convert($oldValue)'))
-          .getter,
-          '''
+    expect(darkSame((member('message_length')
+      ..type = 'int32_t'
+      ..access = ro
+      ..getterReturnModifier =
+      ((member, oldValue) => 'endian_convert($oldValue)')).getter, '''
 //! getter for message_length_ (access is Ro)
 int32_t message_length() const {
   return endian_convert(message_length_);
 }
 '''), true);
 
+    expect(darkSame((class_('class_with_special_accessor')
+      ..members = [
+        member('only_one')
+          ..type = 'some_struct_t'
+          ..access = ia
+          ..withCustomBlock((Member m, CodeBlock cb) {
+            cb.snippets.add('''
+/// just to illustrate custom member function
+${m.type} const& get_${m.type}() {
+  _logger.info("badabing accessed my struct");
+  return ${m.vname};
+}
+''');
+          }),
+      ]).definition, '''
+class Class_with_special_accessor
+{
 
+public:
+  /// just to illustrate custom member function
+  some_struct_t const& get_some_struct_t() {
+    _logger.info("badabing accessed my struct");
+    return only_one_;
+  }
+
+private:
+  some_struct_t only_one_ {};
+
+};
+'''), true);
   });
 
 // end <main>

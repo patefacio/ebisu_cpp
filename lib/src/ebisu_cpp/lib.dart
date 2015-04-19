@@ -140,25 +140,6 @@ class Lib extends Entity with Testable implements CodeGenerator {
 
       impl.generate();
     });
-
-    //generateTests();
-  }
-
-  generateTests() {
-    Map pathToTests = {};
-    headers.where((header) => header.hasTest).forEach((header) {
-      header.test
-        ..namespace = header.namespace
-        ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'))
-        ..generate();
-
-      final test = header.test;
-      final directory = path.dirname(test.filePath);
-      var dirTests = pathToTests[directory];
-      if (dirTests == null) dirTests = (pathToTests[directory] = []);
-      dirTests.add(test);
-      tests.add(test);
-    });
   }
 
   String toString() => '''

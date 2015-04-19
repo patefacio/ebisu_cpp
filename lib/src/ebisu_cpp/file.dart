@@ -29,6 +29,7 @@ abstract class CppFile extends Entity with Testable {
   /// * abstract base class with pure virtual methods
   /// * static polymorphic base class with inline forwarding methods
   List<Interface> interfaces = [];
+  String get basename => _basename;
 
   // custom <class CppFile>
 
@@ -43,6 +44,8 @@ abstract class CppFile extends Entity with Testable {
 
   Iterable<Entity> get children =>
       concat([classes, constExprs, enums, testScenarios]);
+
+  set __basename(String name) => _basename = name;
 
   _makeIncludes(Object h) => h is Iterable
       ? new Includes(h)
@@ -106,6 +109,7 @@ abstract class CppFile extends Entity with Testable {
   Map<FileCodeBlock, CodeBlock> _codeBlocks = {};
   Includes _includes = new Includes();
   List<Using> _usings = [];
+  String _basename;
 }
 
 // custom <part file>

@@ -1019,7 +1019,9 @@ default [Interfaceimplementation] is used''').toList();
       br(nestedClasses
           .where((c) => c.cppAccess == public)
           .map((c) => c.definition)),
-      br(members.where((m) => m.customBlock.hasContent).map((m) => m.customBlock.toString())),
+      br(members
+          .where((m) => m.customBlock.hasContent)
+          .map((m) => m.customBlock.toString())),
       br(publicMembers.where((m) => m.isPublicStaticConst)),
       br(_allCtors
           .where((m) => m.cppAccess == public)
