@@ -1,5 +1,5 @@
 name: ebisu_cpp
-version: 0.0.21
+version: 0.0.22
 author: Daniel Davidson <dbdavidson@yahoo.com>
 homepage: https://github.com/patefacio/ebisu_cpp
 description: >
@@ -14,8 +14,8 @@ dependencies:
   ini: ">=1.0.0<1.2.0"
   github: ">=2.1.2<2.2.0"
   sqljocky: ">=0.11.0<0.12.0"
-  id: ">=1.0.8<1.1.0"  
-  ebisu: "^0.3.2"
+  id: "^1.0.9"  
+  ebisu: "^0.3.3"
 
 # end <ebisu_cpp dependencies>
 
