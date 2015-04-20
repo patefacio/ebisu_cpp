@@ -70,7 +70,7 @@ class Installation extends Entity implements CodeGenerator {
 
   Iterable<Testable> get testables => progeny.where(
       (offspring) => offspring is Testable &&
-          (offspring as Testable).testScenarios.isNotEmpty);
+          (offspring as Testable).testScenarios.isNotEmpty) as Iterable<Testable>;
 
   get allTests {
     final result = libs.fold([], (prev, l) => prev..addAll(l.allTests));

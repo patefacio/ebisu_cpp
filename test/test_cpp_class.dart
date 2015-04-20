@@ -596,20 +596,18 @@ private:
 
 };
 '''), true);
-
   });
-
 
   test('streamable class with standard getter streams variable', () {
     expect(darkSame((class_('a')
-            ..isStreamable = true
-        ..members = [
-          member('x')
+      ..isStreamable = true
+      ..members = [
+        member('x')
           ..access = ro
           ..type = 'int'
           ..getterReturnModifier =
           ((member, oldValue) => 'endian_convert($oldValue)')
-        ]).definition, r'''
+      ]).definition, r'''
 class A {
 
 public:
@@ -632,18 +630,16 @@ private:
 
 };
 '''), true);
-
   });
 
   test('streamable class with custom getter streams function call', () {
-
     expect(darkSame((class_('a')
-            ..isStreamable = true
-        ..members = [
-          member('x')
+      ..isStreamable = true
+      ..members = [
+        member('x')
           ..access = ro
           ..type = 'int'
-        ]).definition, r'''
+      ]).definition, r'''
 class A {
 
 public:
@@ -666,7 +662,6 @@ private:
 
 };
 '''), true);
-
   });
 
 // end <main>

@@ -200,7 +200,7 @@ class Testable {
               : this is Impl ? _implTestFile(this) : '??${runtimeType}';
 
   toString() => '''
-Catch Test: ${runtimeType}:${id}:${br(testScenarios)}
+Catch Test: ${runtimeType}:${(this as Entity).id}:${br(testScenarios)}
 ''';
 
   // end <class Testable>
@@ -210,9 +210,13 @@ Catch Test: ${runtimeType}:${id}:${br(testScenarios)}
 
 abstract class TestProvider {
 
+  /// The [Impl]s generated to support the tests that need to be
+  /// included in the build scripts.
+  List generatedTestImpls = [];
+
   // custom <class TestProvider>
 
-  generateTests(Iterable<Testable> testables);
+  generateTests(Installation installation);
 
   // end <class TestProvider>
 
@@ -249,10 +253,6 @@ class BoostTestProvider extends TestProvider {
 
 class CatchTestProvider extends TestProvider {
 
-  /// The [Impl]s generated to support the tests that need to be
-  /// included in the build scripts.
-  List generatedTestImpls = [];
-
   // custom <class CatchTestProvider>
 
   generateTests(Installation installation) {
@@ -260,6 +260,8 @@ class CatchTestProvider extends TestProvider {
     if (testables.isNotEmpty) {
       final installation = testables.first.installation;
       testables.forEach((Testable testable) {
+        final testableEntity = testable as Entity;
+
         _logger.info('Found testable in '
             '${(testable as Entity).owningLib.id.snake}');
 
@@ -271,20 +273,20 @@ class CatchTestProvider extends TestProvider {
 
         _logger.info(
             '${installation.id} processing test ${testable.runtimeType}'
-            ':${testable.entityPathIds.map((id) => id.snake)}');
+            ':${testableEntity.entityPathIds.map((id) => id.snake)}');
 
         final contents = new StringBuffer();
 
         testable.testScenarios.forEach((TestScenario ts) {
           _logger.info(_scenarioTestText(testable, ts));
 
-          final theLib = testable.owningLib;
-          _logger.fine('The testable is ${testable.id} '
+          final theLib = testableEntity.owningLib;
+          _logger.fine('The testable is ${testableEntity.id} '
               '=> ${testable.runtimeType} ${theLib}');
 
           final entry = (testImpl
             ..includes = ['catch.hpp']
-            ..namespace = testable.owningLib.namespace
+            ..namespace = testableEntity.owningLib.namespace
             ..getCodeBlock(fcbBeginNamespace).snippets
                 .add(_scenarioTestText(testable, ts))).contents;
 

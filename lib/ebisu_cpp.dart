@@ -88,7 +88,7 @@ library ebisu_cpp.ebisu_cpp;
 
 import 'dart:collection';
 import 'dart:io';
-import 'dart:math';
+import 'dart:math' hide max;
 import 'package:ebisu/ebisu.dart';
 import 'package:id/id.dart';
 import 'package:logging/logging.dart';
@@ -417,7 +417,7 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
 
   Iterable<Id> get entityPathIds => _entityPath.map((e) => e.id);
 
-  get uniqueId => entityPathIds.toString().hashCode;
+  get uniqueId => '${entityPathIds.toString().hashCode}';
 
   /// *doc* is a synonym for descr
   set doc(String d) => descr = d;

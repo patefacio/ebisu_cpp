@@ -17,7 +17,7 @@ void main() {
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.22'
+    ..pubSpec.version = '0.0.23'
     ..pubSpec.doc = 'A library that supports code generation of cpp and others'
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -45,7 +45,7 @@ void main() {
         "'package:path/path.dart' as path",
         'io',
         'collection',
-        'math',
+        "'dart:math' hide max",
       ]
       ..enums = [
         enum_('access')
@@ -1779,13 +1779,7 @@ and [CodeBlock]s to augment/initialize/teardown.
           ],
 
           class_('test_provider')
-          ..isAbstract = true,
-
-          class_('boost_test_provider')
-          ..extend = 'TestProvider',
-
-          class_('catch_test_provider')
-          ..extend = 'TestProvider'
+          ..isAbstract = true
           ..members = [
             member('generated_test_impls')
             ..doc = '''
@@ -1793,6 +1787,14 @@ The [Impl]s generated to support the tests that need to be
 included in the build scripts.
 '''
             ..classInit = [],
+          ],
+
+          class_('boost_test_provider')
+          ..extend = 'TestProvider',
+
+          class_('catch_test_provider')
+          ..extend = 'TestProvider'
+          ..members = [
           ],
         ],
         part('lib')
@@ -1867,7 +1869,7 @@ prints:
           ..members = [
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('headers')..type = 'List<Header>'..classInit = [],
-            member('impls')..type = 'List<Impls>'..classInit = [],
+            member('impls')..type = 'List<Impl>'..classInit = [],
             member('tests')..type = 'List<Test>'..classInit = [],
           ],
         ],
