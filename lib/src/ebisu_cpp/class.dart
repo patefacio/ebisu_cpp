@@ -585,7 +585,10 @@ class OpOut extends ClassMethod {
       }
       return codeBlock;
     } else {
-      return m.isStreamable ? _outputMember(m.name, 'item.${m.vname}') : '';
+      return m.isStreamable
+          ? _outputMember(m.name,
+              m.hasCustomGetter ? 'item.${m.name}()' : 'item.${m.vname}')
+          : '';
     }
   }
 

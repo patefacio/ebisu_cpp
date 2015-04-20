@@ -596,6 +596,77 @@ private:
 
 };
 '''), true);
+
+  });
+
+
+  test('streamable class with standard getter streams variable', () {
+    expect(darkSame((class_('a')
+            ..isStreamable = true
+        ..members = [
+          member('x')
+          ..access = ro
+          ..type = 'int'
+          ..getterReturnModifier =
+          ((member, oldValue) => 'endian_convert($oldValue)')
+        ]).definition, r'''
+class A {
+
+public:
+  friend inline
+  std::ostream& operator<<(std::ostream &out,
+                           A const& item) {
+    out << "A(" << &item << ") {";
+    out << "\n  x:" << item.x();
+    out << "\n}\n";
+    return out;
+  }
+
+  //! getter for x_ (access is Ro)
+  int x() const {
+    return endian_convert(x_);
+  }
+
+private:
+  int x_ {};
+
+};
+'''), true);
+
+  });
+
+  test('streamable class with custom getter streams function call', () {
+
+    expect(darkSame((class_('a')
+            ..isStreamable = true
+        ..members = [
+          member('x')
+          ..access = ro
+          ..type = 'int'
+        ]).definition, r'''
+class A {
+
+public:
+  friend inline
+  std::ostream& operator<<(std::ostream &out,
+                           A const& item) {
+    out << "A(" << &item << ") {";
+    out << "\n  x:" << item.x_;
+    out << "\n}\n";
+    return out;
+  }
+
+  //! getter for x_ (access is Ro)
+  int x() const {
+    return x_;
+  }
+
+private:
+  int x_ {};
+
+};
+'''), true);
+
   });
 
 // end <main>

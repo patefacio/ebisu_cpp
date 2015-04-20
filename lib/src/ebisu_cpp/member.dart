@@ -228,9 +228,22 @@ class Member extends Entity {
 
   Member(Id id) : super(id);
 
+  /// Member has no children - returns empty [Iterable]
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
+  /// Returns true if member has customized out streaming
   get hasCustomStreamable => _customStreamable != null;
+
+  /// Returns true if member has customized getter
+  ///
+  /// The purpose here is to ensure that if some modification is done on the
+  /// member for a general access (e.g. a network byte swap), that same
+  /// modification is done when streaming out.
+  ///
+  /// Note: If getter is customized by setting [Member] to *ro* or *ia* and
+  /// providing a hand written getter, this will not help and you should provide
+  /// custom streaming support
+  get hasCustomGetter => getterReturnModifier != null;
 
   get access => _access == null
       ? ((owner != null && (owner as Class).defaultMemberAccess != null)
