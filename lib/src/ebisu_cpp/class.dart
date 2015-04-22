@@ -1007,6 +1007,7 @@ default [Interfaceimplementation] is used''').toList();
 
   get _parts => [
     _forwardPtrs,
+    forwardDecls,
     enumsForward.map((e) => e.toString()),
     _codeBlockText(clsPreDecl),
     briefComment,
@@ -1020,7 +1021,6 @@ default [Interfaceimplementation] is used''').toList();
     _wrapInAccess(isStruct ? null : public, indentBlock(br([
       brCompact([
         constExprs..forEach((ce) => ce.isClassScoped = true),
-        forwardDecls,
         usings.map((u) => u.usingStatement(namer))
       ]),
       brCompact([_enumDecls, _enumStreamers]),

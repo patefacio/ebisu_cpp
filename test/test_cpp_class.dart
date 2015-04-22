@@ -664,6 +664,55 @@ private:
 '''), true);
   });
 
+  test('immutable class', () {
+    expect(darkSame((class_('point')
+      ..isImmutable = true
+                ..members = [member('x')..init = 0, member('y')..init = 0,]).definition,
+            '''
+class Point {
+ public:
+  Point(int x, int y) : x_{x}, y_{y} {}
+
+  //! getter for x_ (access is Ro)
+  int x() const { return x_; }
+
+  //! getter for y_ (access is Ro)
+  int y() const { return y_; }
+
+ private:
+  int const x_;
+  int const y_;
+};
+'''), true);
+  });
+
+  test('forward declarations class', () {
+    expect(darkSame((class_('transformer')
+      ..forwardDecls =
+      [forwardDecl('text_stream', namespace(['decode', 'streamers']))]
+      ..memberCtors = [memberCtor(['out'])]
+      ..members = [
+        member('out')
+          ..refType = ref
+          ..type = 'decode::streamers::text_stream',
+      ]).definition, '''
+namespace decode {
+  namespace streamers {
+    class text_stream;
+  }
+}
+
+class Transformer {
+ public:
+
+  Transformer(decode::streamers::text_stream& out) : out_{out} {}
+
+ private:
+  decode::streamers::text_stream& out_;
+};
+'''), true);
+  });
+
 // end <main>
 
 }

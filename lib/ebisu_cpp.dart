@@ -417,7 +417,7 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
 
   Iterable<Id> get entityPathIds => _entityPath.map((e) => e.id);
 
-  get uniqueId => '${entityPathIds.toString().hashCode}';
+  get uniqueId => entityPathIds.toString().hashCode;
 
   /// *doc* is a synonym for descr
   set doc(String d) => descr = d;
