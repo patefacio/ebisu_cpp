@@ -30,13 +30,13 @@ abstract class CppFile extends Entity with Testable {
   /// * static polymorphic base class with inline forwarding methods
   List<Interface> interfaces = [];
   String get basename => _basename;
+  String get filePath => _filePath;
 
   // custom <class CppFile>
 
   CppFile(Id id) : super(id);
 
   String get contents;
-  String get filePath;
 
   set includes(Object h) => _includes = _makeIncludes(h);
 
@@ -66,6 +66,8 @@ abstract class CppFile extends Entity with Testable {
     return result == null ? (_codeBlocks[fcb] = codeBlock()) : result;
   }
 
+  withCodeBlock(FileCodeBlock fcb, f(CodeBlock)) => f(getCodeBlock(fcb));
+
   String get _contentsWithBlocks {
     if (classes.any((c) => c._opMethods.any((m) => m is OpOut))) {
       _includes.add('fcs/utils/block_indenter.hpp');
@@ -81,6 +83,7 @@ abstract class CppFile extends Entity with Testable {
     _usingFormatted(u) => (u.hasComment ? '\n' : '') + u.usingStatement(namer);
 
     return br([
+      _codeBlockText(fcbPreIncludes),
       allIncludes.includes,
       _codeBlockText(fcbCustomIncludes),
       _codeBlockText(fcbPreNamespace),
@@ -110,6 +113,7 @@ abstract class CppFile extends Entity with Testable {
   Includes _includes = new Includes();
   List<Using> _usings = [];
   String _basename;
+  String _filePath;
 }
 
 // custom <part file>

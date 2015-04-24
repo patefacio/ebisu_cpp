@@ -14,27 +14,6 @@ class CmakeInstallationBuilder extends InstallationBuilder {
   void generate() {
     final cmakeRoot = installationCmakeRoot(installation);
 
-    if (installation.testProvider != null) {
-      _logger.info('''FOUND FOLLOWING GENERATED TEST FILES:
-${
-brCompact(
-installation
-.testProvider
-.generatedTestImpls
-.map((impl) => "<${impl.basename}>")
-)
-
-
-}
-''');
-
-      installation.testProvider.generatedTestImpls.forEach((Impl impl) {
-        _logger.info('An test impl ${impl.filePath}');
-      });
-
-      ///.generatedTestImpls.map((i) => br(i.entityPathIds, i.id.snake, i))}
-    }
-
     appCmake(app) {
       final relPath = path.relative(app.appPath, from: installation.cppPath);
       return '''
@@ -51,20 +30,22 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
     }
 
     testCmake(test) {
-      final relPath = path.relative(test.cppPath, from: installation.cppPath);
+      final relPath = path.relative(path.dirname(test.filePath),
+          from: installation.cppPath);
       return '''
-# test for ${test.name}
-add_executable(${test.name}
-  ${test.sources.map((src) => '$relPath/$src.cpp').join('\n  ')}
+
+${scriptComment("test for ${test.name}\n${indentBlock(test.detailedPath)}")}
+add_executable(${test.dottedName}
+  ${test.sources.map((src) => '$relPath/$src').join('\n  ')}
 )
 
-target_link_libraries(${test.name}
+target_link_libraries(${test.dottedName}
 ${chomp(scriptCustomBlock('${test.name} link requirements'))}
   \${Boost_SYSTEM_LIBRARY}
   \${Boost_THREAD_LIBRARY}
 )
 
-add_test(${test.name} ${test.name})''';
+add_test(${test.dottedName} ${test.dottedName})''';
     }
 
     scriptMergeWithFile('''
@@ -112,11 +93,6 @@ ${chomp(br(apps.map((app) => appCmake(app))))}
 # Test directives
 ######################################################################
 ${chomp(br(tests.map((test) => testCmake(test))))}
-
-######################################################################
-# Test implementations
-######################################################################
-${_testImplSupport}
 ''', cmakeRoot);
 
     final cmakeGenerator = path.join(path.dirname(cmakeRoot), 'cmake.gen.sh');
@@ -126,13 +102,6 @@ cmake -DCMAKE_BUILD_TYPE=Release -B../cmake_build/release -H.
 cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
 ''', cmakeGenerator);
   }
-
-  _testImplBuildScript(testImpl) => '''
-### Building test impl ${testImpl.filePath}
-''';
-
-  get _testImplSupport => br(installation.testProvider.generatedTestImpls
-      .map((testImpl) => _testImplBuildScript(testImpl)));
 
   // end <class CmakeInstallationBuilder>
 

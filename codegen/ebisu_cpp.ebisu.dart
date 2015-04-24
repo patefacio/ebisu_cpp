@@ -534,6 +534,7 @@ List of interfaces for this header. Interfaces result in either:
             ..type = 'List<Interface>'..classInit = [],
             member('basename')
             ..access = RO,
+            member('file_path')..access = RO,
           ],
         ],
         part('enum')
@@ -1684,7 +1685,6 @@ polymorphic* base.
           ..doc = 'A single c++ header'
           ..extend = 'CppFile'
           ..members = [
-            member('file_path')..access = RO,
             member('is_api_header')
             ..doc = '''
 If true marks this header as special to the set of headers in its library in that:
@@ -1701,7 +1701,6 @@ If true marks this header as special to the set of headers in its library in tha
           ..doc = 'A single implementation file (i.e. *cpp* file)'
           ..extend = 'CppFile'
           ..members = [
-            member('file_path')..access = RO,
           ]
         ],
         part('test_provider')
@@ -1764,10 +1763,6 @@ and [CodeBlock]s to augment/initialize/teardown.
           ..members = [
             member('test_scenarios')..type = 'List<TestScenario>'..classInit = [],
 
-            member('test_impl')
-            ..doc = 'The implementation file for this test'
-            ..type = 'Impl',
-
             member('test')
             ..doc = 'The single test for this [Testable]'
             ..type = 'Test'
@@ -1776,18 +1771,17 @@ and [CodeBlock]s to augment/initialize/teardown.
             member('includes_test')
             ..doc = 'If set will provide a blank test for the [Testable]'
             ..classInit = false,
+
+            member('test_functions')
+            ..doc = 'Strings naming functions to be included in the test'
+            ..access = WO
+            ..type = 'List<String>',
+
           ],
 
           class_('test_provider')
           ..isAbstract = true
-          ..members = [
-            member('generated_test_impls')
-            ..doc = '''
-The [Impl]s generated to support the tests that need to be
-included in the build scripts.
-'''
-            ..classInit = [],
-          ],
+          ..members = [],
 
           class_('boost_test_provider')
           ..extend = 'TestProvider',
@@ -1848,6 +1842,14 @@ prints:
 '''
           ..hasLibraryScopedValues = true
           ..values = [
+            enumValue(id('fcb_pre_includes'))
+            ..doc = '''
+Custom block any code just before includes begin
+Useful for putting definitions just prior to includes, e.g.
+
+    #define CATCH_CONFIG_MAIN
+    #include "catch.hpp"
+''',
             enumValue(id('fcb_custom_includes'))
             ..doc = 'Custom block for any additional includes appearing just after generated includes',
             enumValue(id('fcb_pre_namespace'))
@@ -2095,22 +2097,11 @@ libraries, apps, and tests'''
           ..extend = 'Impl'
           ..implement = [ 'CodeGenerator' ]
           ..members = [
-            member('file_path')..access = RO,
-            member('header_under_test')..type = 'Header',
+            member('testable')..type = 'Testable',
             member('headers')..type = 'List<Header>'..classInit = [],
             member('impls')..type = 'List<Impl>'..classInit = [],
-            member('test_functions')..type = 'List<String>'..classInit = []..access = RO,
             member('test_implementations')..type = 'Map<String, String>'..classInit = {}..access = RO,
             member('required_libs')..type = 'List<String>'..classInit = [],
-          ],
-          class_('test_builder')
-          ..isAbstract = true
-          ..implement = [ 'CodeGenerator' ]
-          ..doc = 'Creates builder for test folder'
-          ..members = [
-            member('lib')..type = 'Lib'..ctors = [''],
-            member('directory')..ctors = [''],
-            member('tests')..type = 'List<Test>'..ctors = ['']
           ],
         ],
         part('installation')

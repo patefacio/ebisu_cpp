@@ -667,8 +667,8 @@ private:
   test('immutable class', () {
     expect(darkSame((class_('point')
       ..isImmutable = true
-                ..members = [member('x')..init = 0, member('y')..init = 0,]).definition,
-            '''
+      ..members = [member('x')..init = 0, member('y')..init = 0,]).definition,
+        '''
 class Point {
  public:
   Point(int x, int y) : x_{x}, y_{y} {}

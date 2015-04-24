@@ -2,7 +2,6 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// A single implementation file (i.e. *cpp* file)
 class Impl extends CppFile {
-  String get filePath => _filePath;
 
   // custom <class Impl>
 
@@ -31,7 +30,6 @@ class Impl extends CppFile {
 
   // end <class Impl>
 
-  String _filePath;
 }
 
 // custom <part impl>

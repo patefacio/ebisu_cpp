@@ -418,6 +418,9 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
   Iterable<Id> get entityPathIds => _entityPath.map((e) => e.id);
 
   get uniqueId => entityPathIds.toString().hashCode;
+  get dottedName => entityPathIds.map((id) => id.snake).join('.');
+  get detailedPath => brCompact(
+      entityPath.map((e) => '(${e.runtimeType}:${e.id.snake})').join(', '));
 
   /// *doc* is a synonym for descr
   set doc(String d) => descr = d;

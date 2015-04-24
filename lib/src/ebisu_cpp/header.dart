@@ -2,7 +2,7 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// A single c++ header
 class Header extends CppFile {
-  String get filePath => _filePath;
+
   /// If true marks this header as special to the set of headers in its library in that:
   /// (1) It will be automatically included by all other headers
   /// (2) For windows systems it will be the place to provide the api decl support
@@ -19,9 +19,6 @@ class Header extends CppFile {
   /// classes have [includesTest] = true
   bool get hasTest =>
       includesTest || _test != null || classes.any((c) => c.includesTest);
-
-  Iterable get testFunctions => (includesTest ? [id.snake] : [])
-    ..addAll(classes.where((c) => c.includesTest).map((c) => c.id.snake));
 
   get includeFilePath => path.join(namespace.asPath, namer.nameHeader(id));
 
@@ -76,7 +73,6 @@ $text
 
   // end <class Header>
 
-  String _filePath;
 }
 
 // custom <part header>

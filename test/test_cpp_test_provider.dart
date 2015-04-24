@@ -32,7 +32,52 @@ main([List<String> args]) {
 
   test('test_scenario', () {
     final sampleTestScenario = vectorSample();
-    _logger.info(sampleTestScenario);
+    sampleTestScenario.owner = null;
+    expect(darkSame(br(scenarioTestText(sampleTestScenario)), '''
+SCENARIO("basics") {
+  GIVEN("a vector with some items") {
+  // custom <(862084306) a vector with some items>
+  // end <(862084306) a vector with some items>
+    WHEN("the size is increased") {
+    // custom <(107134793) the size is increased>
+    // end <(107134793) the size is increased>
+      THEN("the_size_and_capacity_change") {
+      // custom <(184273324) the size and capacity change>
+      // end <(184273324) the size and capacity change>
+
+      }
+    }
+    WHEN("the size is reduced") {
+    // custom <(521367897) the size is reduced>
+    // end <(521367897) the size is reduced>
+      THEN("the_size_channges_but_not_capacity") {
+      // custom <(876011019) the size channges but not capacity>
+      // end <(876011019) the size channges but not capacity>
+
+      }
+    }
+    WHEN("more capacity is reserved") {
+    // custom <(841127201) more capacity is reserved>
+    // end <(841127201) more capacity is reserved>
+      THEN("the_capacity_changes_but_not_the_size") {
+      // custom <(1014174369) the capacity changes but not the size>
+      // end <(1014174369) the capacity changes but not the size>
+
+      }
+    }
+    WHEN("less capacity is reserved") {
+    // custom <(104907496) less capacity is reserved>
+    // end <(104907496) less capacity is reserved>
+      THEN("neither_size_nore_capacity_is_changed") {
+      // custom <(892845018) neither size nore capacity is changed>
+      // end <(892845018) neither size nore capacity is changed>
+
+      }
+    }
+
+  }
+}
+'''), true);
   });
 
 // end <main>

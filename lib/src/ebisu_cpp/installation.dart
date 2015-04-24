@@ -18,8 +18,6 @@ abstract class InstallationBuilder implements CodeGenerator {
   InstallationBuilder.fromInstallation(this.installation);
   InstallationBuilder();
 
-  Iterable<Impl> generatedTestImpls;
-
   generateInstallationBuilder(Installation installation) {
     this.installation = installation;
     this.generate();
@@ -72,10 +70,10 @@ class Installation extends Entity implements CodeGenerator {
       (offspring) => offspring is Testable &&
           (offspring as Testable).testScenarios.isNotEmpty) as Iterable<Testable>;
 
-  get allTests {
-    final result = libs.fold([], (prev, l) => prev..addAll(l.allTests));
-    return result..addAll(tests);
-  }
+  get allTests => progeny
+      .where((e) => e is Testable)
+      .where((Testable e) => e.hasTest)
+      .map((Testable e) => e.test);
 
   decorateWith(InstallationDecorator decorator) => decorator.decorate(this);
 

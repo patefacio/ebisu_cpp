@@ -135,16 +135,35 @@ ${indentBlock(br(givens))}
 
 class Testable {
   List<TestScenario> testScenarios = [];
-  /// The implementation file for this test
-  Impl testImpl;
   /// The single test for this [Testable]
   set test(Test test) => _test = test;
   /// If set will provide a blank test for the [Testable]
   bool includesTest = false;
+  /// Strings naming functions to be included in the test
+  set testFunctions(List<String> testFunctions) =>
+      _testFunctions = testFunctions;
 
   // custom <class Testable>
 
-  Test get test => _test == null ? (_test = new Test(this)) : _test;
+  /// Returns test functions, which are just names of functions inlcuded in the
+  /// test file.
+  Iterable<String> get testFunctions {
+    final thisEntity = this as Entity;
+    final result = _myTestFunctions
+      ..addAll(concat(thisEntity.progeny
+          .where((t) => t is Testable)
+          .map((t) => t.testFunctions)));
+    return result;
+  }
+
+  get _myTestFunctions => _testFunctions != null
+      ? _testFunctions
+      : includesTest ? [(this as Entity).id.snake] : [];
+
+  Test get test =>
+      _test == null ? (_test = new Test(this)..owner = this) : _test;
+
+  get hasTest => _test != null;
 
   /// Provides access to this [Testable]'s test as function for
   /// declarative manipulation:
@@ -206,13 +225,10 @@ Catch Test: ${runtimeType}:${(this as Entity).id}:${br(testScenarios)}
   // end <class Testable>
 
   Test _test;
+  List<String> _testFunctions;
 }
 
 abstract class TestProvider {
-
-  /// The [Impl]s generated to support the tests that need to be
-  /// included in the build scripts.
-  List generatedTestImpls = [];
 
   // custom <class TestProvider>
 
@@ -235,14 +251,45 @@ class BoostTestProvider extends TestProvider {
       lib.headers.where((header) => header.hasTest).forEach((Header header) {
         _logger.info('Header with test ${header.id.snake}');
 
-        header.test
+        final test = header.test
           ..namespace = header.namespace
-          ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'))
-          ..generate();
+          ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'));
 
-        final test = header.test;
-        final directory = path.dirname(test.filePath);
-        lib.tests.add(test);
+        if (test.testable is Header) {
+          test._includes.add((test.testable as Header).includeFilePath);
+        }
+
+        test.getCodeBlock(fcbEndNamespace).snippets.add(combine([
+          test.testFunctions.map((f) => '''
+void test_$f() {
+${chomp(indentBlock(customBlock(f)))}
+}
+'''),
+          test.testImplementations.keys.map((t) => '''
+void test_$t() {
+${chomp(indentBlock(test.testImplementations[t]))}
+}
+''')
+        ]));
+
+        test.getCodeBlock(fcbPostNamespace).snippets.addAll([
+          '''
+
+boost::unit_test::test_suite* init_unit_test_suite(int , char*[]) {
+  ${test.namespace.using};
+  using namespace boost::unit_test;
+  test_suite* test= BOOST_TEST_SUITE( "<${test.id.snake}>" );
+${
+indentBlock(
+  combine(
+    test.testNames.map((f) => 'test->add( BOOST_TEST_CASE( &test_$f ) );')))
+}
+  return test;
+}
+''',
+        ]);
+
+        test.generate();
       });
     });
   }
@@ -259,17 +306,13 @@ class CatchTestProvider extends TestProvider {
     final testables = installation.testables;
     if (testables.isNotEmpty) {
       final installation = testables.first.installation;
+
       testables.forEach((Testable testable) {
         final testableEntity = testable as Entity;
+        final test = testable.test;
 
         _logger.info('Found testable in '
             '${(testable as Entity).owningLib.id.snake}');
-
-        if (testable.testImpl == null) {
-          testable.testImpl = impl('test');
-        }
-
-        final testImpl = testable.testImpl;
 
         _logger.info(
             '${installation.id} processing test ${testable.runtimeType}'
@@ -278,37 +321,47 @@ class CatchTestProvider extends TestProvider {
         final contents = new StringBuffer();
 
         testable.testScenarios.forEach((TestScenario ts) {
-          _logger.info(_scenarioTestText(testable, ts));
+          _logger.info(scenarioTestText(ts));
 
           final theLib = testableEntity.owningLib;
           _logger.fine('The testable is ${testableEntity.id} '
               '=> ${testable.runtimeType} ${theLib}');
 
-          final entry = (testImpl
-            ..includes = ['catch.hpp']
-            ..namespace = testableEntity.owningLib.namespace
-            ..getCodeBlock(fcbBeginNamespace).snippets
-                .add(_scenarioTestText(testable, ts))).contents;
+          final entry = (test
+              ..withCodeBlock(fcbPreIncludes,
+                  (cb) => cb.snippets.add('#define CATCH_CONFIG_MAIN'))
+              ..includes = ['catch.hpp']
+              ..namespace = testableEntity.owningLib.namespace
+              ..getCodeBlock(fcbBeginNamespace).snippets
+              .add(scenarioTestText(ts))).contents;
 
           contents.writeln(entry);
         });
 
-        generatedTestImpls.add(testImpl
+        test
+          ..namespace = namespace(['test'])
+          //          ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'));
           ..setLibFilePath(testable.testFileName)
-          ..generate());
+          ..generate();
       });
     }
   }
 
-  _thenTestText(Then then) {
-    return '''
+  // end <class CatchTestProvider>
+
+}
+
+// custom <part test_provider>
+
+_thenTestText(Then then) {
+  return '''
 THEN("${then.id.snake}") {
 ${brCompact([ then.startBlockText, then.endBlockText ])}
 }''';
-  }
+}
 
-  _whenTestText(When when) {
-    return '''
+_whenTestText(When when) {
+  return '''
 WHEN("${when.id.sentence}") {
 ${
 brCompact([
@@ -316,10 +369,10 @@ brCompact([
   indentBlock(chomp(brCompact(when.thens.map((t) => _thenTestText(t))))),
   when.endBlockText ])
 }}''';
-  }
+}
 
-  _givenTestText(Given given) {
-    return '''
+_givenTestText(Given given) {
+  return '''
 GIVEN("${given.id.sentence}") {
 ${
 brCompact([
@@ -328,20 +381,14 @@ brCompact([
   given.endBlockText ])
 }
 }''';
-  }
+}
 
-  _scenarioTestText(Testable testable, TestScenario ts) {
-    return '''
+scenarioTestText(TestScenario ts) {
+  return '''
 SCENARIO("${ts.id.sentence}") {
 ${indentBlock(chomp(brCompact(ts.givens.map((g) => _givenTestText(g)))))}
 }''';
-  }
-
-  // end <class CatchTestProvider>
-
 }
-
-// custom <part test_provider>
 
 /// Create a Then sans new, for more declarative construction
 Then then([String clause, bool isAnd = false]) =>

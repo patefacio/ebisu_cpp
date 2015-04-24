@@ -46,6 +46,13 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 ///
 enum FileCodeBlock {
+  /// Custom block any code just before includes begin
+  /// Useful for putting definitions just prior to includes, e.g.
+  ///
+  ///     #define CATCH_CONFIG_MAIN
+  ///     #include "catch.hpp"
+  ///
+  fcbPreIncludes,
   /// Custom block for any additional includes appearing just after generated includes
   fcbCustomIncludes,
   /// Custom block appearing just before the namespace declaration in the code
@@ -57,6 +64,17 @@ enum FileCodeBlock {
   /// Custom block appearing just after the namespace declaration in the code
   fcbPostNamespace
 }
+/// Convenient access to FileCodeBlock.fcbPreIncludes with *fcbPreIncludes* see [FileCodeBlock].
+///
+/// Custom block any code just before includes begin
+/// Useful for putting definitions just prior to includes, e.g.
+///
+///     #define CATCH_CONFIG_MAIN
+///     #include "catch.hpp"
+///
+///
+const FileCodeBlock fcbPreIncludes = FileCodeBlock.fcbPreIncludes;
+
 /// Convenient access to FileCodeBlock.fcbCustomIncludes with *fcbCustomIncludes* see [FileCodeBlock].
 ///
 /// Custom block for any additional includes appearing just after generated includes
