@@ -15,7 +15,7 @@ dependencies:
   github: ">=2.1.2<2.2.0"
   sqljocky: ">=0.11.0<0.12.0"
   id: "^1.0.9"  
-  ebisu: "^0.3.3"
+  ebisu: "^0.3.4"
 
 # end <ebisu_cpp dependencies>
 
