@@ -110,7 +110,6 @@ class Lib extends Entity with Testable implements CodeGenerator {
   Namespace namespace = new Namespace();
   List<Header> headers = [];
   List<Impl> impls = [];
-  List<Test> tests = [];
 
   // custom <class Lib>
 
@@ -118,9 +117,7 @@ class Lib extends Entity with Testable implements CodeGenerator {
 
   get name => namer.nameLib(namespace, id);
 
-  get allTests => new List.from(tests);
-
-  Iterable<Entity> get children => concat([headers, testScenarios, tests]);
+  Iterable<Entity> get children => concat([headers, testScenarios]);
 
   Installation get installation => super.installation;
 
@@ -163,7 +160,6 @@ class Lib extends Entity with Testable implements CodeGenerator {
   String toString() => '''
     lib($id)
       headers:\n${headers.map((h) => h.toString()).join('\n')}
-      tests:\n${tests.map((t) => t.name).join('\n')}
 ''';
 
   // end <class Lib>

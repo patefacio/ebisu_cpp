@@ -11,17 +11,12 @@ abstract class InstallationBuilder implements CodeGenerator {
   get rootPath => installation.root;
   get docPath => path.join(rootPath, 'doc');
   get cppPath => path.join(rootPath, 'cpp');
-  get tests => installation.allTests;
+  get testables => installation.testables;
   get apps => installation.apps;
   get libs => installation.libs;
 
   InstallationBuilder.fromInstallation(this.installation);
-  InstallationBuilder();
-
-  generateInstallationBuilder(Installation installation) {
-    this.installation = installation;
-    this.generate();
-  }
+  generateBuildScripts() => this.generate();
 
   // end <class InstallationBuilder>
 
@@ -34,17 +29,11 @@ class Installation extends Entity implements CodeGenerator {
   Map<String, String> get paths => _paths;
   List<Lib> libs = [];
   List<App> apps = [];
-  List<Test> tests = [];
   List<Script> scripts = [];
   /// Provider for generating tests
   TestProvider testProvider = new CatchTestProvider();
-  /// List of builders for the installation (cmake is only one supported at this time)
-  List<InstallationBuilder> builders = [];
-  /// If set will generate a single cpp per header that includes that header.
-  /// If that cpp compiles it is an indication the header is doing a proper
-  /// job of including all its dependencies. If there are compile errors,
-  /// revisit the header and add required includes
-  bool includesHeaderCompiles = false;
+  /// The builder for this installation
+  InstallationBuilder installationBuilder;
   DoxyConfig doxyConfig = new DoxyConfig();
 
   // custom <class Installation>
@@ -66,14 +55,8 @@ class Installation extends Entity implements CodeGenerator {
   String get name => id.snake;
   String get nameShout => id.shout;
 
-  Iterable<Testable> get testables => progeny.where(
-      (offspring) => offspring is Testable &&
-          (offspring as Testable).testScenarios.isNotEmpty) as Iterable<Testable>;
-
-  get allTests => progeny
-      .where((e) => e is Testable)
-      .where((Testable e) => e.hasTest)
-      .map((Testable e) => e.test);
+  get testables =>
+      progeny.where((e) => e is Testable).where((Testable e) => e.hasTest);
 
   decorateWith(InstallationDecorator decorator) => decorator.decorate(this);
 
@@ -82,7 +65,6 @@ Installation($root)
   libs: =>\n${libs.map((l) => l.toString()).join('')}
   apps: => ${apps.map((a) => a.id).join(', ')}
   scripts: => ${scripts.map((s) => s.id).join(', ')}
-  tests: => ${tests.map((t) => t.id).join(', ')}
   paths: => [\n    ${paths.keys.map((k) => '$k => ${paths[k]}').join('\n    ')}\n  ]
 ''';
 
@@ -90,7 +72,18 @@ Installation($root)
   addLibs(Iterable<Lib> libs) => libs.forEach((l) => addLib(l));
   addApp(App app) => apps.add(app);
 
-  generate() {
+  // Generate the installation
+  //
+  // generateHeaderSmokeTest: If set will generate a single cpp per header that
+  //                          includes that header.  If that cpp compiles it is
+  //                          an indication the header is doing a proper job of
+  //                          including all its dependencies. If there are
+  //                          compile errors, revisit the header and add
+  //                          required includes
+  //
+  // generateDoxyFile:        If true generates config file for doxygen
+  //
+  generate({generateHeaderSmokeTest: false, generateDoxyFile: false}) {
     owner = null;
 
     if (_namer == null) {
@@ -101,7 +94,7 @@ Installation($root)
 
     concat([libs]).forEach((CodeGenerator cg) => cg.generate());
 
-    if (includesHeaderCompiles) {
+    if (generateHeaderSmokeTest) {
       final smokeLib = lib('smoke')
         ..namespace = namespace(['smoke'])
         ..impls = progeny
@@ -123,20 +116,20 @@ Installation($root)
 
     testProvider.generateTests(this);
 
-    new BoostTestProvider().generateTests(this);
-
-    for (var builder in builders) {
-      builder.generateInstallationBuilder(this);
+    if (installationBuilder == null) {
+      installationBuilder = new CmakeInstallationBuilder.fromInstallation(this);
     }
+    installationBuilder.generateBuildScripts();
 
     final docPath = path.join(_root, 'doc');
-
-    mergeWithFile((doxyConfig
-      ..projectName = id.snake
-      ..projectBrief = doc
-      ..input = cppPath
-      ..outputDirectory = path.join(docPath, 'doxydoc')).config,
-        path.join(docPath, '${id.snake}.doxy'));
+    if (generateDoxyFile) {
+      mergeWithFile((doxyConfig
+        ..projectName = id.snake
+        ..projectBrief = doc
+        ..input = cppPath
+        ..outputDirectory = path.join(docPath, 'doxydoc')).config,
+          path.join(docPath, '${id.snake}.doxy'));
+    }
   }
 
   String _pathLookup(String key) {
@@ -154,7 +147,7 @@ Installation($root)
 
   get cppPath => _pathLookup('cpp');
 
-  Iterable<Entity> get children => concat([apps, libs, tests, scripts]);
+  Iterable<Entity> get children => concat([apps, libs, scripts]);
 
   // end <class Installation>
 

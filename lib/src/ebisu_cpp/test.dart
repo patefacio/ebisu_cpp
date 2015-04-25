@@ -13,7 +13,6 @@ class Test extends Impl implements CodeGenerator {
       : super((testable as Entity).id),
         testable = testable {
     _logger.info('Creating test with ${(testable as Entity).id.snake}');
-    _includes.addAll(['boost/test/included/unit_test.hpp',]);
   }
 
   Namespace get namespace => super.namespace;
@@ -31,9 +30,6 @@ class Test extends Impl implements CodeGenerator {
 
   setFilePathFromRoot(String root, [fileBasename]) =>
       _filePath = path.join(root, _testFilePathFromRoot(fileBasename));
-
-  get testFunctions => testable.testFunctions;
-  get testNames => concat([testFunctions, testImplementations.keys]);
 
   String get contents => _contentsWithBlocks;
 

@@ -15,11 +15,6 @@ class Header extends CppFile {
 
   Namespace get namespace => super.namespace;
 
-  /// Returns true if user requested [includesTest] = true or any
-  /// classes have [includesTest] = true
-  bool get hasTest =>
-      includesTest || _test != null || classes.any((c) => c.includesTest);
-
   get includeFilePath => path.join(namespace.asPath, namer.nameHeader(id));
 
   setFilePathFromRoot(String root, [name]) {

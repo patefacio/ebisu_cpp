@@ -260,9 +260,6 @@ class App extends Impl implements CodeGenerator {
   /// code generation scripts. With cmake it was simpler to just incorporate
   /// protect blocks where the required libs could be easily added.
   List<String> requiredLibs = [];
-  /// List of builders to generate build scripts of a desired flavor (cmake
-  /// is only one supported at this time)
-  List<AppBuilder> builders = [];
   /// An App is an Impl and therefore contains accesors to FileCodeBlock
   /// sections (e.g. fcbBeginNamespace, fcbPostNamespace, ...). The heart of
   /// an application impl file is the main, so this [CodeBlock] supports
@@ -317,12 +314,7 @@ AllowedOptions)";
     }
 
     if (_hasString) _includes.add('string');
-
     super.generate();
-
-    for (var appBuilder in builders) {
-      appBuilder.generateBuildScripts(this);
-    }
   }
 
   get _hasMultiple => args.any((a) => a.isMultiple);

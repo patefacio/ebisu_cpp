@@ -1,9 +1,13 @@
 name: ebisu_cpp
-version: 0.0.23
+version: 0.1.0
 author: Daniel Davidson <dbdavidson@yahoo.com>
 homepage: https://github.com/patefacio/ebisu_cpp
 description: >
-  A library that supports code generation of cpp and others
+  A library that supports code generation of C++ code and
+  supporting infrastructure. The focus is both code (e.g. classes,
+  enums, functions, ...)  and overall structure (cpp files, hpp
+  files, build scripts, test files, etc.)
+
 dependencies:
   path: ">=1.3.0<1.4.0"
 

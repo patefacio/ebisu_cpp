@@ -11,18 +11,26 @@ void main() {
   Logger.root.onRecord.listen((LogRecord r) =>
       print("${r.loggerName} [${r.level}]:\t${r.message}"));
   String here = path.absolute(Platform.script.path);
+
+  final purpose = '''
+A library that supports code generation of C++ code and
+supporting infrastructure. The focus is both code (e.g. classes,
+enums, functions, ...)  and overall structure (cpp files, hpp
+files, build scripts, test files, etc.)
+''';
+
   _topDir = path.dirname(path.dirname(here));
   useDartFormatter = true;
   System ebisu = system('ebisu_cpp')
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.0.23'
-    ..pubSpec.doc = 'A library that supports code generation of cpp and others'
+    ..pubSpec.version = '0.1.0'
+    ..pubSpec.doc = purpose
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
     ..rootPath = _topDir
-    ..doc = 'A library that supports code generation of cpp'
+    ..doc = purpose
     ..testLibraries = [
       library('test_cpp_enum'),
       library('test_cpp_member'),
@@ -167,8 +175,11 @@ This designation is used in multiple contexts such as:
         ],
         enum_('template_parm_type')
         ..values = [
-          enumValue('type'),
-          enumValue('non_type'),
+          enumValue('type')
+          ..doc = 'Indicates the template parameter names a type',
+          enumValue('non_type')
+          ..doc = '''Indicates the template parameter indicates a non-type
+(e.g. *MAX_SIZE = 10* - a constant literal)''',
         ],
       ]
       ..classes = [
@@ -1768,23 +1779,11 @@ and [CodeBlock]s to augment/initialize/teardown.
             ..type = 'Test'
             ..access = WO,
 
-            member('includes_test')
-            ..doc = 'If set will provide a blank test for the [Testable]'
-            ..classInit = false,
-
-            member('test_functions')
-            ..doc = 'Strings naming functions to be included in the test'
-            ..access = WO
-            ..type = 'List<String>',
-
           ],
 
           class_('test_provider')
           ..isAbstract = true
           ..members = [],
-
-          class_('boost_test_provider')
-          ..extend = 'TestProvider',
 
           class_('catch_test_provider')
           ..extend = 'TestProvider'
@@ -1872,7 +1871,6 @@ Useful for putting definitions just prior to includes, e.g.
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('headers')..type = 'List<Header>'..classInit = [],
             member('impls')..type = 'List<Impl>'..classInit = [],
-            member('tests')..type = 'List<Test>'..classInit = [],
           ],
         ],
         part('app')
@@ -2053,11 +2051,6 @@ code generation scripts. With cmake it was simpler to just incorporate
 protect blocks where the required libs could be easily added.
 '''
             ..type = 'List<String>'..classInit = [],
-            member('builders')
-            ..doc = '''
-List of builders to generate build scripts of a desired flavor (cmake
-is only one supported at this time)'''
-            ..type = 'List<AppBuilder>'..classInit = [],
             member('main_code_block')
             ..doc = '''
 An App is an Impl and therefore contains accesors to FileCodeBlock
@@ -2123,22 +2116,14 @@ Creates builder for an installation (ie ties together all build artifacts)
             member('paths')..type = 'Map<String, String>'..classInit = {}..access = RO,
             member('libs')..type = 'List<Lib>'..classInit = [],
             member('apps')..type = 'List<App>'..classInit = [],
-            member('tests')..type = 'List<Test>'..classInit = [],
             member('scripts')..type = 'List<Script>'..classInit = [],
             member('test_provider')
             ..doc = 'Provider for generating tests'
             ..type = 'TestProvider'
             ..classInit = 'new CatchTestProvider()',
-            member('builders')
-            ..doc = 'List of builders for the installation (cmake is only one supported at this time)'
-            ..type = 'List<InstallationBuilder>'..classInit = [],
-            member('includes_header_compiles')
-            ..doc = '''
-If set will generate a single cpp per header that includes that header.
-If that cpp compiles it is an indication the header is doing a proper
-job of including all its dependencies. If there are compile errors,
-revisit the header and add required includes'''
-            ..classInit = false,
+            member('installation_builder')
+            ..doc = 'The builder for this installation'
+            ..type = 'InstallationBuilder',
             member('doxy_config')
             ..type = 'DoxyConfig'
             ..classInit = 'new DoxyConfig()',
@@ -2315,7 +2300,6 @@ acquisition is initialization* idiom.
         ]
         ..classes = [
           class_('functor_scope_exit')
-          ..includesTest = true
           ..template = [ 'typename FUNCTOR = Void_func_t' ]
           ..usings = [ 'Functor_t = FUNCTOR' ]
           ..customBlocks = [ clsPublic ]

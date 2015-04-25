@@ -45,7 +45,6 @@
 ///         ]
 ///         ..classes = [
 ///           class_('functor_scope_exit')
-///           ..includesTest = true
 ///           ..template = [ 'typename FUNCTOR = Void_func_t' ]
 ///           ..usings = [ 'Functor_t = FUNCTOR' ]
 ///           ..customBlocks = [ clsPublic ]
@@ -322,7 +321,13 @@ const PtrType scptr = PtrType.scptr;
 ///
 const PtrType ucptr = PtrType.ucptr;
 
-enum TemplateParmType { type, nonType }
+enum TemplateParmType {
+  /// Indicates the template parameter names a type
+  type,
+  /// Indicates the template parameter indicates a non-type
+  /// (e.g. *MAX_SIZE = 10* - a constant literal)
+  nonType
+}
 
 /// Establishes an interface to allow decoration of classes and updates
 /// (primarily additions) to an [Installation].
@@ -417,8 +422,21 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
 
   Iterable<Id> get entityPathIds => _entityPath.map((e) => e.id);
 
+  /// Provide a unique id for the entity This is important in some contexts
+  /// where the entity id needs to be unique among other potentially similarly
+  /// named items. Consider a [TestScenario] where there are several [When]
+  /// clauses with the same name appearing in different [Given] clauses. This
+  /// function allows custom block tags to still be unique. It includes the full
+  /// path in the hasing to ensure uniqueness across the entities.
   get uniqueId => entityPathIds.toString().hashCode;
+
+  /// Returns the path to *this* [Entity] in dotted form
+  /// Example:
+  ///
+  ///    fooLib.dottedName => 'linux_specific.umask_scoped_set.umask_scoped_set'
+  ///
   get dottedName => entityPathIds.map((id) => id.snake).join('.');
+
   get detailedPath => brCompact(
       entityPath.map((e) => '(${e.runtimeType}:${e.id.snake})').join(', '));
 
@@ -495,10 +513,24 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
   ///
   void _finalizeEntity() {}
 
+  /// Returns a list of all children recursively
   List<Entity> get progeny => children.fold([], (all, child) => all
     ..add(child)
     ..addAll(child.progeny));
 
+  /// Walks the list up throuh the ownership chain, returning a List<Entity> of
+  /// all owners
+  List<Entity> get ancestry {
+    final List<Entity> result = [];
+    var parent = _owner;
+    while (parent != null) {
+      result.add(parent);
+      parent = parent._owner;
+    }
+    return result;
+  }
+
+  /// Returns the installation, usually the root node, of this entity
   Installation get installation => _owner == null ? this : _owner.installation;
 
   // end <class Entity>

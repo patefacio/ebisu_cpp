@@ -4,12 +4,17 @@ class CmakeInstallationBuilder extends InstallationBuilder {
 
   // custom <class CmakeInstallationBuilder>
 
+  /// Construct a [CmakeInstallationBuilder] from an [Installation]
+  ///
+  /// Installation is required for the build script construction since it holds
+  /// the root path and is the top node of the [Entity] tree
   CmakeInstallationBuilder.fromInstallation(installation)
       : super.fromInstallation(installation);
 
-  CmakeInstallationBuilder() : super();
+  get installation => super.installation;
+  get testProvider => installation.testProvider;
 
-  Installation get installation => super.installation;
+  get _isCatchDecl => testProvider is CatchTestProvider ? 'catch ' : '';
 
   void generate() {
     final cmakeRoot = installationCmakeRoot(installation);
@@ -29,23 +34,27 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
 )''';
     }
 
-    testCmake(test) {
+    testCmake(Testable testable) {
+      final test = testable.test;
+      final testBaseName = path.basename(testable.testFileName);
       final relPath = path.relative(path.dirname(test.filePath),
           from: installation.cppPath);
       return '''
 
 ${scriptComment("test for ${test.name}\n${indentBlock(test.detailedPath)}")}
-add_executable(${test.dottedName}
+add_executable($testBaseName
   ${test.sources.map((src) => '$relPath/$src').join('\n  ')}
 )
 
-target_link_libraries(${test.dottedName}
-${chomp(scriptCustomBlock('${test.name} link requirements'))}
+target_link_libraries($testBaseName
+${chomp(scriptCustomBlock('${_isCatchDecl}${test.name} link requirements'))}
   \${Boost_SYSTEM_LIBRARY}
   \${Boost_THREAD_LIBRARY}
 )
 
-add_test(${test.dottedName} ${test.dottedName})''';
+add_test(
+  $testBaseName
+  $testBaseName)''';
     }
 
     scriptMergeWithFile('''
@@ -92,7 +101,7 @@ ${chomp(br(apps.map((app) => appCmake(app))))}
 ######################################################################
 # Test directives
 ######################################################################
-${chomp(br(tests.map((test) => testCmake(test))))}
+${chomp(br(testables.map((testable) => testCmake(testable))))}
 ''', cmakeRoot);
 
     final cmakeGenerator = path.join(path.dirname(cmakeRoot), 'cmake.gen.sh');
@@ -108,9 +117,6 @@ cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
 }
 
 // custom <part cmake_support>
-
-CmakeInstallationBuilder cmakeInstallationBuilder() =>
-    new CmakeInstallationBuilder();
 
 installationCmakeCommon(Installation installation) =>
     path.join(installation.root, 'cpp', 'cmake.${installation.name}.common');

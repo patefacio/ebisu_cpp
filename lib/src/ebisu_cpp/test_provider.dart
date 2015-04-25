@@ -41,7 +41,7 @@ abstract class TestClause extends Entity {
   /// places in the same file with the same name. The uniqueId is simply a hash
   /// of the *entityPathIds* so its value is unique and random looking but
   /// reproducibly determinnistic by virtue of its plath in the entity tree
-  get _uniqueTag => '(${uniqueId}) ${id.sentence}';
+  get _uniqueTag => '(${uniqueId})';
 
   get startBlockText => startCodeBlock.hasContent
       ? (startCodeBlock..tag = _uniqueTag).toString()
@@ -137,33 +137,13 @@ class Testable {
   List<TestScenario> testScenarios = [];
   /// The single test for this [Testable]
   set test(Test test) => _test = test;
-  /// If set will provide a blank test for the [Testable]
-  bool includesTest = false;
-  /// Strings naming functions to be included in the test
-  set testFunctions(List<String> testFunctions) =>
-      _testFunctions = testFunctions;
 
   // custom <class Testable>
-
-  /// Returns test functions, which are just names of functions inlcuded in the
-  /// test file.
-  Iterable<String> get testFunctions {
-    final thisEntity = this as Entity;
-    final result = _myTestFunctions
-      ..addAll(concat(thisEntity.progeny
-          .where((t) => t is Testable)
-          .map((t) => t.testFunctions)));
-    return result;
-  }
-
-  get _myTestFunctions => _testFunctions != null
-      ? _testFunctions
-      : includesTest ? [(this as Entity).id.snake] : [];
 
   Test get test =>
       _test == null ? (_test = new Test(this)..owner = this) : _test;
 
-  get hasTest => _test != null;
+  get hasTest => testScenarios.isNotEmpty;
 
   /// Provides access to this [Testable]'s test as function for
   /// declarative manipulation:
@@ -225,7 +205,6 @@ Catch Test: ${runtimeType}:${(this as Entity).id}:${br(testScenarios)}
   // end <class Testable>
 
   Test _test;
-  List<String> _testFunctions;
 }
 
 abstract class TestProvider {
@@ -235,66 +214,6 @@ abstract class TestProvider {
   generateTests(Installation installation);
 
   // end <class TestProvider>
-
-}
-
-class BoostTestProvider extends TestProvider {
-
-  // custom <class BoostTestProvider>
-
-  generateTests(Installation installation) {
-    _logger.info('generating boost tests for ${installation.name}');
-    installation.libs.forEach((Lib lib) {
-
-      //lib.generateTests();
-
-      lib.headers.where((header) => header.hasTest).forEach((Header header) {
-        _logger.info('Header with test ${header.id.snake}');
-
-        final test = header.test
-          ..namespace = header.namespace
-          ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'));
-
-        if (test.testable is Header) {
-          test._includes.add((test.testable as Header).includeFilePath);
-        }
-
-        test.getCodeBlock(fcbEndNamespace).snippets.add(combine([
-          test.testFunctions.map((f) => '''
-void test_$f() {
-${chomp(indentBlock(customBlock(f)))}
-}
-'''),
-          test.testImplementations.keys.map((t) => '''
-void test_$t() {
-${chomp(indentBlock(test.testImplementations[t]))}
-}
-''')
-        ]));
-
-        test.getCodeBlock(fcbPostNamespace).snippets.addAll([
-          '''
-
-boost::unit_test::test_suite* init_unit_test_suite(int , char*[]) {
-  ${test.namespace.using};
-  using namespace boost::unit_test;
-  test_suite* test= BOOST_TEST_SUITE( "<${test.id.snake}>" );
-${
-indentBlock(
-  combine(
-    test.testNames.map((f) => 'test->add( BOOST_TEST_CASE( &test_$f ) );')))
-}
-  return test;
-}
-''',
-        ]);
-
-        test.generate();
-      });
-    });
-  }
-
-  // end <class BoostTestProvider>
 
 }
 
@@ -311,38 +230,36 @@ class CatchTestProvider extends TestProvider {
         final testableEntity = testable as Entity;
         final test = testable.test;
 
-        _logger.info('Found testable in '
-            '${(testable as Entity).owningLib.id.snake}');
-
-        _logger.info(
-            '${installation.id} processing test ${testable.runtimeType}'
-            ':${testableEntity.entityPathIds.map((id) => id.snake)}');
-
-        final contents = new StringBuffer();
-
-        testable.testScenarios.forEach((TestScenario ts) {
-          _logger.info(scenarioTestText(ts));
-
-          final theLib = testableEntity.owningLib;
-          _logger.fine('The testable is ${testableEntity.id} '
-              '=> ${testable.runtimeType} ${theLib}');
-
-          final entry = (test
-              ..withCodeBlock(fcbPreIncludes,
-                  (cb) => cb.snippets.add('#define CATCH_CONFIG_MAIN'))
-              ..includes = ['catch.hpp']
-              ..namespace = testableEntity.owningLib.namespace
-              ..getCodeBlock(fcbBeginNamespace).snippets
-              .add(scenarioTestText(ts))).contents;
-
-          contents.writeln(entry);
-        });
-
         test
           ..namespace = namespace(['test'])
-          //          ..setFilePathFromRoot(path.join(installation.cppPath, 'tests'));
           ..setLibFilePath(testable.testFileName)
-          ..generate();
+          ..withCodeBlock(fcbPreIncludes,
+              (cb) => cb.snippets.add('#define CATCH_CONFIG_MAIN'))
+          ..includes.add('catch.hpp')
+          ..getCodeBlock(fcbCustomIncludes).tag = 'custom includes'
+          ..namespace = testableEntity.owningLib.namespace;
+
+        ///////////////////////////////////////////////////////////////////
+        // If this test is owned by something in a header, that header
+        // will be needed to test.
+        ///////////////////////////////////////////////////////////////////
+        Header owningHeader = testableEntity is Header
+            ? testableEntity
+            : testableEntity.ancestry.firstWhere((a) => a is Header,
+                orElse: () => null);
+
+        if (owningHeader != null) {
+          test._includes.add(owningHeader.includeFilePath);
+        }
+
+        testable.testScenarios.forEach((TestScenario testScenario) {
+          _logger.info(scenarioTestText(testScenario));
+
+          test.getCodeBlock(fcbBeginNamespace).snippets
+              .add(scenarioTestText(testScenario));
+        });
+
+        test.generate();
       });
     }
   }
@@ -355,7 +272,7 @@ class CatchTestProvider extends TestProvider {
 
 _thenTestText(Then then) {
   return '''
-THEN("${then.id.snake}") {
+THEN("${then.id.sentence}") {
 ${brCompact([ then.startBlockText, then.endBlockText ])}
 }''';
 }
