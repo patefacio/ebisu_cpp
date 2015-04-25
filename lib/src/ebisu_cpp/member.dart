@@ -216,6 +216,12 @@ class Member extends Entity {
   /// member could be set with *access = ro* and custom accessors may
   /// be provided.
   CodeBlock customBlock = new CodeBlock(null);
+  /// Will create the getter. To provide custom getter implement
+  /// GetterCreator and assign
+  GetterCreator getterCreator;
+  /// Will create the setter. To provide custom setter implement
+  /// SetterCreator and assign
+  SetterCreator setterCreator;
   /// Indicates member should be streamed if class is streamable.
   /// One of the few flags defaulted to *true*, this flag provides
   /// an opportunity to *not* stream specific members
@@ -334,26 +340,19 @@ class Member extends Entity {
       isStaticConst ? namer.nameStaticConst(id) : namer.nameMember(id);
   String get vname => isStaticConst ? name : namer.nameMemberVar(id, isPublic);
 
-  String get _getterOpener => '''
-//! getter for ${vname} (access is ${evCap(access)})
-$_constAccess $name() const {''';
-  get _getterReturnValue =>
-      getterReturnModifier != null ? getterReturnModifier(this, vname) : vname;
-  get _getterImpl => 'return $_getterReturnValue;';
-  get _getterCloser => '}';
+  String get getter {
+    if (getterCreator == null) {
+      getterCreator = new StandardGetterCreator(this);
+    }
+    return getterCreator.getter;
+  }
 
-  String get getter => access == ro || access == rw
-      ? brCompact([_getterOpener, _getterImpl, _getterCloser])
-      : null;
-
-  String get _setterOpener => '''
-//! setter for ${vname} (access is $access)
-void $name($_argType $name) {''';
-  String get _setterImpl => '$vname = $name;';
-  String get _setterCloser => '}';
-  String get setter => (access == rw || access == wo)
-      ? brCompact([_setterOpener, _setterImpl, _setterCloser])
-      : null;
+  String get setter {
+    if (setterCreator == null) {
+      setterCreator = new StandardSetterCreator(this);
+    }
+    return setterCreator.setter;
+  }
 
   CppAccess get cppAccess =>
       _cppAccess != null ? _cppAccess : (access != null) ? private : public;
@@ -392,6 +391,93 @@ void $name($_argType $name) {''';
   bool _isByRef;
   bool _isConst = false;
   CodeBlock _customStreamable;
+}
+
+/// Responsible for creating the getter (i.e. reader) for member
+abstract class GetterCreator {
+  GetterCreator(this.member);
+
+  /// Member this creator will create getter for
+  Member member;
+
+  // custom <class GetterCreator>
+
+  // Returns the text of the getter method
+  String get getter;
+
+  // end <class GetterCreator>
+
+}
+
+class StandardGetterCreator extends GetterCreator {
+
+  // custom <class StandardGetterCreator>
+
+  StandardGetterCreator(Member member) : super(member);
+
+  get member => super.member;
+  get name => member.name;
+  get vname => member.vname;
+  get getterReturnModifier => member.getterReturnModifier;
+  get _constAccess => member._constAccess;
+  get access => member.access;
+
+  String get _getterOpener => '''
+//! getter for ${vname} (access is ${evCap(access)})
+$_constAccess $name() const {''';
+  get _getterReturnValue =>
+      getterReturnModifier != null ? getterReturnModifier(this, vname) : vname;
+  get _getterImpl => 'return $_getterReturnValue;';
+  get _getterCloser => '}';
+
+  String get getter => access == ro || access == rw
+      ? brCompact([_getterOpener, _getterImpl, _getterCloser])
+      : null;
+
+  // end <class StandardGetterCreator>
+
+}
+
+/// Responsible for creating the setter (i.e. writer) for member
+abstract class SetterCreator {
+  SetterCreator(this.member);
+
+  /// Member this creator will create setter for
+  Member member;
+
+  // custom <class SetterCreator>
+
+  // Returns the text of the setter method
+  String get setter;
+
+  // end <class SetterCreator>
+
+}
+
+class StandardSetterCreator extends SetterCreator {
+
+  // custom <class StandardSetterCreator>
+
+  StandardSetterCreator(Member member) : super(member);
+
+  get member => super.member;
+  get name => member.name;
+  get vname => member.vname;
+  get access => member.access;
+  get argType => member._argType;
+
+  String get _setterOpener => '''
+//! setter for ${vname} (access is $access)
+void $name($argType $name) {''';
+  String get _setterImpl => '$vname = $name;';
+  String get _setterCloser => '}';
+
+  String get setter => (access == rw || access == wo)
+      ? brCompact([_setterOpener, _setterImpl, _setterCloser])
+      : null;
+
+  // end <class StandardSetterCreator>
+
 }
 
 // custom <part member>

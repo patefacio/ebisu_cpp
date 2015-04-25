@@ -953,6 +953,20 @@ be provided.
 '''
             ..type = 'CodeBlock'
             ..classInit = 'new CodeBlock(null)',
+
+            member('getter_creator')
+            ..doc = '''
+Will create the getter. To provide custom getter implement
+GetterCreator and assign
+'''
+            ..type = 'GetterCreator',
+
+            member('setter_creator')
+            ..doc = '''
+Will create the setter. To provide custom setter implement
+SetterCreator and assign'''
+            ..type = 'SetterCreator',
+
             member('is_streamable')
             ..doc = '''
 Indicates member should be streamed if class is streamable.
@@ -967,6 +981,33 @@ generate a streamable entry in the containing [Class].
             ..type = 'CodeBlock'
             ..access = RO,
           ],
+
+          class_('getter_creator')
+          ..doc = 'Responsible for creating the getter (i.e. reader) for member'
+          ..isAbstract = true
+          ..members = [
+            member('member')
+            ..doc = 'Member this creator will create getter for'
+            ..type = 'Member'
+            ..ctors = ['']
+          ],
+
+          class_('standard_getter_creator')
+          ..extend = 'GetterCreator',
+
+          class_('setter_creator')
+          ..doc = 'Responsible for creating the setter (i.e. writer) for member'
+          ..isAbstract = true
+          ..members = [
+            member('member')
+            ..doc = 'Member this creator will create setter for'
+            ..type = 'Member'
+            ..ctors = ['']
+          ],
+
+          class_('standard_setter_creator')
+          ..extend = 'SetterCreator',
+
         ],
         part('class')
         ..enums = [
@@ -1212,6 +1253,7 @@ where the type of member *x* is *int* might yield:
 
 ''',
           ],
+
           class_('member_ctor')
           ..doc = '''
 Specificication for a member constructor. A member constructor is a constructor
@@ -1248,6 +1290,8 @@ custom block. In that case the class might look like:
             member('has_all_members')
             ..doc = 'If set automatically includes all members as args'
             ..classInit = false,
+            member('is_explicit')
+            ..doc = 'If true makes the ctor explicit'..classInit = false,
           ],
           class_('op_equal')
           ..doc = 'Provides *operator==()*'
@@ -1762,7 +1806,9 @@ and [CodeBlock]s to augment/initialize/teardown.
           ..extend = 'TestClause'
           ..members = [
             member('whens')
-            ..type = 'List<When>'
+            ..type = 'List<When>',
+            member('thens')
+            ..type = 'List<Then>',
           ],
           class_('test_scenario')
           ..extend = 'Entity'

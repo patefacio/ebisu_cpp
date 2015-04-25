@@ -56,7 +56,7 @@ class Installation extends Entity implements CodeGenerator {
   String get nameShout => id.shout;
 
   get testables =>
-      progeny.where((e) => e is Testable).where((Testable e) => e.hasTest);
+      progeny.where((e) => e is Testable).where((e) => (e as Testable).hasTest);
 
   decorateWith(InstallationDecorator decorator) => decorator.decorate(this);
 
@@ -83,7 +83,8 @@ Installation($root)
   //
   // generateDoxyFile:        If true generates config file for doxygen
   //
-  generate({generateHeaderSmokeTest: false, generateDoxyFile: false}) {
+  generate({generateBuildScripts: false, generateHeaderSmokeTest: false,
+      generateDoxyFile: false}) {
     owner = null;
 
     if (_namer == null) {
@@ -116,13 +117,16 @@ Installation($root)
 
     testProvider.generateTests(this);
 
-    if (installationBuilder == null) {
-      installationBuilder = new CmakeInstallationBuilder.fromInstallation(this);
+    if (generateBuildScripts) {
+      if (installationBuilder == null) {
+        installationBuilder =
+            new CmakeInstallationBuilder.fromInstallation(this);
+      }
+      installationBuilder.generateBuildScripts();
     }
-    installationBuilder.generateBuildScripts();
 
-    final docPath = path.join(_root, 'doc');
     if (generateDoxyFile) {
+      final docPath = path.join(_root, 'doc');
       mergeWithFile((doxyConfig
         ..projectName = id.snake
         ..projectBrief = doc

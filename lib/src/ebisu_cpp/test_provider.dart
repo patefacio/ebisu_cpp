@@ -92,19 +92,25 @@ ${indentBlock(br(thens))}
 
 class Given extends TestClause {
   List<When> whens;
+  List<Then> thens;
 
   // custom <class Given>
 
-  Given(Id givenClause, this.whens) : super(givenClause);
-  Iterable<Entity> get children => whens;
+  Given(Id givenClause, this.whens, [this.thens]) : super(givenClause) {
+    if (thens == null) thens = [];
+  }
+  Iterable<Entity> get children => concat([whens, thens]);
 
   addWhen(clause, [withThens]) => (whens..add(when(clause, withThens))).last;
-
   withWhen(clause, f(when)) => f((whens..add(when(clause))).last);
+
+  addThen(clause) => (thens..add(then(clause))).last;
+  withThen(clause, f(then)) => f((thens..add(then(clause))).last);
 
   toString() => '''
 Given(${clause.snake})
 ${indentBlock(br(whens))}
+${indentBlock(br(thens))}
 ''';
 
   // end <class Given>
@@ -295,6 +301,7 @@ ${
 brCompact([
   given.startBlockText,
   indentBlock(chomp(brCompact(given.whens.map((w) => _whenTestText(w))))),
+  indentBlock(chomp(brCompact(given.thens.map((t) => _thenTestText(t))))),
   given.endBlockText ])
 }
 }''';
@@ -319,8 +326,9 @@ When when([String clause, thens]) => new When(
     idFromWords(clause), thens == null ? [] : thens is Then ? [thens] : thens);
 
 /// Create a Given sans new, for more declarative construction
-Given given([String clause, whens]) => new Given(
-    idFromWords(clause), whens == null ? [] : whens is When ? [whens] : whens);
+Given given([String clause, whens, thens]) => new Given(idFromWords(clause),
+    whens == null ? [] : whens is When ? [whens] : whens,
+    thens is Then ? [thens] : thens);
 /// Create a TestScenario sans new, for more declarative construction
 TestScenario testScenario(id, [givens]) => new TestScenario(
     idFromWords(id), givens == null ? [] : givens is Given ? [givens] : givens);

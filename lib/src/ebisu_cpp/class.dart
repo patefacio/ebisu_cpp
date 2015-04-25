@@ -452,6 +452,8 @@ class MemberCtor extends ClassMethod {
   set customLabel(String customLabel) => _customLabel = customLabel;
   /// If set automatically includes all members as args
   bool hasAllMembers = false;
+  /// If true makes the ctor explicit
+  bool isExplicit = false;
 
   // custom <class MemberCtor>
 
@@ -493,8 +495,10 @@ member being initialized or a MemberCtorParm instance'''));
       initializers.add(parm.member_init);
     });
 
+    final explicitTag = isExplicit ? 'explicit ' : '';
+
     return '''
-$_templateDecl${className}(
+${explicitTag}${_templateDecl}${className}(
 ${indentBlock(argDecls.join(',\n'))}) :
 ${indentBlock(initializers.join(',\n'))} {
 ${indentBlock(_protectBlock)}}''';
