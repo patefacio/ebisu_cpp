@@ -330,19 +330,28 @@ Represents a template declaration comprized of a list of [decls]
             member('traits')..type = 'List<Traits>',
           ],
         ],
-        part('utils')
+
+        part('log_provider')
         ..classes = [
 
-          class_('cpp_logger')
+          class_('log_provider')
           ..doc = '''
 Establishes an abstract interface to provide customizable c++ log messages
 
 Not wanting to commit to a single logging solution, this class allows
 client code to make certain items [Loggable] and not tie the generated
-code to a particular logging solution. A default [CppLogger] that makes
+code to a particular logging solution. A default [LogProvider] that makes
 use of *spdlog* is provided.
 '''
-          ..isAbstract = true,
+          ..isAbstract = true
+          ..members = [
+            member('include_requriements')
+            ..type = 'Includes'
+          ],
+
+          class_('spdlog_provider')
+          ..doc = 'Provides support for logging via spdlog'
+          ..extend = 'LogProvider',
 
           class_('loggable')
           ..doc = '''
@@ -355,7 +364,10 @@ Examples might be member accessors, member constructors, etc
             ..doc = 'If true the [Loggable] item is logged'
             ..classInit = false,
           ],
+        ],
 
+        part('utils')
+        ..classes = [
           class_('const_expr')
           ..doc = """
 Simple variable constexprs.
@@ -1081,6 +1093,7 @@ Establishes an interface for generated class methods like
 consructors, destructors, overloaded operators, etc.
 '''
           ..isAbstract = true
+          ..mixins = [ 'Loggable' ]
           ..members = [
             member('parent')..type = 'Class'..access = RO,
             member('is_logged')..doc = 'If true add logging'..classInit = false,

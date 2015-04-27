@@ -97,6 +97,7 @@ import 'package:quiver/iterables.dart';
 // end <additional imports>
 
 part 'src/ebisu_cpp/generic.dart';
+part 'src/ebisu_cpp/log_provider.dart';
 part 'src/ebisu_cpp/utils.dart';
 part 'src/ebisu_cpp/file.dart';
 part 'src/ebisu_cpp/enum.dart';

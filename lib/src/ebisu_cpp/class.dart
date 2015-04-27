@@ -104,7 +104,7 @@ const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
 /// Establishes an interface for generated class methods like
 /// consructors, destructors, overloaded operators, etc.
 ///
-abstract class ClassMethod {
+abstract class ClassMethod extends Object with Loggable {
   Class get parent => _parent;
   /// If true add logging
   bool isLogged = false;
@@ -794,7 +794,8 @@ class Class extends Entity with Testable {
     usings,
     usingsPostDecl,
     [template],
-    testScenarios
+    testScenarios,
+    nestedClasses
   ]).where((child) => child != null);
 
   set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();
