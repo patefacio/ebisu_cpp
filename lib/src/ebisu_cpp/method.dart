@@ -220,10 +220,6 @@ class Method {
 ///     }
 ///
 class Interface extends Entity {
-
-  /// If true interface results in pure abstract class, else *static
-  /// polymorphic* base.
-  bool isVirtual = false;
   List<MethodDecl> get methodDecls => _methodDecls;
 
   // custom <class Interface>
@@ -251,7 +247,7 @@ class Interface extends Entity {
             ? decl
             : throw new ArgumentError('''
 MethodDecls must be initialized with String or MethodDecl
-''')).map((var md) => md.asPureVirtual).toList();
+''')).toList();
   }
 
   /// The interface is empty if there are no methods
@@ -259,15 +255,10 @@ MethodDecls must be initialized with String or MethodDecl
 
   String get definition => (class_(id)
     ..getCodeBlock(clsPublic).snippets.addAll(
-        ['//my virtual $isVirtual\n', chomp(br(_methodDecls))])).definition;
+        [chomp(br(_methodDecls.map((m) => m.asNonVirtual)))])).definition;
 
   String get description => '''
 ${_methodDecls.join('\n')}
-''';
-
-  toString() => '''
-${chomp(this.docComment)}
-${chomp(definition)}
 ''';
 
   // end <class Interface>
@@ -279,6 +270,7 @@ ${chomp(definition)}
 class InterfaceImplementation {
   Interface interface;
   CppAccess cppAccess = public;
+  /// If true the interface is virtual
   bool isVirtual = false;
 
   // custom <class InterfaceImplementation>

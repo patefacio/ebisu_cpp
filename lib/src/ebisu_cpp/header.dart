@@ -17,6 +17,8 @@ class Header extends CppFile {
 
   get includeFilePath => path.join(namespace.asPath, namer.nameHeader(id));
 
+  get requiresLogging => classes.any((cls) => cls.requiresLogging);
+
   setFilePathFromRoot(String root, [name]) {
     __basename = name == null ? namer.nameHeader(id) : name;
     return _filePath = path.join(root, namespace.asPath, _basename);

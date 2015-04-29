@@ -787,6 +787,14 @@ class Class extends Entity with Testable {
 
   Class(Id id) : super(id);
 
+  get installation => super.installation;
+
+  get requiresLogging => concat([_standardMethods, memberCtors])
+      .any((m) => m is Loggable && (m as Loggable).isLogged);
+
+  get includes =>
+      requiresLogging ? installation.logProvider.includeRequirements : null;
+
   Iterable<Entity> get children => concat([
     enumsForward,
     enums,

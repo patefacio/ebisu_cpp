@@ -110,6 +110,8 @@ class Lib extends Entity with Testable implements CodeGenerator {
   Namespace namespace = new Namespace();
   List<Header> headers = [];
   List<Impl> impls = [];
+  set requiresLogging(bool requiresLogging) =>
+      _requiresLogging = requiresLogging;
 
   // custom <class Lib>
 
@@ -121,18 +123,24 @@ class Lib extends Entity with Testable implements CodeGenerator {
 
   Installation get installation => super.installation;
 
-  generate() {
-    assert(installation != null);
+  get requiresLogging => (_requiresLogging != null && _requiresLogging) ||
+      concat([headers, impls]).any((cls) => cls.requiresLogging);
 
+  get apiHeader => headers.firstWhere((h) => h.isApiHeader, orElse: () => null);
+
+  requireOnlyOneApiHeader() {
     final apiHeaders = headers.where((h) => h.isApiHeader);
-    Header apiHeader;
-
     if (apiHeaders.length > 1) {
       throw '''A library may have only one api header:
 [ ${apiHeaders.map((h)=>h.id).join(', ')} ]''';
-    } else if (apiHeaders.isNotEmpty) {
-      apiHeader = apiHeaders.first;
     }
+  }
+
+  generate() {
+    assert(installation != null);
+
+    requireOnlyOneApiHeader();
+    final apiHeader = this.apiHeader;
 
     final cpp = installation.paths["cpp"];
     headers.forEach((Header header) {
@@ -164,6 +172,7 @@ class Lib extends Entity with Testable implements CodeGenerator {
 
   // end <class Lib>
 
+  bool _requiresLogging;
 }
 
 // custom <part lib>

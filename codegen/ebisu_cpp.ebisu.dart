@@ -345,8 +345,10 @@ use of *spdlog* is provided.
 '''
           ..isAbstract = true
           ..members = [
-            member('include_requriements')
-            ..type = 'Includes'
+            member('include_requirements')..type = 'Includes',
+            member('namer')..type = 'Namer'..ctors = [''],
+            member('installation_id')..type = 'Id'..access = RO,
+            member('logger_name'),
           ],
 
           class_('spdlog_provider')
@@ -1700,12 +1702,6 @@ prints:
 """
           ..extend = 'Entity'
           ..members = [
-            member('is_virtual')
-            ..doc = '''
-If true interface results in pure abstract class, else *static
-polymorphic* base.
-'''
-            ..classInit = false,
             member('method_decls')
             ..type = 'List<MethodDecl>'
             ..access = RO
@@ -1716,7 +1712,9 @@ polymorphic* base.
           ..members = [
             member('interface')..type = 'Interface',
             member('cpp_access')..type = 'CppAccess'..classInit = 'public',
-            member('is_virtual')..classInit = false
+            member('is_virtual')
+            ..doc = 'If true the interface is virtual'
+            ..classInit = false
           ],
         ],
         part('serializer')
@@ -1930,6 +1928,7 @@ Useful for putting definitions just prior to includes, e.g.
             member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
             member('headers')..type = 'List<Header>'..classInit = [],
             member('impls')..type = 'List<Impl>'..classInit = [],
+            member('requires_logging')..type = 'bool'..access = WO,
           ],
         ],
         part('app')
@@ -2180,6 +2179,10 @@ Creates builder for an installation (ie ties together all build artifacts)
             ..doc = 'Provider for generating tests'
             ..type = 'TestProvider'
             ..classInit = 'new CatchTestProvider()',
+            member('log_provider')
+            ..doc = 'Provider for generating tests'
+            ..type = 'LogProvider'
+            ..classInit = 'new SpdlogProvider(new EbisuCppNamer())',
             member('installation_builder')
             ..doc = 'The builder for this installation'
             ..type = 'InstallationBuilder',

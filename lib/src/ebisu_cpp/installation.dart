@@ -32,6 +32,8 @@ class Installation extends Entity implements CodeGenerator {
   List<Script> scripts = [];
   /// Provider for generating tests
   TestProvider testProvider = new CatchTestProvider();
+  /// Provider for generating tests
+  LogProvider logProvider = new SpdlogProvider(new EbisuCppNamer());
   /// The builder for this installation
   InstallationBuilder installationBuilder;
   DoxyConfig doxyConfig = new DoxyConfig();
@@ -54,6 +56,12 @@ class Installation extends Entity implements CodeGenerator {
 
   String get name => id.snake;
   String get nameShout => id.shout;
+
+  Iterable<Header> get headers => progeny.where((e) => e is Header);
+
+  get requiresLogging => headers.any((h) => h.requiresLogging);
+
+  get installation => this;
 
   get testables =>
       progeny.where((e) => e is Testable).where((e) => (e as Testable).hasTest);
@@ -87,9 +95,13 @@ Installation($root)
       generateDoxyFile: false}) {
     owner = null;
 
+    logProvider..installationId = this.id;
+
     if (_namer == null) {
       _namer = defaultNamer;
     }
+
+    _addApiHeaderForLibsWithLogging();
 
     progeny.forEach((Entity child) => child._namer = _namer);
 
@@ -135,6 +147,33 @@ Installation($root)
           path.join(docPath, '${id.snake}.doxy'));
     }
   }
+
+  /// Any library requiring logging support needs access to a logger That logger
+  /// could go in the [App], but then you would not have a self-contained [Lib]
+  /// as there would be dependencies on the [App] like create the logger. Rather
+  /// than that approach, if a logger requires logging ensure that it has an
+  /// ApiHeader. If it does not have one, provide one of the same name as the
+  /// [Lib]. Then inject the log variable in that.
+  _addApiHeaderForLibsWithLogging() => libs
+      .where((lib) => lib.requiresLogging)
+      .forEach((Lib lib) {
+    if (lib.apiHeader == null) {
+      final apiHeader = header(lib.id)
+        ..namespace = lib.namespace
+        ..isApiHeader = true
+        ..includes.addAll(logProvider.includeRequirements.included)
+        ..owner = lib;
+
+      apiHeader.getCodeBlock(fcbEndNamespace).snippets
+          .add(logProvider.createLibLogger(lib));
+
+      print(
+          '${lib.id} requires logging but has no apiHeader - adding ${apiHeader.id} with ns ${apiHeader.namespace}');
+
+      lib.headers.add(apiHeader);
+      assert(lib.apiHeader != null);
+    }
+  });
 
   String _pathLookup(String key) {
     var result = getPath(key);

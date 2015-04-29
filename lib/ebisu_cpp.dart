@@ -438,6 +438,7 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
   ///
   get dottedName => entityPathIds.map((id) => id.snake).join('.');
 
+  /// Returns the entity path with type for each
   get detailedPath => brCompact(
       entityPath.map((e) => '(${e.runtimeType}:${e.id.snake})').join(', '));
 
