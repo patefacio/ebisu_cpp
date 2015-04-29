@@ -1053,7 +1053,7 @@ default [Interfaceimplementation] is used''').toList();
           .map((m) => m.definition)),
       br(interfaceImplementations
           .where((i) => i.cppAccess == public)
-          .map((i) => i.methodDecls)),
+          .map((i) => i.methodImpls)),
       br(_singleton),
       _codeBlockText(clsPublic),
       _memberJoinFormat(publicMembers.where((m) => !m.isPublicStaticConst)),
@@ -1073,7 +1073,7 @@ default [Interfaceimplementation] is used''').toList();
           .map((m) => m.definition)),
       br(interfaceImplementations
           .where((i) => i.cppAccess == protected)
-          .map((i) => i.methodDecls)),
+          .map((i) => i.methodImpls)),
       _memberJoinFormat(protectedMembers)
     ]))),
     _wrapInAccess(private, indentBlock(combine([
@@ -1089,7 +1089,7 @@ default [Interfaceimplementation] is used''').toList();
           .map((m) => m.definition)),
       br(interfaceImplementations
           .where((i) => i.cppAccess == private)
-          .map((i) => i.methodDecls)),
+          .map((i) => i.methodImpls)),
       _memberJoinFormat(privateMembers)
     ]))),
     br([_codeBlockText(clsClose), _classCloser, _pragmaPackPop]),

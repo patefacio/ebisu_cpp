@@ -10,7 +10,8 @@ main() {
 
   final scareTactics = interface('scare_tactics')
     ..methodDecls = [
-      methodDecl('void makeAudibleWarning(int intensity)'),
+      methodDecl('void makeAudibleWarning(int intensity)')
+      ..doc = 'Noise is the scariest weapon some animals have',
       'void makeVisibleWarning(int intensity)',
       methodDecl('void showWeapons()'),
     ];
@@ -27,7 +28,8 @@ main() {
     ..classes = [
       class_('dog')
       ..interfaceImplementations = [
-        scareTactics,
+        new InterfaceImplementation(scareTactics, public)
+        ..isVirtual = true,
         new InterfaceImplementation(eatingHabbits, protected)
         ..isVirtual = false
 

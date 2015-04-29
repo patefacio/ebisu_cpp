@@ -142,13 +142,15 @@ Try something familiar like: "void add(int a, int b)"
   String get signature =>
       '$returnType ${id.snake}(${parmDecls.join(',')})$_const';
 
+  String get _commentedDeclaration => '${this.docComment}$_declaration';
+
   String get _declaration => '''
-${this.docComment}$signature {
+$signature {
 ${chomp(indentBlock(customBlock(id.snake)))}
 }''';
 
   String get asVirtual => 'virtual $signature;';
-  String get asNonVirtual => signature;
+  String get asNonVirtual => '$signature;';
   String get asPureVirtual => 'virtual $signature = 0;';
 
   String declaration(bool isVirtual) => isVirtual ? asVirtual : asNonVirtual;
@@ -254,11 +256,11 @@ MethodDecls must be initialized with String or MethodDecl
   bool get isEmpty => methodDecls.isEmpty;
 
   String get definition => (class_(id)
-    ..getCodeBlock(clsPublic).snippets.addAll(
-        [chomp(br(_methodDecls.map((m) => m.asNonVirtual)))])).definition;
+    ..getCodeBlock(clsPublic).snippets
+        .addAll([chomp(br(_methodDecls.map((m) => m.asVirtual)))])).definition;
 
   String get description => '''
-${_methodDecls.join('\n')}
+${_methodDecls.map((md) => md.asVirtual).join('\n')}
 ''';
 
   // end <class Interface>
@@ -284,6 +286,13 @@ class InterfaceImplementation {
   String get name => interface.name;
   String get definition => interface.definition;
   List<MethodDecl> get methodDecls => interface.methodDecls;
+
+  Iterable<String> get methodImpls => methodDecls.map(
+      (MethodDecl md) => brCompact([
+    blockComment(
+        chomp(brCompact([md.descr, "[Inherited from ${interface.name}]",]))),
+    md._declaration
+  ]));
 
   toString() => '${ev(cppAccess)}: ${interface.id.snake}';
 
