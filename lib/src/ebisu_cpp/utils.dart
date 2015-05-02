@@ -391,6 +391,7 @@ class Base {
 
 /// Create a Base sans new, for more declarative construction
 Base base([String className]) => new Base(className);
+
 // custom <part utils>
 
 Namespace namespace(List<String> ns) => new Namespace()..names = ns;

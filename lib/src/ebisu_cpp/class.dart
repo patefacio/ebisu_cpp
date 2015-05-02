@@ -100,6 +100,7 @@ const ClassCodeBlock clsPreDecl = ClassCodeBlock.clsPreDecl;
 /// The custom block appearing just after the class definition
 ///
 const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
+
 /// Establishes an interface for generated class methods like
 /// consructors, destructors, overloaded operators, etc.
 ///
@@ -1192,6 +1193,7 @@ $classStyle $className$_baseDecl$_finalDecl
   /// Lookup is done by pattern match.
   Map<String, Method> _methods = {};
 }
+
 // custom <part class>
 
 /// Convenience fucnction for creating a [Class]

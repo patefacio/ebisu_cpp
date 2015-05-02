@@ -104,6 +104,7 @@ const FileCodeBlock fcbEndNamespace = FileCodeBlock.fcbEndNamespace;
 /// Custom block appearing just after the namespace declaration in the code
 ///
 const FileCodeBlock fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
+
 /// A c++ library
 class Lib extends Entity with Testable implements CodeGenerator {
   Namespace namespace = new Namespace();
@@ -173,6 +174,7 @@ class Lib extends Entity with Testable implements CodeGenerator {
 
   bool _requiresLogging;
 }
+
 // custom <part lib>
 
 Lib lib(Object id) => new Lib(id is Id ? id : new Id(id));

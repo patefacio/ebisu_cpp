@@ -50,6 +50,7 @@ class ArgType implements Comparable<ArgType> {
     }
   }
 }
+
 /// Metadata associated with an argument to an application.  Requires and
 /// geared to features supported by boost::program_options. The supporting
 /// code for arguments is spread over a few places in the main file of an
@@ -482,6 +483,7 @@ abstract class AppBuilder implements CodeGenerator {
   // end <class AppBuilder>
 
 }
+
 // custom <part app>
 
 /// Alias for [appArg]

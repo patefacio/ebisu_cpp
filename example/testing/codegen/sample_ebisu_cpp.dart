@@ -11,7 +11,7 @@ main() {
 
   Logger.root.onRecord.listen((LogRecord r) =>
       print("${r.loggerName} [${r.level}]:\t${r.message}"));
-  String here = absolute(Platform.script.path);
+  String here = absolute(Platform.script.toFilePath());
   final dir = dirname(dirname(here));
   final sample = installation('sample')
     ..root = dir

@@ -479,6 +479,7 @@ void $name($argType $name) {''';
   // end <class StandardSetterCreator>
 
 }
+
 // custom <part member>
 
 Member member(Object id) => new Member(id is Id ? id : new Id(id));

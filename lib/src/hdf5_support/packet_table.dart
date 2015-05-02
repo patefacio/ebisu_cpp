@@ -74,5 +74,6 @@ class PacketTableDecorator implements InstallationDecorator {
 /// Create a PacketTableDecorator sans new, for more declarative construction
 PacketTableDecorator packetTableDecorator([List<LogGroup> logGroups]) =>
     new PacketTableDecorator(logGroups);
+
 // custom <part packet_table>
 // end <part packet_table>

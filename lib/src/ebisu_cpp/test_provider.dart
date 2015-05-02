@@ -20,6 +20,7 @@ const TcCodeBlock tcOpen = TcCodeBlock.tcOpen;
 /// The custom block appearing at the end of the clause
 ///
 const TcCodeBlock tcClose = TcCodeBlock.tcClose;
+
 /// Models common elements of the *Given*, *When*, *Then* clauses.
 /// Each *TestClause* has its own [clause] text associated with it
 /// and [CodeBlock]s to augment/initialize/teardown.
@@ -272,6 +273,7 @@ class CatchTestProvider extends TestProvider {
   // end <class CatchTestProvider>
 
 }
+
 // custom <part test_provider>
 
 _thenTestText(Then then) {

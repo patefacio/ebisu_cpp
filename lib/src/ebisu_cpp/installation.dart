@@ -237,6 +237,7 @@ class PathLocator {
 
   String _path;
 }
+
 // custom <part installation>
 
 _asId(id) => id is Id ? id : new Id(id);

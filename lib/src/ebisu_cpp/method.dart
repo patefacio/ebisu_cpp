@@ -299,6 +299,7 @@ class InterfaceImplementation {
   // end <class InterfaceImplementation>
 
 }
+
 // custom <part method>
 
 /// Convenience fucnction for creating an [Interface]

@@ -39,5 +39,6 @@ class Test extends Impl implements CodeGenerator {
 
   Map<String, String> _testImplementations = {};
 }
+
 // custom <part test>
 // end <part test>

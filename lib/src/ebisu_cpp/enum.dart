@@ -297,6 +297,7 @@ ${
   List<String> _valueNames;
   Map<String, int> _valueMap;
 }
+
 // custom <part enum>
 
 Enum enum_(Object id) => new Enum(id is Id ? id : new Id(id));

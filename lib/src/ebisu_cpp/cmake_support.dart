@@ -115,6 +115,7 @@ cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
   // end <class CmakeInstallationBuilder>
 
 }
+
 // custom <part cmake_support>
 
 installationCmakeCommon(Installation installation) =>
