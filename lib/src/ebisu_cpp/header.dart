@@ -71,7 +71,6 @@ $text
   // end <class Header>
 
 }
-
 // custom <part header>
 Header header(Object id) => new Header(id is Id ? id : new Id(id));
 // end <part header>

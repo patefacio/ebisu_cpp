@@ -89,6 +89,5 @@ class Loggable {
   // end <class Loggable>
 
 }
-
 // custom <part log_provider>
 // end <part log_provider>

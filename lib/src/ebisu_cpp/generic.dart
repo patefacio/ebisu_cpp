@@ -34,6 +34,5 @@ class TraitsFamily extends Entity {
   // end <class TraitsFamily>
 
 }
-
 // custom <part generic>
 // end <part generic>

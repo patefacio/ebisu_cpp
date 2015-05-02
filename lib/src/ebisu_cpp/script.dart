@@ -13,6 +13,5 @@ class Script extends Entity implements CodeGenerator {
   // end <class Script>
 
 }
-
 // custom <part script>
 // end <part script>

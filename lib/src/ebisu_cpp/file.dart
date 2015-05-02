@@ -115,7 +115,6 @@ abstract class CppFile extends Entity with Testable {
   String _basename;
   String _filePath;
 }
-
 // custom <part file>
 
 bool useClangFormatter = false;

@@ -31,7 +31,6 @@ class Impl extends CppFile {
   // end <class Impl>
 
 }
-
 // custom <part impl>
 
 Impl impl(Object id) => new Impl(id is Id ? id : new Id(id));

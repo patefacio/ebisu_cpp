@@ -19,7 +19,6 @@ const SerializationStyle xmlSerialization = SerializationStyle.xmlSerialization;
 ///
 const SerializationStyle binarySerialization =
     SerializationStyle.binarySerialization;
-
 /// Establishes an interface for instance serialization
 abstract class Serializer {
 
@@ -190,7 +189,6 @@ void serialize(Archive &ar__) {''',
   // end <class Cereal>
 
 }
-
 // custom <part serializer>
 
 final json = jsonSerialization;
