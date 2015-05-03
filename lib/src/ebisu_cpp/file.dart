@@ -52,8 +52,14 @@ abstract class CppFile extends CppEntity with Testable {
 
   set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();
 
-  Iterable<Entity> get children =>
-      concat([classes, constExprs, enums, testScenarios]);
+  Iterable<Entity> get children => concat([
+    classes,
+    constExprs,
+    enums,
+    usings,
+    _test == null ? [] : [test],
+    testScenarios
+  ]);
 
   set __basename(String name) => _basename = name;
 

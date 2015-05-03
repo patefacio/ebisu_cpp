@@ -124,8 +124,11 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
 
   Installation get installation => super.installation;
 
-  get requiresLogging => (_requiresLogging != null && _requiresLogging) ||
-      concat([headers, impls]).any((cls) => cls.requiresLogging);
+  get requiresLogging {
+    return (installation.logsApiInitializations ||
+            _requiresLogging != null && _requiresLogging) ||
+        concat([headers, impls]).any((cls) => cls.requiresLogging);
+  }
 
   get apiHeader => headers.firstWhere((h) => h.isApiHeader, orElse: () => null);
 
@@ -145,9 +148,6 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
 
     final cpp = installation.paths["cpp"];
     headers.forEach((Header header) {
-      if (header.namespace == null) {
-        header.namespace = namespace;
-      }
       header.setFilePathFromRoot(installation.cppPath);
 
       if (apiHeader != null && apiHeader != header) header.includes

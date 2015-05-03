@@ -93,28 +93,29 @@ import 'package:id/id.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:quiver/iterables.dart';
+
 // custom <additional imports>
 // end <additional imports>
 
-part 'src/ebisu_cpp/generic.dart';
-part 'src/ebisu_cpp/log_provider.dart';
-part 'src/ebisu_cpp/utils.dart';
-part 'src/ebisu_cpp/file.dart';
-part 'src/ebisu_cpp/enum.dart';
-part 'src/ebisu_cpp/member.dart';
+part 'src/ebisu_cpp/app.dart';
 part 'src/ebisu_cpp/class.dart';
-part 'src/ebisu_cpp/method.dart';
-part 'src/ebisu_cpp/serializer.dart';
+part 'src/ebisu_cpp/cmake_support.dart';
+part 'src/ebisu_cpp/doxy.dart';
+part 'src/ebisu_cpp/enum.dart';
+part 'src/ebisu_cpp/file.dart';
+part 'src/ebisu_cpp/generic.dart';
 part 'src/ebisu_cpp/header.dart';
 part 'src/ebisu_cpp/impl.dart';
-part 'src/ebisu_cpp/test_provider.dart';
-part 'src/ebisu_cpp/lib.dart';
-part 'src/ebisu_cpp/app.dart';
-part 'src/ebisu_cpp/cmake_support.dart';
-part 'src/ebisu_cpp/script.dart';
-part 'src/ebisu_cpp/test.dart';
 part 'src/ebisu_cpp/installation.dart';
-part 'src/ebisu_cpp/doxy.dart';
+part 'src/ebisu_cpp/lib.dart';
+part 'src/ebisu_cpp/log_provider.dart';
+part 'src/ebisu_cpp/member.dart';
+part 'src/ebisu_cpp/method.dart';
+part 'src/ebisu_cpp/script.dart';
+part 'src/ebisu_cpp/serializer.dart';
+part 'src/ebisu_cpp/test.dart';
+part 'src/ebisu_cpp/test_provider.dart';
+part 'src/ebisu_cpp/utils.dart';
 
 final _logger = new Logger('ebisu_cpp');
 
@@ -438,7 +439,13 @@ CPpEntities must be created with id of String or Id: ${id.runtimeType}=$id''';
   }
 
   /// Returns the [Namer] associated with the entity
-  Namer get namer => _namer == null ? defaultNamer : _namer;
+  Namer get namer {
+    if (_namer == null) {
+      final myInstallation = installation;
+      return myInstallation != null ? myInstallation.namer : defaultNamer;
+    }
+    return _namer;
+  }
 
   /// This is called after ownership has been established and provides a
   /// mechanism for any work required before code generation but after all
@@ -454,18 +461,26 @@ CPpEntities must be created with id of String or Id: ${id.runtimeType}=$id''';
   void _finalizeEntity() {}
 
   /// Returns the installation, usually the root node, of this entity
-  Installation get installation => (this as Entity).owner == null
-      ? this
-      : ((this as Entity).owner as CppEntity).installation;
+  Installation get installation {
+    if (owner == null) {
+      if (this is! Installation) {
+        _logger.info('${runtimeType}:$id has no associated installation');
+        return null;
+      }
+      return this;
+    } else {
+      return (owner as CppEntity).installation;
+    }
+  }
 
   // end <class CppEntity>
 
-  /// Namer to be used when generating names during generation. There is a
-  /// default namer, [EbisuCppNamer] that is used if one is not provide. To
-  /// create your own naming conventions, provide an implementation of
-  /// [Namer] and set an assign that namer to a top-level [Entity], such as
-  /// the [Installation]. The assigned namer will be propogated to all
-  /// genration utilities.
+  /// CppEntity specific [Namer].
+  ///
+  /// Prefer to use the [Installation] namer which is provided via [namer]
+  /// getter. It assumes the [CppEntity] is progeny of an [Installation],
+  /// which is not always the case. Use in cases where not - e.g. creating
+  /// content without being tied to an installation - this can be used.
   Namer _namer;
 }
 

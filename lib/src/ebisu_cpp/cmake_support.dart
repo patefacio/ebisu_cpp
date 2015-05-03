@@ -118,10 +118,10 @@ cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
 
 // custom <part cmake_support>
 
-installationCmakeCommon(Installation installation) =>
-    path.join(installation.root, 'cpp', 'cmake.${installation.name}.common');
+installationCmakeCommon(Installation installation) => path.join(
+    installation.rootFilePath, 'cpp', 'cmake.${installation.name}.common');
 
 installationCmakeRoot(Installation installation) =>
-    path.join(installation.root, 'cpp', 'CMakeLists.txt');
+    path.join(installation.rootFilePath, 'cpp', 'CMakeLists.txt');
 
 // end <part cmake_support>

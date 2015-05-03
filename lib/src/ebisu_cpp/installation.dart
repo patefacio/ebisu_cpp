@@ -8,9 +8,9 @@ abstract class InstallationBuilder implements CodeGenerator {
   // custom <class InstallationBuilder>
 
   get name => installation.id.snake;
-  get rootPath => installation.root;
-  get docPath => path.join(rootPath, 'doc');
-  get cppPath => path.join(rootPath, 'cpp');
+  get rootFilePath => installation.rootFilePath;
+  get docPath => path.join(rootFilePath, 'doc');
+  get cppPath => path.join(rootFilePath, 'cpp');
   get testables => installation.testables;
   get apps => installation.apps;
   get libs => installation.libs;
@@ -22,11 +22,28 @@ abstract class InstallationBuilder implements CodeGenerator {
 
 }
 
+/// The to level [CppEntity] representing the root of a C++ installation.
+///
+/// The composition of generatable [CppEntity] items starts here. This is
+/// where the [root] (i.e. target root path) is defined, dictating
+/// locations of the tree of C++. This is the object to configure *global*
+/// type features like:
+///
+///  - Provide a [Namer] to control the naming conventions
+///
+///  - Provide a [TestProvider] to control how tests are provided
+///
+///  - Provide a [LogProvider] to control what includes are required for
+///    the desired logging solution and how certain [Loggable] entities
+///    should log
+///
+///  - Should support for logging api initialization be generated
+///
 class Installation extends CppEntity implements CodeGenerator {
 
-  /// Fully qualified path to installation
+  /// Fully qualified file path to installation
   ///
-  String get root => _root;
+  String get rootFilePath => _rootFilePath;
   Map<String, String> get paths => _paths;
   List<Lib> libs = [];
   List<App> apps = [];
@@ -41,20 +58,24 @@ class Installation extends CppEntity implements CodeGenerator {
   ///
   InstallationBuilder installationBuilder;
   DoxyConfig doxyConfig = new DoxyConfig();
+  /// If true logs initialization of libraries - useful for tracking
+  /// down order of initialization issues.
+  ///
+  bool logsApiInitializations = false;
 
   // custom <class Installation>
 
   Installation(Id id) : super(id) {
-    root = '/tmp';
+    rootFilePath = '/tmp';
   }
 
-  set root(String root) {
-    _root = root;
+  set rootFilePath(String rfp) {
+    _rootFilePath = rfp;
     _paths = {
       'usr_lib': '/usr/lib',
       'usr_include': 'usr/include',
-      'doc': '${_root}/doc',
-      'cpp': '${_root}/cpp',
+      'doc': '${_rootFilePath}/doc',
+      'cpp': '${_rootFilePath}/cpp',
     };
   }
 
@@ -73,7 +94,7 @@ class Installation extends CppEntity implements CodeGenerator {
   decorateWith(InstallationDecorator decorator) => decorator.decorate(this);
 
   String toString() => '''
-Installation($root)
+Installation($rootFilePath)
   libs: =>\n${libs.map((l) => l.toString()).join('')}
   apps: => ${apps.map((a) => a.id).join(', ')}
   scripts: => ${scripts.map((s) => s.id).join(', ')}
@@ -104,9 +125,11 @@ Installation($root)
     owner = null;
     logProvider..installationId = this.id;
 
-    if (_namer == null) {
-      _namer = defaultNamer;
-    }
+    // if (_namer == null) {
+    //   _namer = defaultNamer;
+    // }
+
+    _patchHeaderNamespaces();
 
     _addApiHeaderForLibsWithLogging();
 
@@ -124,7 +147,7 @@ Installation($root)
               'smoking ${header.id} issues with ns ${header.namespace}');
           final impl = new Impl(idFromString('smoke_${header.id.snake}'))
             ..namespace = namespace(['smoke'])
-            ..setLibFilePathFromRoot(root)
+            ..setLibFilePathFromRoot(rootFilePath)
             ..includes = [header.includeFilePath];
           return impl;
         }).toList();
@@ -145,7 +168,7 @@ Installation($root)
     }
 
     if (generateDoxyFile) {
-      final docPath = path.join(_root, 'doc');
+      final docPath = path.join(rootFilePath, 'doc');
       mergeWithFile((doxyConfig
         ..projectName = id.snake
         ..projectBrief = doc
@@ -154,6 +177,13 @@ Installation($root)
           path.join(docPath, '${id.snake}.doxy'));
     }
   }
+
+  _patchHeaderNamespaces() => libs.forEach((Lib lib) {
+    assert(lib.namespace != null);
+    lib.headers.where((Header h) => h.namespace == null).forEach((Header h) {
+      h.namespace = lib.namespace;
+    });
+  });
 
   /// Any library requiring logging support needs access to a logger That logger
   /// could go in the [App], but then you would not have a self-contained [Lib]
@@ -165,20 +195,26 @@ Installation($root)
       .where((lib) => lib.requiresLogging)
       .forEach((Lib lib) {
     if (lib.apiHeader == null) {
-      final apiHeader = header(lib.id)
-        ..namespace = lib.namespace
-        ..isApiHeader = true
-        ..includes.addAll(logProvider.includeRequirements.included)
-        ..owner = lib;
+      final badConvention = lib.headers.any((h) => h.id == lib.id);
+      if (badConvention) {
+        _logger.severe('Lib ${lib.id} requires logging '
+            'but has no apiHeader to install logger');
+      } else {
+        _logger.info('${lib.id} requires logging but has no apiHeader - '
+            'adding ${lib.id} with ns ${lib.namespace}');
 
-      apiHeader.getCodeBlock(fcbEndNamespace).snippets
-          .add(logProvider.createLibLogger(lib));
+        final apiHeader = header(lib.id)
+          ..namespace = lib.namespace
+          ..isApiHeader = true
+          ..includes.addAll(logProvider.includeRequirements.included)
+          ..owner = lib;
 
-      _logger.info('${lib.id} requires logging but has no apiHeader - '
-          'adding ${apiHeader.id} with ns ${apiHeader.namespace}');
+        apiHeader.getCodeBlock(fcbEndNamespace).snippets
+            .add(logProvider.createLibLogger(lib));
 
-      lib.headers.add(apiHeader);
-      assert(lib.apiHeader != null);
+        lib.headers.add(apiHeader);
+        assert(lib.apiHeader != null);
+      }
     }
   });
 
@@ -199,8 +235,15 @@ Installation($root)
 
   // end <class Installation>
 
-  String _root;
+  String _rootFilePath;
   Map<String, String> _paths = {};
+  /// Namer to be used when generating names during generation. There is a
+  /// default namer, [EbisuCppNamer] that is used if one is not provide. To
+  /// create your own naming conventions, provide an implementation of
+  /// [Namer] and set an assign that namer to a top-level [Entity], such as
+  /// the [Installation]. The assigned namer will be propogated to all
+  /// genration utilities.
+  Namer _namer = defaultNamer;
 }
 
 class PathLocator {

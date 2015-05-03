@@ -1,10 +1,12 @@
 library ebisu_cpp.test_cpp_method;
 
+import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:unittest/unittest.dart';
-import 'package:args/args.dart';
+
 // custom <additional imports>
 import 'package:ebisu_cpp/ebisu_cpp.dart';
+
 // end <additional imports>
 
 final _logger = new Logger('test_cpp_method');

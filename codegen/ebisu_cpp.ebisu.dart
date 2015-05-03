@@ -27,7 +27,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.1.1'
+    ..pubSpec.version = '0.1.2'
     ..pubSpec.doc = purpose
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -250,17 +250,19 @@ prints:
           member('id')
           ..doc = 'Id for the [CppEntity]'
           ..type = 'Id',
+
           member('namer')
           ..doc = '''
-Namer to be used when generating names during generation. There is a
-default namer, [EbisuCppNamer] that is used if one is not provide. To
-create your own naming conventions, provide an implementation of
-[Namer] and set an assign that namer to a top-level [Entity], such as
-the [Installation]. The assigned namer will be propogated to all
-genration utilities.
+CppEntity specific [Namer].
+
+Prefer to use the [Installation] namer which is provided via [namer]
+getter. It assumes the [CppEntity] is progeny of an [Installation],
+which is not always the case. Use in cases where not - e.g. creating
+content without being tied to an installation - this can be used.
 '''
           ..access = IA
           ..type = 'Namer',
+
         ],
         class_('using')
         ..doc = 'Object corresponding to a using statement'
@@ -2154,10 +2156,29 @@ Creates builder for an installation (ie ties together all build artifacts)
             member('installation')..type = 'Installation'
           ],
           class_('installation')
+          ..doc = '''
+The to level [CppEntity] representing the root of a C++ installation.
+
+The composition of generatable [CppEntity] items starts here. This is
+where the [root] (i.e. target root path) is defined, dictating
+locations of the tree of C++. This is the object to configure *global*
+type features like:
+
+ - Provide a [Namer] to control the naming conventions
+
+ - Provide a [TestProvider] to control how tests are provided
+
+ - Provide a [LogProvider] to control what includes are required for
+   the desired logging solution and how certain [Loggable] entities
+   should log
+
+ - Should support for logging api initialization be generated
+'''
           ..extend = 'CppEntity'
           ..implement = [ 'CodeGenerator' ]
           ..members = [
-            member('root')..doc = 'Fully qualified path to installation'..access = RO,
+            member('root_file_path')
+            ..doc = 'Fully qualified file path to installation'..access = RO,
             member('paths')..type = 'Map<String, String>'..classInit = {}..access = RO,
             member('libs')..type = 'List<Lib>'..classInit = [],
             member('apps')..type = 'List<App>'..classInit = [],
@@ -2173,9 +2194,29 @@ Creates builder for an installation (ie ties together all build artifacts)
             member('installation_builder')
             ..doc = 'The builder for this installation'
             ..type = 'InstallationBuilder',
+
+            member('namer')
+            ..doc = '''
+Namer to be used when generating names during generation. There is a
+default namer, [EbisuCppNamer] that is used if one is not provide. To
+create your own naming conventions, provide an implementation of
+[Namer] and set an assign that namer to a top-level [Entity], such as
+the [Installation]. The assigned namer will be propogated to all
+genration utilities.
+'''
+            ..access = IA
+            ..type = 'Namer'
+            ..classInit = 'defaultNamer',
+
             member('doxy_config')
             ..type = 'DoxyConfig'
             ..classInit = 'new DoxyConfig()',
+            member('logs_api_initializations')
+            ..doc = '''
+If true logs initialization of libraries - useful for tracking
+down order of initialization issues.
+'''
+            ..classInit = false,
           ],
           class_('path_locator')
           ..members = [

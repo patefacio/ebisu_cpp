@@ -21,9 +21,9 @@ class Header extends CppFile {
 
   get requiresLogging => classes.any((cls) => cls.requiresLogging);
 
-  setFilePathFromRoot(String root, [name]) {
+  setFilePathFromRoot(String rootFilePath, [name]) {
     __basename = name == null ? namer.nameHeader(id) : name;
-    return _filePath = path.join(root, namespace.asPath, _basename);
+    return _filePath = path.join(rootFilePath, namespace.asPath, _basename);
   }
 
   String get contents {

@@ -12,11 +12,9 @@ class Impl extends CppFile {
 
   String get contents => _contentsWithBlocks;
 
-  setLibFilePathFromRoot(String root, [name]) {
+  setLibFilePathFromRoot(String rootFilePath, [name]) {
     _basename = name == null ? namer.nameImpl(id) : name;
-    print('basename is $_basename from $name');
-    print(path.join('/goo/bar/', '/goo/bar/moo/a.x'));
-    _filePath = path.join(root, 'lib', namespace.asPath, _basename);
+    _filePath = path.join(rootFilePath, 'lib', namespace.asPath, _basename);
   }
 
   setLibFilePath(String libFilePath) {
@@ -24,9 +22,9 @@ class Impl extends CppFile {
     _filePath = libFilePath;
   }
 
-  setAppFilePathFromRoot(String root, [name]) {
+  setAppFilePathFromRoot(String rootFilePath, [name]) {
     _basename = name == null ? namer.nameImpl(id) : name;
-    return _filePath = path.join(root, 'app', id.snake, _basename);
+    return _filePath = path.join(rootFilePath, 'app', id.snake, _basename);
   }
 
   // end <class Impl>

@@ -28,8 +28,8 @@ class Test extends Impl implements CodeGenerator {
   addTestImplementations(Map<String, String> impls) =>
       _testImplementations.addAll(impls);
 
-  setFilePathFromRoot(String root, [fileBasename]) =>
-      _filePath = path.join(root, _testFilePathFromRoot(fileBasename));
+  setFilePathFromRoot(String rootFilePath, [fileBasename]) =>
+      _filePath = path.join(rootFilePath, _testFilePathFromRoot(fileBasename));
 
   String get contents => _contentsWithBlocks;
 
