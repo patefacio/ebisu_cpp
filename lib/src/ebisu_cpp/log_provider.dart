@@ -18,7 +18,7 @@ abstract class LogProvider {
   // custom <class LogProvider>
 
   String logMethodInvocation(Lib lib, String methodName);
-  String createLibLogger(Id libId);
+  String createLibLogger(Lib lib);
 
   set installationId(Id id) {
     _installationId = id;
@@ -31,6 +31,7 @@ abstract class LogProvider {
 }
 
 /// Provides support for logging via spdlog
+///
 class SpdlogProvider extends LogProvider {
 
   // custom <class SpdlogProvider>
@@ -83,6 +84,7 @@ inline std::shared_ptr<spdlog::logger>& ${loggerName}() {
 class Loggable {
 
   /// If true the [Loggable] item is logged
+  ///
   bool isLogged = false;
 
   // custom <class Loggable>

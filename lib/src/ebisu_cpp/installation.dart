@@ -22,19 +22,23 @@ abstract class InstallationBuilder implements CodeGenerator {
 
 }
 
-class Installation extends Entity implements CodeGenerator {
+class Installation extends CppEntity implements CodeGenerator {
 
   /// Fully qualified path to installation
+  ///
   String get root => _root;
   Map<String, String> get paths => _paths;
   List<Lib> libs = [];
   List<App> apps = [];
   List<Script> scripts = [];
   /// Provider for generating tests
+  ///
   TestProvider testProvider = new CatchTestProvider();
   /// Provider for generating tests
+  ///
   LogProvider logProvider = new SpdlogProvider(new EbisuCppNamer());
   /// The builder for this installation
+  ///
   InstallationBuilder installationBuilder;
   DoxyConfig doxyConfig = new DoxyConfig();
 
@@ -80,6 +84,8 @@ Installation($root)
   addLibs(Iterable<Lib> libs) => libs.forEach((l) => addLib(l));
   addApp(App app) => apps.add(app);
 
+  Iterable<CppEntity> get children => concat([apps, libs, scripts]);
+
   // Generate the installation
   //
   // generateHeaderSmokeTest: If set will generate a single cpp per header that
@@ -93,8 +99,9 @@ Installation($root)
   //
   generate({generateBuildScripts: false, generateHeaderSmokeTest: false,
       generateDoxyFile: false}) {
-    owner = null;
 
+    /// This assignment triggers the linkup of all children
+    owner = null;
     logProvider..installationId = this.id;
 
     if (_namer == null) {
@@ -103,7 +110,7 @@ Installation($root)
 
     _addApiHeaderForLibsWithLogging();
 
-    progeny.forEach((Entity child) => child._namer = _namer);
+    progeny.forEach((Entity child) => (child as CppEntity)._namer = _namer);
 
     concat([libs]).forEach((CodeGenerator cg) => cg.generate());
 
@@ -167,8 +174,8 @@ Installation($root)
       apiHeader.getCodeBlock(fcbEndNamespace).snippets
           .add(logProvider.createLibLogger(lib));
 
-      print(
-          '${lib.id} requires logging but has no apiHeader - adding ${apiHeader.id} with ns ${apiHeader.namespace}');
+      _logger.info('${lib.id} requires logging but has no apiHeader - '
+          'adding ${apiHeader.id} with ns ${apiHeader.namespace}');
 
       lib.headers.add(apiHeader);
       assert(lib.apiHeader != null);
@@ -190,8 +197,6 @@ Installation($root)
 
   get cppPath => _pathLookup('cpp');
 
-  Iterable<Entity> get children => concat([apps, libs, scripts]);
-
   // end <class Installation>
 
   String _root;
@@ -201,8 +206,10 @@ Installation($root)
 class PathLocator {
 
   /// Environment variable specifying location of path, if set this path is used
+  ///
   final String envVar;
   /// Default path for the item in question
+  ///
   final String defaultPath;
   String get path => _path;
 

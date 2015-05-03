@@ -25,7 +25,7 @@ const TcCodeBlock tcClose = TcCodeBlock.tcClose;
 /// Each *TestClause* has its own [clause] text associated with it
 /// and [CodeBlock]s to augment/initialize/teardown.
 ///
-abstract class TestClause extends Entity {
+abstract class TestClause extends CppEntity {
   CodeBlock startCodeBlock = new CodeBlock(null);
   CodeBlock endCodeBlock = new CodeBlock(null);
 
@@ -117,7 +117,7 @@ ${indentBlock(br(thens))}
 
 }
 
-class TestScenario extends Entity {
+class TestScenario extends CppEntity {
   List<Given> givens;
 
   // custom <class TestScenario>
@@ -142,12 +142,14 @@ ${indentBlock(br(givens))}
 class Testable {
   List<TestScenario> testScenarios = [];
   /// The single test for this [Testable]
+  ///
   set test(Test test) => _test = test;
 
   // custom <class Testable>
 
-  Test get test =>
-      _test == null ? (_test = new Test(this)..owner = this) : _test;
+  Test get test => _test == null
+      ? (_test = new Test(this)..owner = (this as CppEntity))
+      : _test;
 
   get hasTest => testScenarios.isNotEmpty;
 

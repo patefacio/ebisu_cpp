@@ -10,6 +10,7 @@ class Traits {
 }
 
 /// Collection of requirements for a [Traits] entry in a [TraitsFamily]
+///
 class TraitsRequirements {
   List<Id> get usings => _usings;
   List<Id> get constExprs => _constExprs;
@@ -21,7 +22,7 @@ class TraitsRequirements {
   List<Id> _constExprs;
 }
 
-class TraitsFamily extends Entity {
+class TraitsFamily extends CppEntity {
   TraitsRequirements traitsRequirements;
   List<Traits> traits;
 

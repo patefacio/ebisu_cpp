@@ -6,6 +6,7 @@ part of ebisu_cpp.hdf5_support;
 class ClassNotFoundException implements Exception {
 
   /// Exception details
+  ///
   String get message => _message;
 
   // custom <class ClassNotFoundException>
@@ -27,9 +28,11 @@ class LogGroup {
   LogGroup(this.className, [this.memberNames = const []]);
 
   /// Name of class, *snake case*, to add a packet table log group
+  ///
   final String className;
   /// Name of members of class, *snake case*, to include in the packet table
   /// log group. An empty list will include all members in the table.
+  ///
   final List<String> memberNames;
 
   // custom <class LogGroup>
@@ -52,7 +55,7 @@ class PacketTableDecorator implements InstallationDecorator {
     logGroups.forEach((LogGroup logGroup) {
       final className = logGroup.className;
       final targetClass = installation.progeny.firstWhere(
-          (Entity entity) => entity is Class && entity.id.snake == className,
+          (CppEntity entity) => entity is Class && entity.id.snake == className,
           orElse: () =>
               throw new ClassNotFoundException(className, installation));
       assert(targetClass is Class);

@@ -392,28 +392,20 @@ abstract class InstallationDecorator {
 ///
 ///       tests:
 ///
-abstract class Entity {
+abstract class CppEntity extends Object with Entity {
 
-  /// Id for the entity
+  /// Id for the [CppEntity]
+  ///
   Id id;
-  /// Brief description for the entity
-  String brief;
-  /// Description of entity
-  String descr;
-  /// The entity containing this entity (e.g. the [Class] containing the [Member]).
-  /// [Installation] is a top level entity and has no owner.
-  Entity get owner => _owner;
-  /// Path from root to this entity
-  List<Entity> get entityPath => _entityPath;
 
-  // custom <class Entity>
+  // custom <class CppEntity>
 
-  Entity(Object id) : this.id = id is String
+  CppEntity(Object id) : this.id = id is String
           ? idFromString(id)
           : id is Id
               ? id
               : throw '''
-Entities must be created with an id of type String or Id: ${id.runtimeType}=$id''';
+CPpEntities must be created with id of String or Id: ${id.runtimeType}=$id''';
 
   String get briefComment => brief != null ? '//! $brief' : null;
 
@@ -421,67 +413,16 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
 
   String get docComment => combine([briefComment, detailedComment]);
 
-  Iterable<Id> get entityPathIds => _entityPath.map((e) => e.id);
-
-  /// Provide a unique id for the entity This is important in some contexts
-  /// where the entity id needs to be unique among other potentially similarly
-  /// named items. Consider a [TestScenario] where there are several [When]
-  /// clauses with the same name appearing in different [Given] clauses. This
-  /// function allows custom block tags to still be unique. It includes the full
-  /// path in the hasing to ensure uniqueness across the entities.
-  get uniqueId => entityPathIds.toString().hashCode;
-
-  /// Returns the path to *this* [Entity] in dotted form
-  /// Example:
-  ///
-  ///    fooLib.dottedName => 'linux_specific.umask_scoped_set.umask_scoped_set'
-  ///
-  get dottedName => entityPathIds.map((id) => id.snake).join('.');
-
-  /// Returns the entity path with type for each
-  get detailedPath => brCompact(
-      entityPath.map((e) => '(${e.runtimeType}:${e.id.snake})').join(', '));
-
-  /// *doc* is a synonym for descr
-  set doc(String d) => descr = d;
-  get doc => descr;
-
-  get hasComment => brief != null || descr != null;
-
   get includes => null;
 
   get allIncludes => children.fold(new Includes()..mergeIncludes(includes),
       (prev, child) => prev.mergeIncludes(child.allIncludes));
 
-  /// Establishes the [Entity] that *this* [Entity] is owned by. This
-  /// function should be called only when all declarative information
-  /// is available and the [Installation] is ready to be
-  /// generated. Entities wanting to perform any actions required
-  /// prior to code genreation can hook into this flow by implementing
-  /// [_finalizeEntity] which is called after ownership is
-  /// established.
-  set owner(Entity newOwner) {
-    bool isRoot = newOwner == null;
-    _owner = newOwner;
-    _finalizeEntity();
-
-    if (!isRoot) {
-      _entityPath
-        ..addAll(newOwner.entityPath)
-        ..add(this);
-    }
-
-    _logger.info('Set owner ($id:${runtimeType}) to '
-        '${newOwner == null? "root" : "(${newOwner.id}:${newOwner.runtimeType})"}');
-
-    for (final child in children) {
-      child.owner = this;
-    }
-  }
-
   _typedOwningEntity(typePred) => typePred(this)
       ? this
-      : owner == null ? owner : owner._typedOwningEntity(typePred);
+      : owner == null
+          ? owner
+          : (owner as CppEntity)._typedOwningEntity(typePred);
 
   /// Walk up the entities to find owning [Lib]
   Lib get owningLib => _typedOwningEntity((t) => t is Lib);
@@ -490,7 +431,7 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
   App get owningApp => _typedOwningEntity((t) => t is App);
 
   set namer(Namer namer) {
-    if (_owner != null) {
+    if (owner != null) {
       throw new Exception('Namer should only be set on root entity');
     }
     _namer = namer;
@@ -498,9 +439,6 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
 
   /// Returns the [Namer] associated with the entity
   Namer get namer => _namer == null ? defaultNamer : _namer;
-
-  /// All entities must provide iteration on [children] entities
-  Iterable<Entity> get children;
 
   /// This is called after ownership has been established and provides a
   /// mechanism for any work required before code generation but after all
@@ -515,30 +453,13 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
   ///
   void _finalizeEntity() {}
 
-  /// Returns a list of all children recursively
-  List<Entity> get progeny => children.fold([], (all, child) => all
-    ..add(child)
-    ..addAll(child.progeny));
-
-  /// Walks the list up throuh the ownership chain, returning a List<Entity> of
-  /// all owners
-  List<Entity> get ancestry {
-    final List<Entity> result = [];
-    var parent = _owner;
-    while (parent != null) {
-      result.add(parent);
-      parent = parent._owner;
-    }
-    return result;
-  }
-
   /// Returns the installation, usually the root node, of this entity
-  Installation get installation => _owner == null ? this : _owner.installation;
+  Installation get installation => (this as Entity).owner == null
+      ? this
+      : ((this as Entity).owner as CppEntity).installation;
 
-  // end <class Entity>
+  // end <class CppEntity>
 
-  Entity _owner;
-  List<Entity> _entityPath = [];
   /// Namer to be used when generating names during generation. There is a
   /// default namer, [EbisuCppNamer] that is used if one is not provide. To
   /// create your own naming conventions, provide an implementation of
@@ -549,9 +470,11 @@ Entities must be created with an id of type String or Id: ${id.runtimeType}=$id'
 }
 
 /// Object corresponding to a using statement
-class Using extends Entity {
+///
+class Using extends CppEntity {
 
   /// The right hand side of using (ie the type decl being named)
+  ///
   String get rhs => _rhs;
 
   // custom <class Using>
@@ -574,7 +497,7 @@ class Using extends Entity {
   String _rhs;
 }
 
-abstract class TemplateParm extends Entity {
+abstract class TemplateParm extends CppEntity {
 
   // custom <class TemplateParm>
   TemplateParm(id) : super(id);
@@ -602,6 +525,7 @@ class TypeTemplateParm extends TemplateParm {
 class DeclTemplateParm extends TemplateParm {
   List<String> terms;
   /// Index into the terms indicating the id
+  ///
   int idIndex;
 
   // custom <class DeclTemplateParm>
@@ -617,7 +541,7 @@ class DeclTemplateParm extends TemplateParm {
 
 /// Represents a template declaration comprized of a list of [decls]
 ///
-class Template extends Entity {
+class Template extends CppEntity {
   List<TemplateParm> parms;
 
   // custom <class Template>

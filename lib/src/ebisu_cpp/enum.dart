@@ -123,28 +123,38 @@ part of ebisu_cpp.ebisu_cpp;
 ///       throw std::runtime_error(msg + str);
 ///     }
 ///
-class Enum extends Entity {
+class Enum extends CppEntity {
 
   /// Strings for the values of the enum
+  ///
   List<String> get values => _values;
   /// String value, numeric value pairs
+  ///
   Map<String, int> get valueMap => _valueMap;
   /// If true the enum is a class enum as opposed to "plain" enum
+  ///
   bool isClass = false;
   /// Base of enum - if set must be an integral type
+  ///
   String enumBase;
   /// If true adds from_c_str method
+  ///
   bool hasFromCStr = false;
   /// If true adds to_c_str method
+  ///
   bool hasToCStr = false;
   /// If true adds streaming support
+  ///
   bool isStreamable = false;
   /// If true the values are powers of two for bit masking
+  ///
   bool isMask = false;
   /// If true is nested in class and requires *friend* stream support
+  ///
   bool isNested = false;
   /// If the map has values assigned by user, this can be used to display
   /// them in the enum as hex
+  ///
   bool isDisplayedHex = false;
 
   // custom <class Enum>

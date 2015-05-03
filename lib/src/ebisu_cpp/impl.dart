@@ -1,6 +1,7 @@
 part of ebisu_cpp.ebisu_cpp;
 
 /// A single implementation file (i.e. *cpp* file)
+///
 class Impl extends CppFile {
 
   // custom <class Impl>

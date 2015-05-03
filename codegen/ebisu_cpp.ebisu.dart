@@ -12,6 +12,8 @@ void main() {
       print("${r.loggerName} [${r.level}]:\t${r.message}"));
   String here = path.absolute(Platform.script.toFilePath());
 
+  Logger.root.level = Level.OFF;
+
   final purpose = '''
 A library that supports code generation of C++ code and
 supporting infrastructure. The focus is both code (e.g. classes,
@@ -25,7 +27,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.1.0'
+    ..pubSpec.version = '0.1.1'
     ..pubSpec.doc = purpose
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -191,7 +193,8 @@ Establishes an interface to allow decoration of classes and updates
 (primarily additions) to an [Installation].
 ''',
 
-        class_('entity')
+        class_('cpp_entity')
+        ..mixins = ['Entity']
         ..isAbstract = true
         ..doc = """
 Exposes common elements for named entities, including their [id] and
@@ -245,24 +248,8 @@ prints:
 """
         ..members = [
           member('id')
-          ..doc = 'Id for the entity'
+          ..doc = 'Id for the [CppEntity]'
           ..type = 'Id',
-          member('brief')
-          ..doc = 'Brief description for the entity',
-          member('descr')
-          ..doc = 'Description of entity',
-          member('owner')
-          ..doc = '''
-The entity containing this entity (e.g. the [Class] containing the [Member]).
-[Installation] is a top level entity and has no owner.
-'''
-          ..access = RO
-          ..type = 'Entity',
-          member('entity_path')
-          ..doc = 'Path from root to this entity'
-          ..type = 'List<Entity>'
-          ..access = RO
-          ..classInit = [],
           member('namer')
           ..doc = '''
 Namer to be used when generating names during generation. There is a
@@ -277,7 +264,7 @@ genration utilities.
         ],
         class_('using')
         ..doc = 'Object corresponding to a using statement'
-        ..extend = 'Entity'
+        ..extend = 'CppEntity'
         ..members = [
           member('rhs')
           ..doc = '''
@@ -286,7 +273,7 @@ The right hand side of using (ie the type decl being named)'''
         ],
         class_('template_parm')
         ..isAbstract = true
-        ..extend = 'Entity',
+        ..extend = 'CppEntity',
         class_('type_template_parm')
         ..extend = 'TemplateParm'
         ..members = [
@@ -300,7 +287,7 @@ The right hand side of using (ie the type decl being named)'''
           ..type = 'int',
         ],
         class_('template')
-        ..extend = 'Entity'
+        ..extend = 'CppEntity'
         ..doc = '''
 Represents a template declaration comprized of a list of [decls]
 '''
@@ -324,7 +311,7 @@ Represents a template declaration comprized of a list of [decls]
             member('const_exprs')..type = 'List<Id>'..access = RO,
           ],
           class_('traits_family')
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..members = [
             member('traits_requirements')..type = 'TraitsRequirements',
             member('traits')..type = 'List<Traits>',
@@ -384,7 +371,7 @@ prints:
     constexpr char const* Voo_doo { "foo" };
     constexpr double Pi { 3.14 };
 """
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..members = [
             member('type')
             ..doc = 'The c++ type of the constexpr',
@@ -513,7 +500,7 @@ Gives:
 Establishes an interface and common elements for c++ file, such as
 *Header* and *Impl*.'''
           ..isAbstract = true
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..mixins = [ 'Testable' ]
           ..members = [
             member('namespace')
@@ -689,7 +676,7 @@ a c-string to enum conversion method:
       throw std::runtime_error(msg + str);
     }
 """
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..members = [
             member('values')
             ..doc = 'Strings for the values of the enum'
@@ -872,7 +859,7 @@ Gives:
     };
 
 '''
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..members = [
             member('type')..doc = 'Type of member',
             member('init')
@@ -1417,7 +1404,7 @@ Classes optionally have these items:
   providing *CustomBlocks* and/or for dynamically injecting code - see
   [CodeBlock].
 '''
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..mixins = [ 'Testable' ]
           ..members = [
             member('definition')
@@ -1593,7 +1580,7 @@ prints:
     id    => matrix (Id)
     type  => std::vector< std::vector < double > >
 """
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..members = [
             member('type'),
           ],
@@ -1629,7 +1616,7 @@ Row_list_t find_row(std::string s) {
 
 }
 """
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..members = [
             member('parm_decls')..type = 'List<ParmDecl>'..classInit = [],
             member('return_type'),
@@ -1700,7 +1687,7 @@ prints:
       }
     }
 """
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..members = [
             member('method_decls')
             ..type = 'List<MethodDecl>'
@@ -1787,7 +1774,7 @@ The *TestClauses* are modeled after the *Catch* library *BDD* approach.
         ..classes = [
           class_('test_clause')
           ..isAbstract = true
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..doc = '''
 Models common elements of the *Given*, *When*, *Then* clauses.
 Each *TestClause* has its own [clause] text associated with it
@@ -1822,7 +1809,7 @@ and [CodeBlock]s to augment/initialize/teardown.
             ..type = 'List<Then>',
           ],
           class_('test_scenario')
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..members = [
             member('givens')..type = 'List<Given>',
           ],
@@ -1921,7 +1908,7 @@ Useful for putting definitions just prior to includes, e.g.
         ..classes = [
           class_('lib')
           ..doc = 'A c++ library'
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..mixins = [ 'Testable' ]
           ..implement = [ 'CodeGenerator' ]
           ..members = [
@@ -2042,7 +2029,7 @@ When run, the help looks something like:
       -t [ --timestamp ] arg Some form of timestamp
       -d [ --date ] arg      Some form of date
 '''
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..members = [
             member('type')..type = 'ArgType'..classInit = 'ArgType.STRING',
             member('short_name'),
@@ -2137,7 +2124,7 @@ libraries, apps, and tests'''
         part('script')
         ..classes = [
           class_('script')
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..implement = [ 'CodeGenerator' ]
           ..members = [
           ],
@@ -2167,7 +2154,7 @@ Creates builder for an installation (ie ties together all build artifacts)
             member('installation')..type = 'Installation'
           ],
           class_('installation')
-          ..extend = 'Entity'
+          ..extend = 'CppEntity'
           ..implement = [ 'CodeGenerator' ]
           ..members = [
             member('root')..doc = 'Fully qualified path to installation'..access = RO,

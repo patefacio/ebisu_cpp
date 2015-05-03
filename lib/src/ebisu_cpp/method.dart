@@ -31,7 +31,7 @@ part of ebisu_cpp.ebisu_cpp;
 ///     id    => matrix (Id)
 ///     type  => std::vector< std::vector < double > >
 ///
-class ParmDecl extends Entity {
+class ParmDecl extends CppEntity {
   String type;
 
   // custom <class ParmDecl>
@@ -96,10 +96,11 @@ Try something familiar like these:
 ///
 /// }
 ///
-class MethodDecl extends Entity {
+class MethodDecl extends CppEntity {
   List<ParmDecl> parmDecls = [];
   String returnType;
   /// True if this [MethodDecl] is *const*
+  ///
   bool isConst = false;
 
   // custom <class MethodDecl>
@@ -221,7 +222,7 @@ class Method {
 ///       }
 ///     }
 ///
-class Interface extends Entity {
+class Interface extends CppEntity {
   List<MethodDecl> get methodDecls => _methodDecls;
 
   // custom <class Interface>
@@ -269,10 +270,12 @@ ${_methodDecls.map((md) => md.asVirtual).join('\n')}
 }
 
 /// An [interface] with a [CppAccess] to be implemented by a [Class]
+///
 class InterfaceImplementation {
   Interface interface;
   CppAccess cppAccess = public;
   /// If true the interface is virtual
+  ///
   bool isVirtual = false;
 
   // custom <class InterfaceImplementation>

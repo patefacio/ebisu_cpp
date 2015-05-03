@@ -1,6 +1,6 @@
 part of ebisu_cpp.ebisu_cpp;
 
-class Script extends Entity implements CodeGenerator {
+class Script extends CppEntity implements CodeGenerator {
 
   // custom <class Script>
 

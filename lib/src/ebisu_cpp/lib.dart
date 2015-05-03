@@ -106,7 +106,8 @@ const FileCodeBlock fcbEndNamespace = FileCodeBlock.fcbEndNamespace;
 const FileCodeBlock fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
 
 /// A c++ library
-class Lib extends Entity with Testable implements CodeGenerator {
+///
+class Lib extends CppEntity with Testable implements CodeGenerator {
   Namespace namespace = new Namespace();
   List<Header> headers = [];
   List<Impl> impls = [];
@@ -119,7 +120,7 @@ class Lib extends Entity with Testable implements CodeGenerator {
 
   get name => namer.nameLib(namespace, id);
 
-  Iterable<Entity> get children => concat([headers, testScenarios]);
+  Iterable<CppEntity> get children => concat([headers, testScenarios]);
 
   Installation get installation => super.installation;
 

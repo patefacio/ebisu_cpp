@@ -2,32 +2,42 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// Establishes an interface and common elements for c++ file, such as
 /// *Header* and *Impl*.
-abstract class CppFile extends Entity with Testable {
+///
+abstract class CppFile extends CppEntity with Testable {
 
   /// Namespace associated with this file
+  ///
   Namespace namespace;
   /// List of blocks requiring custom code and therefore inserted into the
   /// file with *Protect Blocks*. Note it is a list of *FileCodeBlock*
   /// enumeration values. *CodeBlocks* can be used to inject code into
   /// the location designated by their value. Additionally *CodeBlocks*
   /// have support for a single custom *Protect Block*
+  ///
   List<FileCodeBlock> customBlocks = [];
   /// List of classes whose definitions are included in this file
+  ///
   List<Class> classes = [];
   /// List of includes required by this c++ file
+  ///
   Includes get includes => _includes;
   /// List of c++ *constexprs* that will appear near the top of the file
+  ///
   List<ConstExpr> constExprs = [];
   /// List of forward declarations that will appear near the top of the file
+  ///
   List<ForwardDecl> forwardDecls = [];
   /// List of using statements that will appear near the top of the file
+  ///
   List<Using> get usings => _usings;
   /// List of enumerations that will appear near the top of the file
+  ///
   List<Enum> enums = [];
   /// List of interfaces for this header. Interfaces result in either:
   ///
   /// * abstract base class with pure virtual methods
   /// * static polymorphic base class with inline forwarding methods
+  ///
   List<Interface> interfaces = [];
   String get basename => _basename;
   String get filePath => _filePath;

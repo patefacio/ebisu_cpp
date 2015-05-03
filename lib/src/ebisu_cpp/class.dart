@@ -107,9 +107,11 @@ const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
 abstract class ClassMethod extends Object with Loggable {
   Class get parent => _parent;
   /// If true add logging
+  ///
   bool isLogged = false;
   Template get template => _template;
   /// C++ style access of method
+  ///
   CppAccess cppAccess = public;
 
   // custom <class ClassMethod>
@@ -134,14 +136,17 @@ abstract class ClassMethod extends Object with Loggable {
 abstract class DefaultMethod extends ClassMethod {
 
   /// Has custom code, so needs protect block
+  ///
   bool hasCustom = false;
   /// Code snippet to inject at beginning of method. The intent is for the
   /// methods to have standard generated implementations, but to also
   /// support programatic injection of implmementation into the
   /// methods. This supports injection near the top of the method.
+  ///
   String topInject = '';
   /// Supports injecting code near the bottom of the method. *See*
   /// *topInject*
+  ///
   String bottomInject = '';
   bool usesDefault = false;
   bool hasDelete = false;
@@ -162,6 +167,7 @@ abstract class DefaultMethod extends ClassMethod {
 }
 
 /// Default ctor, autoinitialized on read
+///
 class DefaultCtor extends DefaultMethod {
 
   // custom <class DefaultCtor>
@@ -184,6 +190,7 @@ $bottomInject
 }
 
 /// Copy ctor, autoinitialized on read
+///
 class CopyCtor extends DefaultMethod {
 
   // custom <class CopyCtor>
@@ -206,6 +213,7 @@ $bottomInject
 }
 
 /// Move ctor, autoinitialized on read
+///
 class MoveCtor extends DefaultMethod {
 
   // custom <class MoveCtor>
@@ -243,6 +251,7 @@ class AssignMove extends DefaultMethod {
 }
 
 /// Provides a destructor
+///
 class Dtor extends DefaultMethod {
   bool isAbstract = false;
 
@@ -316,13 +325,14 @@ $bottomInject
 ///       int y_ { 0 };
 ///     };
 ///
-///
 class MemberCtorParm {
   MemberCtorParm(this.name);
 
   /// Name of member initialized by argument to member ctor
+  ///
   final String name;
   /// cpp member to be initialized
+  ///
   Member member;
   /// *Override* for arguemnt declaration. This is rarely needed. Suppose
   /// you want to initialize member *Y y* from an input argument *X x* that
@@ -337,6 +347,7 @@ class MemberCtorParm {
   ///       ..parmDecl = "X x"
   ///       ..init = "f(x)"
   ///     ])
+  ///
   String parmDecl;
   /// *Override* of initialization text. This is rarely needed since
   /// initialization of members in a member ctor is straightforward:
@@ -370,6 +381,7 @@ class MemberCtorParm {
   ///       ..parmDecl = "mode_t new_mode"
   ///       ..init = "umask(new_mode)"
   ///     ])
+  ///
   set init(String init) => _init = init;
   /// If set provides a default value for the parm in the ctor. For example:
   ///
@@ -378,6 +390,7 @@ class MemberCtorParm {
   /// where the type of member *x* is *int* might yield:
   ///
   ///     Cls(int x = 42) : x_{x}
+  ///
   String defaultValue;
 
   // custom <class MemberCtorParm>
@@ -443,16 +456,22 @@ MemberCtorParm memberCtorParm([String name]) => new MemberCtorParm(name);
 class MemberCtor extends ClassMethod {
 
   /// List of members that are passed as arguments for initialization
+  ///
   List<MemberCtorParm> memberParms = [];
   /// List of additional decls ["Type Argname", ...]
+  ///
   List<String> decls;
   /// Has custom code, so needs protect block
+  ///
   set hasCustom(bool hasCustom) => _hasCustom = hasCustom;
   /// Label for custom protect block if desired
+  ///
   set customLabel(String customLabel) => _customLabel = customLabel;
   /// If set automatically includes all members as args
+  ///
   bool hasAllMembers = false;
   /// If true makes the ctor explicit
+  ///
   bool isExplicit = false;
 
   // custom <class MemberCtor>
@@ -518,6 +537,7 @@ ${indentBlock(_protectBlock)}}''';
 }
 
 /// Provides *operator==()*
+///
 class OpEqual extends ClassMethod {
 
   // custom <class OpEqual>
@@ -538,6 +558,7 @@ bool operator!=($className const& rhs) const {
 }
 
 /// Provides *operator<()*
+///
 class OpLess extends ClassMethod {
 
   // custom <class OpLess>
@@ -560,10 +581,12 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
 }
 
 /// Provides *operator<<()*
+///
 class OpOut extends ClassMethod {
 
   /// If true uses tls indentation tracking to indent nested
   /// components when streaming
+  ///
   bool usesIndent = false;
 
   // custom <class OpOut>
@@ -719,18 +742,23 @@ ${indentBlock(chomp(brCompact([
 ///   providing *CustomBlocks* and/or for dynamically injecting code - see
 ///   [CodeBlock].
 ///
-class Class extends Entity with Testable {
+class Class extends CppEntity with Testable {
 
   /// Is this definition a *struct*
+  ///
   bool isStruct = false;
   /// The template by which the class is parameterized
+  ///
   Template get template => _template;
   /// List of forward declarations that will appear near the top of the file
+  ///
   List<ForwardDecl> forwardDecls = [];
   /// *constexpr*s associated with the class
+  ///
   List<ConstExpr> constExprs = [];
   /// List of usings that will be scoped to this class near the top of
   /// the class definition.
+  ///
   List<Using> get usings => _usings;
   /// List of usings to occur after the class declaration. Sometimes it is
   /// useful to establish some type definitions directly following the class
@@ -739,10 +767,13 @@ class Class extends Entity with Testable {
   /// just after the class definition will work:
   ///
   ///     using Foo = std::vector<Foo>;
+  ///
   List<Using> get usingsPostDecl => _usingsPostDecl;
   /// Base classes this class derives form.
+  ///
   List<Base> bases = [];
   /// A list of member constructors
+  ///
   List<MemberCtor> memberCtors = [];
   List<PtrType> forwardPtrs = [];
   List<Enum> enumsForward = [];
@@ -755,8 +786,10 @@ class Class extends Entity with Testable {
   /// If true adds {using fcs::utils::streamers::operator<<} to streamer.
   /// Also, when set assumes streaming required and [isStreamable]
   /// is *set* as well. So not required to set both.
+  ///
   bool get usesStreamers => _usesStreamers;
   /// If true adds final keyword to class
+  ///
   bool isFinal = false;
   /// If true makes all members const provides single member ctor
   /// initializing all.
@@ -767,20 +800,25 @@ class Class extends Entity with Testable {
   /// user. This can be achieved with use of [addFullMemberCtor] and the
   /// developer ensuring the members are not modified. This provides a
   /// stronger guarantee of immutability.
+  ///
   bool isImmutable = false;
   /// List of processors supporting flavors of serialization
-  List<Serializer> serializers = [];
   ///
+  List<Serializer> serializers = [];
   List<InterfaceImplementation> get interfaceImplementations =>
       _interfaceImplementations;
   /// A [CppAccess] specifier - only pertinent if class is nested
+  ///
   CppAccess cppAccess = public;
   /// Classes nested within this class
+  ///
   List<Class> nestedClasses = [];
   /// If set, will include *#pragma pack(push, $packAlign)* before the class
   /// and *#pragma pack(pop)* after.
+  ///
   int packAlign;
   /// If set and member has no [access] set, this is used
+  ///
   Access defaultMemberAccess;
 
   // custom <class Class>
