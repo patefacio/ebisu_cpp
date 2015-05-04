@@ -227,7 +227,7 @@ $_generalToCString''';
 ${_friend}inline char const* to_c_str($name e) {
   switch(e) {
 ${
-  indentBlock(_valueNames.map((n) => 'case $name::$n: return ${smartQuote(n)}').join(';\n'), '    ')
+  indentBlock(_valueNames.map((n) => 'case $name::$n: return ${doubleQuote(n)}').join(';\n'), '    ')
 };
     default: {
       std::ostringstream msg;
@@ -250,7 +250,7 @@ ${_friend}inline std::ostream& operator<<(std::ostream &out, $name e) {
 inline void from_c_str(char const* str, $name &e) {
   using namespace std;
 ${
-  indentBlock(_valueNames.map((n) => 'if(0 == strcmp(${smartQuote(n)}, str)) { e = $name::$n; return; }').join('\n'))
+  indentBlock(_valueNames.map((n) => 'if(0 == strcmp(${doubleQuote(n)}, str)) { e = $name::$n; return; }').join('\n'))
 }
   string msg { "No $name matching:" };
   throw std::runtime_error(msg + str);

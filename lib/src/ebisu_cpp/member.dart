@@ -328,7 +328,7 @@ class Member extends CppEntity {
       inferredType = 'double';
     } else if (datum is String) {
       inferredType = 'std::string';
-      datum = smartQuote(datum);
+      datum = doubleQuote(datum);
     } else if (datum is bool) {
       inferredType = 'bool';
     } else if (datum is List) {

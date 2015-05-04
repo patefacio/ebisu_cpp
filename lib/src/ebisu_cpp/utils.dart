@@ -53,7 +53,7 @@ class ConstExpr extends CppEntity {
   }
 
   get valueText => (_value is String)
-      ? smartQuote(_value)
+      ? doubleQuote(_value)
       : ((_value is num)
           ? ((isHex && _value is int)
               ? '0x${(_value as int).toRadixString(16)}'
@@ -476,5 +476,9 @@ String evCap(v) => Id.capitalize(v.toString().split('.')[1]);
 String ev(v) => v.toString().split('.')[1];
 
 const defaultNamer = const EbisuCppNamer();
+
+/// Wrap string in double quotes
+String doubleQuote(String s) => '"$s"';
+
 
 // end <part utils>
