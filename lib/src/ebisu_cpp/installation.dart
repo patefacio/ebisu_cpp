@@ -125,13 +125,7 @@ Installation($rootFilePath)
     owner = null;
     logProvider..installationId = this.id;
 
-    // if (_namer == null) {
-    //   _namer = defaultNamer;
-    // }
-
     _patchHeaderNamespaces();
-
-    _addApiHeaderForLibsWithLogging();
 
     progeny.forEach((Entity child) => (child as CppEntity)._namer = _namer);
 
@@ -183,39 +177,6 @@ Installation($rootFilePath)
     lib.headers.where((Header h) => h.namespace == null).forEach((Header h) {
       h.namespace = lib.namespace;
     });
-  });
-
-  /// Any library requiring logging support needs access to a logger That logger
-  /// could go in the [App], but then you would not have a self-contained [Lib]
-  /// as there would be dependencies on the [App] like create the logger. Rather
-  /// than that approach, if a logger requires logging ensure that it has an
-  /// ApiHeader. If it does not have one, provide one of the same name as the
-  /// [Lib]. Then inject the log variable in that.
-  _addApiHeaderForLibsWithLogging() => libs
-      .where((lib) => lib.requiresLogging)
-      .forEach((Lib lib) {
-    if (lib.apiHeader == null) {
-      final badConvention = lib.headers.any((h) => h.id == lib.id);
-      if (badConvention) {
-        _logger.severe('Lib ${lib.id} requires logging '
-            'but has no apiHeader to install logger');
-      } else {
-        _logger.info('${lib.id} requires logging but has no apiHeader - '
-            'adding ${lib.id} with ns ${lib.namespace}');
-
-        final apiHeader = header(lib.id)
-          ..namespace = lib.namespace
-          ..isApiHeader = true
-          ..includes.addAll(logProvider.includeRequirements.included)
-          ..owner = lib;
-
-        apiHeader.getCodeBlock(fcbEndNamespace).snippets
-            .add(logProvider.createLibLogger(lib));
-
-        lib.headers.add(apiHeader);
-        assert(lib.apiHeader != null);
-      }
-    }
   });
 
   String _pathLookup(String key) {

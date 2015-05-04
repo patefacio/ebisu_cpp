@@ -1,5 +1,54 @@
 part of ebisu_cpp.ebisu_cpp;
 
+/// Common headers unique to a [Lib] designed to provide consistency and
+/// facilitate library usage.
+///
+/// - lib_common_header: For a given [Lib], a place to put common types,
+///   declarations that need to be included by all other headers in the
+///   lib. If requested for a [Lib], all other headers in the [Lib] will
+///   inlude this. Therefore, it is important that this header *not*
+///   include other *non-common* headers in the [Lib]. The naming
+///   convention is: LIBNAME_common.hpp
+///
+/// - [LibLoggingHeader]: For a given [Lib] a header to provide a logger
+///   instance. If requested for a [Lib], all other headers in the [Lib]
+///   will include this indirectly via *lib_common_header*. The naming
+///   convention is: LIBNAME_logging.hpp
+///
+/// - [LibInitializationHeader]: For a given [Lib] a header to provide
+///   library initialization and uninitialization routines. If requested
+///   for a [Lib], all other headers in the [Lib] will include this
+///   indirectly via *lib_common_header*. The naming convention is:
+///   LIBNAME_initialization.hpp
+///
+/// - [LibAllHeader]: For a given [Lib], this header will include all
+///   other headers. This is a convenience for clients writing non-library
+///   code. The naming convention is: LIBNAME_all.hpp
+///
+///
+enum StandardizedHeader {
+  libCommonHeader,
+  libLoggingHeader,
+  libInitializationHeader,
+  libAllHeader
+}
+/// Convenient access to StandardizedHeader.libCommonHeader with *libCommonHeader* see [StandardizedHeader].
+///
+const StandardizedHeader libCommonHeader = StandardizedHeader.libCommonHeader;
+
+/// Convenient access to StandardizedHeader.libLoggingHeader with *libLoggingHeader* see [StandardizedHeader].
+///
+const StandardizedHeader libLoggingHeader = StandardizedHeader.libLoggingHeader;
+
+/// Convenient access to StandardizedHeader.libInitializationHeader with *libInitializationHeader* see [StandardizedHeader].
+///
+const StandardizedHeader libInitializationHeader =
+    StandardizedHeader.libInitializationHeader;
+
+/// Convenient access to StandardizedHeader.libAllHeader with *libAllHeader* see [StandardizedHeader].
+///
+const StandardizedHeader libAllHeader = StandardizedHeader.libAllHeader;
+
 /// Set of pre-canned blocks where custom or generated code can be placed.
 /// The various supported code blocks associated with a C++ file. The
 /// name indicates where in the file it appears.
@@ -105,6 +154,17 @@ const FileCodeBlock fcbEndNamespace = FileCodeBlock.fcbEndNamespace;
 ///
 const FileCodeBlock fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
 
+/// Wrap (un)initialization of a Lib in static methods of a class
+///
+class LibInitializer {
+  CodeBlock initCustomBlock;
+  CodeBlock uninitCustomBlock;
+
+  // custom <class LibInitializer>
+  // end <class LibInitializer>
+
+}
+
 /// A c++ library
 ///
 class Lib extends CppEntity with Testable implements CodeGenerator {
@@ -113,10 +173,63 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
   List<Impl> impls = [];
   set requiresLogging(bool requiresLogging) =>
       _requiresLogging = requiresLogging;
+  set libInitializer(LibInitializer libInitializer) =>
+      _libInitializer = libInitializer;
 
   // custom <class Lib>
 
   Lib(Id id) : super(id);
+
+  get libInitializer => _libInitializer == null
+      ? (_libInitializer = new LibInitializer())
+      : _libInitializer;
+
+  get requiresLibInitialization =>
+      installation.logsApiInitializations || _libInitializer != null;
+
+  withStandardizedHeader(
+          StandardizedHeader headerType, f(Header standardizedHeader)) =>
+      f(includeStandardizedHeader(headerType));
+
+  includeStandardizedHeader(StandardizedHeader headerType) {
+    switch (headerType) {
+      case libCommonHeader:
+        return _initCommonHeader();
+      case libLoggingHeader:
+        return _initLoggingHeader();
+      case libInitializationHeader:
+        return _initInitializationHeader();
+      case libAllHeader:
+        return _initAllHeader();
+    }
+  }
+
+  _getStandardizedHeader(StandardizedHeader headerType) {
+    switch (headerType) {
+      case libCommonHeader:
+        return _commonHeader;
+      case libLoggingHeader:
+        return _loggingHeader;
+      case libInitializationHeader:
+        return _initializationHeader;
+      case libAllHeader:
+        return _allHeader;
+    }
+  }
+
+  includeStandardizedHeaders(
+          Iterable<StandardizedHeader> standardizedHeaders) =>
+      standardizedHeaders.forEach((hdr) => includeStandardizedHeader(hdr));
+
+  onOwnershipEstablished() {
+    if (this.requiresLibInitialization) {
+      includeStandardizedHeader(libInitializationHeader);
+    }
+
+    if (this.requiresLogging) {
+      includeStandardizedHeader(libLoggingHeader);
+    }
+  }
 
   get name => namer.nameLib(namespace, id);
 
@@ -125,33 +238,40 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
   Installation get installation => super.installation;
 
   get requiresLogging {
-    return (installation.logsApiInitializations ||
+    return (requiresLibInitialization ||
             _requiresLogging != null && _requiresLogging) ||
         concat([headers, impls]).any((cls) => cls.requiresLogging);
   }
 
-  get apiHeader => headers.firstWhere((h) => h.isApiHeader, orElse: () => null);
-
-  requireOnlyOneApiHeader() {
-    final apiHeaders = headers.where((h) => h.isApiHeader);
-    if (apiHeaders.length > 1) {
-      throw '''A library may have only one api header:
-[ ${apiHeaders.map((h)=>h.id).join(', ')} ]''';
-    }
-  }
+  _isStandardizedHeader(Header header) => [
+    _commonHeader,
+    _loggingHeader,
+    _initializationHeader,
+    _allHeader
+  ].contains(header);
 
   generate() {
     assert(installation != null);
 
-    requireOnlyOneApiHeader();
-    final apiHeader = this.apiHeader;
-
-    final cpp = installation.paths["cpp"];
     headers.forEach((Header header) {
       header.setFilePathFromRoot(installation.cppPath);
 
-      if (apiHeader != null && apiHeader != header) header.includes
-          .add(apiHeader.includeFilePath);
+      // This header is not a standardized header
+      if (!_isStandardizedHeader(header)) {
+        [
+          libCommonHeader,
+          libLoggingHeader,
+          libInitializationHeader,
+          libAllHeader
+        ].forEach((StandardizedHeader headerType) {
+          final standardizedHeader = _getStandardizedHeader(headerType);
+
+          if (standardizedHeader != null &&
+              !header.excludesStandardizedHeader(headerType)) {
+            header.includes.add(standardizedHeader.includeFilePath);
+          }
+        });
+      }
 
       header.generate();
     });
@@ -161,9 +281,67 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
         impl.namespace = namespace;
       }
       impl.setLibFilePathFromRoot(installation.cppPath);
-
       impl.generate();
     });
+  }
+
+  get logProvider => installation.logProvider;
+  get loggerVariableName => logProvider.libLoggerName(this);
+
+  _initCommonHeader() {
+    if (_commonHeader == null) {
+      _commonHeader = header('${id.snake}_common')
+        ..namespace = this.namespace
+        ..owner = this;
+      print('Inited common header ${_commonHeader.id}');
+      headers.add(_commonHeader);
+    }
+    return _commonHeader;
+  }
+
+  _initLoggingHeader() {
+    if (_loggingHeader == null) {
+      _loggingHeader = header('${id.snake}_logging')
+        ..namespace = this.namespace
+        ..includes.mergeIncludes(logProvider.includeRequirements)
+        ..getCodeBlock(fcbBeginNamespace).snippets
+            .add(logProvider.createLibLogger(this))
+        ..owner = this;
+      headers.add(_loggingHeader);
+    }
+    return _initLoggingHeader;
+  }
+
+  /// As a design choice - Initialization includes a dependency on logging. If
+  /// specialized initialization is required for a [Lib] - logging will be
+  /// helpful.
+  _initInitializationHeader() {
+    if (_initializationHeader == null) {
+      _initLoggingHeader();
+      assert(_loggingHeader != null);
+      final libName = id.snake;
+      _initializationHeader = header('${libName}_initialization')
+        ..namespace = this.namespace
+        ..getCodeBlock(fcbBeginNamespace).snippets.add('''
+void ${libName}_init() {
+  $loggerVariableName->info("init of ${libName}");
+}
+
+void ${libName}_uninit() {
+  $loggerVariableName->info("uninit of ${libName}");
+}
+
+fcs::raii::Api_initializer<> ${libName}_initializer {
+  ${libName}_init,
+  ${libName}_uninit
+};
+''')
+        ..includes.addAll(
+            ['fcs/raii/api_initializer.hpp', _loggingHeader.includeFilePath])
+        ..owner = this;
+      headers.add(_initializationHeader);
+    }
+    return _initializationHeader;
   }
 
   String toString() => '''
@@ -174,6 +352,11 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
   // end <class Lib>
 
   bool _requiresLogging;
+  LibInitializer _libInitializer;
+  Header _commonHeader;
+  Header _loggingHeader;
+  Header _initializationHeader;
+  Header _allHeader;
 }
 
 // custom <part lib>

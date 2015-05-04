@@ -48,6 +48,18 @@ abstract class CppFile extends CppEntity with Testable {
 
   String get contents;
 
+  excludeStandardizedHeader(StandardizedHeader headerType) =>
+      _standardizedInclusions[headerType] = false;
+
+  includeStandardizedHeader(StandardizedHeader headerType) =>
+      _standardizedInclusions[headerType] = true;
+
+  includesStandardizedHeader(StandardizedHeader headerType) =>
+      _standardizedInclusions[headerType] == true;
+
+  excludesStandardizedHeader(StandardizedHeader headerType) =>
+      _standardizedInclusions[headerType] == false;
+
   set includes(Object h) => _includes = _makeIncludes(h);
 
   set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();
@@ -130,6 +142,9 @@ abstract class CppFile extends CppEntity with Testable {
   List<Using> _usings = [];
   String _basename;
   String _filePath;
+  /// A list of [StandardizedHeader] indexed bool values indicating desire
+  /// to include/exclude given header.
+  Map<StandardizedHeader, bool> _standardizedInclusions = {};
 }
 
 // custom <part file>

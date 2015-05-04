@@ -63,13 +63,9 @@ struct $loggerClassName {
   }
 };
 
-namespace {
+/// Accessor to the logger for $detailedName
+auto ${loggerName} = $loggerClassName<int>().logger();
 
-/// Accessor for the logger for $detailedName
-inline std::shared_ptr<spdlog::logger>& ${loggerName}() {
-  return $loggerClassName<int>().logger();
-}
-}
 ''';
   }
 

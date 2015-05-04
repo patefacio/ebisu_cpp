@@ -4,13 +4,6 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 class Header extends CppFile {
 
-  /// If true marks this header as special to the set of headers in its library in that:
-  /// (1) It will be automatically included by all other headers
-  /// (2) For windows systems it will be the place to provide the api decl support
-  /// (3) Will have code that initializes the api
-  ///
-  bool isApiHeader = false;
-
   // custom <class Header>
 
   Header(Id id) : super(id);

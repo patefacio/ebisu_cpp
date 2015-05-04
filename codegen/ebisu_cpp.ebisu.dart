@@ -549,6 +549,15 @@ List of interfaces for this header. Interfaces result in either:
             member('basename')
             ..access = RO,
             member('file_path')..access = RO,
+
+            member('standardized_inclusions')
+            ..doc = '''
+A list of [StandardizedHeader] indexed bool values indicating desire
+to include/exclude given header.
+'''
+            ..type = 'Map<StandardizedHeader, bool>'
+            ..access = IA
+            ..classInit = {},
           ],
         ],
         part('enum')
@@ -1739,16 +1748,7 @@ prints:
           class_('header')
           ..doc = 'A single c++ header'
           ..extend = 'CppFile'
-          ..members = [
-            member('is_api_header')
-            ..doc = '''
-If true marks this header as special to the set of headers in its library in that:
-(1) It will be automatically included by all other headers
-(2) For windows systems it will be the place to provide the api decl support
-(3) Will have code that initializes the api
-'''
-            ..classInit = false,
-          ],
+          ..members = [],
         ],
         part('impl')
         ..classes = [
@@ -1838,6 +1838,43 @@ and [CodeBlock]s to augment/initialize/teardown.
         ],
         part('lib')
         ..enums = [
+
+          enum_('standardized_header')
+          ..doc = '''
+Common headers unique to a [Lib] designed to provide consistency and
+facilitate library usage.
+
+- [libCommonHeader]: For a given [Lib], a place to put common types,
+  declarations that need to be included by all other headers in the
+  lib. If requested for a [Lib], all other headers in the [Lib] will
+  inlude this. Therefore, it is important that this header *not*
+  include other *non-common* headers in the [Lib]. The naming
+  convention is: LIBNAME_common.hpp
+
+- [libLoggingHeader]: For a given [Lib] a header to provide a logger
+  instance. If requested for a [Lib], all other headers in the [Lib]
+  will include this indirectly via *lib_common_header*. The naming
+  convention is: LIBNAME_logging.hpp
+
+- [ibInitializationHeader]: For a given [Lib] a header to provide
+  library initialization and uninitialization routines. If requested
+  for a [Lib], all other headers in the [Lib] will include this
+  indirectly via *lib_common_header*. The naming convention is:
+  LIBNAME_initialization.hpp
+
+- [LibAllHeader]: For a given [Lib], this header will include all
+  other headers. This is a convenience for clients writing non-library
+  code. The naming convention is: LIBNAME_all.hpp
+
+'''
+          ..values = [
+            enumValue(id('lib_common_header')),
+            enumValue(id('lib_logging_header')),
+            enumValue(id('lib_initialization_header')),
+            enumValue(id('lib_all_header')),
+          ]
+          ..hasLibraryScopedValues = true,
+
           enum_('file_code_block')
           ..doc = '''
 Set of pre-canned blocks where custom or generated code can be placed.
@@ -1908,6 +1945,16 @@ Useful for putting definitions just prior to includes, e.g.
           ]
         ]
         ..classes = [
+
+          class_('lib_initializer')
+          ..doc = '''
+Wrap (un)initialization of a Lib in static methods of a class
+'''
+          ..members = [
+            member('init_custom_block')..type = 'CodeBlock',
+            member('uninit_custom_block')..type = 'CodeBlock',
+          ],
+
           class_('lib')
           ..doc = 'A c++ library'
           ..extend = 'CppEntity'
@@ -1918,6 +1965,14 @@ Useful for putting definitions just prior to includes, e.g.
             member('headers')..type = 'List<Header>'..classInit = [],
             member('impls')..type = 'List<Impl>'..classInit = [],
             member('requires_logging')..type = 'bool'..access = WO,
+
+            member('lib_initializer')..type = 'LibInitializer'..access = WO,
+
+            member('common_header')..type = 'Header'..access = IA,
+            member('logging_header')..type = 'Header'..access = IA,
+            member('initialization_header')..type = 'Header'..access = IA,
+            member('all_header')..type = 'Header'..access = IA,
+
           ],
         ],
         part('app')
