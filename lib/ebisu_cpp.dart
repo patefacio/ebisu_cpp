@@ -106,6 +106,7 @@ part 'src/ebisu_cpp/cpp_standard.dart';
 part 'src/ebisu_cpp/decorator.dart';
 part 'src/ebisu_cpp/doxy.dart';
 part 'src/ebisu_cpp/enum.dart';
+part 'src/ebisu_cpp/exception.dart';
 part 'src/ebisu_cpp/file.dart';
 part 'src/ebisu_cpp/generic.dart';
 part 'src/ebisu_cpp/header.dart';

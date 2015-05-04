@@ -97,6 +97,10 @@ Try something familiar like these:
 /// }
 ///
 class MethodDecl extends CppEntity {
+
+  /// The template by which the method is parameterized
+  ///
+  Template template;
   List<ParmDecl> parmDecls = [];
   String returnType;
   /// True if this [MethodDecl] is *const*
@@ -151,7 +155,8 @@ ${chomp(indentBlock(customBlock(id.snake)))}
 }''';
 
   String get asVirtual => 'virtual $signature;';
-  String get asNonVirtual => '$signature;';
+  String get _templateDecl => template == null ? '' : '${template.decl}\n';
+  String get asNonVirtual => '$_templateDecl$signature;';
   String get asPureVirtual => 'virtual $signature = 0;';
 
   String declaration(bool isVirtual) => isVirtual ? asVirtual : asNonVirtual;

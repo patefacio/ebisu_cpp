@@ -351,7 +351,6 @@ class GoogleNamer implements Namer {
 
 /// A base class of another class.
 ///
-///
 /// The style of inheritance is determined by [virtual] and [access]. Examples:
 ///
 /// Default is *not* virtual and [public] inheritance:
@@ -479,6 +478,5 @@ const defaultNamer = const EbisuCppNamer();
 
 /// Wrap string in double quotes
 String doubleQuote(String s) => '"$s"';
-
 
 // end <part utils>

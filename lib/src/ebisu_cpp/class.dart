@@ -823,7 +823,7 @@ class Class extends CppEntity with Testable {
 
   // custom <class Class>
 
-  Class(Id id) : super(id);
+  Class(id) : super(id);
 
   get installation => super.installation;
 

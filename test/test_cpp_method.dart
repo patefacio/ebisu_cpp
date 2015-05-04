@@ -5,6 +5,8 @@ import 'package:logging/logging.dart';
 import 'package:unittest/unittest.dart';
 
 // custom <additional imports>
+
+import 'package:ebisu/ebisu.dart';
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 
 // end <additional imports>
@@ -88,6 +90,25 @@ main([List<String> args]) {
         expect(methodDecl.parmDecls.first.id.snake, 'line_number');
         expect(methodDecl.parmDecls.last.type, 'char const*');
         expect(methodDecl.parmDecls.last.id.snake, 'file');
+      });
+    }
+  });
+
+  group('template method decl', () {
+    {
+      final decl = 'void\n\tadd(Foo a, int b)';
+      test('"$decl" parsed', () {
+        final methodDecl = new MethodDecl.fromDecl(decl);
+        methodDecl.template = template(['typename Foo']);
+        expect(methodDecl.id.snake, 'add');
+        expect(methodDecl.parmDecls.length, 2);
+        expect(methodDecl.parmDecls.first.type, 'Foo');
+        expect(methodDecl.parmDecls.first.id.snake, 'a');
+        expect(methodDecl.parmDecls.last.type, 'int');
+        expect(methodDecl.parmDecls.last.id.snake, 'b');
+
+        expect(darkMatter(methodDecl.asNonVirtual)
+            .contains(darkMatter('template< typename FOO >')), true);
       });
     }
   });

@@ -27,7 +27,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.2.0'
+    ..pubSpec.version = '0.2.1'
     ..pubSpec.doc = purpose
     ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
     ..pubSpec.addDevDependency(new PubDependency('unittest'))
@@ -42,6 +42,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_namer'),
       library('test_cpp_generic'),
       library('test_cpp_test_provider'),
+      library('test_cpp_exception'),
       library('test_hdf5_support'),
     ]
     ..libraries = [
@@ -56,11 +57,6 @@ files, build scripts, test files, etc.)
         'io',
         'collection',
         "'dart:math' hide max",
-      ]
-      ..enums = [
-      ]
-      ..classes = [
-
       ]
       ..parts = [
         part('generic')
@@ -416,9 +412,11 @@ The idea is to make C++ more readable when large constants are used.
             ..access = RO
             ..type = 'Set<String>'
           ],
+
           class_('namer')
           ..doc = 'Provides support for consistent naming of C++ entities'
           ..isAbstract = true,
+
           class_('ebisu_cpp_namer')
           ..implement = [ 'Namer' ]
           ..doc = '''
@@ -428,10 +426,10 @@ Default namer establishing reasonable conventions, that are fairly
           class_('google_namer')
           ..implement = [ 'Namer' ]
           ..doc = 'Namer based on google coding conventions',
+
           class_('base')
           ..doc = '''
 A base class of another class.
-
 
 The style of inheritance is determined by [virtual] and [access]. Examples:
 
@@ -1654,6 +1652,9 @@ Row_list_t find_row(std::string s) {
 """
           ..extend = 'CppEntity'
           ..members = [
+            member('template')
+            ..doc = 'The template by which the method is parameterized'
+            ..type = 'Template',
             member('parm_decls')..type = 'List<ParmDecl>'..classInit = [],
             member('return_type'),
             member('is_const')
@@ -1740,6 +1741,22 @@ prints:
             ..classInit = false
           ],
         ],
+
+        part('exception')
+        ..doc = 'Support for creating standard based exception hierarchies'
+        ..classes = [
+
+          class_('exception_class')
+          ..doc = '''
+Creates a new *exception* class derived from std::exception.
+'''
+          ..extend = 'Class'
+          ..members = [
+            member('base_exception')
+            ..doc = 'Base class for this exception class'
+          ]
+        ],
+
         part('serializer')
         ..enums = [
           enum_('serialization_style')
