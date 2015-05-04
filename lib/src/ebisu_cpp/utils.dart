@@ -53,7 +53,7 @@ class ConstExpr extends CppEntity {
   }
 
   get valueText => (_value is String)
-      ? quote(_value)
+      ? smartQuote(_value)
       : ((_value is num)
           ? ((isHex && _value is int)
               ? '0x${(_value as int).toRadixString(16)}'

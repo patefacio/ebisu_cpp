@@ -174,7 +174,7 @@ class AppArg extends CppEntity {
 
   get vname => namer.nameMemberVar(id, false);
   get isString => type == ArgType.STRING;
-  get defaultValueLit => isString ? quote(defaultValue) : defaultValue;
+  get defaultValueLit => isString ? smartQuote(defaultValue) : defaultValue;
 
   get cppType => isMultiple
       ? (type == ArgType.INT

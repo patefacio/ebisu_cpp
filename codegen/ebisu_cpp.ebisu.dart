@@ -58,245 +58,9 @@ files, build scripts, test files, etc.)
         "'dart:math' hide max",
       ]
       ..enums = [
-        enum_('access')
-        ..doc = '''
-Access designation for a class member variable.
-
-C++ supports *public*, *private* and *protected* designations. This designation
-is at a higher abstraction in that selecting access determines both the c++
-protection as well as the set of accessors that are generated. *Member*
-instances have both *access* and *cppAccess* so full range is available, but
-general cases should be covered by setting only the *access* variable of a
-member.
-
-* IA: *inaccessible* which provides no accessor with c++ access *private*.
-  It is aliased to *ia*.
-
-* RO: *read-only* which provides a read accessor with c++ access *private*.
-  It is aliased to *ro*.
-
-* RW: *read-write* which provides read and write accessor with c++ access *private*.
-  It is aliased to *rw*.
-
-* WO: *write-only* which provides write access and the c++ access is *private*.
-  It is aliased to *wo*. It may sound counterintuitive, but a use case for this
-  might be to accept the generated write accessor but hand code a read accessor
-  requiring special logic.
-
-Note: If the desire is to have a public member that is public and has no
-accessors, set *cppAccess* to *public* andd set *access* to null.
-
-# Examples
-
-*cppAccess* null with *access* of *ro* gives:
-
-    class C_1
-    {
-    public:
-      //! getter for x_ (access is Ro)
-      std::string const& x() const { return x_; }
-    private:
-      std::string x_ {};
-    };
-
-*cppAccess* CppAccess.protected with *access* of *ro* gives:
-
-    class C_1
-    {
-    public:
-      //! getter for x_ (access is Ro)
-      std::string const& x() const { return x_; }
-    protected:
-      std::string x_ {};
-    };
-'''
-        ..hasLibraryScopedValues = true
-        ..values = [
-          enumValue(id('ia'))
-          ..doc = '**Inaccessible**. Designates a member that is *private* by default and no accessors',
-          enumValue(id('ro'))
-          ..doc = '**Read-Only**. Designates a member tht is *private* by default and a read accessor',
-          enumValue(id('rw'))
-          ..doc = '**Read-Write**. Designates a member tht is *private* by default and both read and write accessors',
-          enumValue(id('wo'))
-          ..doc = '''
-**Write-Only**. Designates a member tht is *private* by default and
-write accessor only.  Useful if you want the standard write accessor
-but a custom reader.''',
-        ],
-        enum_('cpp_access')
-        ..doc = '''
-Cpp access designations:
-
-  * public
-  * private
-  * protected
-
-This designation is used in multiple contexts such as:
-
-  * Overriding the protection of a member
-  * On *Base* instances to indicate the access associated with inheritance
-  * On class methods (ctor, dtor, ...) to designate access
-'''
-        ..hasLibraryScopedValues = true
-        ..values = [
-          enumValue(id('public'))
-          ..doc = 'C++ public designation',
-          enumValue(id('protected'))
-          ..doc = 'C++ protected designation',
-          enumValue(id('private'))
-          ..doc = 'C++ private designation',
-        ],
-        enum_('ref_type')
-        ..doc = 'Reference type'
-        ..hasLibraryScopedValues = true
-        ..values = [
-          enumValue(id('ref'))
-          ..doc = 'Indicates a reference to type: *T &*',
-          enumValue(id('cref'))
-          ..doc = 'Indicates a const reference to type: *T const&*',
-          enumValue(id('vref'))
-          ..doc = 'Indicates a volatile reference to type: *T volatile&*',
-          enumValue(id('cvref'))
-          ..doc = 'Indicates a const volatile reference to type: *T const volatile&*',
-          enumValue(id('value'))
-          ..doc = 'Indicates not a reference'
-        ],
-        enum_('ptr_type')
-        ..doc = 'Standard pointer type declaration'
-        ..hasLibraryScopedValues = true
-        ..values = [
-          enumValue(id('sptr'))
-          ..doc = 'Indicates *std::shared_ptr< T >*',
-          enumValue(id('uptr'))
-          ..doc = 'Indicates *std::unique_ptr< T >*',
-          enumValue(id('scptr'))
-          ..doc = 'Indicates *std::shared_ptr< const T >*',
-          enumValue(id('ucptr'))
-          ..doc = 'Indicates *std::unique_ptr< const T >*',
-        ],
-        enum_('template_parm_type')
-        ..values = [
-          enumValue('type')
-          ..doc = 'Indicates the template parameter names a type',
-          enumValue('non_type')
-          ..doc = '''Indicates the template parameter indicates a non-type
-(e.g. *MAX_SIZE = 10* - a constant literal)''',
-        ],
       ]
       ..classes = [
 
-        class_('installation_decorator')
-        ..isAbstract = true
-        ..doc = '''
-Establishes an interface to allow decoration of classes and updates
-(primarily additions) to an [Installation].
-''',
-
-        class_('cpp_entity')
-        ..mixins = ['Entity']
-        ..isAbstract = true
-        ..doc = """
-Exposes common elements for named entities, including their [id] and
-documentation. Additionally tracks parentage/ownership of entities.
-
-This is abstract for purposes of ownership. Each [Entity] knows its
-owning entity up until [Installation] which is the root entity. A call
-to [generate] on [Installation] will [setOwnership] which subclasses
-can trick down establishing ownership.
-
-The purpose of linking all [Entity] instances in a virtual tree type
-structure is so lookups can be done for entities.
-
-[Entity] must be created with an argument representing an Id.  That
-argument may be a string, in which case it is converted to an [Id].
-That argument may be an [Id].
-
-For many/most [Entity] subclasses there is often a corresponding
-method that simply creates in instance of the subclass. For example,
-
-    class Lib extends Entity... {
-       Lib(Id id) : super(id);
-       ...
-    }
-
-    Lib lib(Object id) => new Lib(id is Id ? id : new Id(id));
-
-This now allows this approach:
-
-      final myLib = lib('my_awesome_lib')
-        ..headers = [
-          header('my_header')
-          ..classes = [
-            class_('my_class')
-            ..members = [
-              member('my_member')
-            ]
-          ]
-        ];
-
-      print(myLib);
-
-prints:
-
-    lib(myAwesomeLib)
-      headers:
-        header(myHeader)
-          classes:[My_class]
-
-      tests:
-"""
-        ..members = [
-          member('id')
-          ..doc = 'Id for the [CppEntity]'
-          ..type = 'Id',
-
-          member('namer')
-          ..doc = '''
-CppEntity specific [Namer].
-
-Prefer to use the [Installation] namer which is provided via [namer]
-getter. It assumes the [CppEntity] is progeny of an [Installation],
-which is not always the case. Use in cases where not - e.g. creating
-content without being tied to an installation - this can be used.
-'''
-          ..access = IA
-          ..type = 'Namer',
-
-        ],
-        class_('using')
-        ..doc = 'Object corresponding to a using statement'
-        ..extend = 'CppEntity'
-        ..members = [
-          member('rhs')
-          ..doc = '''
-The right hand side of using (ie the type decl being named)'''
-          ..access = RO,
-        ],
-        class_('template_parm')
-        ..isAbstract = true
-        ..extend = 'CppEntity',
-        class_('type_template_parm')
-        ..extend = 'TemplateParm'
-        ..members = [
-          member('type_id'),
-        ],
-        class_('decl_template_parm')
-        ..extend = 'TemplateParm'
-        ..members = [
-          member('terms')..type = 'List<String>',
-          member('id_index')..doc = 'Index into the terms indicating the id'
-          ..type = 'int',
-        ],
-        class_('template')
-        ..extend = 'CppEntity'
-        ..doc = '''
-Represents a template declaration comprized of a list of [decls]
-'''
-        ..members = [
-          member('parms')
-          ..type = 'List<TemplateParm>',
-        ],
       ]
       ..parts = [
         part('generic')
@@ -355,6 +119,227 @@ Examples might be member accessors, member constructors, etc
             ..doc = 'If true the [Loggable] item is logged'
             ..classInit = false,
           ],
+        ],
+
+        part('cpp_entity')
+        ..classes = [
+          class_('cpp_entity')
+          ..mixins = ['Entity']
+          ..isAbstract = true
+          ..doc = """
+Exposes common elements for named entities, including their [id] and
+documentation. Additionally tracks parentage/ownership of entities.
+
+This is abstract for purposes of ownership. Each [Entity] knows its
+owning entity up until [Installation] which is the root entity. A call
+to [generate] on [Installation] will [setOwnership] which subclasses
+can trick down establishing ownership.
+
+The purpose of linking all [Entity] instances in a virtual tree type
+structure is so lookups can be done for entities.
+
+[Entity] must be created with an argument representing an Id.  That
+argument may be a string, in which case it is converted to an [Id].
+That argument may be an [Id].
+
+For many/most [Entity] subclasses there is often a corresponding
+method that simply creates in instance of the subclass. For example,
+
+    class Lib extends Entity... {
+       Lib(Id id) : super(id);
+       ...
+    }
+
+    Lib lib(Object id) => new Lib(id is Id ? id : new Id(id));
+
+This now allows this approach:
+
+      final myLib = lib('my_awesome_lib')
+        ..headers = [
+          header('my_header')
+          ..classes = [
+            class_('my_class')
+            ..members = [
+              member('my_member')
+            ]
+          ]
+        ];
+
+      print(myLib);
+
+prints:
+
+    lib(myAwesomeLib)
+      headers:
+        header(myHeader)
+          classes:[My_class]
+
+      tests:
+"""
+          ..members = [
+            member('id')
+            ..doc = 'Id for the [CppEntity]'
+            ..type = 'Id',
+
+            member('namer')
+            ..doc = '''
+CppEntity specific [Namer].
+
+Prefer to use the [Installation] namer which is provided via [namer]
+getter. It assumes the [CppEntity] is progeny of an [Installation],
+which is not always the case. Use in cases where not - e.g. creating
+content without being tied to an installation - this can be used.
+'''
+            ..access = IA
+            ..type = 'Namer',
+
+          ],
+
+        ],
+
+        part('using')
+        ..classes = [
+          class_('using')
+          ..doc = 'Object corresponding to a using statement'
+          ..extend = 'CppEntity'
+          ..members = [
+            member('rhs')
+            ..doc = '''
+The right hand side of using (ie the type decl being named)'''
+            ..access = RO,
+          ],
+        ],
+
+        part('pointer')
+        ..doc = 'Deals with pointers and references'
+        ..enums = [
+          enum_('ref_type')
+          ..doc = 'Reference type'
+          ..hasLibraryScopedValues = true
+          ..values = [
+            enumValue(id('ref'))
+            ..doc = 'Indicates a reference to type: *T &*',
+            enumValue(id('cref'))
+            ..doc = 'Indicates a const reference to type: *T const&*',
+            enumValue(id('vref'))
+            ..doc = 'Indicates a volatile reference to type: *T volatile&*',
+            enumValue(id('cvref'))
+            ..doc = 'Indicates a const volatile reference to type: *T const volatile&*',
+            enumValue(id('value'))
+            ..doc = 'Indicates not a reference'
+          ],
+          enum_('ptr_type')
+          ..doc = 'Standard pointer type declaration'
+          ..hasLibraryScopedValues = true
+          ..values = [
+            enumValue(id('ptr'))
+            ..doc = 'Indicates a *naked* or *dumb* pointer - T*',
+            enumValue(id('cptr'))
+            ..doc = 'Indicates a *naked* or *dumb* pointer - T const *',
+            enumValue(id('sptr'))
+            ..doc = 'Indicates *std::shared_ptr< T >*',
+            enumValue(id('uptr'))
+            ..doc = 'Indicates *std::unique_ptr< T >*',
+            enumValue(id('scptr'))
+            ..doc = 'Indicates *std::shared_ptr< const T >*',
+            enumValue(id('ucptr'))
+            ..doc = 'Indicates *std::unique_ptr< const T >*',
+          ],
+        ],
+
+        part('access')
+        ..doc = 'Focuses on stylized *access* and standard C++ access'
+        ..enums = [
+          enum_('access')
+          ..doc = '''
+Access designation for a class member variable.
+
+C++ supports *public*, *private* and *protected* designations. This designation
+is at a higher abstraction in that selecting access determines both the c++
+protection as well as the set of accessors that are generated. *Member*
+instances have both *access* and *cppAccess* so full range is available, but
+general cases should be covered by setting only the *access* variable of a
+member.
+
+* IA: *inaccessible* which provides no accessor with c++ access *private*.
+  It is aliased to *ia*.
+
+* RO: *read-only* which provides a read accessor with c++ access *private*.
+  It is aliased to *ro*.
+
+* RW: *read-write* which provides read and write accessor with c++ access *private*.
+  It is aliased to *rw*.
+
+* WO: *write-only* which provides write access and the c++ access is *private*.
+  It is aliased to *wo*. It may sound counterintuitive, but a use case for this
+  might be to accept the generated write accessor but hand code a read accessor
+  requiring special logic.
+
+Note: If the desire is to have a public member that is public and has no
+accessors, set *cppAccess* to *public* andd set *access* to null.
+
+# Examples
+
+*cppAccess* null with *access* of *ro* gives:
+
+    class C_1
+    {
+    public:
+      //! getter for x_ (access is Ro)
+      std::string const& x() const { return x_; }
+    private:
+      std::string x_ {};
+    };
+
+*cppAccess* CppAccess.protected with *access* of *ro* gives:
+
+    class C_1
+    {
+    public:
+      //! getter for x_ (access is Ro)
+      std::string const& x() const { return x_; }
+    protected:
+      std::string x_ {};
+    };
+'''
+          ..hasLibraryScopedValues = true
+          ..values = [
+            enumValue(id('ia'))
+            ..doc = '**Inaccessible**. Designates a member that is *private* by default and no accessors',
+            enumValue(id('ro'))
+            ..doc = '**Read-Only**. Designates a member tht is *private* by default and a read accessor',
+            enumValue(id('rw'))
+            ..doc = '**Read-Write**. Designates a member tht is *private* by default and both read and write accessors',
+            enumValue(id('wo'))
+            ..doc = '''
+**Write-Only**. Designates a member tht is *private* by default and
+write accessor only.  Useful if you want the standard write accessor
+but a custom reader.''',
+          ],
+          enum_('cpp_access')
+          ..doc = '''
+Cpp access designations:
+
+  * public
+  * private
+  * protected
+
+This designation is used in multiple contexts such as:
+
+  * Overriding the protection of a member
+  * On *Base* instances to indicate the access associated with inheritance
+  * On class methods (ctor, dtor, ...) to designate access
+'''
+          ..hasLibraryScopedValues = true
+          ..values = [
+            enumValue(id('public'))
+            ..doc = 'C++ public designation',
+            enumValue(id('protected'))
+            ..doc = 'C++ protected designation',
+            enumValue(id('private'))
+            ..doc = 'C++ private designation',
+          ],
+
         ],
 
         part('utils')
@@ -558,6 +543,46 @@ to include/exclude given header.
             ..type = 'Map<StandardizedHeader, bool>'
             ..access = IA
             ..classInit = {},
+          ],
+        ],
+        part('template')
+        ..doc = '''
+Classes to facilitate generating C++ template code
+'''
+        ..enums = [
+          enum_('template_parm_type')
+          ..values = [
+            enumValue('type')
+            ..doc = 'Indicates the template parameter names a type',
+            enumValue('non_type')
+            ..doc = '''Indicates the template parameter indicates a non-type
+(e.g. *MAX_SIZE = 10* - a constant literal)''',
+          ],
+        ]
+        ..classes = [
+          class_('template_parm')
+          ..isAbstract = true
+          ..extend = 'CppEntity',
+          class_('type_template_parm')
+          ..extend = 'TemplateParm'
+          ..members = [
+            member('type_id'),
+          ],
+          class_('decl_template_parm')
+          ..extend = 'TemplateParm'
+          ..members = [
+            member('terms')..type = 'List<String>',
+            member('id_index')..doc = 'Index into the terms indicating the id'
+            ..type = 'int',
+          ],
+          class_('template')
+          ..extend = 'CppEntity'
+          ..doc = '''
+Represents a template declaration comprized of a list of [decls]
+'''
+          ..members = [
+            member('parms')
+            ..type = 'List<TemplateParm>',
           ],
         ],
         part('enum')
@@ -2199,6 +2224,7 @@ libraries, apps, and tests'''
             member('required_libs')..type = 'List<String>'..classInit = [],
           ],
         ],
+
         part('installation')
         ..classes = [
           class_('installation_builder')
@@ -2283,6 +2309,27 @@ down order of initialization issues.
             ..isFinal = true,
             member('path')..access = RO,
           ],
+        ],
+
+        part('cpp_standard')
+        ..doc = '''
+Provides for minimal identification of C++ standard items.
+For example - the set of standard system headers is made available.
+''',
+
+        part('decorator')
+        ..doc = '''
+Establishes capability for decorating an [Installation] prior to generation.
+'''
+        ..classes = [
+
+          class_('installation_decorator')
+          ..isAbstract = true
+          ..doc = '''
+Establishes an interface to allow decoration of classes and updates
+(primarily additions) to an [Installation].
+''',
+
         ],
 
         part('doxy')

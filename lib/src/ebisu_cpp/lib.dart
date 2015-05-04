@@ -3,19 +3,19 @@ part of ebisu_cpp.ebisu_cpp;
 /// Common headers unique to a [Lib] designed to provide consistency and
 /// facilitate library usage.
 ///
-/// - lib_common_header: For a given [Lib], a place to put common types,
+/// - [libCommonHeader]: For a given [Lib], a place to put common types,
 ///   declarations that need to be included by all other headers in the
 ///   lib. If requested for a [Lib], all other headers in the [Lib] will
 ///   inlude this. Therefore, it is important that this header *not*
 ///   include other *non-common* headers in the [Lib]. The naming
 ///   convention is: LIBNAME_common.hpp
 ///
-/// - [LibLoggingHeader]: For a given [Lib] a header to provide a logger
+/// - [libLoggingHeader]: For a given [Lib] a header to provide a logger
 ///   instance. If requested for a [Lib], all other headers in the [Lib]
 ///   will include this indirectly via *lib_common_header*. The naming
 ///   convention is: LIBNAME_logging.hpp
 ///
-/// - [LibInitializationHeader]: For a given [Lib] a header to provide
+/// - [ibInitializationHeader]: For a given [Lib] a header to provide
 ///   library initialization and uninitialization routines. If requested
 ///   for a [Lib], all other headers in the [Lib] will include this
 ///   indirectly via *lib_common_header*. The naming convention is:
