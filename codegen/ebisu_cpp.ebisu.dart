@@ -43,6 +43,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_generic'),
       library('test_cpp_test_provider'),
       library('test_cpp_exception'),
+      library('test_cpp_versioning'),
       library('test_hdf5_support'),
     ]
     ..libraries = [
@@ -1993,8 +1994,12 @@ Useful for putting definitions just prior to includes, e.g.
 Wrap (un)initialization of a Lib in static methods of a class
 '''
           ..members = [
-            member('init_custom_block')..type = 'CodeBlock',
-            member('uninit_custom_block')..type = 'CodeBlock',
+            member('init_custom_block')
+            ..doc = 'CodeBlock for customizing intialization of [Lib]'
+            ..type = 'CodeBlock',
+            member('uninit_custom_block')
+            ..doc = 'CodeBlock for customizing unintialization of [Lib]'
+            ..type = 'CodeBlock',
           ],
 
           class_('lib')
@@ -2003,20 +2008,67 @@ Wrap (un)initialization of a Lib in static methods of a class
           ..mixins = [ 'Testable' ]
           ..implement = [ 'CodeGenerator' ]
           ..members = [
-            member('namespace')..type = 'Namespace'..classInit = 'new Namespace()',
-            member('headers')..type = 'List<Header>'..classInit = [],
-            member('impls')..type = 'List<Impl>'..classInit = [],
-            member('requires_logging')..type = 'bool'..access = WO,
+            member('version')
+            ..doc = 'Semantic Version for this [Lib]'
+            ..type = 'SemanticVersion'
+            ..access = RO..classInit = 'new SemanticVersion(0,0,0)',
+            member('namespace')
+            ..doc = 'Names for [Lib]'
+            ..type = 'Namespace'..classInit = 'new Namespace()',
+            member('headers')
+            ..doc = 'List of [Header] objects in this [Lib]'
+            ..type = 'List<Header>'..classInit = [],
+            member('impls')
+            ..doc = 'List of [Impl] objects in this [Impl]'
+            ..type = 'List<Impl>'..classInit = [],
+            member('requires_logging')
+            ..type = 'bool'..access = WO,
 
-            member('lib_initializer')..type = 'LibInitializer'..access = WO,
+            member('lib_initializer')
+            ..type = 'LibInitializer'
+            ..access = WO,
 
-            member('common_header')..type = 'Header'..access = IA,
-            member('logging_header')..type = 'Header'..access = IA,
-            member('initialization_header')..type = 'Header'..access = IA,
-            member('all_header')..type = 'Header'..access = IA,
+            member('common_header')
+            ..doc = '''
+A header for placing types and definitions to be shared among all
+other headers in the [Lib]. If this were used for windows, this would
+be a good place for the API decl definitions.
+'''
+            ..type = 'Header'..access = IA,
 
+            member('logging_header')
+            ..doc = 'A header for initializing a single logger for the [Lib] if required'
+            ..type = 'Header'..access = IA,
+
+            member('initialization_header')
+            ..doc = '''
+For [Lib]s that need certain *initialization*/*uninitialization*
+functions to be run this will provide a mechanism.
+'''
+            ..type = 'Header'..access = IA,
+
+            member('all_header')
+            ..doc = '''
+A single header including all other headers - intended as a
+convenience mechanism for clients not so worried about compile times.
+'''
+            ..type = 'Header'..access = IA,
           ],
         ],
+
+        part('versioning')
+        ..doc = 'Support for *Semantic Versioning*'
+        ..classes = [
+          class_('semantic_version')
+          ..doc = 'Provides data required to track a Semantic Version'
+          ..isImmutable = true
+          ..members = [
+            member('major')..classInit = 0,
+            member('minor')..classInit = 0,
+            member('patch')..classInit = 0,
+          ]
+        ],
+
         part('app')
         ..enums = [
           enum_('arg_type')

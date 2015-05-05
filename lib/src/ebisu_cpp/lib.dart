@@ -157,7 +157,12 @@ const FileCodeBlock fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
 /// Wrap (un)initialization of a Lib in static methods of a class
 ///
 class LibInitializer {
+
+  /// CodeBlock for customizing intialization of [Lib]
+  ///
   CodeBlock initCustomBlock;
+  /// CodeBlock for customizing unintialization of [Lib]
+  ///
   CodeBlock uninitCustomBlock;
 
   // custom <class LibInitializer>
@@ -168,8 +173,18 @@ class LibInitializer {
 /// A c++ library
 ///
 class Lib extends CppEntity with Testable implements CodeGenerator {
+
+  /// Semantic Version for this [Lib]
+  ///
+  SemanticVersion get version => _version;
+  /// Names for [Lib]
+  ///
   Namespace namespace = new Namespace();
+  /// List of [Header] objects in this [Lib]
+  ///
   List<Header> headers = [];
+  /// List of [Impl] objects in this [Impl]
+  ///
   List<Impl> impls = [];
   set requiresLogging(bool requiresLogging) =>
       _requiresLogging = requiresLogging;
@@ -179,6 +194,13 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
   // custom <class Lib>
 
   Lib(Id id) : super(id);
+
+  set version(version_) => _version = version_ is SemanticVersion
+      ? version_
+      : version_ is String
+          ? new SemanticVersion.fromString(version_)
+          : throw new ArgumentError(
+              'Lib version must be Semantic Version: $_version');
 
   get libInitializer => _libInitializer == null
       ? (_libInitializer = new LibInitializer())
@@ -323,18 +345,30 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
       _initializationHeader = header('${libName}_initialization')
         ..namespace = this.namespace
         ..getCodeBlock(fcbBeginNamespace).snippets.add('''
-void ${libName}_init() {
-  $loggerVariableName->info("init of ${libName}");
+/// Initialization function for $libName
+inline void ${libName}_init() {
+  $loggerVariableName->info("init of ${libName} ($version)");
 }
 
-void ${libName}_uninit() {
-  $loggerVariableName->info("uninit of ${libName}");
+/// Uninitialization function for $libName
+inline void ${libName}_uninit() {
+  $loggerVariableName->info("uninit of ${libName} ($version)");
 }
 
-fcs::raii::Api_initializer<> ${libName}_initializer {
-  ${libName}_init,
-  ${libName}_uninit
+/// Singleton for $libName initializer
+inline fcs::raii::Api_initializer<> ${libName}_initializer_() {
+  static fcs::raii::Api_initializer<> ${libName}_initializer {
+    ${libName}_init,
+    ${libName}_uninit
+  };
+  return ${libName}_initializer;
 };
+
+/// Internal linkage (i.e. 1 per translation unit) initializer for $libName
+namespace {
+  fcs::raii::Api_initializer<>
+  ${libName}_initializer { ${libName}_initializer_() };
+}
 ''')
         ..includes.addAll(
             ['fcs/raii/api_initializer.hpp', _loggingHeader.includeFilePath])
@@ -351,11 +385,20 @@ fcs::raii::Api_initializer<> ${libName}_initializer {
 
   // end <class Lib>
 
+  SemanticVersion _version = new SemanticVersion(0, 0, 0);
   bool _requiresLogging;
   LibInitializer _libInitializer;
+  /// A header for placing types and definitions to be shared among all
+  /// other headers in the [Lib]. If this were used for windows, this would
+  /// be a good place for the API decl definitions.
   Header _commonHeader;
+  /// A header for initializing a single logger for the [Lib] if required
   Header _loggingHeader;
+  /// For [Lib]s that need certain *initialization*/*uninitialization*
+  /// functions to be run this will provide a mechanism.
   Header _initializationHeader;
+  /// A single header including all other headers - intended as a
+  /// convenience mechanism for clients not so worried about compile times.
   Header _allHeader;
 }
 

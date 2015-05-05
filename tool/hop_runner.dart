@@ -23,6 +23,7 @@ void main(List<String> args) {
     "test/test_cpp_generic.dart",
     "test/test_cpp_test_provider.dart",
     "test/test_cpp_exception.dart",
+    "test/test_cpp_versioning.dart",
     "test/test_hdf5_support.dart"
   ]));
 
