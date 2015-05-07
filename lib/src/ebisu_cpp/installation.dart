@@ -123,8 +123,6 @@ Installation($rootFilePath)
 
     /// This assignment triggers the linkup of all children
     owner = null;
-    logProvider..installationId = this.id;
-
     _patchHeaderNamespaces();
 
     progeny.forEach((Entity child) => (child as CppEntity)._namer = _namer);

@@ -12,22 +12,14 @@ abstract class LogProvider {
 
   Includes includeRequirements;
   Namer namer;
-  Id get installationId => _installationId;
-  String loggerName;
 
   // custom <class LogProvider>
 
   String logMethodInvocation(Lib lib, String methodName);
   String createLibLogger(Lib lib);
 
-  set installationId(Id id) {
-    _installationId = id;
-    loggerName = idFromString('${id.snake}_logger').snake;
-  }
-
   // end <class LogProvider>
 
-  Id _installationId;
 }
 
 /// Provides support for logging via spdlog

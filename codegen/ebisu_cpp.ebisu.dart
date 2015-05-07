@@ -97,8 +97,6 @@ use of *spdlog* is provided.
           ..members = [
             member('include_requirements')..type = 'Includes',
             member('namer')..type = 'Namer'..ctors = [''],
-            member('installation_id')..type = 'Id'..access = RO,
-            member('logger_name'),
           ],
 
           class_('spdlog_provider')
@@ -2017,7 +2015,8 @@ Wrap (un)initialization of a Lib in static methods of a class
             ..type = 'Namespace'..classInit = 'new Namespace()',
             member('headers')
             ..doc = 'List of [Header] objects in this [Lib]'
-            ..type = 'List<Header>'..classInit = [],
+            ..type = 'List<Header>'..classInit = []
+            ..access = RO,
             member('impls')
             ..doc = 'List of [Impl] objects in this [Impl]'
             ..type = 'List<Impl>'..classInit = [],

@@ -182,7 +182,7 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
   Namespace namespace = new Namespace();
   /// List of [Header] objects in this [Lib]
   ///
-  List<Header> headers = [];
+  List<Header> get headers => _headers;
   /// List of [Impl] objects in this [Impl]
   ///
   List<Impl> impls = [];
@@ -194,6 +194,11 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
   // custom <class Lib>
 
   Lib(Id id) : super(id);
+
+  set headers(Iterable<Header> hdrs) {
+    _headers = new List<Header>.from(hdrs);
+    if (_commonHeader != null) _headers.add(_commonHeader);
+  }
 
   set version(version_) => _version = version_ is SemanticVersion
       ? version_
@@ -295,6 +300,7 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
         });
       }
 
+      _logger.info('Generating ${header.id.snake}');
       header.generate();
     });
 
@@ -312,10 +318,13 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
 
   _initCommonHeader() {
     if (_commonHeader == null) {
-      _commonHeader = header('${id.snake}_common')
+      final libName = id.snake;
+      _commonHeader = header('${libName}_common')
         ..namespace = this.namespace
         ..owner = this;
-      print('Inited common header ${_commonHeader.id}');
+
+      _logger.info('initilizing common header ${_commonHeader.id.snake}');
+
       headers.add(_commonHeader);
     }
     return _commonHeader;
@@ -386,6 +395,7 @@ namespace {
   // end <class Lib>
 
   SemanticVersion _version = new SemanticVersion(0, 0, 0);
+  List<Header> _headers = [];
   bool _requiresLogging;
   LibInitializer _libInitializer;
   /// A header for placing types and definitions to be shared among all
