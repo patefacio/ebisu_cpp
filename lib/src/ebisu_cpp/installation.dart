@@ -45,6 +45,7 @@ class Installation extends CppEntity implements CodeGenerator {
   ///
   String get rootFilePath => _rootFilePath;
   Map<String, String> get paths => _paths;
+  List<CppLogger> cppLoggers = [];
   List<Lib> libs = [];
   List<App> apps = [];
   List<Script> scripts = [];
@@ -105,7 +106,7 @@ Installation($rootFilePath)
   addLibs(Iterable<Lib> libs) => libs.forEach((l) => addLib(l));
   addApp(App app) => apps.add(app);
 
-  Iterable<CppEntity> get children => concat([apps, libs, scripts]);
+  Iterable<CppEntity> get children => concat([apps, libs, scripts, cppLoggers]);
 
   // Generate the installation
   //
@@ -123,6 +124,9 @@ Installation($rootFilePath)
 
     /// This assignment triggers the linkup of all children
     owner = null;
+
+    _addStandardizedHeaders();
+
     _patchHeaderNamespaces();
 
     progeny.forEach((Entity child) => (child as CppEntity)._namer = _namer);
@@ -168,7 +172,12 @@ Installation($rootFilePath)
         ..outputDirectory = path.join(docPath, 'doxydoc')).config,
           path.join(docPath, '${id.snake}.doxy'));
     }
+
+    _logger.info(brCompact(progeny.map((e) => e.detailedPath)));
   }
+
+  _addStandardizedHeaders() => libs.forEach((Lib lib) =>
+      lib._addStandardizedHeaders());
 
   _patchHeaderNamespaces() => libs.forEach((Lib lib) {
     assert(lib.namespace != null);

@@ -103,6 +103,10 @@ use of *spdlog* is provided.
           ..doc = 'Provides support for logging via spdlog'
           ..extend = 'LogProvider',
 
+          class_('cpp_logger')
+          ..doc = 'Represents a single C++ logger'
+          ..extend = 'CppEntity',
+
           class_('loggable')
           ..doc = '''
 Mixin to indicate an item is loggable.
@@ -2304,6 +2308,7 @@ Creates builder for an installation (ie ties together all build artifacts)
           ..members = [
             member('installation')..type = 'Installation'
           ],
+
           class_('installation')
           ..doc = '''
 The to level [CppEntity] representing the root of a C++ installation.
@@ -2329,6 +2334,7 @@ type features like:
             member('root_file_path')
             ..doc = 'Fully qualified file path to installation'..access = RO,
             member('paths')..type = 'Map<String, String>'..classInit = {}..access = RO,
+            member('cpp_loggers')..type = 'List<CppLogger>'..classInit = [],
             member('libs')..type = 'List<Lib>'..classInit = [],
             member('apps')..type = 'List<App>'..classInit = [],
             member('scripts')..type = 'List<Script>'..classInit = [],

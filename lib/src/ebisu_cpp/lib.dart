@@ -197,8 +197,16 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
 
   set headers(Iterable<Header> hdrs) {
     _headers = new List<Header>.from(hdrs);
-    if (_commonHeader != null) _headers.add(_commonHeader);
+    _preserveStandardizedHeaders();
   }
+
+  _preserveStandardizedHeaders() =>
+    _standardizedHeaders.forEach((Header header) {
+      if(header != null) {
+        _logger.severe('Preserved standardized header ${header.id}');
+        _headers.add(header);
+      }
+    });
 
   set version(version_) => _version = version_ is SemanticVersion
       ? version_
@@ -216,9 +224,12 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
 
   withStandardizedHeader(
           StandardizedHeader headerType, f(Header standardizedHeader)) =>
-      f(includeStandardizedHeader(headerType));
+      f(_includeStandardizedHeader(headerType));
 
-  includeStandardizedHeader(StandardizedHeader headerType) {
+
+  /// When need for standardized header is determined, this will ensure it has
+  /// been initialized and included in [Lib]'s list of headers
+  _includeStandardizedHeader(StandardizedHeader headerType) {
     switch (headerType) {
       case libCommonHeader:
         return _initCommonHeader();
@@ -231,6 +242,8 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
     }
   }
 
+  /// Just a disptatch to find the potentially unneeded/unininitialized header
+  /// instance. null value indicates uninitialized
   _getStandardizedHeader(StandardizedHeader headerType) {
     switch (headerType) {
       case libCommonHeader:
@@ -244,38 +257,55 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
     }
   }
 
-  includeStandardizedHeaders(
-          Iterable<StandardizedHeader> standardizedHeaders) =>
-      standardizedHeaders.forEach((hdr) => includeStandardizedHeader(hdr));
-
-  onOwnershipEstablished() {
+  /// Determines what standard headers are required, initializes and initializes
+  /// them
+  _addStandardizedHeaders() {
     if (this.requiresLibInitialization) {
-      includeStandardizedHeader(libInitializationHeader);
+      _includeStandardizedHeader(libInitializationHeader);
     }
 
     if (this.requiresLogging) {
-      includeStandardizedHeader(libLoggingHeader);
+      _includeStandardizedHeader(libLoggingHeader);
     }
+  }
+
+  onOwnershipEstablished() {
   }
 
   get name => namer.nameLib(namespace, id);
 
   Iterable<CppEntity> get children => concat([headers, testScenarios]);
 
+  /// Ensure any reference to [installation] gets the real root [Installation]
+  /// of this [Lib].
+  ///
+  /// Without this, inadvertent call to [installation] refers to the function
+  /// that creates an [Installation]
   Installation get installation => super.installation;
 
+  /// Determines if logging is required.
+  ///
+  /// Logging is required if any [Loggable] requires logging or if any child
+  /// [Header] or [Impl] requires it. To determine if any [Loggable] requires
+  /// it, each class is tested for [requiresLogging]. Also, if the [Lib]
+  /// requires initialization, logging is assumed required, since the generated
+  /// lib intialization support uses it.
   get requiresLogging {
     return (requiresLibInitialization ||
             _requiresLogging != null && _requiresLogging) ||
         concat([headers, impls]).any((cls) => cls.requiresLogging);
   }
 
-  _isStandardizedHeader(Header header) => [
+  /// List of the standardized headers (null indicating not needed)
+  get _standardizedHeaders => [
     _commonHeader,
     _loggingHeader,
     _initializationHeader,
     _allHeader
-  ].contains(header);
+  ];
+
+  /// Determine if the header is one of the standardized headers
+  _isStandardizedHeader(Header header) => _standardizedHeaders.contains(header);
 
   generate() {
     assert(installation != null);
@@ -314,7 +344,7 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
   }
 
   get logProvider => installation.logProvider;
-  get loggerVariableName => logProvider.libLoggerName(this);
+  get loggerVariableName => logProvider.loggerName(this);
 
   _initCommonHeader() {
     if (_commonHeader == null) {
@@ -332,12 +362,7 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
 
   _initLoggingHeader() {
     if (_loggingHeader == null) {
-      _loggingHeader = header('${id.snake}_logging')
-        ..namespace = this.namespace
-        ..includes.mergeIncludes(logProvider.includeRequirements)
-        ..getCodeBlock(fcbBeginNamespace).snippets
-            .add(logProvider.createLibLogger(this))
-        ..owner = this;
+      _loggingHeader = logProvider.createLoggingHeader(this, this.namespace);
       headers.add(_loggingHeader);
     }
     return _initLoggingHeader;
