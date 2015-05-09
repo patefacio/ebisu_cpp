@@ -125,56 +125,7 @@ Examples might be member accessors, member constructors, etc
           class_('cpp_entity')
           ..mixins = ['Entity']
           ..isAbstract = true
-          ..doc = """
-Exposes common elements for named entities, including their [id] and
-documentation. Additionally tracks parentage/ownership of entities.
-
-This is abstract for purposes of ownership. Each [Entity] knows its
-owning entity up until [Installation] which is the root entity. A call
-to [generate] on [Installation] will [setOwnership] which subclasses
-can trick down establishing ownership.
-
-The purpose of linking all [Entity] instances in a virtual tree type
-structure is so lookups can be done for entities.
-
-[Entity] must be created with an argument representing an Id.  That
-argument may be a string, in which case it is converted to an [Id].
-That argument may be an [Id].
-
-For many/most [Entity] subclasses there is often a corresponding
-method that simply creates in instance of the subclass. For example,
-
-    class Lib extends Entity... {
-       Lib(Id id) : super(id);
-       ...
-    }
-
-    Lib lib(Object id) => new Lib(id is Id ? id : new Id(id));
-
-This now allows this approach:
-
-      final myLib = lib('my_awesome_lib')
-        ..headers = [
-          header('my_header')
-          ..classes = [
-            class_('my_class')
-            ..members = [
-              member('my_member')
-            ]
-          ]
-        ];
-
-      print(myLib);
-
-prints:
-
-    lib(myAwesomeLib)
-      headers:
-        header(myHeader)
-          classes:[My_class]
-
-      tests:
-"""
+          ..doc = cppEntityDoc
           ..members = [
             member('id')
             ..doc = 'Id for the [CppEntity]'
@@ -191,7 +142,6 @@ content without being tied to an installation - this can be used.
 '''
             ..access = IA
             ..type = 'Namer',
-
           ],
 
         ],
@@ -250,57 +200,7 @@ The right hand side of using (ie the type decl being named)'''
         ..doc = 'Focuses on stylized *access* and standard C++ access'
         ..enums = [
           enum_('access')
-          ..doc = '''
-Access designation for a class member variable.
-
-C++ supports *public*, *private* and *protected* designations. This designation
-is at a higher abstraction in that selecting access determines both the c++
-protection as well as the set of accessors that are generated. *Member*
-instances have both *access* and *cppAccess* so full range is available, but
-general cases should be covered by setting only the *access* variable of a
-member.
-
-* IA: *inaccessible* which provides no accessor with c++ access *private*.
-  It is aliased to *ia*.
-
-* RO: *read-only* which provides a read accessor with c++ access *private*.
-  It is aliased to *ro*.
-
-* RW: *read-write* which provides read and write accessor with c++ access *private*.
-  It is aliased to *rw*.
-
-* WO: *write-only* which provides write access and the c++ access is *private*.
-  It is aliased to *wo*. It may sound counterintuitive, but a use case for this
-  might be to accept the generated write accessor but hand code a read accessor
-  requiring special logic.
-
-Note: If the desire is to have a public member that is public and has no
-accessors, set *cppAccess* to *public* andd set *access* to null.
-
-# Examples
-
-*cppAccess* null with *access* of *ro* gives:
-
-    class C_1
-    {
-    public:
-      //! getter for x_ (access is Ro)
-      std::string const& x() const { return x_; }
-    private:
-      std::string x_ {};
-    };
-
-*cppAccess* CppAccess.protected with *access* of *ro* gives:
-
-    class C_1
-    {
-    public:
-      //! getter for x_ (access is Ro)
-      std::string const& x() const { return x_; }
-    protected:
-      std::string x_ {};
-    };
-'''
+          ..doc = accessDoc
           ..hasLibraryScopedValues = true
           ..values = [
             enumValue(id('ia'))
@@ -431,38 +331,7 @@ Default namer establishing reasonable conventions, that are fairly
           ..doc = 'Namer based on google coding conventions',
 
           class_('base')
-          ..doc = '''
-A base class of another class.
-
-The style of inheritance is determined by [virtual] and [access]. Examples:
-
-Default is *not* virtual and [public] inheritance:
-
-    class_('derived')
-    ..bases = [
-      base('Base')
-    ];
-
-gives:
-
-    class Derived : public Base {};
-
-With overrides:
-
-    class_('derived')
-    ..bases = [
-      base('Base')
-      ..isVirtual = true
-      ..access = protected
-    ];
-
-Gives:
-
-    class Derived :
-      protected virtual Base
-    {
-    };
-'''
+          ..doc = baseDoc
           ..hasCtorSansNew = true
           ..members = [
             member('class_name')
@@ -589,130 +458,7 @@ Represents a template declaration comprized of a list of [decls]
         part('enum')
         ..classes = [
           class_('enum')
-          ..doc = """
-A c++ enumeration.
-
-There are two main styles of enumerations, *standard* and
-*mask*.
-
-Enumerations are often used to establish values to be used in
-masks. The actual manipulation with masks is done in the *int* space,
-but enums are convenient for setting up the mask values:
-
-      print(enum_('gl_buffer')
-          ..values = [ 'gl_color_buffer', 'gl_depth_buffer',
-            'gl_accum_buffer', 'gl_stencil_buffer' ]
-          ..isMask = true);
-
-will print:
-
-    enum Gl_buffer {
-      Gl_color_buffer_e = 1 << 0,
-      Gl_depth_buffer_e = 1 << 1,
-      Gl_accum_buffer_e = 1 << 2,
-      Gl_stencil_buffer_e = 1 << 3
-    };
-
-The *values* for enumeration entries can be ignored when their only
-purpose is to draw distinction:
-
-    print(enum_('region')..values = ['north', 'south', 'east', 'west']);
-
-will print:
-
-    enum Region {
-      North_e,
-      South_e,
-      East_e,
-      West_e
-    };
-
-Sometimes it is important not only to distinguish, but also to assign
-values. For this purpose the values associated with the entries may be
-provided via the [valueMap]
-
-    print(enum_('thresholds')
-          ..valueMap = { 'high' : 100, 'medium' : 50, 'low' : 10 });
-
-gives:
-
-    enum Thresholds {
-      High_e = 100,
-      Medium_e = 50,
-      Low_e = 10
-    };
-
-Optionally the [isClass] field can be set to improve scoping by making
-the enum a *class* enum.
-
-    print(enum_('color_as_class')
-          ..values = ['red', 'green', 'blue']
-          ..isClass = true);
-
-gives:
-
-    enum class Color_as_class {
-      Red_e,
-      Green_e,
-      Blue_e
-    };
-
-Optionally the [enumBase] can be used to specify the
-base type. This is particularly useful where the enum
-is a field in a *packed* structure.
-
-    print(enum_('color_with_base')
-          ..values = ['red', 'green', 'blue']
-          ..enumBase = 'std::int8_t');
-
-gives:
-
-    enum Color_with_base : std::int8_t {
-      Red_e,
-      Green_e,
-      Blue_e
-    };
-
-[isClass] may be combined with [enumBase].
-
-The [isStreamable] flag will provide *to_c_str* and *operator<<* methods:
-
-    print(enum_('color')
-          ..values = ['red', 'green', 'blue']
-          ..enumBase = 'std::int8_t'
-          ..isStreamable = true
-          );
-
-gives:
-
-    enum class Color : std::int8_t {
-      Red_e,
-      Green_e,
-      Blue_e
-    };
-    inline char const* to_c_str(Color e) {
-      switch(e) {
-        case Color::Red_e: return "Red_e";
-        case Color::Green_e: return "Green_e";
-        case Color::Blue_e: return "Blue_e";
-      }
-    }
-    inline std::ostream& operator<<(std::ostream &out, Color e) {
-      return out << to_c_str(e);
-    }
-
-For the *standard* style enum you can use the [hasFromCStr] to include
-a c-string to enum conversion method:
-
-    inline void from_c_str(char const* str, Color &e) {
-      using namespace std;
-      if(0 == strcmp("Red_e", str)) { e = Color::Red_e; return; }
-      if(0 == strcmp("Green_e", str)) { e = Color::Green_e; return; }
-      if(0 == strcmp("Blue_e", str)) { e = Color::Blue_e; return; }
-      string msg { "No Color matching:" };
-      throw std::runtime_error(msg + str);
-    }
-"""
+          ..doc = enumDoc
           ..extend = 'CppEntity'
           ..members = [
             member('values')
@@ -758,169 +504,13 @@ them in the enum as hex'''
         part('member')
         ..classes = [
           class_('member')
-          ..doc = '''
-A member or field included in a class.
-
-## Basics
-
-Members are typed (i.e. have [type]) and optionally initialized.
-
-For example:
-
-    member('widget')..type = 'Widget'..init = 'Widget()'
-
-gives:
-
-    Widget widget_ { Widget() };
-
-For some C++ types (*double*, *int*, *std::string*, *bool*) the type
-can be inferred if a suitable [init] is provided:
-
-Examples:
-
-    member('number')..init = 4
-    member('pi')..init = 3.14
-    member('default_tag')..init = 'empty'
-    member('is_strong')..init = false
-
-give respectively:
-
-    int number_ { 4 };
-    double pi_ { 3.14 };
-    std::string default_tag_ { "empty" };
-    bool is_strong_ { false };
-
-## Encapsulation
-
-Encapsulation can be achieved by setting [access] and/or
-[cppAccess]. Setting [access] is the preferred approach since it
-provides a consistent, sensible pattern for hiding and accessing
-members (See [Access]).
-
-*Read-Only* Example:
-
-    (class_('c')
-        ..members = [
-          member('readable')..init = 'foo'..access = ro
-        ])
-    .definition
-
-Gives:
-
-    class C
-    {
-    public:
-      //! getter for readable_ (access is Ro)
-      std::string const& readable() const { return readable_; }
-    private:
-      std::string readable_ { "foo" };
-    };
-
-
-*Inaccessible* Example:
-
-    (class_('c')
-        ..members = [
-          member('inaccessible')..init = 'foo'..access = ia
-        ])
-    .definition
-
-Gives:
-
-    class C
-    {
-    private:
-      std::string inaccessible_ { "foo" };
-    };
-
-*Read-Write* Example:
-
-    (class_('c')
-      ..members = [
-        member('read_write')..init = 'foo'..access = rw
-      ])
-    .definition
-
-Gives:
-
-    class C
-    {
-    public:
-      //! getter for read_write_ (access is Rw)
-      std::string const& read_write() const { return read_write_; }
-      //! setter for read_write_ (access is Access.rw)
-      void read_write(std::string & read_write) { read_write_ = read_write; }
-    private:
-      std::string read_write_ { "foo" };
-    };
-
-
-Note that read-write keeps the member *private* by default and allows
-access through methods. However, complete control over C++ access of
-members can be obtained with [cppAccess]. Here are two such examples:
-
-No accessors, just C++ public:
-
-    (class_('c')
-      ..members = [
-        member('full_control')..init = 'foo'..cppAccess = public
-      ])
-    .definition
-
-Gives:
-
-    class C
-    {
-    public:
-      std::string full_control { "foo" };
-    };
-
-Finally, using both [access] and [cppAccess] for more control:
-
-    (class_('c')
-      ..members = [
-        member('more_control')..init = 'foo'..access = ro..cppAccess = protected
-      ])
-    .definition
-
-
-Gives:
-
-    class C
-    {
-    public:
-      //! getter for more_control_ (access is Ro)
-      std::string const& more_control() const { return more_control_; }
-    protected:
-      std::string more_control_ { "foo" };
-    };
-
-'''
+          ..doc = memberDoc
           ..extend = 'CppEntity'
           ..members = [
             member('type')..doc = 'Type of member',
             member('init')
-            ..doc = """
-Initialization of member.
-
-If [type] of [Member] is null and [init] is set with a Dart type
-which can reasonably map to a C++ type, then type is inferred.
-Currently the mappings are:
-    {
-      int : int,
-      double : double,
-      string : std::string,
-      bool : bool,
-      List(...) : std::vector<...>,
-    }
-
-For example:
-
-    member('name')..init = 'UNASSIGNED' => name is std::string
-    member('x')..init = 0               => x is int
-    member('pi')..init = 3.14           => pi is double
-
-"""..access = RO,
+            ..doc = memberInitDoc
+            ..access = RO,
             member('ctor_init')
             ..doc = '''
 Rare usage - member b depends on member a (e.g. b is just a string rep of a
@@ -956,30 +546,7 @@ initialize it''',
             ..doc = 'Indicates this member should not be serialized via cereal'
             ..classInit = false,
             member('getter_return_modifier')
-            ..doc = '''
-A function that may be used to modify the value returned from a
-getter.  If a modifier function of type [GetReturnModifier] is
-provided it will be used to update what the accessor returns.
-
-For example:
-
-    print(clangFormat(
-            (member('message_length')
-                ..type = 'int32_t'
-                ..access = ro
-                ..getterReturnModifier =
-                  ((member, oldValue) => 'endian_convert(\$oldValue)'))
-            .getter));
-
-prints:
-
-    //! getter for message_length_ (access is Ro)
-    int32_t message_length() const { return endian_convert(message_length_); }
-
-Notes: No required *parens* when used inline with cascades. A trailing
-semicolon is *not* required and the modifier accessor must return the
-same type as the member.
-'''
+            ..doc = getterReturnModifierDoc
             ..type = 'GetterReturnModifier',
             member('custom_block')
             ..doc = '''
@@ -1050,50 +617,7 @@ generate a streamable entry in the containing [Class].
         part('class')
         ..enums = [
           enum_('class_code_block')
-          ..doc = '''
-The various supported code blocks associated with a C++ class. The
-name indicates where in the class it appears. Within the class
-definition the order is *public*, *protected* then
-*private*. Additional locations for just before the class and just
-after the class.
-
-So, the following spec:
-
-        (class_('c')
-            ..customBlocks = [
-              clsPreDecl,
-              clsPublic,
-              clsProtected,
-              clsPrivate,
-              clsPostDecl
-            ])
-        .definition
-
-
-Gives the following content:
-
-    // custom <ClsPreDecl C>
-    // end <ClsPreDecl C>
-
-    class C
-    {
-    public:
-      // custom <ClsPublic C>
-      // end <ClsPublic C>
-
-    protected:
-      // custom <ClsProtected C>
-      // end <ClsProtected C>
-
-    private:
-      // custom <ClsPrivate C>
-      // end <ClsPrivate C>
-
-    };
-
-    // custom <ClsPostDecl C>
-    // end <ClsPostDecl C>
-'''
+          ..doc = classCodeBlockDoc
           ..hasLibraryScopedValues = true
           ..values = [
             enumValue(id('cls_open'))
@@ -1171,54 +695,7 @@ Supports injecting code near the bottom of the method. *See*
             member('is_abstract')..classInit = false
           ],
           class_('member_ctor_parm')
-          ..doc = '''
-A *Member Constructor Parameter*. Defines a single parameter to be passed to a
-MemberCtor in order to initialize a single member variable. MemberCtor will
-convert strings automatically into instances of MemberCtorParm. For example:
-
-    memberCtor(['x', 'y'])
-
-would produce the following constructor:
-
-    class Point {
-    public:
-      Point(int x, int y) : x_{x}, y_{y} {}
-    private:
-      int x_;
-      int y_;
-    }
-
-But to modify the parameter definition or initializtaion you might rather
-construct and modify the MemberCtorParm instead of taking the default:
-
-        final cls = class_('point')
-          ..members = [ member('x')..init = 0, member('y')..init = 0 ]
-          ..memberCtors = [
-            memberCtor( [
-              memberCtorParm('x')
-              ..defaultValue = '42',
-              memberCtorParm('y')
-              ..defaultValue = '42'] )
-          ];
-
-which produces:
-
-    class Point
-    {
-    public:
-      Point(
-        int x = 42,
-        int y = 42) :
-        x_ { x },
-        y_ { y } {
-      }
-
-    private:
-      int x_ { 0 };
-      int y_ { 0 };
-    };
-
-'''
+          ..doc = memberCtorParmDoc
           ..hasCtorSansNew = true
           ..members = [
             member('name')
@@ -1244,41 +721,8 @@ Which would be achieved by:
     ])
 
 ''',
-            member('init')..doc = '''
-*Override* of initialization text. This is rarely needed since
-initialization of members in a member ctor is straightforward:
-
-This definition:
-
-    memberCtor(['x', 'y'])
-
-would produce the following constructor:
-
-    class Point {
-    public:
-      Point(int x, int y) : x_{x}, y_{y} {}
-    private:
-      int x_;
-      int y_;
-    }
-
-But sometimes you need more:
-
-    class Umask_scoped_set {
-    public:
-      Umask_scoped_set(mode_t new_mode) : previous_mode_{umask(new_mode)}
-    ...
-    }
-
-Which would be achieved by:
-
-    memberCtor([
-      memberCtorParm("previous_mode")
-      ..parmDecl = "mode_t new_mode"
-      ..init = "umask(new_mode)"
-    ])
-
-'''
+            member('init')
+            ..doc = memberCtorInitDoc
             ..access = WO,
             member('default_value')
             ..doc = '''
@@ -1349,98 +793,7 @@ components when streaming'''
             ..classInit = false
           ],
           class_('class')
-          ..doc = '''
-A C++ class.
-
-Classes optionally have these items:
-
-* A [template]
-* A collection of [bases]
-* A collection of [members]
-* A collection of class local [forwardDecls]
-* A collection of class local [usings]
-* A collection of class local [enums]
-* A collection of class local [forward_ptrs] which are like [usings] but standardized for pointer type
-* A collection of *optionally included* standard methods.
-  In general these methods are not included unless requested. There
-  are two approaches to *requesting* their presence:
-
-  1 - just mention their name (i.e. invoke the getter for the member on the
-  class which autoinitializes the member) and the default function will be
-  included. This is a *funky* use of function side-effects, but the effect is
-  fewer calls required to declaratively describe your class.
-
-  2 - when more configuration of the method is required, call the *with...()*
-  function to get scoped access to the function object.
-
-  Example - Case 1:
-
-      print(clangFormat((class_('x')).definition));
-      print(clangFormat((class_('x')..copyCtor).definition));
-      print(clangFormat((class_('x')..copyCtor.usesDefault = true).definition));
-
-  Prints:
-
-        class X {};
-
-        class X {
-         public:
-          X(X const& other) {}
-        };
-
-        class X {
-         public:
-          X(X const& other) = default;
-        };
-
-
-  Note that simply naming the copy constructor member of the class will inlude
-  its definition. Sometimes you might want to do more with a [ClassMethod]
-  definition declaratively in place which is why the *with...()* methods exist.
-
-  Example - Case 2:
-
-      print(clangFormat((
-                  class_('x')
-                  ..withCopyCtor((ctor) =>
-                      ctor..cppAccess = protected
-                      /// ... do more with ctor, like inject logging code
-                      ))
-              .definition));
-
-  Prints:
-
-        class X {
-         protected:
-          X(X const& other) {}
-        };
-
-  The functions are:
-
-  * Optionally included constructors including:
-
-    * [CopyCtor]
-    * [MoveCtor]
-    * [DefaultCtor]
-    * Zero or more member initializing ctors [MemberCtor]
-
-  * Assignment functions:
-
-    * [AssignCopy]
-    * [AssignMove]
-
-  * [Dtor]
-
-  * Standard Utility Methods
-
-    * [OpEqual]
-    * [OpLess]
-    * [OpOut] - Support for streaming fields
-
-* A fixed collection of indexed [codeBlocks] that can be used for
-  providing *CustomBlocks* and/or for dynamically injecting code - see
-  [CodeBlock].
-'''
+          ..doc = classDoc
           ..extend = 'CppEntity'
           ..mixins = [ 'Testable' ]
           ..members = [
@@ -1687,46 +1040,7 @@ the [getMethod] function.
             // ..classInit = false,
           ],
           class_('interface')
-          ..doc = """
-A collection of methods that as a group are either virtual or not.  A
-*virtual* interface expresses a desire to have code generated that
-will implement (i.e. derive from) the set of methods virtually. If the
-interface is *not* virtual, it is an indication that the implementers
-of the interface will provide implementations to be used via static
-polymorphism.
-
-      var md = new Interface('alarmist')
-        ..doc = 'Methods that cause alarm'
-        ..methodDecls = [
-          'void shoutsFireInTheater(int volume)',
-          'void wontStopWithTheGlobalWarming()',
-          new MethodDecl.fromDecl('void growl()')..doc = 'Scare them'
-        ];
-      print(md);
-
-prints:
-
-    /**
-     Methods that cause alarm
-    */
-    interface Alarmist
-      void shouts_fire_in_theater(int volume) {
-        // custom <shouts_fire_in_theater>
-        // end <shouts_fire_in_theater>
-      }
-      void wont_stop_with_the_global_warming() {
-        // custom <wont_stop_with_the_global_warming>
-        // end <wont_stop_with_the_global_warming>
-      }
-      /**
-       Scare them
-      */
-      void growl() {
-        // custom <growl>
-        // end <growl>
-      }
-    }
-"""
+          ..doc = interfaceDoc
           ..extend = 'CppEntity'
           ..members = [
             member('method_decls')
@@ -1885,33 +1199,7 @@ and [CodeBlock]s to augment/initialize/teardown.
         ..enums = [
 
           enum_('standardized_header')
-          ..doc = '''
-Common headers unique to a [Lib] designed to provide consistency and
-facilitate library usage.
-
-- [libCommonHeader]: For a given [Lib], a place to put common types,
-  declarations that need to be included by all other headers in the
-  lib. If requested for a [Lib], all other headers in the [Lib] will
-  inlude this. Therefore, it is important that this header *not*
-  include other *non-common* headers in the [Lib]. The naming
-  convention is: LIBNAME_common.hpp
-
-- [libLoggingHeader]: For a given [Lib] a header to provide a logger
-  instance. If requested for a [Lib], all other headers in the [Lib]
-  will include this indirectly via *lib_common_header*. The naming
-  convention is: LIBNAME_logging.hpp
-
-- [ibInitializationHeader]: For a given [Lib] a header to provide
-  library initialization and uninitialization routines. If requested
-  for a [Lib], all other headers in the [Lib] will include this
-  indirectly via *lib_common_header*. The naming convention is:
-  LIBNAME_initialization.hpp
-
-- [LibAllHeader]: For a given [Lib], this header will include all
-  other headers. This is a convenience for clients writing non-library
-  code. The naming convention is: LIBNAME_all.hpp
-
-'''
+          ..doc = standardizedHeaderDoc
           ..values = [
             enumValue(id('lib_common_header')),
             enumValue(id('lib_logging_header')),
@@ -1921,52 +1209,7 @@ facilitate library usage.
           ..hasLibraryScopedValues = true,
 
           enum_('file_code_block')
-          ..doc = '''
-Set of pre-canned blocks where custom or generated code can be placed.
-The various supported code blocks associated with a C++ file. The
-name indicates where in the file it appears.
-
-So, the following spec:
-
-    final h = header('foo')
-      ..includes = [ 'iostream' ]
-      ..namespace = namespace(['foo'])
-      ..customBlocks = [
-        fcbCustomIncludes,
-        fcbPreNamespace,
-        fcbBeginNamespace,
-        fcbEndNamespace,
-        fcbPostNamespace,
-      ];
-    print(h.contents);
-
-prints:
-
-    #ifndef __FOO_FOO_HPP__
-    #define __FOO_FOO_HPP__
-
-    #include <iostream>
-
-    // custom <FcbCustomIncludes foo>
-    // end <FcbCustomIncludes foo>
-
-    // custom <FcbPreNamespace foo>
-    // end <FcbPreNamespace foo>
-
-    namespace foo {
-      // custom <FcbBeginNamespace foo>
-      // end <FcbBeginNamespace foo>
-
-      // custom <FcbEndNamespace foo>
-      // end <FcbEndNamespace foo>
-
-    } // namespace foo
-    // custom <FcbPostNamespace foo>
-    // end <FcbPostNamespace foo>
-
-    #endif // __FOO_FOO_HPP__
-
-'''
+          ..doc = fileCodeBlockDoc
           ..hasLibraryScopedValues = true
           ..values = [
             enumValue(id('fcb_pre_includes'))
@@ -2092,97 +1335,7 @@ Set of argument types supported by command line option processing.
         ]
         ..classes = [
           class_('app_arg')
-          ..doc = '''
-Metadata associated with an argument to an application.  Requires and
-geared to features supported by boost::program_options. The supporting
-code for arguments is spread over a few places in the main file of an
-[App]. Examples of declarations follow:
-
-      print(br([
-        appArg('filename')
-        ..shortName = 'f',
-
-        appArg('in_file')
-        ..shortName = 'f'
-        ..defaultValue = 'input.txt',
-
-        appArg('pi')
-        ..shortName = 'p'
-        ..isRequired = true
-        ..defaultValue = 3.14,
-
-        appArg('source_file')
-        ..shortName = 's'
-        ..isMultiple = true
-      ]));
-
-Prints:
-
-    AppArg(filename)
-      argType: String
-      cppType: std::string
-      flagDecl: "filename,f"
-      isRequired: false
-      isMultiple: false
-      defaultValue: null
-
-    AppArg(in_file)
-      argType: String
-      cppType: std::string
-      flagDecl: "in-file,f"
-      isRequired: false
-      isMultiple: false
-      defaultValue: input.txt
-
-    AppArg(pi)
-      argType: Double
-      cppType: double
-      flagDecl: "pi,p"
-      isRequired: true
-      isMultiple: false
-      defaultValue: 3.14
-
-    AppArg(source_file)
-      argType: String
-      cppType: std::vector< std::string >
-      flagDecl: "source-file,s"
-      isRequired: false
-      isMultiple: true
-      defaultValue: null
-
-
-For an [App], if no [Arg] in [args] is named *help* or has [shortName]
-of *h* then the following *help* argument is provided. The help text
-will include the doc string of the [App].
-
-      args.insert(0, new AppArg(new Id('help'))
-        ..shortName = 'h'
-        ..defaultValue = false
-        ..descr = 'Display help information');
-
-
-Example: Here are the [AppArg]s of an simple application:
-
-    arg('timestamp')
-    ..shortName = 't'
-    ..descr = 'Some form of timestamp'
-    ..isMultiple = true
-    ..type = ArgType.STRING,
-    arg('date')
-    ..shortName = 'd'
-    ..descr = 'Some form of date'
-    ..isMultiple = true
-    ..type = ArgType.STRING,
-
-When run, the help looks something like:
-
-    App for converting between various forms of date/time
-
-    AllowedOptions:
-      -h [ --help ]          Display help information
-      -t [ --timestamp ] arg Some form of timestamp
-      -d [ --date ] arg      Some form of date
-'''
+          ..doc = appArgDoc
           ..extend = 'CppEntity'
           ..members = [
             member('type')..type = 'ArgType'..classInit = 'ArgType.STRING',
@@ -2192,35 +1345,7 @@ When run, the help looks something like:
             member('default_value')..type = 'Object'..access = RO,
           ],
           class_('app')
-          ..doc = '''
-
-A C++ application. Application related files are generated in location based on
-[namespace] the namespace. For example, the following code:
-
-    app('date_time_converter')
-      ..namespace = namespace(['fcs'])
-      ..args = [
-        arg('timestamp')
-        ..shortName = 't'
-        ..descr = 'Some form of timestamp'
-        ..isMultiple = true
-        ..type = ArgType.STRING,
-        arg('date')
-        ..shortName = 'd'
-        ..descr = 'Some form of date'
-        ..isMultiple = true
-        ..type = ArgType.STRING,
-      ];
-
-will generate a C++ file containing *main* at location:
-
-    \$root/cpp/app/date_time_converter/date_time_converter.cpp
-
-Since [App] extends [Impl] it supports local instances of
-[constExprs] [usings], [enums], [forwardDecls], and [classes],
-as well as [headers] and [impls] which may be part of the
-application and not necessarily suited for a separate library.
-'''
+          ..doc = appDoc
           ..extend = 'Impl'
           ..implement = [ 'CodeGenerator' ]
           ..members = [
@@ -2310,24 +1435,7 @@ Creates builder for an installation (ie ties together all build artifacts)
           ],
 
           class_('installation')
-          ..doc = '''
-The to level [CppEntity] representing the root of a C++ installation.
-
-The composition of generatable [CppEntity] items starts here. This is
-where the [root] (i.e. target root path) is defined, dictating
-locations of the tree of C++. This is the object to configure *global*
-type features like:
-
- - Provide a [Namer] to control the naming conventions
-
- - Provide a [TestProvider] to control how tests are provided
-
- - Provide a [LogProvider] to control what includes are required for
-   the desired logging solution and how certain [Loggable] entities
-   should log
-
- - Should support for logging api initialization be generated
-'''
+          ..doc = installationDoc
           ..extend = 'CppEntity'
           ..implement = [ 'CodeGenerator' ]
           ..members = [
@@ -2603,4 +1711,931 @@ When that script is run, the following is output:
 So when the script is run the code is *regenerated* and any changed files will
 be indicated as such. In this case, since the code was previously generated, it
 indicates there were no updates.
+''';
+
+final appArgDoc = '''
+Metadata associated with an argument to an application.  Requires and
+geared to features supported by boost::program_options. The supporting
+code for arguments is spread over a few places in the main file of an
+[App]. Examples of declarations follow:
+
+      print(br([
+        appArg('filename')
+        ..shortName = 'f',
+
+        appArg('in_file')
+        ..shortName = 'f'
+        ..defaultValue = 'input.txt',
+
+        appArg('pi')
+        ..shortName = 'p'
+        ..isRequired = true
+        ..defaultValue = 3.14,
+
+        appArg('source_file')
+        ..shortName = 's'
+        ..isMultiple = true
+      ]));
+
+Prints:
+
+    AppArg(filename)
+      argType: String
+      cppType: std::string
+      flagDecl: "filename,f"
+      isRequired: false
+      isMultiple: false
+      defaultValue: null
+
+    AppArg(in_file)
+      argType: String
+      cppType: std::string
+      flagDecl: "in-file,f"
+      isRequired: false
+      isMultiple: false
+      defaultValue: input.txt
+
+    AppArg(pi)
+      argType: Double
+      cppType: double
+      flagDecl: "pi,p"
+      isRequired: true
+      isMultiple: false
+      defaultValue: 3.14
+
+    AppArg(source_file)
+      argType: String
+      cppType: std::vector< std::string >
+      flagDecl: "source-file,s"
+      isRequired: false
+      isMultiple: true
+      defaultValue: null
+
+
+For an [App], if no [Arg] in [args] is named *help* or has [shortName]
+of *h* then the following *help* argument is provided. The help text
+will include the doc string of the [App].
+
+      args.insert(0, new AppArg(new Id('help'))
+        ..shortName = 'h'
+        ..defaultValue = false
+        ..descr = 'Display help information');
+
+
+Example: Here are the [AppArg]s of an simple application:
+
+    arg('timestamp')
+    ..shortName = 't'
+    ..descr = 'Some form of timestamp'
+    ..isMultiple = true
+    ..type = ArgType.STRING,
+    arg('date')
+    ..shortName = 'd'
+    ..descr = 'Some form of date'
+    ..isMultiple = true
+    ..type = ArgType.STRING,
+
+When run, the help looks something like:
+
+    App for converting between various forms of date/time
+
+    AllowedOptions:
+      -h [ --help ]          Display help information
+      -t [ --timestamp ] arg Some form of timestamp
+      -d [ --date ] arg      Some form of date
+''';
+
+final appDoc = '''
+
+A C++ application. Application related files are generated in location based on
+[namespace] the namespace. For example, the following code:
+
+    app('date_time_converter')
+      ..namespace = namespace(['fcs'])
+      ..args = [
+        arg('timestamp')
+        ..shortName = 't'
+        ..descr = 'Some form of timestamp'
+        ..isMultiple = true
+        ..type = ArgType.STRING,
+        arg('date')
+        ..shortName = 'd'
+        ..descr = 'Some form of date'
+        ..isMultiple = true
+        ..type = ArgType.STRING,
+      ];
+
+will generate a C++ file containing *main* at location:
+
+    \$root/cpp/app/date_time_converter/date_time_converter.cpp
+
+Since [App] extends [Impl] it supports local instances of
+[constExprs] [usings], [enums], [forwardDecls], and [classes],
+as well as [headers] and [impls] which may be part of the
+application and not necessarily suited for a separate library.
+''';
+
+final fileCodeBlockDoc = '''
+Set of pre-canned blocks where custom or generated code can be placed.
+The various supported code blocks associated with a C++ file. The
+name indicates where in the file it appears.
+
+So, the following spec:
+
+    final h = header('foo')
+      ..includes = [ 'iostream' ]
+      ..namespace = namespace(['foo'])
+      ..customBlocks = [
+        fcbCustomIncludes,
+        fcbPreNamespace,
+        fcbBeginNamespace,
+        fcbEndNamespace,
+        fcbPostNamespace,
+      ];
+    print(h.contents);
+
+prints:
+
+    #ifndef __FOO_FOO_HPP__
+    #define __FOO_FOO_HPP__
+
+    #include <iostream>
+
+    // custom <FcbCustomIncludes foo>
+    // end <FcbCustomIncludes foo>
+
+    // custom <FcbPreNamespace foo>
+    // end <FcbPreNamespace foo>
+
+    namespace foo {
+      // custom <FcbBeginNamespace foo>
+      // end <FcbBeginNamespace foo>
+
+      // custom <FcbEndNamespace foo>
+      // end <FcbEndNamespace foo>
+
+    } // namespace foo
+    // custom <FcbPostNamespace foo>
+    // end <FcbPostNamespace foo>
+
+    #endif // __FOO_FOO_HPP__
+
+''';
+
+final classDoc = '''
+A C++ class.
+
+Classes optionally have these items:
+
+* A [template]
+* A collection of [bases]
+* A collection of [members]
+* A collection of class local [forwardDecls]
+* A collection of class local [usings]
+* A collection of class local [enums]
+* A collection of class local [forward_ptrs] which are like [usings] but standardized for pointer type
+* A collection of *optionally included* standard methods.
+  In general these methods are not included unless requested. There
+  are two approaches to *requesting* their presence:
+
+  1 - just mention their name (i.e. invoke the getter for the member on the
+  class which autoinitializes the member) and the default function will be
+  included. This is a *funky* use of function side-effects, but the effect is
+  fewer calls required to declaratively describe your class.
+
+  2 - when more configuration of the method is required, call the *with...()*
+  function to get scoped access to the function object.
+
+  Example - Case 1:
+
+      print(clangFormat((class_('x')).definition));
+      print(clangFormat((class_('x')..copyCtor).definition));
+      print(clangFormat((class_('x')..copyCtor.usesDefault = true).definition));
+
+  Prints:
+
+        class X {};
+
+        class X {
+         public:
+          X(X const& other) {}
+        };
+
+        class X {
+         public:
+          X(X const& other) = default;
+        };
+
+
+  Note that simply naming the copy constructor member of the class will inlude
+  its definition. Sometimes you might want to do more with a [ClassMethod]
+  definition declaratively in place which is why the *with...()* methods exist.
+
+  Example - Case 2:
+
+      print(clangFormat((
+                  class_('x')
+                  ..withCopyCtor((ctor) =>
+                      ctor..cppAccess = protected
+                      /// ... do more with ctor, like inject logging code
+                      ))
+              .definition));
+
+  Prints:
+
+        class X {
+         protected:
+          X(X const& other) {}
+        };
+
+  The functions are:
+
+  * Optionally included constructors including:
+
+    * [CopyCtor]
+    * [MoveCtor]
+    * [DefaultCtor]
+    * Zero or more member initializing ctors [MemberCtor]
+
+  * Assignment functions:
+
+    * [AssignCopy]
+    * [AssignMove]
+
+  * [Dtor]
+
+  * Standard Utility Methods
+
+    * [OpEqual]
+    * [OpLess]
+    * [OpOut] - Support for streaming fields
+
+* A fixed collection of indexed [codeBlocks] that can be used for
+  providing *CustomBlocks* and/or for dynamically injecting code - see
+  [CodeBlock].
+''';
+
+final memberCtorInitDoc = '''
+*Override* of initialization text. This is rarely needed since
+initialization of members in a member ctor is straightforward:
+
+This definition:
+
+    memberCtor(['x', 'y'])
+
+would produce the following constructor:
+
+    class Point {
+    public:
+      Point(int x, int y) : x_{x}, y_{y} {}
+    private:
+      int x_;
+      int y_;
+    }
+
+But sometimes you need more:
+
+    class Umask_scoped_set {
+    public:
+      Umask_scoped_set(mode_t new_mode) : previous_mode_{umask(new_mode)}
+    ...
+    }
+
+Which would be achieved by:
+
+    memberCtor([
+      memberCtorParm("previous_mode")
+      ..parmDecl = "mode_t new_mode"
+      ..init = "umask(new_mode)"
+    ])
+
+''';
+
+final memberCtorParmDoc = '''
+A *Member Constructor Parameter*. Defines a single parameter to be passed to a
+MemberCtor in order to initialize a single member variable. MemberCtor will
+convert strings automatically into instances of MemberCtorParm. For example:
+
+    memberCtor(['x', 'y'])
+
+would produce the following constructor:
+
+    class Point {
+    public:
+      Point(int x, int y) : x_{x}, y_{y} {}
+    private:
+      int x_;
+      int y_;
+    }
+
+But to modify the parameter definition or initializtaion you might rather
+construct and modify the MemberCtorParm instead of taking the default:
+
+        final cls = class_('point')
+          ..members = [ member('x')..init = 0, member('y')..init = 0 ]
+          ..memberCtors = [
+            memberCtor( [
+              memberCtorParm('x')
+              ..defaultValue = '42',
+              memberCtorParm('y')
+              ..defaultValue = '42'] )
+          ];
+
+which produces:
+
+    class Point
+    {
+    public:
+      Point(
+        int x = 42,
+        int y = 42) :
+        x_ { x },
+        y_ { y } {
+      }
+
+    private:
+      int x_ { 0 };
+      int y_ { 0 };
+    };
+
+''';
+
+final classCodeBlockDoc = '''
+The various supported code blocks associated with a C++ class. The
+name indicates where in the class it appears. Within the class
+definition the order is *public*, *protected* then
+*private*. Additional locations for just before the class and just
+after the class.
+
+So, the following spec:
+
+        (class_('c')
+            ..customBlocks = [
+              clsPreDecl,
+              clsPublic,
+              clsProtected,
+              clsPrivate,
+              clsPostDecl
+            ])
+        .definition
+
+
+Gives the following content:
+
+    // custom <ClsPreDecl C>
+    // end <ClsPreDecl C>
+
+    class C
+    {
+    public:
+      // custom <ClsPublic C>
+      // end <ClsPublic C>
+
+    protected:
+      // custom <ClsProtected C>
+      // end <ClsProtected C>
+
+    private:
+      // custom <ClsPrivate C>
+      // end <ClsPrivate C>
+
+    };
+
+    // custom <ClsPostDecl C>
+    // end <ClsPostDecl C>
+''';
+
+final getterReturnModifierDoc = '''
+A function that may be used to modify the value returned from a
+getter.  If a modifier function of type [GetReturnModifier] is
+provided it will be used to update what the accessor returns.
+
+For example:
+
+    print(clangFormat(
+            (member('message_length')
+                ..type = 'int32_t'
+                ..access = ro
+                ..getterReturnModifier =
+                  ((member, oldValue) => 'endian_convert(\$oldValue)'))
+            .getter));
+
+prints:
+
+    //! getter for message_length_ (access is Ro)
+    int32_t message_length() const { return endian_convert(message_length_); }
+
+Notes: No required *parens* when used inline with cascades. A trailing
+semicolon is *not* required and the modifier accessor must return the
+same type as the member.
+''';
+
+final memberInitDoc = """
+Initialization of member.
+
+If [type] of [Member] is null and [init] is set with a Dart type
+which can reasonably map to a C++ type, then type is inferred.
+Currently the mappings are:
+    {
+      int : int,
+      double : double,
+      string : std::string,
+      bool : bool,
+      List(...) : std::vector<...>,
+    }
+
+For example:
+
+    member('name')..init = 'UNASSIGNED' => name is std::string
+    member('x')..init = 0               => x is int
+    member('pi')..init = 3.14           => pi is double
+
+""";
+
+final memberDoc = '''
+A member or field included in a class.
+
+## Basics
+
+Members are typed (i.e. have [type]) and optionally initialized.
+
+For example:
+
+    member('widget')..type = 'Widget'..init = 'Widget()'
+
+gives:
+
+    Widget widget_ { Widget() };
+
+For some C++ types (*double*, *int*, *std::string*, *bool*) the type
+can be inferred if a suitable [init] is provided:
+
+Examples:
+
+    member('number')..init = 4
+    member('pi')..init = 3.14
+    member('default_tag')..init = 'empty'
+    member('is_strong')..init = false
+
+give respectively:
+
+    int number_ { 4 };
+    double pi_ { 3.14 };
+    std::string default_tag_ { "empty" };
+    bool is_strong_ { false };
+
+## Encapsulation
+
+Encapsulation can be achieved by setting [access] and/or
+[cppAccess]. Setting [access] is the preferred approach since it
+provides a consistent, sensible pattern for hiding and accessing
+members (See [Access]).
+
+*Read-Only* Example:
+
+    (class_('c')
+        ..members = [
+          member('readable')..init = 'foo'..access = ro
+        ])
+    .definition
+
+Gives:
+
+    class C
+    {
+    public:
+      //! getter for readable_ (access is Ro)
+      std::string const& readable() const { return readable_; }
+    private:
+      std::string readable_ { "foo" };
+    };
+
+
+*Inaccessible* Example:
+
+    (class_('c')
+        ..members = [
+          member('inaccessible')..init = 'foo'..access = ia
+        ])
+    .definition
+
+Gives:
+
+    class C
+    {
+    private:
+      std::string inaccessible_ { "foo" };
+    };
+
+*Read-Write* Example:
+
+    (class_('c')
+      ..members = [
+        member('read_write')..init = 'foo'..access = rw
+      ])
+    .definition
+
+Gives:
+
+    class C
+    {
+    public:
+      //! getter for read_write_ (access is Rw)
+      std::string const& read_write() const { return read_write_; }
+      //! setter for read_write_ (access is Access.rw)
+      void read_write(std::string & read_write) { read_write_ = read_write; }
+    private:
+      std::string read_write_ { "foo" };
+    };
+
+
+Note that read-write keeps the member *private* by default and allows
+access through methods. However, complete control over C++ access of
+members can be obtained with [cppAccess]. Here are two such examples:
+
+No accessors, just C++ public:
+
+    (class_('c')
+      ..members = [
+        member('full_control')..init = 'foo'..cppAccess = public
+      ])
+    .definition
+
+Gives:
+
+    class C
+    {
+    public:
+      std::string full_control { "foo" };
+    };
+
+Finally, using both [access] and [cppAccess] for more control:
+
+    (class_('c')
+      ..members = [
+        member('more_control')..init = 'foo'..access = ro..cppAccess = protected
+      ])
+    .definition
+
+
+Gives:
+
+    class C
+    {
+    public:
+      //! getter for more_control_ (access is Ro)
+      std::string const& more_control() const { return more_control_; }
+    protected:
+      std::string more_control_ { "foo" };
+    };
+
+''';
+
+final enumDoc = """
+A c++ enumeration.
+
+There are two main styles of enumerations, *standard* and
+*mask*.
+
+Enumerations are often used to establish values to be used in
+masks. The actual manipulation with masks is done in the *int* space,
+but enums are convenient for setting up the mask values:
+
+      print(enum_('gl_buffer')
+          ..values = [ 'gl_color_buffer', 'gl_depth_buffer',
+            'gl_accum_buffer', 'gl_stencil_buffer' ]
+          ..isMask = true);
+
+will print:
+
+    enum Gl_buffer {
+      Gl_color_buffer_e = 1 << 0,
+      Gl_depth_buffer_e = 1 << 1,
+      Gl_accum_buffer_e = 1 << 2,
+      Gl_stencil_buffer_e = 1 << 3
+    };
+
+The *values* for enumeration entries can be ignored when their only
+purpose is to draw distinction:
+
+    print(enum_('region')..values = ['north', 'south', 'east', 'west']);
+
+will print:
+
+    enum Region {
+      North_e,
+      South_e,
+      East_e,
+      West_e
+    };
+
+Sometimes it is important not only to distinguish, but also to assign
+values. For this purpose the values associated with the entries may be
+provided via the [valueMap]
+
+    print(enum_('thresholds')
+          ..valueMap = { 'high' : 100, 'medium' : 50, 'low' : 10 });
+
+gives:
+
+    enum Thresholds {
+      High_e = 100,
+      Medium_e = 50,
+      Low_e = 10
+    };
+
+Optionally the [isClass] field can be set to improve scoping by making
+the enum a *class* enum.
+
+    print(enum_('color_as_class')
+          ..values = ['red', 'green', 'blue']
+          ..isClass = true);
+
+gives:
+
+    enum class Color_as_class {
+      Red_e,
+      Green_e,
+      Blue_e
+    };
+
+Optionally the [enumBase] can be used to specify the
+base type. This is particularly useful where the enum
+is a field in a *packed* structure.
+
+    print(enum_('color_with_base')
+          ..values = ['red', 'green', 'blue']
+          ..enumBase = 'std::int8_t');
+
+gives:
+
+    enum Color_with_base : std::int8_t {
+      Red_e,
+      Green_e,
+      Blue_e
+    };
+
+[isClass] may be combined with [enumBase].
+
+The [isStreamable] flag will provide *to_c_str* and *operator<<* methods:
+
+    print(enum_('color')
+          ..values = ['red', 'green', 'blue']
+          ..enumBase = 'std::int8_t'
+          ..isStreamable = true
+          );
+
+gives:
+
+    enum class Color : std::int8_t {
+      Red_e,
+      Green_e,
+      Blue_e
+    };
+    inline char const* to_c_str(Color e) {
+      switch(e) {
+        case Color::Red_e: return "Red_e";
+        case Color::Green_e: return "Green_e";
+        case Color::Blue_e: return "Blue_e";
+      }
+    }
+    inline std::ostream& operator<<(std::ostream &out, Color e) {
+      return out << to_c_str(e);
+    }
+
+For the *standard* style enum you can use the [hasFromCStr] to include
+a c-string to enum conversion method:
+
+    inline void from_c_str(char const* str, Color &e) {
+      using namespace std;
+      if(0 == strcmp("Red_e", str)) { e = Color::Red_e; return; }
+      if(0 == strcmp("Green_e", str)) { e = Color::Green_e; return; }
+      if(0 == strcmp("Blue_e", str)) { e = Color::Blue_e; return; }
+      string msg { "No Color matching:" };
+      throw std::runtime_error(msg + str);
+    }
+""";
+
+final baseDoc = '''
+A base class of another class.
+
+The style of inheritance is determined by [virtual] and [access]. Examples:
+
+Default is *not* virtual and [public] inheritance:
+
+    class_('derived')
+    ..bases = [
+      base('Base')
+    ];
+
+gives:
+
+    class Derived : public Base {};
+
+With overrides:
+
+    class_('derived')
+    ..bases = [
+      base('Base')
+      ..isVirtual = true
+      ..access = protected
+    ];
+
+Gives:
+
+    class Derived :
+      protected virtual Base
+    {
+    };
+''';
+
+final accessDoc = '''
+Access designation for a class member variable.
+
+C++ supports *public*, *private* and *protected* designations. This designation
+is at a higher abstraction in that selecting access determines both the c++
+protection as well as the set of accessors that are generated. *Member*
+instances have both *access* and *cppAccess* so full range is available, but
+general cases should be covered by setting only the *access* variable of a
+member.
+
+* IA: *inaccessible* which provides no accessor with c++ access *private*.
+  It is aliased to *ia*.
+
+* RO: *read-only* which provides a read accessor with c++ access *private*.
+  It is aliased to *ro*.
+
+* RW: *read-write* which provides read and write accessor with c++ access *private*.
+  It is aliased to *rw*.
+
+* WO: *write-only* which provides write access and the c++ access is *private*.
+  It is aliased to *wo*. It may sound counterintuitive, but a use case for this
+  might be to accept the generated write accessor but hand code a read accessor
+  requiring special logic.
+
+Note: If the desire is to have a public member that is public and has no
+accessors, set *cppAccess* to *public* andd set *access* to null.
+
+# Examples
+
+*cppAccess* null with *access* of *ro* gives:
+
+    class C_1
+    {
+    public:
+      //! getter for x_ (access is Ro)
+      std::string const& x() const { return x_; }
+    private:
+      std::string x_ {};
+    };
+
+*cppAccess* CppAccess.protected with *access* of *ro* gives:
+
+    class C_1
+    {
+    public:
+      //! getter for x_ (access is Ro)
+      std::string const& x() const { return x_; }
+    protected:
+      std::string x_ {};
+    };
+''';
+
+final cppEntityDoc = """
+Exposes common elements for named entities, including their [id] and
+documentation. Additionally tracks parentage/ownership of entities.
+
+This is abstract for purposes of ownership. Each [Entity] knows its
+owning entity up until [Installation] which is the root entity. A call
+to [generate] on [Installation] will [setOwnership] which subclasses
+can trick down establishing ownership.
+
+The purpose of linking all [Entity] instances in a virtual tree type
+structure is so lookups can be done for entities.
+
+[Entity] must be created with an argument representing an Id.  That
+argument may be a string, in which case it is converted to an [Id].
+That argument may be an [Id].
+
+For many/most [Entity] subclasses there is often a corresponding
+method that simply creates in instance of the subclass. For example,
+
+    class Lib extends Entity... {
+       Lib(Id id) : super(id);
+       ...
+    }
+
+    Lib lib(Object id) => new Lib(id is Id ? id : new Id(id));
+
+This now allows this approach:
+
+      final myLib = lib('my_awesome_lib')
+        ..headers = [
+          header('my_header')
+          ..classes = [
+            class_('my_class')
+            ..members = [
+              member('my_member')
+            ]
+          ]
+        ];
+
+      print(myLib);
+
+prints:
+
+    lib(myAwesomeLib)
+      headers:
+        header(myHeader)
+          classes:[My_class]
+
+      tests:
+""";
+
+final interfaceDoc = """
+A collection of methods that as a group are either virtual or not.  A
+*virtual* interface expresses a desire to have code generated that
+will implement (i.e. derive from) the set of methods virtually. If the
+interface is *not* virtual, it is an indication that the implementers
+of the interface will provide implementations to be used via static
+polymorphism.
+
+      var md = new Interface('alarmist')
+        ..doc = 'Methods that cause alarm'
+        ..methodDecls = [
+          'void shoutsFireInTheater(int volume)',
+          'void wontStopWithTheGlobalWarming()',
+          new MethodDecl.fromDecl('void growl()')..doc = 'Scare them'
+        ];
+      print(md);
+
+prints:
+
+    /**
+     Methods that cause alarm
+    */
+    interface Alarmist
+      void shouts_fire_in_theater(int volume) {
+        // custom <shouts_fire_in_theater>
+        // end <shouts_fire_in_theater>
+      }
+      void wont_stop_with_the_global_warming() {
+        // custom <wont_stop_with_the_global_warming>
+        // end <wont_stop_with_the_global_warming>
+      }
+      /**
+       Scare them
+      */
+      void growl() {
+        // custom <growl>
+        // end <growl>
+      }
+    }
+""";
+
+final standardizedHeaderDoc = '''
+Common headers unique to a [Lib] designed to provide consistency and
+facilitate library usage.
+
+- [libCommonHeader]: For a given [Lib], a place to put common types,
+  declarations that need to be included by all other headers in the
+  lib. If requested for a [Lib], all other headers in the [Lib] will
+  inlude this. Therefore, it is important that this header *not*
+  include other *non-common* headers in the [Lib]. The naming
+  convention is: LIBNAME_common.hpp
+
+- [libLoggingHeader]: For a given [Lib] a header to provide a logger
+  instance. If requested for a [Lib], all other headers in the [Lib]
+  will include this indirectly via *lib_common_header*. The naming
+  convention is: LIBNAME_logging.hpp
+
+- [ibInitializationHeader]: For a given [Lib] a header to provide
+  library initialization and uninitialization routines. If requested
+  for a [Lib], all other headers in the [Lib] will include this
+  indirectly via *lib_common_header*. The naming convention is:
+  LIBNAME_initialization.hpp
+
+- [LibAllHeader]: For a given [Lib], this header will include all
+  other headers. This is a convenience for clients writing non-library
+  code. The naming convention is: LIBNAME_all.hpp
+
+''';
+
+final installationDoc = '''
+The to level [CppEntity] representing the root of a C++ installation.
+
+The composition of generatable [CppEntity] items starts here. This is
+where the [root] (i.e. target root path) is defined, dictating
+locations of the tree of C++. This is the object to configure *global*
+type features like:
+
+ - Provide a [Namer] to control the naming conventions
+
+ - Provide a [TestProvider] to control how tests are provided
+
+ - Provide a [LogProvider] to control what includes are required for
+   the desired logging solution and how certain [Loggable] entities
+   should log
+
+ - Should support for logging api initialization be generated
 ''';

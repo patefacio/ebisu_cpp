@@ -200,13 +200,13 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
     _preserveStandardizedHeaders();
   }
 
-  _preserveStandardizedHeaders() =>
-    _standardizedHeaders.forEach((Header header) {
-      if(header != null) {
-        _logger.severe('Preserved standardized header ${header.id}');
-        _headers.add(header);
-      }
-    });
+  _preserveStandardizedHeaders() => _standardizedHeaders
+      .forEach((Header header) {
+    if (header != null) {
+      _logger.severe('Preserved standardized header ${header.id}');
+      _headers.add(header);
+    }
+  });
 
   set version(version_) => _version = version_ is SemanticVersion
       ? version_
@@ -225,7 +225,6 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
   withStandardizedHeader(
           StandardizedHeader headerType, f(Header standardizedHeader)) =>
       f(_includeStandardizedHeader(headerType));
-
 
   /// When need for standardized header is determined, this will ensure it has
   /// been initialized and included in [Lib]'s list of headers
@@ -269,8 +268,7 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
     }
   }
 
-  onOwnershipEstablished() {
-  }
+  onOwnershipEstablished() {}
 
   get name => namer.nameLib(namespace, id);
 
@@ -297,12 +295,8 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
   }
 
   /// List of the standardized headers (null indicating not needed)
-  get _standardizedHeaders => [
-    _commonHeader,
-    _loggingHeader,
-    _initializationHeader,
-    _allHeader
-  ];
+  get _standardizedHeaders =>
+      [_commonHeader, _loggingHeader, _initializationHeader, _allHeader];
 
   /// Determine if the header is one of the standardized headers
   _isStandardizedHeader(Header header) => _standardizedHeaders.contains(header);

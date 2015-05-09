@@ -176,8 +176,8 @@ Installation($rootFilePath)
     _logger.info(brCompact(progeny.map((e) => e.detailedPath)));
   }
 
-  _addStandardizedHeaders() => libs.forEach((Lib lib) =>
-      lib._addStandardizedHeaders());
+  _addStandardizedHeaders() =>
+      libs.forEach((Lib lib) => lib._addStandardizedHeaders());
 
   _patchHeaderNamespaces() => libs.forEach((Lib lib) {
     assert(lib.namespace != null);

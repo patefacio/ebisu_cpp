@@ -20,7 +20,6 @@ abstract class LogProvider {
   /// [entity] may be used to differentiate this logger from others.
   String createLoggerInstance(Entity entity);
 
-
   /// Create a [Header] a logger owned by [CppEntity] [owner].
   ///
   /// It is assumed a logger may be declared/defined in its own [Header]
@@ -55,7 +54,8 @@ class SpdlogProvider extends LogProvider {
     final loggerClassName_ = loggerClassName(entity);
     final loggerName_ = loggerName(entity);
 
-    _logger.severe('creating logger for ${entity.id} ${chomp(entity.detailedPath)}');
+    _logger.severe(
+        'creating logger for ${entity.id} ${chomp(entity.detailedPath)}');
     final detailedName = chomp(entity.detailedPath);
 
     return '''
@@ -83,10 +83,9 @@ namespace {
       ..namespace = namespace
       ..includes.mergeIncludes(includeRequirements)
       ..getCodeBlock(fcbBeginNamespace).snippets
-      .add(createLoggerInstance(owner))
+          .add(createLoggerInstance(owner))
       ..owner = owner;
   }
-
 
   // end <class SpdlogProvider>
 
