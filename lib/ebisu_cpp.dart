@@ -82,7 +82,6 @@
 /// So when the script is run the code is *regenerated* and any changed files will
 /// be indicated as such. In this case, since the code was previously generated, it
 /// indicates there were no updates.
-///
 library ebisu_cpp.ebisu_cpp;
 
 import 'dart:collection';

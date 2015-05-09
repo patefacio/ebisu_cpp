@@ -37,7 +37,6 @@ class TypeTemplateParm extends TemplateParm {
 class DeclTemplateParm extends TemplateParm {
   List<String> terms;
   /// Index into the terms indicating the id
-  ///
   int idIndex;
 
   // custom <class DeclTemplateParm>
@@ -52,7 +51,6 @@ class DeclTemplateParm extends TemplateParm {
 }
 
 /// Represents a template declaration comprized of a list of [decls]
-///
 class Template extends CppEntity {
   List<TemplateParm> parms;
 

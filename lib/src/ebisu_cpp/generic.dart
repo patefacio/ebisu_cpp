@@ -10,7 +10,6 @@ class Traits {
 }
 
 /// Collection of requirements for a [Traits] entry in a [TraitsFamily]
-///
 class TraitsRequirements {
   List<Id> get usings => _usings;
   List<Id> get constExprs => _constExprs;

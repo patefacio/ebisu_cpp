@@ -11,21 +11,16 @@ part of ebisu_cpp.ebisu_cpp;
 ///     constexpr int Secret { 42 };
 ///     constexpr char const* Voo_doo { "foo" };
 ///     constexpr double Pi { 3.14 };
-///
 class ConstExpr extends CppEntity {
 
   /// The c++ type of the constexpr
-  ///
   String type;
   /// Any namespace to wrap the constexpr in
-  ///
   Namespace namespace;
   /// If class scoped the expr should be static
-  ///
   bool isClassScoped = false;
   /// If true and literal is numeric it is assigned as hex.
   /// The idea is to make C++ more readable when large constants are used.
-  ///
   bool isHex = false;
 
   // custom <class ConstExpr>
@@ -77,15 +72,12 @@ class ConstExpr extends CppEntity {
 }
 
 /// A forward declaration
-///
 class ForwardDecl {
   ForwardDecl(this.type, [this.namespace]);
 
   /// The c++ type being forward declared
-  ///
   String type;
   /// The namespace to which the class being forward declared belongs
-  ///
   Namespace namespace;
 
   // custom <class ForwardDecl>
@@ -104,7 +96,6 @@ ForwardDecl forwardDecl(String type, [Namespace namespace]) =>
     new ForwardDecl(type, namespace);
 
 /// Establishes an interface for generating code
-///
 abstract class CodeGenerator {
 
   // custom <class CodeGenerator>
@@ -116,12 +107,10 @@ abstract class CodeGenerator {
 }
 
 /// Friend class declaration
-///
 class FriendClassDecl {
   const FriendClassDecl(this.decl);
 
   /// Declaration text without the *friend* and *class* keywords
-  ///
   final String decl;
 
   // custom <class FriendClassDecl>
@@ -136,11 +125,9 @@ class FriendClassDecl {
 FriendClassDecl friendClassDecl([String decl]) => new FriendClassDecl(decl);
 
 /// Represents a c++ namespace which is essentially a list of names
-///
 class Namespace {
 
   /// The individual names in the namespace
-  ///
   List<String> names = [];
 
   // custom <class Namespace>
@@ -174,11 +161,9 @@ ${_helper(it, txt)}
 }
 
 /// Collection of header includes
-///
 class Includes {
 
   /// Set of strings representing the includes
-  ///
   Set<String> get included => _included;
 
   // custom <class Includes>
@@ -227,7 +212,6 @@ class Includes {
 }
 
 /// Provides support for consistent naming of C++ entities
-///
 abstract class Namer {
 
   // custom <class Namer>
@@ -282,7 +266,6 @@ abstract class Namer {
 
 /// Default namer establishing reasonable conventions, that are fairly
 /// *snake* case heavy like the STL.
-///
 class EbisuCppNamer implements Namer {
 
   // custom <class EbisuCppNamer>
@@ -316,7 +299,6 @@ class EbisuCppNamer implements Namer {
 }
 
 /// Namer based on google coding conventions
-///
 class GoogleNamer implements Namer {
 
   // custom <class GoogleNamer>
@@ -379,24 +361,18 @@ class GoogleNamer implements Namer {
 ///       protected virtual Base
 ///     {
 ///     };
-///
 class Base {
   Base(this.className);
 
   /// The name of the class being derived from
-  ///
   String className;
   /// Is base class public, protected, or private
-  ///
   CppAccess access = public;
   /// How to initiailize the base class in ctor initializer
-  ///
   String init;
   /// If true inheritance is virtual
-  ///
   bool isVirtual = false;
   /// If true and streamers are being provided, base is streamed first
-  ///
   bool isStreamable = false;
 
   // custom <class Base>

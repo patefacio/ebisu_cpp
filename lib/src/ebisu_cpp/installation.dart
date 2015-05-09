@@ -1,7 +1,6 @@
 part of ebisu_cpp.ebisu_cpp;
 
 /// Creates builder for an installation (ie ties together all build artifacts)
-///
 abstract class InstallationBuilder implements CodeGenerator {
   Installation installation;
 
@@ -38,11 +37,9 @@ abstract class InstallationBuilder implements CodeGenerator {
 ///    should log
 ///
 ///  - Should support for logging api initialization be generated
-///
 class Installation extends CppEntity implements CodeGenerator {
 
   /// Fully qualified file path to installation
-  ///
   String get rootFilePath => _rootFilePath;
   Map<String, String> get paths => _paths;
   List<CppLogger> cppLoggers = [];
@@ -50,18 +47,14 @@ class Installation extends CppEntity implements CodeGenerator {
   List<App> apps = [];
   List<Script> scripts = [];
   /// Provider for generating tests
-  ///
   TestProvider testProvider = new CatchTestProvider();
   /// Provider for generating tests
-  ///
   LogProvider logProvider = new SpdlogProvider(new EbisuCppNamer());
   /// The builder for this installation
-  ///
   InstallationBuilder installationBuilder;
   DoxyConfig doxyConfig = new DoxyConfig();
   /// If true logs initialization of libraries - useful for tracking
   /// down order of initialization issues.
-  ///
   bool logsApiInitializations = false;
 
   // custom <class Installation>
@@ -217,10 +210,8 @@ Installation($rootFilePath)
 class PathLocator {
 
   /// Environment variable specifying location of path, if set this path is used
-  ///
   final String envVar;
   /// Default path for the item in question
-  ///
   final String defaultPath;
   String get path => _path;
 

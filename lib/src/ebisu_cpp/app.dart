@@ -140,7 +140,6 @@ class ArgType implements Comparable<ArgType> {
 ///       -h [ --help ]          Display help information
 ///       -t [ --timestamp ] arg Some form of timestamp
 ///       -d [ --date ] arg      Some form of date
-///
 class AppArg extends CppEntity {
   ArgType type = ArgType.STRING;
   String shortName;
@@ -242,33 +241,27 @@ AppArg(${id.snake})
 /// [constExprs] [usings], [enums], [forwardDecls], and [classes],
 /// as well as [headers] and [impls] which may be part of the
 /// application and not necessarily suited for a separate library.
-///
 class App extends Impl implements CodeGenerator {
 
   /// Command line arguments specific to this application
-  ///
   List<AppArg> args = [];
   /// Additional headers that are associated with the application itself, as
   /// opposed to belonging to a reusable library.
-  ///
   List<Header> headers = [];
   /// Additional implementation files associated with the
   /// application itself, as opposed to belonging to a reusable
   /// library.
-  ///
   List<Impl> impls = [];
   /// Libraries required to build this executable. *Warning* potentially
   /// deprecated in the future. Originally when generating boost jam files
   /// it was convenient to associate the required libraries directly in the
   /// code generation scripts. With cmake it was simpler to just incorporate
   /// protect blocks where the required libs could be easily added.
-  ///
   List<String> requiredLibs = [];
   /// An App is an Impl and therefore contains accesors to FileCodeBlock
   /// sections (e.g. fcbBeginNamespace, fcbPostNamespace, ...). The heart of
   /// an application impl file is the main, so this [CodeBlock] supports
   /// injecting code in main
-  ///
   CodeBlock mainCodeBlock = new CodeBlock('main');
 
   // custom <class App>
@@ -447,7 +440,6 @@ if(options.help()) {
 
 /// Base class establishing interface for generating build scripts for
 /// libraries, apps, and tests
-///
 abstract class AppBuilder implements CodeGenerator {
   App app;
 

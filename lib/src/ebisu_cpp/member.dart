@@ -135,11 +135,9 @@ part of ebisu_cpp.ebisu_cpp;
 ///     protected:
 ///       std::string more_control_ { "foo" };
 ///     };
-///
 class Member extends CppEntity {
 
   /// Type of member
-  ///
   String type;
   /// Initialization of member.
   ///
@@ -159,46 +157,33 @@ class Member extends CppEntity {
   ///     member('name')..init = 'UNASSIGNED' => name is std::string
   ///     member('x')..init = 0               => x is int
   ///     member('pi')..init = 3.14           => pi is double
-  ///
   String get init => _init;
   /// Rare usage - member b depends on member a (e.g. b is just a string rep of a
   /// which is int), a is passed in for construction but b can be initialized directly
   /// from a. If ctorInit is set on a member, any memberCtor will include this text to
   /// initialize it
-  ///
   String ctorInit;
   /// Idiomatic access of member
-  ///
   set access(Access access) => _access = access;
   /// C++ style access of member
-  ///
   set cppAccess(CppAccess cppAccess) => _cppAccess = cppAccess;
   /// Ref type of member
-  ///
   RefType refType = value;
   /// Pass member around by reference
-  ///
   set isByRef(bool isByRef) => _isByRef = isByRef;
   /// Is the member static
-  ///
   bool isStatic = false;
   /// Is the member mutable
-  ///
   bool isMutable = false;
   /// Is the member const
-  ///
   set isConst(bool isConst) => _isConst = isConst;
   /// Is the member a constexprt
-  ///
   bool isConstExpr = false;
   /// If set will not initialize variable - use sparingly
-  ///
   bool hasNoInit = false;
   /// Indicates this member is an enum and if serialized should be serialized as int
-  ///
   bool isSerializedAsInt = false;
   /// Indicates this member should not be serialized via cereal
-  ///
   bool isCerealTransient = false;
   /// A function that may be used to modify the value returned from a
   /// getter.  If a modifier function of type [GetReturnModifier] is
@@ -222,31 +207,25 @@ class Member extends CppEntity {
   /// Notes: No required *parens* when used inline with cascades. A trailing
   /// semicolon is *not* required and the modifier accessor must return the
   /// same type as the member.
-  ///
   GetterReturnModifier getterReturnModifier;
   /// A single customBlock that will be injected in the public section
   /// of the owning class. For example, if generating code that needs
   /// special getters/setters (e.g. atypical coding pattern) then the
   /// member could be set with *access = ro* and custom accessors may
   /// be provided.
-  ///
   CodeBlock customBlock = new CodeBlock(null);
   /// Will create the getter. To provide custom getter implement
   /// GetterCreator and assign
-  ///
   GetterCreator getterCreator;
   /// Will create the setter. To provide custom setter implement
   /// SetterCreator and assign
-  ///
   SetterCreator setterCreator;
   /// Indicates member should be streamed if class is streamable.
   /// One of the few flags defaulted to *true*, this flag provides
   /// an opportunity to *not* stream specific members
-  ///
   bool isStreamable = true;
   /// If not-null a custom streamable block. Use this to either hand code or
   /// generate a streamable entry in the containing [Class].
-  ///
   CodeBlock get customStreamable => _customStreamable;
 
   // custom <class Member>
@@ -413,12 +392,10 @@ class Member extends CppEntity {
 }
 
 /// Responsible for creating the getter (i.e. reader) for member
-///
 abstract class GetterCreator {
   GetterCreator(this.member);
 
   /// Member this creator will create getter for
-  ///
   Member member;
 
   // custom <class GetterCreator>
@@ -460,12 +437,10 @@ $_constAccess $name() const {''';
 }
 
 /// Responsible for creating the setter (i.e. writer) for member
-///
 abstract class SetterCreator {
   SetterCreator(this.member);
 
   /// Member this creator will create setter for
-  ///
   Member member;
 
   // custom <class SetterCreator>

@@ -2,7 +2,6 @@
 part of ebisu_cpp.ebisu_cpp;
 
 /// Provides data required to track a Semantic Version
-///
 class SemanticVersion {
   const SemanticVersion(this.major, this.minor, this.patch);
 

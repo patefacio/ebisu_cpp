@@ -48,11 +48,9 @@ part of ebisu_cpp.ebisu_cpp;
 ///           classes:[My_class]
 ///
 ///       tests:
-///
 abstract class CppEntity extends Object with Entity {
 
   /// Id for the [CppEntity]
-  ///
   Id id;
 
   // custom <class CppEntity>

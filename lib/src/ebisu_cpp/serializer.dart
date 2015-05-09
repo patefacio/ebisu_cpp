@@ -21,7 +21,6 @@ const SerializationStyle binarySerialization =
     SerializationStyle.binarySerialization;
 
 /// Establishes an interface for instance serialization
-///
 abstract class Serializer {
 
   // custom <class Serializer>
@@ -33,7 +32,6 @@ abstract class Serializer {
 }
 
 /// Provides support for serialization as *delimited separated values*
-///
 class DsvSerializer implements Serializer {
   String delimiter = ':';
 
@@ -137,7 +135,6 @@ return ${cls.className}(${cls.members.map((Member m) => m.vname).join(', ')});
 }
 
 /// Adds support for serialization using *cereal*
-///
 class Cereal implements Serializer {
   List<SerializationStyle> styles = [];
 

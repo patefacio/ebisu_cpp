@@ -155,14 +155,11 @@ const FileCodeBlock fcbEndNamespace = FileCodeBlock.fcbEndNamespace;
 const FileCodeBlock fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
 
 /// Wrap (un)initialization of a Lib in static methods of a class
-///
 class LibInitializer {
 
   /// CodeBlock for customizing intialization of [Lib]
-  ///
   CodeBlock initCustomBlock;
   /// CodeBlock for customizing unintialization of [Lib]
-  ///
   CodeBlock uninitCustomBlock;
 
   // custom <class LibInitializer>
@@ -171,20 +168,15 @@ class LibInitializer {
 }
 
 /// A c++ library
-///
 class Lib extends CppEntity with Testable implements CodeGenerator {
 
   /// Semantic Version for this [Lib]
-  ///
   SemanticVersion get version => _version;
   /// Names for [Lib]
-  ///
   Namespace namespace = new Namespace();
   /// List of [Header] objects in this [Lib]
-  ///
   List<Header> get headers => _headers;
   /// List of [Impl] objects in this [Impl]
-  ///
   List<Impl> impls = [];
   set requiresLogging(bool requiresLogging) =>
       _requiresLogging = requiresLogging;

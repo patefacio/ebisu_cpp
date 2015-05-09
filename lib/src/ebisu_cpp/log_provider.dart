@@ -6,7 +6,6 @@ part of ebisu_cpp.ebisu_cpp;
 /// client code to make certain items [Loggable] and not tie the generated
 /// code to a particular logging solution. A default [LogProvider] that makes
 /// use of *spdlog* is provided.
-///
 abstract class LogProvider {
   LogProvider(this.namer);
 
@@ -30,7 +29,6 @@ abstract class LogProvider {
 }
 
 /// Provides support for logging via spdlog
-///
 class SpdlogProvider extends LogProvider {
 
   // custom <class SpdlogProvider>
@@ -92,7 +90,6 @@ namespace {
 }
 
 /// Represents a single C++ logger
-///
 class CppLogger extends CppEntity {
 
   // custom <class CppLogger>
@@ -109,11 +106,9 @@ class CppLogger extends CppEntity {
 /// Mixin to indicate an item is loggable.
 ///
 /// Examples might be member accessors, member constructors, etc
-///
 class Loggable {
 
   /// If true the [Loggable] item is logged
-  ///
   bool isLogged = false;
 
   // custom <class Loggable>

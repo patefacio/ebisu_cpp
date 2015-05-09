@@ -30,7 +30,6 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 ///     id    => matrix (Id)
 ///     type  => std::vector< std::vector < double > >
-///
 class ParmDecl extends CppEntity {
   String type;
 
@@ -95,16 +94,13 @@ Try something familiar like these:
 /// // end <find_row>
 ///
 /// }
-///
 class MethodDecl extends CppEntity {
 
   /// The template by which the method is parameterized
-  ///
   Template template;
   List<ParmDecl> parmDecls = [];
   String returnType;
   /// True if this [MethodDecl] is *const*
-  ///
   bool isConst = false;
 
   // custom <class MethodDecl>
@@ -178,7 +174,6 @@ ${chomp(indentBlock(customBlock(id.snake)))}
 /// created and owned by the [Class] based on the [implementedInterfaces]
 /// specified. To access the [CodeBlock] of a [Method] in a [Class], use
 /// the [getMethod] function.
-///
 class Method {
   MethodDecl methodDecl;
   CodeBlock codeBlock;
@@ -226,7 +221,6 @@ class Method {
 ///         // end <growl>
 ///       }
 ///     }
-///
 class Interface extends CppEntity {
   List<MethodDecl> get methodDecls => _methodDecls;
 
@@ -275,12 +269,10 @@ ${_methodDecls.map((md) => md.asVirtual).join('\n')}
 }
 
 /// An [interface] with a [CppAccess] to be implemented by a [Class]
-///
 class InterfaceImplementation {
   Interface interface;
   CppAccess cppAccess = public;
   /// If true the interface is virtual
-  ///
   bool isVirtual = false;
 
   // custom <class InterfaceImplementation>

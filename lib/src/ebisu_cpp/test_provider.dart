@@ -24,7 +24,6 @@ const TcCodeBlock tcClose = TcCodeBlock.tcClose;
 /// Models common elements of the *Given*, *When*, *Then* clauses.
 /// Each *TestClause* has its own [clause] text associated with it
 /// and [CodeBlock]s to augment/initialize/teardown.
-///
 abstract class TestClause extends CppEntity {
   CodeBlock startCodeBlock = new CodeBlock(null);
   CodeBlock endCodeBlock = new CodeBlock(null);
@@ -142,7 +141,6 @@ ${indentBlock(br(givens))}
 class Testable {
   List<TestScenario> testScenarios = [];
   /// The single test for this [Testable]
-  ///
   set test(Test test) => _test = test;
 
   // custom <class Testable>
