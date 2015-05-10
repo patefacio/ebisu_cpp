@@ -2,7 +2,7 @@ library ebisu_cpp.test_cpp_class;
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 // custom <additional imports>
 
@@ -258,8 +258,10 @@ $tricky
 
   group('uses type query', () {
     final c1 = class_('c_1')..members = [member('a')..type = 'int'];
-    expect(c1.usesType('std::string'), false);
-    expect(c1.usesType('int'), true);
+    test('usesType works', () {
+      expect(c1.usesType('std::string'), false);
+      expect(c1.usesType('int'), true);
+    });
   });
 
   group('immutable', () {

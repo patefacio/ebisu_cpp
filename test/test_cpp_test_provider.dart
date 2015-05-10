@@ -2,7 +2,7 @@ library ebisu_cpp.test_cpp_test_provider;
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 // custom <additional imports>
 import 'package:ebisu/ebisu.dart';

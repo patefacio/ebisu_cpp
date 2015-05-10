@@ -27,10 +27,8 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.2.1'
+    ..pubSpec.version = '0.3.0'
     ..pubSpec.doc = purpose
-    ..pubSpec.addDependency(new PubDependency('path')..version = ">=1.3.0<1.4.0")
-    ..pubSpec.addDevDependency(new PubDependency('unittest'))
     ..rootPath = _topDir
     ..doc = purpose
     ..testLibraries = [

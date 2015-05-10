@@ -1,4 +1,4 @@
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 import 'package:logging/logging.dart';
 import 'test_cpp_enum.dart' as test_cpp_enum;
 import 'test_cpp_member.dart' as test_cpp_member;
