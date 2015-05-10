@@ -1,5 +1,5 @@
 name: ebisu_cpp
-version: 0.3.0
+version: 0.3.1
 author: Daniel Davidson <dbdavidson@yahoo.com>
 homepage: https://github.com/patefacio/ebisu_cpp
 description: >
@@ -12,13 +12,13 @@ dependencies:
 
 # custom <ebisu_cpp dependencies>
 
-  magus: "^0.0.11"
+  magus: "^0.0.12"
   quiver: ">=0.21.0<0.22.0"  
   ini: ">=1.0.0<1.2.0"
   github: ">=2.1.2<2.2.0"
   sqljocky: ">=0.11.0<0.12.0"
   id: "^1.0.9"  
-  ebisu: "^0.5.0"
+  ebisu: "^0.5.1"
   path: "^1.3.0"
 
 

@@ -27,7 +27,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.0'
+    ..pubSpec.version = '0.3.1'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
