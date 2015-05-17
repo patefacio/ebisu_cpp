@@ -48,7 +48,7 @@ class ConstExpr extends CppEntity {
   }
 
   get valueText => (_value is String)
-      ? doubleQuote(_value)
+      ? (_value.length == 1 ? "'$_value'" : doubleQuote(_value))
       : ((_value is num)
           ? ((isHex && _value is int)
               ? '0x${(_value as int).toRadixString(16)}'
@@ -454,5 +454,30 @@ const defaultNamer = const EbisuCppNamer();
 
 /// Wrap string in double quotes
 String doubleQuote(String s) => '"$s"';
+
+/// Given a [datum], as in a value initializing a C++ variable, try to infer the
+/// corresponding C++ type
+String inferCppType(Object datum) {
+  var inferredType = 'int';
+  if (datum is double) {
+    inferredType = 'double';
+  } else if (datum is String) {
+    inferredType = 'std::string';
+    datum = doubleQuote(datum);
+  } else if (datum is bool) {
+    inferredType = 'bool';
+  } else if (datum is List) {
+    List list = datum;
+    if (list.isEmpty) throw 'Can not infer type from emtpy list';
+    final first = datum.first;
+    final guess = inferType(first);
+    if (list.sublist(1).every((i) => guess == inferType(first))) {
+      inferredType = 'std::vector< $guess >';
+    } else {
+      throw 'Can not infer type from list with mixed types: $datum';
+    }
+  }
+  return inferredType;
+}
 
 // end <part utils>

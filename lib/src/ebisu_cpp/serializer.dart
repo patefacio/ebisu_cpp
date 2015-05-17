@@ -48,7 +48,7 @@ ${cls.isImmutable? _immutableIn(cls) : _in(cls)}
   }
 
   String _outMember(Member m) =>
-      m.type == 'Timestamp_t' ? 'fcs::timestamp::ticks(${m.vname})' : m.vname;
+      m.type == 'Timestamp_t' ? 'ebisu::timestamp::ticks(${m.vname})' : m.vname;
 
   String _out(Class cls) => '''
 std::string serialize_to_dsv() const {
@@ -68,7 +68,7 @@ indentBlock(
 
   String _castMember(Member m) => m.type == 'Timestamp_t'
       ? '''
-if(!fcs::timestamp::convert_to_timestamp_from_ticks(*it__, ${m.vname})) {
+if(!ebisu::timestamp::convert_to_timestamp_from_ticks(*it__, ${m.vname})) {
   std::string msg { "Encountered invalid timestamp ticks:" };
   msg += *it__;
   throw std::logic_error(msg);

@@ -187,7 +187,7 @@ $tag
   friend inline
   std::ostream& operator<<(std::ostream &out,
                            C_1 const& item) {
-    fcs::utils::Block_indenter indenter;
+    ebisu::utils::Block_indenter indenter;
     char const* indent(indenter.current_indentation_text());
     out << indent << "C_1(" << &item << ") {";
     out << '\\n' << indent << "  x:" << item.x_;

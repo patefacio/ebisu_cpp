@@ -43,6 +43,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_exception'),
       library('test_cpp_versioning'),
       library('test_hdf5_support'),
+      library('test_enumerated_dispatcher'),
     ]
     ..libraries = [
       library('ebisu_cpp')
@@ -1527,6 +1528,58 @@ Establishes an interface to allow decoration of classes and updates
             member('chm_file')..classInit = '',
             member('include_path')..classInit = '',
           ]
+        ],
+
+        part('patterns')
+        ..classes = [
+          class_('enumerated_dispatcher')
+          ..doc = '''
+Provides support for generating functions to dispach on a set of one or more
+elements.
+
+Covers things like switch, if-else-if, jump tables.
+'''
+          ..isAbstract = true
+          ..members = [
+            member('enumeration')
+            ..doc = 'Set of valid values *all of same type* to index on'
+            ..type = 'List<dynamic>'
+            ..classInit = []
+            ..access = RO,
+
+            member('enumerate_accessor')
+            ..doc = '''
+C++ expression suitable for a switch or variable assignment,
+representing the enumerated value''',
+
+            member('dispatch_function')
+            ..doc = '''
+Functor allowing client to dictate how the dispatch may be called on the
+enumerant.
+'''
+            ..type = 'Dispatcher',
+
+            member('type')
+            ..doc = '''
+Type associated with the enumerated values. That type may be *string* or some
+form of int.
+'''
+          ],
+
+          class_('switch_enumerated_dispatcher')
+          ..doc = 'Dispatcher implemented with *switch* statement'
+          ..extend = 'EnumeratedDispatcher',
+
+          class_('if_else_if_enumerated_dispatcher')
+          ..doc = 'Dipatcher implemented with *if-else-if* statements'
+          ..extend = 'EnumeratedDispatcher',
+
+          class_('char_binary_enumerated_dispatcher')
+          ..doc = '''
+Dipatcher implemented with *if-else-if* statements visiting character by
+character - *only* valid for strings
+'''
+          ..extend = 'EnumeratedDispatcher',
         ]
       ],
 

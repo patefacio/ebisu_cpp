@@ -376,8 +376,8 @@ inline void ${libName}_uninit() {
 }
 
 /// Singleton for $libName initializer
-inline fcs::raii::Api_initializer<> ${libName}_initializer_() {
-  static fcs::raii::Api_initializer<> ${libName}_initializer {
+inline ebisu::raii::Api_initializer<> ${libName}_initializer_() {
+  static ebisu::raii::Api_initializer<> ${libName}_initializer {
     ${libName}_init,
     ${libName}_uninit
   };
@@ -386,12 +386,12 @@ inline fcs::raii::Api_initializer<> ${libName}_initializer_() {
 
 /// Internal linkage (i.e. 1 per translation unit) initializer for $libName
 namespace {
-  fcs::raii::Api_initializer<>
+  ebisu::raii::Api_initializer<>
   ${libName}_initializer { ${libName}_initializer_() };
 }
 ''')
         ..includes.addAll(
-            ['fcs/raii/api_initializer.hpp', _loggingHeader.includeFilePath])
+            ['ebisu/raii/api_initializer.hpp', _loggingHeader.includeFilePath])
         ..owner = this;
       headers.add(_initializationHeader);
     }

@@ -115,6 +115,7 @@ part 'src/ebisu_cpp/lib.dart';
 part 'src/ebisu_cpp/log_provider.dart';
 part 'src/ebisu_cpp/member.dart';
 part 'src/ebisu_cpp/method.dart';
+part 'src/ebisu_cpp/patterns.dart';
 part 'src/ebisu_cpp/pointer.dart';
 part 'src/ebisu_cpp/script.dart';
 part 'src/ebisu_cpp/serializer.dart';

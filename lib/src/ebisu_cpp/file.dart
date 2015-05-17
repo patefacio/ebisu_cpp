@@ -88,7 +88,7 @@ abstract class CppFile extends CppEntity with Testable {
 
   String get _contentsWithBlocks {
     if (classes.any((c) => c._opMethods.any((m) => m is OpOut))) {
-      _includes.add('fcs/utils/block_indenter.hpp');
+      _includes.add('ebisu/utils/block_indenter.hpp');
     }
     customBlocks
         .forEach((cb) => getCodeBlock(cb).tag = '${evCap(cb)} ${id.snake}');

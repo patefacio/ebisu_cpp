@@ -593,14 +593,14 @@ class OpOut extends ClassMethod {
 
   get _usesStreamersNamespace => parent.usesStreamers
       ? '''
-using fcs::utils::streamers::operator<<;
+using ebisu::utils::streamers::operator<<;
 '''
       : '';
   get _indentSupport => br([
     _usesStreamersNamespace,
     usesIndent
         ? '''
-fcs::utils::Block_indenter indenter;
+ebisu::utils::Block_indenter indenter;
 char const* indent(indenter.current_indentation_text());
 '''
         : ''

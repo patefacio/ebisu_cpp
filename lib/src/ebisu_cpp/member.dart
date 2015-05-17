@@ -296,32 +296,9 @@ class Member extends CppEntity {
     if (isRefType) throw '$id can not have an init since it is a reference type ($refType)';
 
     if (type == null) {
-      type = inferType(init_);
+      type = inferCppType(init_);
     }
     _init = init_.toString();
-  }
-
-  static inferType(Object datum) {
-    var inferredType = 'int';
-    if (datum is double) {
-      inferredType = 'double';
-    } else if (datum is String) {
-      inferredType = 'std::string';
-      datum = doubleQuote(datum);
-    } else if (datum is bool) {
-      inferredType = 'bool';
-    } else if (datum is List) {
-      List list = datum;
-      if (list.isEmpty) throw 'Can not infer type from emtpy list';
-      final first = datum.first;
-      final guess = inferType(first);
-      if (list.sublist(1).every((i) => guess == inferType(first))) {
-        inferredType = 'std::vector< $guess >';
-      } else {
-        throw 'Can not infer type from list with mixed types: $datum';
-      }
-    }
-    return inferredType;
   }
 
   //  String get _initValue => init is! String? init.toString() : init;
