@@ -59,7 +59,8 @@ main([List<String> args]) {
   group('method decl', () {
     {
       final decl = 'void\n\tadd(int a, int b)';
-      test('"$decl" parsed', () {
+      final tag = decl.replaceAll('\n','');
+      test('"$tag" parsed', () {
         final methodDecl = new MethodDecl.fromDecl(decl);
         expect(methodDecl.id.snake, 'add');
         expect(methodDecl.parmDecls.length, 2);
@@ -72,7 +73,8 @@ main([List<String> args]) {
 
     {
       final decl = 'void\n\tempty_method()';
-      test('"$decl" parsed', () {
+      final tag = decl.replaceAll('\n','');
+      test('"$tag" parsed', () {
         final methodDecl = new MethodDecl.fromDecl(decl);
         expect(methodDecl.id.snake, 'empty_method');
         expect(methodDecl.parmDecls.length, 0);
@@ -82,7 +84,8 @@ main([List<String> args]) {
     {
       final decl =
           'EXCEPTION makeException(int lineNumber,\n\tchar const* file)';
-      test('"$decl" parsed and name normalized', () {
+      final tag = decl.replaceAll('\n','');
+      test('"$tag" parsed and name normalized', () {
         final methodDecl = new MethodDecl.fromDecl(decl);
         expect(methodDecl.id.snake, 'make_exception');
         expect(methodDecl.parmDecls.length, 2);
@@ -97,7 +100,8 @@ main([List<String> args]) {
   group('template method decl', () {
     {
       final decl = 'void\n\tadd(Foo a, int b)';
-      test('"$decl" parsed', () {
+      final tag = decl.replaceAll('\n','');
+      test('"$tag" parsed', () {
         final methodDecl = new MethodDecl.fromDecl(decl);
         methodDecl.template = template(['typename Foo']);
         expect(methodDecl.id.snake, 'add');

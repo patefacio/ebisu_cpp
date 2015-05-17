@@ -470,8 +470,8 @@ String inferCppType(Object datum) {
     List list = datum;
     if (list.isEmpty) throw 'Can not infer type from emtpy list';
     final first = datum.first;
-    final guess = inferType(first);
-    if (list.sublist(1).every((i) => guess == inferType(first))) {
+    final guess = inferCppType(first);
+    if (list.sublist(1).every((i) => guess == inferCppType(first))) {
       inferredType = 'std::vector< $guess >';
     } else {
       throw 'Can not infer type from list with mixed types: $datum';
