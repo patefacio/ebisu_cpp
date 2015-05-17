@@ -58,8 +58,8 @@ case 4: {
     });
 
     test('SwitchDispatcher disallows string', () {
-      expect(() => new SwitchDispatcher(['foo', 'bar',], null)
-        ..dispatchBlock, throws);
+      expect(() => new SwitchDispatcher(['foo', 'bar',], null)..dispatchBlock,
+          throws);
     });
 
     test('IfElseIfDispatcher', () {
@@ -87,8 +87,7 @@ if(foo == discriminator_) {
       if (showCode) print(dispatcher.dispatchBlock);
     });
 
-    test('IfElseIfDispatcher (d is cptr, e is string) uses e.== ',
-        () {
+    test('IfElseIfDispatcher (d is cptr, e is string) uses e.== ', () {
       var dispatcher = new IfElseIfDispatcher([
         'foo',
         'bar',
@@ -107,8 +106,7 @@ if(foo == discriminator_) {
 '''));
     });
 
-    test('IfElseIfDispatcher (e is cptr, d is string) uses d.== ',
-        () {
+    test('IfElseIfDispatcher (e is cptr, d is string) uses d.== ', () {
       var dispatcher = new IfElseIfDispatcher([
         'foo',
         'bar',
@@ -128,8 +126,7 @@ if(discriminator_ == foo}) {
 '''));
     });
 
-    test('IfElseIfDispatcher (e is cptr, d is cptr) uses strcmp ',
-        () {
+    test('IfElseIfDispatcher (e is cptr, d is cptr) uses strcmp ', () {
       var dispatcher = new IfElseIfDispatcher([
         'foo',
         'bar',
@@ -149,9 +146,7 @@ if(strcmp(foo, discriminator_)) {
 '''));
     });
 
-    test(
-        'IfElseIfDispatcher (d is dctInteger, e is dctInteger) uses == ',
-        () {
+    test('IfElseIfDispatcher (d is dctInteger, e is dctInteger) uses == ', () {
       var dispatcher = new IfElseIfDispatcher([
         'foo',
         'bar',
@@ -171,9 +166,7 @@ if(foo == discriminator_) {
 '''));
     });
 
-    test(
-        'IfElseIfDispatcher (d is int literal, e is dctInteger) uses == ',
-        () {
+    test('IfElseIfDispatcher (d is int literal, e is dctInteger) uses == ', () {
       var dispatcher = new IfElseIfDispatcher([
         1,
         2,

@@ -8,7 +8,7 @@ import 'package:logging/logging.dart';
 // custom <additional imports>
 // end <additional imports>
 
-part 'src/cookbook/dispatch.dart';
+part 'src/cookbook/dispatchers.dart';
 
 final _logger = new Logger('cookbook');
 

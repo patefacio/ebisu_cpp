@@ -261,7 +261,7 @@ ${indentBlock(dispatcher(this, e))}
 
 }
 
-// custom <part dispatch>
+// custom <part dispatchers>
 
 /// Given a dispatcher and enumerator, returns suitable dispatch function
 /// invocation on the enumerator
@@ -271,4 +271,4 @@ typedef String Dispatcher(EnumeratedDispatcher dispatcher, var enumerator);
 /// testEnumerators - returns a comparison expression suitable for if statement
 typedef String CompareExpression(String enumerator, var testEnumerator);
 
-// end <part dispatch>
+// end <part dispatchers>

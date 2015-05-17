@@ -1540,7 +1540,7 @@ Establishes an interface to allow decoration of classes and updates
         'package:ebisu_cpp/ebisu_cpp.dart',
       ]
       ..parts = [
-        part('dispatch')
+        part('dispatchers')
         ..enums = [
           enum_('dispatch_cpp_type')
           ..hasLibraryScopedValues = true
