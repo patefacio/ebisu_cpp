@@ -23,7 +23,8 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
-  group('enumerated dispatcher', () {
+  final showCode = false;
+  group('dispatcher', () {
     test('SwitchEnumeratedDispatcher', () {
       final switchDispatcher = new SwitchEnumeratedDispatcher([
         1,
@@ -52,6 +53,8 @@ case 4: {
 }
 }
 '''));
+
+      if (showCode) print(switchDispatcher.dispatchBlock);
     });
 
     test('SwitchEnumeratedDispatcher disallows string', () {
@@ -81,7 +84,110 @@ if(foo == discriminator_) {
   assert(!"Enumerator not in {foo, bar, goo, baz}");
 }
 '''));
+      if (showCode) print(dispatcher.dispatchBlock);
     });
+
+    test('IfElseIfEnumeratedDispatcher (d is cptr, e is string) uses e.== ', () {
+      var dispatcher = new IfElseIfEnumeratedDispatcher([
+        'foo',
+        'bar',
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+        ..discriminatorType = dctCptr;
+
+      expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+char const* const& discriminator_ { discriminator };
+if(foo == discriminator_) {
+  handleValuefoo(buffer);
+} else if(bar == discriminator_) {
+  handleValuebar(buffer);
+} else {
+  assert(!"Enumerator not in {foo, bar}");
+}
+'''));
+    });
+
+    test('IfElseIfEnumeratedDispatcher (e is cptr, d is string) uses d.== ', () {
+      var dispatcher = new IfElseIfEnumeratedDispatcher([
+        'foo',
+        'bar',
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+        ..discriminatorType = dctStdString
+        ..enumeratorType = dctCptr;
+
+      expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+std::string const& discriminator_ { discriminator };
+if(discriminator_ == foo}) {
+  handleValuefoo(buffer);
+} else if(discriminator_ == bar}) {
+  handleValuebar(buffer);
+} else {
+  assert(!"Enumerator not in {foo, bar}");
+}
+'''));
+    });
+
+    test('IfElseIfEnumeratedDispatcher (e is cptr, d is cptr) uses strcmp ', () {
+      var dispatcher = new IfElseIfEnumeratedDispatcher([
+        'foo',
+        'bar',
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+        ..discriminatorType = dctCptr
+        ..enumeratorType = dctCptr;
+
+      expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+char const* const& discriminator_ { discriminator };
+if(strcmp(foo, discriminator_)) {
+  handleValuefoo(buffer);
+} else if(strcmp(bar, discriminator_)) {
+  handleValuebar(buffer);
+} else {
+  assert(!"Enumerator not in {foo, bar}");
+}
+'''));
+    });
+
+    test('IfElseIfEnumeratedDispatcher (d is dctInteger, e is dctInteger) uses == ', () {
+      var dispatcher = new IfElseIfEnumeratedDispatcher([
+        'foo',
+        'bar',
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+        ..discriminatorType = dctInteger
+        ..enumeratorType = dctInteger;
+
+      expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+int const& discriminator_ { discriminator };
+if(foo == discriminator_) {
+  handleValuefoo(buffer);
+} else if(bar == discriminator_) {
+  handleValuebar(buffer);
+} else {
+  assert(!"Enumerator not in {foo, bar}");
+}
+'''));
+    });
+
+    test('IfElseIfEnumeratedDispatcher (d is int literal, e is dctInteger) uses == ', () {
+      var dispatcher = new IfElseIfEnumeratedDispatcher([
+        1, 2, 3
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+        ..discriminatorType = dctInteger
+        ..enumeratorType = dctInteger;
+
+      expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+int const& discriminator_ { discriminator };
+if(1 == discriminator_) {
+  handleValue1(buffer);
+} else if(2 == discriminator_) {
+  handleValue2(buffer);
+} else if(3 == discriminator_) {
+  handleValue3(buffer);
+} else {
+  assert(!"Enumerator not in {1, 2, 3}");
+}
+'''));
+    });
+
+
   });
 
 // end <main>

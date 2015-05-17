@@ -1544,7 +1544,10 @@ Establishes an interface to allow decoration of classes and updates
         ..enums = [
           enum_('dispatch_cpp_type')
           ..hasLibraryScopedValues = true
-          ..values = [ 'dct_std_string', 'dct_cptr', 'dct_integer', 'dct_byte_array' ],
+          ..values = [
+            'dct_std_string', 'dct_cptr', 'dct_string_literal',
+            'dct_integer', 'dct_byte_array',
+          ],
         ]
         ..classes = [
 

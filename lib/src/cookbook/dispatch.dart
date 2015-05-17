@@ -1,6 +1,12 @@
 part of ebisu_cpp.cookbook;
 
-enum DispatchCppType { dctStdString, dctCptr, dctInteger, dctByteArray }
+enum DispatchCppType {
+dctStdString,
+dctCptr,
+dctStringLiteral,
+dctInteger,
+dctByteArray
+}
 /// Convenient access to DispatchCppType.dctStdString with *dctStdString* see [DispatchCppType].
 ///
 const DispatchCppType dctStdString = DispatchCppType.dctStdString;
@@ -8,6 +14,10 @@ const DispatchCppType dctStdString = DispatchCppType.dctStdString;
 /// Convenient access to DispatchCppType.dctCptr with *dctCptr* see [DispatchCppType].
 ///
 const DispatchCppType dctCptr = DispatchCppType.dctCptr;
+
+/// Convenient access to DispatchCppType.dctStringLiteral with *dctStringLiteral* see [DispatchCppType].
+///
+const DispatchCppType dctStringLiteral = DispatchCppType.dctStringLiteral;
 
 /// Convenient access to DispatchCppType.dctInteger with *dctInteger* see [DispatchCppType].
 ///
@@ -139,7 +149,9 @@ abstract class EnumeratedDispatcher {
   // end <class EnumeratedDispatcher>
 
   List<dynamic> _enumeration = [];
+
 }
+
 
 /// Dispatcher implemented with *switch* statement
 class SwitchEnumeratedDispatcher extends EnumeratedDispatcher {
@@ -171,18 +183,26 @@ case $e: {
 
 }
 
+
 /// Dipatcher implemented with *if-else-if* statements
 class IfElseIfEnumeratedDispatcher extends EnumeratedDispatcher {
+
   CompareExpression compareExpression;
 
   // custom <class IfElseIfEnumeratedDispatcher>
 
+  _isCharPtr(t) => t == dctCptr || t == dctStringLiteral;
+  _asCharPtr(t, v) => t == dctCptr? v : t == dctStringLiteral? doubleQuote(v) : t == dctStdString ? '${v}.c_str()' : throw 'Not convertion from $t to char*';
+  _eAsCharPtr(e) => _asCharPtr(enumeratorType, e);
+  _dAsCharPtr(d) => _asCharPtr(discriminatorType, d);
+
   _compareWithTypes(
       DispatchCppType enumeratorType, e, DispatchCppType discriminatorType, d) {
+
     if (enumeratorType == dctStdString || discriminatorType == dctStdString) {
-      return (enumeratorType == dctStdString) ? '$e == $d' : '$d == $e';
-    } else if (enumeratorType == dctCptr && discriminatorType == dctCptr) {
-      return 'strcmp($e, $d)';
+      return (enumeratorType == dctStdString) ? '$e == $d' : '$d == $e}';
+    } else if (_isCharPtr(enumeratorType) && _isCharPtr(discriminatorType)) {
+      return 'strcmp(${_eAsCharPtr(e)}, ${_dAsCharPtr(d)})';
     } else {
       return '$e == $d';
     }
@@ -215,6 +235,7 @@ ${indentBlock(errorDispatcher(this, "discriminator_"))}
   // end <class IfElseIfEnumeratedDispatcher>
 
 }
+
 
 /// Dipatcher implemented with *if-else-if* statements visiting character by
 /// character - *only* valid for strings

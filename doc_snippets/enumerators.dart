@@ -49,4 +49,13 @@ main() {
 
   print(dispatch.dispatchBlock);
 
+  dispatch = new IfElseIfEnumeratedDispatcher(
+      [ 'type_declaration', 'structure', 'member', 'function' ],
+      (dispatcher, enumerator) => 'handle_xml_${enumerator}(node);',
+      enumerator : 'node.tag')
+    ..discriminatorType = dctCptr
+    ..enumeratorType = dctStringLiteral;
+
+  print(dispatch.dispatchBlock);
+
 }
