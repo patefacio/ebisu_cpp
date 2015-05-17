@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 
 import 'package:ebisu/ebisu.dart';
 import 'package:ebisu_cpp/ebisu_cpp.dart';
+import 'package:ebisu_cpp/cookbook.dart';
 
 // end <additional imports>
 
@@ -29,8 +30,8 @@ main([List<String> args]) {
         2,
         3,
         4
-      ], (EnumeratedDispatcher dispatcher, enumerant) =>
-          'handle_value_$enumerant(buffer);');
+      ], (EnumeratedDispatcher dispatcher, enumerator) =>
+          'handle_value_$enumerator(buffer);');
       expect(darkMatter(switchDispatcher.dispatchBlock), darkMatter('''
 switch(discriminator) {
 case 1: {
@@ -62,18 +63,25 @@ case 4: {
       final dispatcher = new IfElseIfEnumeratedDispatcher([
         'foo',
         'bar',
-      ], (dispatcher, enumerant) => 'handleValue$enumerant(buffer);');
+        'goo',
+        'baz'
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);');
 
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
-auto discriminator_ { discriminator };
+std::string const& discriminator_ { discriminator };
 if(foo == discriminator_) {
   handleValuefoo(buffer);
 } else if(bar == discriminator_) {
   handleValuebar(buffer);
+} else if(goo == discriminator_) {
+  handleValuegoo(buffer);
+} else if(baz == discriminator_) {
+  handleValuebaz(buffer);
+} else {
+  assert(!"Enumerator not in {foo, bar, goo, baz}");
 }
 '''));
     });
-
   });
 
 // end <main>

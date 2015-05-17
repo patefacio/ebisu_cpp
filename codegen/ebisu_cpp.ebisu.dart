@@ -1530,32 +1530,80 @@ Establishes an interface to allow decoration of classes and updates
           ]
         ],
 
-        part('patterns')
+      ],
+
+      library('cookbook')
+      ..includesLogger = true
+      ..imports = [
+        'package:id/id.dart',
+        'package:ebisu/ebisu.dart',
+        'package:ebisu_cpp/ebisu_cpp.dart',
+      ]
+      ..parts = [
+        part('dispatch')
+        ..enums = [
+          enum_('dispatch_cpp_type')
+          ..hasLibraryScopedValues = true
+          ..values = [ 'dct_std_string', 'dct_cptr', 'dct_integer', 'dct_byte_array' ],
+        ]
         ..classes = [
+
           class_('enumerated_dispatcher')
           ..doc = '''
 Provides support for generating functions to dispach on a set of one or more
 elements.
 
-Covers things like switch, if-else-if, jump tables.
+Covers things like switch, if-else-if, jump tables in a predefined way. A common
+task is: given input data categorized by some type enumeration, dispatch a
+function to handle associated data.
+
+For example, you might have an XML Element that is one of a predefined set of
+known element types. The XML Element has a *tag* which you can use to
+descriminate on. Suppose the elements of interest are:
+
+  - <typeDeclaration>
+
+  - <struct>
+
+  - <member>
+
+  - <function>
+
+Often you will need code that effectively does a switch on a *tag* associated
+with the data and passes that data to its proper handler.
 '''
           ..isAbstract = true
           ..members = [
             member('enumeration')
-            ..doc = 'Set of valid values *all of same type* to index on'
+            ..doc = '''
+Set of valid values *all of same type* to index on.
+
+For example, to discriminate on a set of named tags:
+
+  - <typeDeclaration>
+
+  - <struct>
+
+  - <member>
+
+  - <function>
+
+use:
+
+    ..enumeration = ['typeDeclaration', 'struct', 'member', 'function']
+'''
             ..type = 'List<dynamic>'
             ..classInit = []
             ..access = RO,
 
-            member('enumerate_accessor')
+            member('enumerator')
             ..doc = '''
 C++ expression suitable for a switch or variable assignment,
 representing the enumerated value''',
 
-            member('dispatch_function')
+            member('dispatcher')
             ..doc = '''
-Functor allowing client to dictate how the dispatch may be called on the
-enumerant.
+Functor allowing client to dictate the dispatch on the enumerant.
 '''
             ..type = 'Dispatcher',
 
@@ -1563,7 +1611,23 @@ enumerant.
             ..doc = '''
 Type associated with the enumerated values. That type may be *string* or some
 form of int.
+''',
+            member('enumerator_type')
+            ..doc = 'Type of the enumerator entries'
+            ..type = 'DispatchCppType',
+
+            member('discriminator_type')
+            ..doc = 'Type of the discriminator'
+            ..type = 'DispatchCppType',
+
+            member('error_dispatcher')
+            ..doc = '''
+Functor allowing client to dictate the dispatch of an unidentified
+enumerator.
 '''
+            ..type = 'Dispatcher',
+
+            member('uses_memcmp')
           ],
 
           class_('switch_enumerated_dispatcher')
@@ -1574,9 +1638,8 @@ form of int.
           ..doc = 'Dipatcher implemented with *if-else-if* statements'
           ..extend = 'EnumeratedDispatcher'
           ..members = [
-            member('compare_expression')..classInit = r'''
-(a, b) => "$a == $b"
-'''..type = 'CompareExpression'
+            member('compare_expression')
+            ..type = 'CompareExpression'
           ],
 
           class_('char_binary_enumerated_dispatcher')
