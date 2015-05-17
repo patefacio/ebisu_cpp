@@ -25,8 +25,8 @@ main([List<String> args]) {
 
   final showCode = false;
   group('dispatcher', () {
-    test('SwitchEnumeratedDispatcher', () {
-      final switchDispatcher = new SwitchEnumeratedDispatcher([
+    test('SwitchDispatcher', () {
+      final switchDispatcher = new SwitchDispatcher([
         1,
         2,
         3,
@@ -57,13 +57,13 @@ case 4: {
       if (showCode) print(switchDispatcher.dispatchBlock);
     });
 
-    test('SwitchEnumeratedDispatcher disallows string', () {
-      expect(() => new SwitchEnumeratedDispatcher(['foo', 'bar',], null)
+    test('SwitchDispatcher disallows string', () {
+      expect(() => new SwitchDispatcher(['foo', 'bar',], null)
         ..dispatchBlock, throws);
     });
 
-    test('IfElseIfEnumeratedDispatcher', () {
-      final dispatcher = new IfElseIfEnumeratedDispatcher([
+    test('IfElseIfDispatcher', () {
+      final dispatcher = new IfElseIfDispatcher([
         'foo',
         'bar',
         'goo',
@@ -87,8 +87,9 @@ if(foo == discriminator_) {
       if (showCode) print(dispatcher.dispatchBlock);
     });
 
-    test('IfElseIfEnumeratedDispatcher (d is cptr, e is string) uses e.== ', () {
-      var dispatcher = new IfElseIfEnumeratedDispatcher([
+    test('IfElseIfDispatcher (d is cptr, e is string) uses e.== ',
+        () {
+      var dispatcher = new IfElseIfDispatcher([
         'foo',
         'bar',
       ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
@@ -106,8 +107,9 @@ if(foo == discriminator_) {
 '''));
     });
 
-    test('IfElseIfEnumeratedDispatcher (e is cptr, d is string) uses d.== ', () {
-      var dispatcher = new IfElseIfEnumeratedDispatcher([
+    test('IfElseIfDispatcher (e is cptr, d is string) uses d.== ',
+        () {
+      var dispatcher = new IfElseIfDispatcher([
         'foo',
         'bar',
       ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
@@ -126,8 +128,9 @@ if(discriminator_ == foo}) {
 '''));
     });
 
-    test('IfElseIfEnumeratedDispatcher (e is cptr, d is cptr) uses strcmp ', () {
-      var dispatcher = new IfElseIfEnumeratedDispatcher([
+    test('IfElseIfDispatcher (e is cptr, d is cptr) uses strcmp ',
+        () {
+      var dispatcher = new IfElseIfDispatcher([
         'foo',
         'bar',
       ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
@@ -146,8 +149,10 @@ if(strcmp(foo, discriminator_)) {
 '''));
     });
 
-    test('IfElseIfEnumeratedDispatcher (d is dctInteger, e is dctInteger) uses == ', () {
-      var dispatcher = new IfElseIfEnumeratedDispatcher([
+    test(
+        'IfElseIfDispatcher (d is dctInteger, e is dctInteger) uses == ',
+        () {
+      var dispatcher = new IfElseIfDispatcher([
         'foo',
         'bar',
       ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
@@ -166,9 +171,13 @@ if(foo == discriminator_) {
 '''));
     });
 
-    test('IfElseIfEnumeratedDispatcher (d is int literal, e is dctInteger) uses == ', () {
-      var dispatcher = new IfElseIfEnumeratedDispatcher([
-        1, 2, 3
+    test(
+        'IfElseIfDispatcher (d is int literal, e is dctInteger) uses == ',
+        () {
+      var dispatcher = new IfElseIfDispatcher([
+        1,
+        2,
+        3
       ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..discriminatorType = dctInteger
         ..enumeratorType = dctInteger;
@@ -186,8 +195,6 @@ if(1 == discriminator_) {
 }
 '''));
     });
-
-
   });
 
 // end <main>

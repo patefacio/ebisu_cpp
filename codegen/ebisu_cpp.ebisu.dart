@@ -1633,11 +1633,11 @@ enumerator.
             member('uses_memcmp')
           ],
 
-          class_('switch_enumerated_dispatcher')
+          class_('switch_dispatcher')
           ..doc = 'Dispatcher implemented with *switch* statement'
           ..extend = 'EnumeratedDispatcher',
 
-          class_('if_else_if_enumerated_dispatcher')
+          class_('if_else_if_dispatcher')
           ..doc = 'Dipatcher implemented with *if-else-if* statements'
           ..extend = 'EnumeratedDispatcher'
           ..members = [
@@ -1645,7 +1645,7 @@ enumerator.
             ..type = 'CompareExpression'
           ],
 
-          class_('char_binary_enumerated_dispatcher')
+          class_('char_binary_dispatcher')
           ..doc = '''
 Dipatcher implemented with *if-else-if* statements visiting character by
 character - *only* valid for strings

@@ -1,11 +1,11 @@
 part of ebisu_cpp.cookbook;
 
 enum DispatchCppType {
-dctStdString,
-dctCptr,
-dctStringLiteral,
-dctInteger,
-dctByteArray
+  dctStdString,
+  dctCptr,
+  dctStringLiteral,
+  dctInteger,
+  dctByteArray
 }
 /// Convenient access to DispatchCppType.dctStdString with *dctStdString* see [DispatchCppType].
 ///
@@ -149,17 +149,14 @@ abstract class EnumeratedDispatcher {
   // end <class EnumeratedDispatcher>
 
   List<dynamic> _enumeration = [];
-
 }
 
-
 /// Dispatcher implemented with *switch* statement
-class SwitchEnumeratedDispatcher extends EnumeratedDispatcher {
+class SwitchDispatcher extends EnumeratedDispatcher {
 
-  // custom <class SwitchEnumeratedDispatcher>
+  // custom <class SwitchDispatcher>
 
-  SwitchEnumeratedDispatcher(enumeration, dispatcher,
-      {enumerator: 'discriminator'})
+  SwitchDispatcher(enumeration, dispatcher, {enumerator: 'discriminator'})
       : super(enumeration, dispatcher, enumerator: enumerator);
 
   String get dispatchBlock {
@@ -179,26 +176,29 @@ case $e: {
     ]);
   }
 
-  // end <class SwitchEnumeratedDispatcher>
+  // end <class SwitchDispatcher>
 
 }
 
-
 /// Dipatcher implemented with *if-else-if* statements
-class IfElseIfEnumeratedDispatcher extends EnumeratedDispatcher {
-
+class IfElseIfDispatcher extends EnumeratedDispatcher {
   CompareExpression compareExpression;
 
-  // custom <class IfElseIfEnumeratedDispatcher>
+  // custom <class IfElseIfDispatcher>
 
   _isCharPtr(t) => t == dctCptr || t == dctStringLiteral;
-  _asCharPtr(t, v) => t == dctCptr? v : t == dctStringLiteral? doubleQuote(v) : t == dctStdString ? '${v}.c_str()' : throw 'Not convertion from $t to char*';
+  _asCharPtr(t, v) => t == dctCptr
+      ? v
+      : t == dctStringLiteral
+          ? doubleQuote(v)
+          : t == dctStdString
+              ? '${v}.c_str()'
+              : throw 'Not convertion from $t to char*';
   _eAsCharPtr(e) => _asCharPtr(enumeratorType, e);
   _dAsCharPtr(d) => _asCharPtr(discriminatorType, d);
 
   _compareWithTypes(
       DispatchCppType enumeratorType, e, DispatchCppType discriminatorType, d) {
-
     if (enumeratorType == dctStdString || discriminatorType == dctStdString) {
       return (enumeratorType == dctStdString) ? '$e == $d' : '$d == $e}';
     } else if (_isCharPtr(enumeratorType) && _isCharPtr(discriminatorType)) {
@@ -212,8 +212,7 @@ class IfElseIfEnumeratedDispatcher extends EnumeratedDispatcher {
       ? compareExpression(a, b)
       : _compareWithTypes(enumeratorType, a, discriminatorType, b);
 
-  IfElseIfEnumeratedDispatcher(enumeration, dispatcher,
-      {enumerator: 'discriminator'})
+  IfElseIfDispatcher(enumeration, dispatcher, {enumerator: 'discriminator'})
       : super(enumeration, dispatcher, enumerator: enumerator);
 
   String get dispatchBlock {
@@ -232,18 +231,17 @@ ${indentBlock(errorDispatcher(this, "discriminator_"))}
     ]);
   }
 
-  // end <class IfElseIfEnumeratedDispatcher>
+  // end <class IfElseIfDispatcher>
 
 }
 
-
 /// Dipatcher implemented with *if-else-if* statements visiting character by
 /// character - *only* valid for strings
-class CharBinaryEnumeratedDispatcher extends EnumeratedDispatcher {
+class CharBinaryDispatcher extends EnumeratedDispatcher {
 
-  // custom <class CharBinaryEnumeratedDispatcher>
+  // custom <class CharBinaryDispatcher>
 
-  CharBinaryEnumeratedDispatcher(enumeration, dispatcher)
+  CharBinaryDispatcher(enumeration, dispatcher)
       : super(enumeration, dispatcher, {enumerator: 'discriminator'});
 
   String get dispatchBlock {
@@ -259,7 +257,7 @@ ${indentBlock(dispatcher(this, e))}
     ]);
   }
 
-  // end <class CharBinaryEnumeratedDispatcher>
+  // end <class CharBinaryDispatcher>
 
 }
 
