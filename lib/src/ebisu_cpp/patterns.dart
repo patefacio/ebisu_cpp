@@ -20,7 +20,8 @@ abstract class EnumeratedDispatcher {
 
   // custom <class EnumeratedDispatcher>
 
-  EnumeratedDispatcher(enumeration_, this.dispatchFunction, [ this.enumerateAccessor = 'discriminator' ]) {
+  EnumeratedDispatcher(enumeration_, this.dispatchFunction,
+      [this.enumerateAccessor = 'discriminator']) {
     enumeration = enumeration_;
   }
 
@@ -51,49 +52,62 @@ abstract class EnumeratedDispatcher {
   // end <class EnumeratedDispatcher>
 
   List<dynamic> _enumeration = [];
-
 }
-
 
 /// Dispatcher implemented with *switch* statement
 class SwitchEnumeratedDispatcher extends EnumeratedDispatcher {
 
   // custom <class SwitchEnumeratedDispatcher>
 
-  SwitchEnumeratedDispatcher(enumeration, dispatchFunction)
-    : super(enumeration, dispatchFunction);
+  SwitchEnumeratedDispatcher(enumeration, dispatchFunction, [enumerateAccessor = 'discriminator'])
+    : super(enumeration, dispatchFunction, enumerateAccessor);
 
   String get dispatchBlock {
-    if(type.contains('string')) {
+    if (type.contains('string')) {
       throw 'Switch requires an integer type, not string';
     }
 
-    return brCompact(
-      [
-        'switch($enumerateAccessor) {',
-        _enumeration.map((var e) => '''
+    return brCompact([
+      'switch($enumerateAccessor) {',
+      _enumeration.map((var e) => '''
 case $e: {
   ${dispatchFunction(this, e)}
   break;
 }
 '''),
-        '}'
-      ]);
+      '}'
+    ]);
   }
 
   // end <class SwitchEnumeratedDispatcher>
 
 }
 
-
 /// Dipatcher implemented with *if-else-if* statements
 class IfElseIfEnumeratedDispatcher extends EnumeratedDispatcher {
+  CompareExpression compareExpression = (a, b) => "$a == $b";
 
   // custom <class IfElseIfEnumeratedDispatcher>
+
+  IfElseIfEnumeratedDispatcher(enumeration, dispatchFunction)
+      : super(enumeration, dispatchFunction);
+
+  String get dispatchBlock {
+    return brCompact([
+      'auto discriminator_ { $enumerateAccessor };',
+      'if(${compareExpression(enumeration.first, 'discriminator_')}) {',
+      indentBlock(dispatchFunction(this, enumeration.first)),
+      _enumeration.skip(1).map((var e) => '''
+} else if(${compareExpression(e, "discriminator_")}) {
+${indentBlock(dispatchFunction(this, e))}
+}
+'''),
+    ]);
+  }
+
   // end <class IfElseIfEnumeratedDispatcher>
 
 }
-
 
 /// Dipatcher implemented with *if-else-if* statements visiting character by
 /// character - *only* valid for strings
@@ -109,5 +123,9 @@ class CharBinaryEnumeratedDispatcher extends EnumeratedDispatcher {
 /// Given a dispatcher and enumerant, returns suitable dispatch function
 /// invocation on the enumerant
 typedef String Dispatcher(EnumeratedDispatcher dispatcher, var enumerant);
+
+/// Given the [enumerateAccessor] expression (ie the item being tested) and one
+/// of the enumerants - returns a comparison expression suitable for if statement
+typedef String CompareExpression(String enumerateAccessor, var enumerant);
 
 // end <part patterns>

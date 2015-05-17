@@ -6,6 +6,7 @@ import 'package:test/test.dart';
 
 // custom <additional imports>
 
+import 'package:ebisu/ebisu.dart';
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 
 // end <additional imports>
@@ -28,9 +29,49 @@ main([List<String> args]) {
         2,
         3,
         4
-      ], (EnumeratedDispatcher dispatcher, enumerant) => 'handleValue$enumerant(buffer);');
+      ], (EnumeratedDispatcher dispatcher, enumerant) =>
+          'handle_value_$enumerant(buffer);');
+      expect(darkMatter(switchDispatcher.dispatchBlock), darkMatter('''
+switch(discriminator) {
+case 1: {
+  handle_value_1(buffer);
+  break;
+}
+case 2: {
+  handle_value_2(buffer);
+  break;
+}
+case 3: {
+  handle_value_3(buffer);
+  break;
+}
+case 4: {
+  handle_value_4(buffer);
+  break;
+}
+}
+'''));
+    });
 
-      print(switchDispatcher.dispatchBlock);
+    test('SwitchEnumeratedDispatcher disallows string', () {
+      expect(() => new SwitchEnumeratedDispatcher(['foo', 'bar',], null)
+        ..dispatchBlock, throws);
+    });
+
+    test('IfElseIfEnumeratedDispatcher', () {
+      final dispatcher = new IfElseIfEnumeratedDispatcher([
+        'foo',
+        'bar',
+      ], (dispatcher, enumerant) => 'handleValue$enumerant(buffer);');
+
+      expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+auto discriminator_ { discriminator };
+if(foo == discriminator_) {
+  handleValuefoo(buffer);
+} else if(bar == discriminator_) {
+  handleValuebar(buffer);
+}
+'''));
     });
 
   });

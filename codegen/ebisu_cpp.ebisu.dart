@@ -1572,7 +1572,12 @@ form of int.
 
           class_('if_else_if_enumerated_dispatcher')
           ..doc = 'Dipatcher implemented with *if-else-if* statements'
-          ..extend = 'EnumeratedDispatcher',
+          ..extend = 'EnumeratedDispatcher'
+          ..members = [
+            member('compare_expression')..classInit = r'''
+(a, b) => "$a == $b"
+'''..type = 'CompareExpression'
+          ],
 
           class_('char_binary_enumerated_dispatcher')
           ..doc = '''
