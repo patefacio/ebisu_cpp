@@ -1645,6 +1645,14 @@ enumerator.
             ..type = 'CompareExpression'
           ],
 
+          class_('char_node')
+          ..members = [
+            member('char'),
+            member('is_leaf')..type = 'bool',
+            member('children')
+            ..type = 'List<CharNode>'..classInit = [],
+          ],
+
           class_('char_binary_dispatcher')
           ..doc = '''
 Dipatcher implemented with *if-else-if* statements visiting character by

@@ -202,7 +202,7 @@ class IfElseIfDispatcher extends EnumeratedDispatcher {
     if (enumeratorType == dctStdString || discriminatorType == dctStdString) {
       return (enumeratorType == dctStdString) ? '$e == $d' : '$d == $e}';
     } else if (_isCharPtr(enumeratorType) && _isCharPtr(discriminatorType)) {
-      return 'strcmp(${_eAsCharPtr(e)}, ${_dAsCharPtr(d)})';
+      return 'strcmp(${_eAsCharPtr(e)}, ${_dAsCharPtr(d)}) == 0';
     } else {
       return '$e == $d';
     }
@@ -235,26 +235,77 @@ ${indentBlock(errorDispatcher(this, "discriminator_"))}
 
 }
 
+class CharNode {
+  String char;
+  bool isLeaf;
+  List<CharNode> children = [];
+
+  // custom <class CharNode>
+
+  CharNode.from(this.char, Iterable<String> literals, this.isLeaf) {
+    literals = new List.from(literals);
+    literals.sort();
+
+    Map headToTail = {};
+    for (String literal in literals) {
+      if (literal.isEmpty) continue;
+
+      final head = literal.substring(0, 1);
+      var tail = literal.substring(1);
+
+      headToTail.putIfAbsent(head, () => []).add(tail);
+    }
+
+    headToTail.forEach((k, v) {
+      print('$k -> $v');
+      children.add(new CharNode.from(k, v, v.first == ''));
+    });
+  }
+
+  flatten() {
+    if(children.length == 1 && !isLeaf) {
+      final onlyChild = children.first;
+      char = char + onlyChild.char;
+      children = onlyChild.children;
+    }
+
+    children.forEach((c) => c.flatten());
+    return this;
+  }
+
+  toString() => brCompact([char, 'isLeaf:$isLeaf', indentBlock(brCompact(children))]);
+
+  // end <class CharNode>
+
+}
+
 /// Dipatcher implemented with *if-else-if* statements visiting character by
 /// character - *only* valid for strings
 class CharBinaryDispatcher extends EnumeratedDispatcher {
 
   // custom <class CharBinaryDispatcher>
 
-  CharBinaryDispatcher(enumeration, dispatcher)
-      : super(enumeration, dispatcher, {enumerator: 'discriminator'});
+  CharBinaryDispatcher(enumeration, dispatcher, {enumerator: 'discriminator'})
+      : super(enumeration, dispatcher, enumerator: enumerator);
 
   String get dispatchBlock {
-    return brCompact([
-      'auto const& discriminator_ { $enumerator };',
-      'if(${compareExpression(enumeration.first, 'discriminator_')}) {',
-      indentBlock(dispatcher(this, enumeration.first)),
-      _enumeration.skip(1).map((var e) => '''
-} else if(${compareExpression(e, "discriminator_")}) {
-${indentBlock(dispatcher(this, e))}
-}
-'''),
-    ]);
+    if (enumeratorType != dctStringLiteral) {
+      throw 'CharBinaryDispatcher requires literal enumeration';
+    }
+
+    final enumeratorsSorted = new List.from(enumeration);
+    enumeratorsSorted.sort();
+
+    final root = new CharNode.from('root', enumeratorsSorted, false);
+    print(root);
+
+    print('flattening');
+    root.flatten();
+
+    print(root);
+
+    return brCompact(
+        ['auto const& discriminator_ { $enumerator };', enumeratorsSorted]);
   }
 
   // end <class CharBinaryDispatcher>

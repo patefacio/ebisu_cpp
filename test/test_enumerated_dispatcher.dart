@@ -136,9 +136,9 @@ if(discriminator_ == foo}) {
 
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 char const* const& discriminator_ { discriminator };
-if(strcmp(foo, discriminator_)) {
+if(strcmp(foo, discriminator_) == 0) {
   handleValuefoo(buffer);
-} else if(strcmp(bar, discriminator_)) {
+} else if(strcmp(bar, discriminator_) == 0) {
   handleValuebar(buffer);
 } else {
   assert(!"Enumerator not in {foo, bar}");
@@ -187,6 +187,24 @@ if(1 == discriminator_) {
   assert(!"Enumerator not in {1, 2, 3}");
 }
 '''));
+    });
+
+    test('CharBinaryDispatcher', () {
+      var dispatcher = new CharBinaryDispatcher([
+        '125',
+        '32',
+        '256',
+        '124',
+        '1258',
+        '1259',
+        '13',
+        '2568',
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+        ..enumeratorType = dctStringLiteral;
+
+      //print(dispatcher.dispatchBlock);
+//       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+// '''));
     });
   });
 
