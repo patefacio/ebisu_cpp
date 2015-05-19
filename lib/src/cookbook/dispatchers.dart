@@ -235,6 +235,56 @@ ${indentBlock(errorDispatcher(this, "discriminator_"))}
 
 }
 
+/// A node in a tree-structure.
+///
+/// The tree-structure represents a set of strings where a traversal of
+/// the tree can visit all characters in all strings. Any node that has
+/// [isLeaf] set indicates the path from root to said node is a complete
+/// string from the set.
+///
+/// For example:
+///
+///     final strings = [
+///       '125',
+///       '32',
+///       '1258',
+///     ];
+///
+///     final tree = new CharNode.from(null, 'root', strings, false);
+///     print(tree);
+///
+/// Prints:
+///
+///     root in null
+///     isLeaf:false
+///       1 in 1
+///       isLeaf:false
+///         2 in 12
+///         isLeaf:false
+///           5 in 125
+///           isLeaf:true
+///             8 in 1258
+///             isLeaf:true
+///       3 in 3
+///       isLeaf:false
+///         2 in 32
+///         isLeaf:true
+///
+/// The tree shrunk by calling flatten:
+///
+///     tree.flatten();
+///     print(tree);
+///
+///     root in null
+///     isLeaf:false
+///       12 in 12
+///       isLeaf:false
+///         5 in 125
+///         isLeaf:true
+///           8 in 1258
+///           isLeaf:true
+///       32 in 32
+///       isLeaf:true
 class CharNode {
   String char;
   bool isLeaf;
@@ -243,7 +293,8 @@ class CharNode {
 
   // custom <class CharNode>
 
-  CharNode.from(this.parent, this.char, Iterable<String> literals, this.isLeaf) {
+  CharNode.from(
+      this.parent, this.char, Iterable<String> literals, this.isLeaf) {
     literals = new List.from(literals);
     literals.sort();
 
@@ -257,15 +308,14 @@ class CharNode {
       headToTail.putIfAbsent(head, () => []).add(tail);
     }
 
-    headToTail.forEach((k, v) =>
-        children.add(new CharNode.from(this, k, v, v.first == '')));
+    headToTail.forEach(
+        (k, v) => children.add(new CharNode.from(this, k, v, v.first == '')));
   }
 
   get fullName => _fullName();
 
   _fullName([name = '']) =>
-    parent == null? null :
-    combine([parent._fullName(name), char],'');
+      parent == null ? null : combine([parent._fullName(name), char], '');
 
   /// Reduce unnecessary character by character checks when *strncmp* can be
   /// done on a larger string of characters.
@@ -299,15 +349,18 @@ class CharNode {
   get length => char.length;
   get asCpp => length == 1 ? "'$char'" : doubleQuote(char);
 
-  toString() =>
-      brCompact(['$char in $fullName', 'isLeaf:$isLeaf', indentBlock(brCompact(children))]);
+  toString() => brCompact([
+    '$char in $fullName',
+    'isLeaf:$isLeaf',
+    indentBlock(brCompact(children))
+  ]);
 
   // end <class CharNode>
 
 }
 
 /// Dipatcher implemented with *if-else-if* statements visiting character by
-/// character - *only* valid for strings
+/// character - *only* valid for strings as discriminators.
 class CharBinaryDispatcher extends EnumeratedDispatcher {
 
   // custom <class CharBinaryDispatcher>

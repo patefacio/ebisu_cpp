@@ -1646,6 +1646,58 @@ enumerator.
           ],
 
           class_('char_node')
+          ..doc = '''
+A node in a tree-structure.
+
+The tree-structure represents a set of strings where a traversal of
+the tree can visit all characters in all strings. Any node that has
+[isLeaf] set indicates the path from root to said node is a complete
+string from the set.
+
+For example:
+
+    final strings = [
+      '125',
+      '32',
+      '1258',
+    ];
+
+    final tree = new CharNode.from(null, 'root', strings, false);
+    print(tree);
+
+Prints:
+
+    root in null
+    isLeaf:false
+      1 in 1
+      isLeaf:false
+        2 in 12
+        isLeaf:false
+          5 in 125
+          isLeaf:true
+            8 in 1258
+            isLeaf:true
+      3 in 3
+      isLeaf:false
+        2 in 32
+        isLeaf:true
+
+The tree shrunk by calling flatten:
+
+    tree.flatten();
+    print(tree);
+
+    root in null
+    isLeaf:false
+      12 in 12
+      isLeaf:false
+        5 in 125
+        isLeaf:true
+          8 in 1258
+          isLeaf:true
+      32 in 32
+      isLeaf:true
+'''
           ..members = [
             member('char'),
             member('is_leaf')..type = 'bool',
@@ -1657,7 +1709,7 @@ enumerator.
           class_('char_binary_dispatcher')
           ..doc = '''
 Dipatcher implemented with *if-else-if* statements visiting character by
-character - *only* valid for strings
+character - *only* valid for strings as discriminators.
 '''
           ..extend = 'EnumeratedDispatcher',
         ]
