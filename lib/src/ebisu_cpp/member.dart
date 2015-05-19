@@ -230,7 +230,7 @@ class Member extends CppEntity {
 
   // custom <class Member>
 
-  Member(Id id) : super(id);
+  Member(id) : super(id);
 
   /// Member has no children - returns empty [Iterable]
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
@@ -457,7 +457,7 @@ void $name($argType $name) {''';
 
 // custom <part member>
 
-Member member(Object id) => new Member(id is Id ? id : new Id(id));
+Member member(id) => new Member(id);
 
 typedef String GetterReturnModifier(Member member, String oldValue);
 
