@@ -219,7 +219,7 @@ if(strncmp("25", &descriminator[0], 2) == 0) {
       ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..enumeratorType = dctStringLiteral;
 
-       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+      expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 auto const& discriminator_ { discriminator };
 auto size_t discriminator_length_ { descriminator_.length() };
 if('1' == descriminator[0]) {

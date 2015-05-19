@@ -1,11 +1,11 @@
 part of ebisu_cpp.cookbook;
 
 enum DispatchCppType {
-dctStdString,
-dctCptr,
-dctStringLiteral,
-dctInteger,
-dctByteArray
+  dctStdString,
+  dctCptr,
+  dctStringLiteral,
+  dctInteger,
+  dctByteArray
 }
 /// Convenient access to DispatchCppType.dctStdString with *dctStdString* see [DispatchCppType].
 ///
@@ -147,9 +147,7 @@ abstract class EnumeratedDispatcher {
   // end <class EnumeratedDispatcher>
 
   List<dynamic> _enumeration = [];
-
 }
-
 
 /// Dispatcher implemented with *switch* statement
 class SwitchDispatcher extends EnumeratedDispatcher {
@@ -180,10 +178,8 @@ case $e: {
 
 }
 
-
 /// Dipatcher implemented with *if-else-if* statements
 class IfElseIfDispatcher extends EnumeratedDispatcher {
-
   CompareExpression compareExpression;
 
   // custom <class IfElseIfDispatcher>
@@ -237,7 +233,6 @@ ${indentBlock(errorDispatcher(this, "discriminator_"))}
 
 }
 
-
 /// A node in a tree-structure.
 ///
 /// The tree-structure represents a set of strings where a traversal of
@@ -289,7 +284,6 @@ ${indentBlock(errorDispatcher(this, "discriminator_"))}
 ///       32 in 32
 ///       isLeaf:true
 class CharNode {
-
   String char;
   bool isLeaf;
   CharNode parent;
@@ -363,7 +357,6 @@ class CharNode {
 
 }
 
-
 /// Dipatcher implemented with *if-else-if* statements visiting character by
 /// character - *only* valid for strings as discriminators.
 class CharBinaryDispatcher extends EnumeratedDispatcher {
@@ -397,9 +390,11 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
 
   get _cppDiscriminatorLength {
     final dct = discriminatorCppType;
-    return dct == 'std::string'? 'descriminator_.length()' :
-    dct == 'char const*'? 'strlen(descriminator_)' :
-    throw 'Can not get length of descriminator_';
+    return dct == 'std::string'
+        ? 'descriminator_.length()'
+        : dct == 'char const*'
+            ? 'strlen(descriminator_)'
+            : throw 'Can not get length of descriminator_';
   }
 
   _cmpNode(node, index) => node.length == 1
