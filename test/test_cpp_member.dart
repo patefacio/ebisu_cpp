@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 import 'package:ebisu/ebisu.dart';
+import 'package:id/id.dart';
 
 // end <additional imports>
 
@@ -47,6 +48,11 @@ Wee willy winkee went through the town.'''
 
   test('type inference: List of lists', () => expect((member('foo')
     ..init = [[1, 2, 3]]).type, 'std::vector< std::vector< int > >'));
+
+  test('member turns non-snake id to id', () {
+    final m = member('thisIsATest');
+    expect(m.id, new Id('this_is_a_test'));
+  });
 
   test('vref', () {
     final m = member('foo')
