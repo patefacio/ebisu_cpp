@@ -36,7 +36,7 @@ const DispatchCppType dctByteArray = DispatchCppType.dctByteArray;
 ///
 /// For example, you might have an XML Element that is one of a predefined set of
 /// known element types. The XML Element has a *tag* which you can use to
-/// descriminate on. Suppose the elements of interest are:
+/// discriminate on. Suppose the elements of interest are:
 ///
 ///   - <typeDeclaration>
 ///
@@ -313,21 +313,23 @@ class CharNode {
   get fullName => _fullName();
 
   _fullName([name = '']) =>
-      parent == null ? null : combine([parent._fullName(name), char], '');
+      parent == null ? '' : combine([parent._fullName(name), char], '');
 
   /// Reduce unnecessary character by character checks when *strncmp* can be
   /// done on a larger string of characters.
   flatten() {
+
+    children.forEach((c) => c.flatten());
+
     ////////////////////////////////////////////////////////////////////////////
     // If we have just one child which is not a leaf node, combine the child's
     // string with this's and make his children our children. The purpose here
     // is to avoid a character-by-character check on a long string that has no
     // other strings similar to it.
-    if (children.length == 1 && !isLeaf) {
+    if (parent != null && children.length == 1 && !isLeaf) {
       _adoptChild(children.first);
     }
 
-    children.forEach((c) => c.flatten());
     return this;
   }
 
@@ -379,8 +381,8 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
     _logger.fine(root);
 
     return (brCompact([
-      'auto const& discriminator_ { $enumerator };',
-      'auto size_t discriminator_length_ { $_cppDiscriminatorLength };',
+      '${cppType(discriminatorType)} const& discriminator_ { $enumerator };',
+      'size_t discriminator_length_ { $_cppDiscriminatorLength };',
       root.children.map((c) => visitNodes(c))
     ]));
 
@@ -391,15 +393,17 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
   get _cppDiscriminatorLength {
     final dct = discriminatorCppType;
     return dct == 'std::string'
-        ? 'descriminator_.length()'
+        ? 'discriminator_.length()'
         : dct == 'char const*'
-            ? 'strlen(descriminator_)'
-            : throw 'Can not get length of descriminator_';
+            ? 'strlen(discriminator_)'
+            : throw 'Can not get length of discriminator_';
   }
 
+  _sizeCheck(index) => 'if(${index + 1} > discriminator_length_) return;';
+
   _cmpNode(node, index) => node.length == 1
-      ? 'if(${node.asCpp} == descriminator[$index]) {'
-      : 'if(strncmp(${node.asCpp}, &descriminator[$index], ${node.length}) == 0) {';
+      ? 'if(${node.asCpp} == discriminator[$index]) {'
+      : 'if(strncmp(${node.asCpp}, &discriminator[$index], ${node.length}) == 0) {';
 
   visitNodes(CharNode node, [int charIndex = 0]) => brCompact([
     combine([
@@ -417,8 +421,13 @@ ${indentBlock(dispatcher(this, node.fullName))}
       ])
           : null,
     ]),
+
     indentBlock(
-        br(node.children.map((c) => visitNodes(c, charIndex + node.length)))),
+        br([
+          node.children.isNotEmpty? _sizeCheck(charIndex+1) : null,
+          node.children.map((c) => visitNodes(c, charIndex + node.length))
+        ])),
+
     '}',
   ]);
 

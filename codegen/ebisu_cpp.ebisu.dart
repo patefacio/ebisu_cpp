@@ -1562,7 +1562,7 @@ function to handle associated data.
 
 For example, you might have an XML Element that is one of a predefined set of
 known element types. The XML Element has a *tag* which you can use to
-descriminate on. Suppose the elements of interest are:
+discriminate on. Suppose the elements of interest are:
 
   - <typeDeclaration>
 
