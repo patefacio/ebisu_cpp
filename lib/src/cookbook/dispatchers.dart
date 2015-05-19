@@ -257,10 +257,8 @@ class CharNode {
       headToTail.putIfAbsent(head, () => []).add(tail);
     }
 
-    headToTail.forEach((k, v) {
-      print('$k -> $v');
-      children.add(new CharNode.from(this, k, v, v.first == ''));
-    });
+    headToTail.forEach((k, v) =>
+        children.add(new CharNode.from(this, k, v, v.first == '')));
   }
 
   get fullName => _fullName();
@@ -269,17 +267,33 @@ class CharNode {
     parent == null? null :
     combine([parent._fullName(name), char],'');
 
+  /// Reduce unnecessary character by character checks when *strncmp* can be
+  /// done on a larger string of characters.
   flatten() {
+    ////////////////////////////////////////////////////////////////////////////
+    // If we have just one child which is not a leaf node, combine the child's
+    // string with this's and make his children our children. The purpose here
+    // is to avoid a character-by-character check on a long string that has no
+    // other strings similar to it.
     if (children.length == 1 && !isLeaf) {
-      final onlyChild = children.first;
-      char += onlyChild.char;
-      isLeaf = onlyChild.isLeaf;
-      children = new List.from(onlyChild.children);
-      children.forEach((c) => c.parent = this);
+      _adoptChild(children.first);
     }
 
     children.forEach((c) => c.flatten());
     return this;
+  }
+
+  _adoptChild(onlyChild) {
+    // Combine this name with the child's name
+    char += onlyChild.char;
+    assert(!isLeaf);
+    // this was not a leaf. After combining if our only child was a leaf then we
+    // become one
+    isLeaf = onlyChild.isLeaf;
+    // Replace our children with our children's children
+    children = new List.from(onlyChild.children);
+    // We are now the parent of our children
+    children.forEach((c) => c.parent = this);
   }
 
   get length => char.length;
@@ -311,7 +325,7 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
 
     final root = new CharNode.from(null, 'root', enumeratorsSorted, false);
     root.flatten();
-    print(root);
+    _logger.fine(root);
 
     return (brCompact([
       'auto const& discriminator_ { $enumerator };',
