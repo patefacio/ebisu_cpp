@@ -238,11 +238,12 @@ ${indentBlock(errorDispatcher(this, "discriminator_"))}
 class CharNode {
   String char;
   bool isLeaf;
+  CharNode parent;
   List<CharNode> children = [];
 
   // custom <class CharNode>
 
-  CharNode.from(this.char, Iterable<String> literals, this.isLeaf) {
+  CharNode.from(this.parent, this.char, Iterable<String> literals, this.isLeaf) {
     literals = new List.from(literals);
     literals.sort();
 
@@ -258,22 +259,34 @@ class CharNode {
 
     headToTail.forEach((k, v) {
       print('$k -> $v');
-      children.add(new CharNode.from(k, v, v.first == ''));
+      children.add(new CharNode.from(this, k, v, v.first == ''));
     });
   }
 
+  get fullName => _fullName();
+
+  _fullName([name = '']) =>
+    parent == null? null :
+    combine([parent._fullName(name), char],'');
+
   flatten() {
-    if(children.length == 1 && !isLeaf) {
+    if (children.length == 1 && !isLeaf) {
       final onlyChild = children.first;
-      char = char + onlyChild.char;
-      children = onlyChild.children;
+      char += onlyChild.char;
+      isLeaf = onlyChild.isLeaf;
+      children = new List.from(onlyChild.children);
+      children.forEach((c) => c.parent = this);
     }
 
     children.forEach((c) => c.flatten());
     return this;
   }
 
-  toString() => brCompact([char, 'isLeaf:$isLeaf', indentBlock(brCompact(children))]);
+  get length => char.length;
+  get asCpp => length == 1 ? "'$char'" : doubleQuote(char);
+
+  toString() =>
+      brCompact(['$char in $fullName', 'isLeaf:$isLeaf', indentBlock(brCompact(children))]);
 
   // end <class CharNode>
 
@@ -296,17 +309,43 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
     final enumeratorsSorted = new List.from(enumeration);
     enumeratorsSorted.sort();
 
-    final root = new CharNode.from('root', enumeratorsSorted, false);
-    print(root);
-
-    print('flattening');
+    final root = new CharNode.from(null, 'root', enumeratorsSorted, false);
     root.flatten();
-
     print(root);
+
+    return (brCompact([
+      'auto const& discriminator_ { $enumerator };',
+      'auto size_t discriminator_length_ { };',
+      root.children.map((c) => visitNodes(c))
+    ]));
 
     return brCompact(
         ['auto const& discriminator_ { $enumerator };', enumeratorsSorted]);
   }
+
+  _cmpNode(node, index) => node.length == 1
+      ? 'if(${node.asCpp} == descriminator[$index]) {'
+      : 'if(strncmp(${node.asCpp}, &descriminator[$index], ${node.length}) == 0) {';
+
+  visitNodes(CharNode node, [int charIndex = 0]) => brCompact([
+    combine([
+      _cmpNode(node, charIndex),
+      node.isLeaf
+          ? br([
+        indentBlock('''
+
+if(${charIndex + 1} == discriminator_length_) {
+${indentBlock(dispatcher(this, node.fullName))}
+  return;
+}
+'''),
+      ])
+          : null,
+    ]),
+    indentBlock(
+        br(node.children.map((c) => visitNodes(c, charIndex + node.length)))),
+    '}',
+  ]);
 
   // end <class CharBinaryDispatcher>
 

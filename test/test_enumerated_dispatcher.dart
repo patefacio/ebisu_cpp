@@ -202,7 +202,7 @@ if(1 == discriminator_) {
       ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..enumeratorType = dctStringLiteral;
 
-      //print(dispatcher.dispatchBlock);
+      print(dispatcher.dispatchBlock);
 //       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 // '''));
     });

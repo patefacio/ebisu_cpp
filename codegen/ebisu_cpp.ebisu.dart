@@ -1649,6 +1649,7 @@ enumerator.
           ..members = [
             member('char'),
             member('is_leaf')..type = 'bool',
+            member('parent')..type = 'CharNode',
             member('children')
             ..type = 'List<CharNode>'..classInit = [],
           ],
