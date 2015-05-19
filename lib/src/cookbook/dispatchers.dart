@@ -1,11 +1,11 @@
 part of ebisu_cpp.cookbook;
 
 enum DispatchCppType {
-  dctStdString,
-  dctCptr,
-  dctStringLiteral,
-  dctInteger,
-  dctByteArray
+dctStdString,
+dctCptr,
+dctStringLiteral,
+dctInteger,
+dctByteArray
 }
 /// Convenient access to DispatchCppType.dctStdString with *dctStdString* see [DispatchCppType].
 ///
@@ -81,7 +81,6 @@ abstract class EnumeratedDispatcher {
   /// Functor allowing client to dictate the dispatch of an unidentified
   /// enumerator.
   Dispatcher errorDispatcher;
-  String usesMemcmp;
 
   // custom <class EnumeratedDispatcher>
 
@@ -115,7 +114,6 @@ abstract class EnumeratedDispatcher {
       default:
         return 'char const*';
     }
-    ;
   }
 
   get discriminatorCppType => cppType(discriminatorType);
@@ -149,7 +147,9 @@ abstract class EnumeratedDispatcher {
   // end <class EnumeratedDispatcher>
 
   List<dynamic> _enumeration = [];
+
 }
+
 
 /// Dispatcher implemented with *switch* statement
 class SwitchDispatcher extends EnumeratedDispatcher {
@@ -180,8 +180,10 @@ case $e: {
 
 }
 
+
 /// Dipatcher implemented with *if-else-if* statements
 class IfElseIfDispatcher extends EnumeratedDispatcher {
+
   CompareExpression compareExpression;
 
   // custom <class IfElseIfDispatcher>
@@ -235,6 +237,7 @@ ${indentBlock(errorDispatcher(this, "discriminator_"))}
 
 }
 
+
 /// A node in a tree-structure.
 ///
 /// The tree-structure represents a set of strings where a traversal of
@@ -286,6 +289,7 @@ ${indentBlock(errorDispatcher(this, "discriminator_"))}
 ///       32 in 32
 ///       isLeaf:true
 class CharNode {
+
   String char;
   bool isLeaf;
   CharNode parent;
@@ -359,6 +363,7 @@ class CharNode {
 
 }
 
+
 /// Dipatcher implemented with *if-else-if* statements visiting character by
 /// character - *only* valid for strings as discriminators.
 class CharBinaryDispatcher extends EnumeratedDispatcher {
@@ -382,12 +387,19 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
 
     return (brCompact([
       'auto const& discriminator_ { $enumerator };',
-      'auto size_t discriminator_length_ { };',
+      'auto size_t discriminator_length_ { $_cppDiscriminatorLength };',
       root.children.map((c) => visitNodes(c))
     ]));
 
     return brCompact(
         ['auto const& discriminator_ { $enumerator };', enumeratorsSorted]);
+  }
+
+  get _cppDiscriminatorLength {
+    final dct = discriminatorCppType;
+    return dct == 'std::string'? 'descriminator_.length()' :
+    dct == 'char const*'? 'strlen(descriminator_)' :
+    throw 'Can not get length of descriminator_';
   }
 
   _cmpNode(node, index) => node.length == 1
@@ -401,7 +413,8 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
           ? br([
         indentBlock('''
 
-if(${charIndex + 1} == discriminator_length_) {
+// Leaf node: potential hit on "${node.fullName}"
+if(${node.fullName.length} == discriminator_length_) {
 ${indentBlock(dispatcher(this, node.fullName))}
   return;
 }

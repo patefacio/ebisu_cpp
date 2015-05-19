@@ -190,6 +190,23 @@ if(1 == discriminator_) {
     });
 
     test('CharBinaryDispatcher', () {
+      var dispatcher = new CharBinaryDispatcher(['125',],
+          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+        ..enumeratorType = dctStringLiteral;
+      expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+auto const& discriminator_ { discriminator };
+auto size_t discriminator_length_ { descriminator_.length() };
+if(strncmp("25", &descriminator[0], 2) == 0) {
+  // Leaf node: potential hit on "25"
+  if(2 == discriminator_length_) {
+    handleValue25(buffer);
+    return;
+  }
+}
+ '''));
+    });
+
+    test('CharBinaryDispatcher', () {
       var dispatcher = new CharBinaryDispatcher([
         '125',
         '32',
@@ -202,9 +219,75 @@ if(1 == discriminator_) {
       ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..enumeratorType = dctStringLiteral;
 
-      print(dispatcher.dispatchBlock);
-//       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
-// '''));
+       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+auto const& discriminator_ { discriminator };
+auto size_t discriminator_length_ { descriminator_.length() };
+if('1' == descriminator[0]) {
+  if('2' == descriminator[1]) {
+    if('4' == descriminator[2]) {
+      // Leaf node: potential hit on "124"
+      if(3 == discriminator_length_) {
+        handleValue124(buffer);
+        return;
+      }
+    }
+
+    if('5' == descriminator[2]) {
+      // Leaf node: potential hit on "125"
+      if(3 == discriminator_length_) {
+        handleValue125(buffer);
+        return;
+      }
+      if('8' == descriminator[3]) {
+        // Leaf node: potential hit on "1258"
+        if(4 == discriminator_length_) {
+          handleValue1258(buffer);
+          return;
+        }
+      }
+
+      if('9' == descriminator[3]) {
+        // Leaf node: potential hit on "1259"
+        if(4 == discriminator_length_) {
+          handleValue1259(buffer);
+          return;
+        }
+      }
+    }
+  }
+
+  if('3' == descriminator[1]) {
+    // Leaf node: potential hit on "13"
+    if(2 == discriminator_length_) {
+      handleValue13(buffer);
+      return;
+    }
+  }
+}
+if(strncmp("25", &descriminator[0], 2) == 0) {
+  if('6' == descriminator[2]) {
+    // Leaf node: potential hit on "256"
+    if(3 == discriminator_length_) {
+      handleValue256(buffer);
+      return;
+    }
+    if('8' == descriminator[3]) {
+      // Leaf node: potential hit on "2568"
+      if(4 == discriminator_length_) {
+        handleValue2568(buffer);
+        return;
+      }
+    }
+  }
+}
+if(strncmp("32", &descriminator[0], 2) == 0) {
+  // Leaf node: potential hit on "32"
+  if(2 == discriminator_length_) {
+    handleValue32(buffer);
+    return;
+  }
+}
+       '''));
     });
   });
 

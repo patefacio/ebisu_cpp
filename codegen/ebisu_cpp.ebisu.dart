@@ -1629,8 +1629,6 @@ Functor allowing client to dictate the dispatch of an unidentified
 enumerator.
 '''
             ..type = 'Dispatcher',
-
-            member('uses_memcmp')
           ],
 
           class_('switch_dispatcher')
