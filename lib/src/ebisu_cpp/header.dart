@@ -52,7 +52,7 @@ ${indentBlock(br(testScenarios))}
 
   String get _includeGuard => namespace == null
       ? '__${id.shout}__'
-      : '__${namespace.names.map((n) => new Id(n).shout).join("_")}_${id.shout}_HPP__';
+      : '__${namespace.names.map((n) => idFromString(n).shout).join("_")}_${id.shout}_HPP__';
 
   String _wrapIncludeGuard(String text) => '''
 #ifndef $_includeGuard
