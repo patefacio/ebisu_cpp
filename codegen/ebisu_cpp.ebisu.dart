@@ -299,6 +299,7 @@ The idea is to make C++ more readable when large constants are used.
             member('decl')
             ..doc = 'Declaration text without the *friend* and *class* keywords'
           ],
+
           class_('namespace')
           ..doc = 'Represents a c++ namespace which is essentially a list of names'
           ..members = [
@@ -306,6 +307,26 @@ The idea is to make C++ more readable when large constants are used.
             ..doc = 'The individual names in the namespace'
             ..type = 'List<String>'..classInit = [],
           ],
+
+          class_('using_namespace')
+          ..doc = 'A using namespace statement'
+          ..members = [
+            member('namespace')
+            ..doc = '''
+May be constructed with a [Namespace] instance or string representing
+the namespace as appears in code:
+
+    ..usingNamespaces = [
+      usingNamespace('std'),
+      usingNamespace(namespace(['x','y'])),
+      usingNamespace('foo::bar::goo', 'fbg'),
+    ]
+'''
+            ..type = 'Namespace',
+            member('alias')
+            ..doc = 'Optional alias for the namespace',
+          ],
+
           class_('includes')
           ..doc = 'Collection of header includes'
           ..members = [
@@ -642,7 +663,7 @@ Establishes an interface for generated class methods like
 consructors, destructors, overloaded operators, etc.
 '''
           ..isAbstract = true
-          ..mixins = [ 'Loggable' ]
+          ..mixins = [ 'Loggable', 'CustomCodeBlock' ]
           ..members = [
             member('parent')..type = 'Class'..access = RO,
             member('is_logged')..doc = 'If true add logging'..classInit = false,
@@ -662,8 +683,6 @@ Also provides for *delete*d methods.
           ..isAbstract = true
           ..extend = 'ClassMethod'
           ..members = [
-            member('has_custom')
-            ..doc = 'Has custom code, so needs protect block'..classInit = false,
             member('top_inject')
             ..doc = '''
 Code snippet to inject at beginning of method. The intent is for the
@@ -765,10 +784,6 @@ custom block. In that case the class might look like:
             member('decls')
             ..doc = 'List of additional decls ["Type Argname", ...]'
             ..type = 'List<String>',
-            member('has_custom')
-            ..doc = 'Has custom code, so needs protect block'..classInit = false..access = WO,
-            member('custom_label')
-            ..doc = 'Label for custom protect block if desired'..access = WO,
             member('has_all_members')
             ..doc = 'If set automatically includes all members as args'
             ..classInit = false,
@@ -1629,6 +1644,14 @@ Functor allowing client to dictate the dispatch of an unidentified
 enumerator.
 '''
             ..type = 'Dispatcher',
+
+            member('exit_expression')
+            ..doc = '''
+Since this is generates a block, there are a few ways to exit the
+block after reaching a handler or finishing. The default is
+"return". Another option would be "continue".
+'''
+            ..classInit = 'return',
           ],
 
           class_('switch_dispatcher')

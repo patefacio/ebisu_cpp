@@ -160,6 +160,35 @@ ${_helper(it, txt)}
 
 }
 
+/// A using statement
+class UsingNamespace {
+
+  /// May be constructed with a [Namespace] instance or string representing
+  /// the namespace as appears in code:
+  ///
+  ///     ..usingNamespaces = [
+  ///       usingNamespace('std'),
+  ///       usingNamespace(namespace(['x','y'])),
+  ///       usingNamespace('foo::bar::goo', 'fbg'),
+  ///     ]
+  Namespace namespace;
+  /// Optional alias for the namespace
+  String alias;
+
+  // custom <class UsingNamespace>
+
+  UsingNamespace(ns, [this.alias]) : namespace = _makeNamespace(ns);
+
+  get usingNamespaceStatement =>
+    alias != null && alias.isNotEmpty? 'namespace $alias = $namespace' :
+    namespace.using;
+
+  toString() => usingNamespaceStatement;
+
+  // end <class UsingNamespace>
+
+}
+
 /// Collection of header includes
 class Includes {
 
@@ -390,7 +419,16 @@ Base base([String className]) => new Base(className);
 
 // custom <part utils>
 
-Namespace namespace(List<String> ns) => new Namespace()..names = ns;
+Namespace _makeNamespace(ns) => ns is List<String>
+    ? new Namespace(ns)
+    : ns is String
+        ? new Namespace(ns.split('::'))
+        : throw 'namespace(ns) requires List<String> or String';
+
+final namespace = _makeNamespace;
+
+UsingNamespace usingNamespace(ns, [String alias]) =>
+  new UsingNamespace(ns, alias);
 
 Includes includes([List<String> includes]) => new Includes(includes);
 

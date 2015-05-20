@@ -22,7 +22,6 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
-  final ws = new RegExp(r'\s+');
   test('namespace', () {
     final ns = namespace(['a', 'b', 'c']).wrap('this is a test');
     final expected = '''
@@ -34,7 +33,28 @@ namespace c {
 } // namespace b
 } // namespace a
 ''';
-    expect(ns.toString().replaceAll(ws, ''), expected.replaceAll(ws, ''));
+    expect(darkMatter(ns), darkMatter(expected));
+  });
+
+  test('namespace parses', () {
+    final ns = namespace('a::b::c').wrap('this is a test');
+    final expected = '''
+namespace a {
+namespace b {
+namespace c {
+  this is a test
+} // namespace c
+} // namespace b
+} // namespace a
+''';
+    expect(darkMatter(ns), darkMatter(expected));
+  });
+
+  test('usingNamespace accepts string', () {
+    final anon = usingNamespace('a::b::c');
+    expect(anon.toString(), 'using namespace a::b::c');
+    final named = usingNamespace('alpha::beta::gamma', 'greeks');
+    expect(named.toString(), 'namespace greeks = alpha::beta::gamma');
   });
 
   test('headers', () {

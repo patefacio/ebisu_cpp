@@ -81,6 +81,10 @@ abstract class EnumeratedDispatcher {
   /// Functor allowing client to dictate the dispatch of an unidentified
   /// enumerator.
   Dispatcher errorDispatcher;
+  /// Since this is generates a block, there are a few ways to exit the
+  /// block after reaching a handler or finishing. The default is
+  /// "return". Another option would be "continue".
+  String exitExpression = 'return';
 
   // custom <class EnumeratedDispatcher>
 
@@ -318,7 +322,6 @@ class CharNode {
   /// Reduce unnecessary character by character checks when *strncmp* can be
   /// done on a larger string of characters.
   flatten() {
-
     children.forEach((c) => c.flatten());
 
     ////////////////////////////////////////////////////////////////////////////
@@ -399,11 +402,12 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
             : throw 'Can not get length of discriminator_';
   }
 
-  _sizeCheck(index) => 'if(${index + 1} > discriminator_length_) return;';
+  _sizeCheck(index) =>
+      'if(${index + 1} > discriminator_length_) $exitExpression;';
 
   _cmpNode(node, index) => node.length == 1
-      ? 'if(${node.asCpp} == discriminator[$index]) {'
-      : 'if(strncmp(${node.asCpp}, &discriminator[$index], ${node.length}) == 0) {';
+      ? 'if(${node.asCpp} == discriminator_[$index]) {'
+      : 'if(strncmp(${node.asCpp}, &discriminator_[$index], ${node.length}) == 0) {';
 
   visitNodes(CharNode node, [int charIndex = 0]) => brCompact([
     combine([
@@ -415,19 +419,16 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
 // Leaf node: potential hit on "${node.fullName}"
 if(${node.fullName.length} == discriminator_length_) {
 ${indentBlock(dispatcher(this, node.fullName))}
-  return;
+  $exitExpression;
 }
 '''),
       ])
           : null,
     ]),
-
-    indentBlock(
-        br([
-          node.children.isNotEmpty? _sizeCheck(charIndex+1) : null,
-          node.children.map((c) => visitNodes(c, charIndex + node.length))
-        ])),
-
+    indentBlock(br([
+      node.children.isNotEmpty ? _sizeCheck(charIndex + 1) : null,
+      node.children.map((c) => visitNodes(c, charIndex + node.length))
+    ])),
     '}',
   ]);
 

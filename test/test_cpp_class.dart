@@ -35,7 +35,6 @@ main([List<String> args]) {
         test('defaultCtor $tag', () {
           var c = class_('c_1')
             ..withDefaultCtor((ctor) => ctor.cppAccess = access);
-
           expect(darkMatter(c.definition), darkMatter('''
 class C_1
 {
@@ -714,6 +713,13 @@ class Transformer {
   decode::streamers::text_stream& out_;
 };
 '''), true);
+  });
+
+  test('class method are customizable', () {
+    final cls = class_('goo')
+      ..memberCtors = [memberCtor(['a'])..customCodeBlock.snippets.add('//goo')]
+      ..members = [member('a')..init = 5,];
+    print(cls.definition);
   });
 
 // end <main>

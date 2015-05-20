@@ -189,7 +189,7 @@ if(1 == discriminator_) {
 '''));
     });
 
-    test('CharBinaryDispatcher', () {
+    test('CharBinaryDispatcher with single entry', () {
       var dispatcher = new CharBinaryDispatcher(['125',],
           (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..enumeratorType = dctStringLiteral;
@@ -197,7 +197,7 @@ if(1 == discriminator_) {
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 std::string const& discriminator_ { discriminator };
 size_t discriminator_length_ { discriminator_.length() };
-if(strncmp("125", &discriminator[0], 3) == 0) {
+if(strncmp("125", &discriminator_[0], 3) == 0) {
   // Leaf node: potential hit on "125"
   if(3 == discriminator_length_) {
     handleValue125(buffer);
@@ -206,7 +206,26 @@ if(strncmp("125", &discriminator[0], 3) == 0) {
 }'''));
     });
 
-    test('CharBinaryDispatcher', () {
+    test('CharBinaryDispatcher with continue exitExpression', () {
+      var dispatcher = new CharBinaryDispatcher(['125',],
+          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+        ..enumeratorType = dctStringLiteral
+        ..exitExpression = 'contine';
+
+      expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
+std::string const& discriminator_ { discriminator };
+size_t discriminator_length_ { discriminator_.length() };
+if(strncmp("125", &discriminator_[0], 3) == 0) {
+  // Leaf node: potential hit on "125"
+  if(3 == discriminator_length_) {
+    handleValue125(buffer);
+    contine;
+  }
+}
+'''));
+    });
+
+    test('CharBinaryDispatcher many tags', () {
       var dispatcher = new CharBinaryDispatcher([
         '125',
         '32',
@@ -222,13 +241,13 @@ if(strncmp("125", &discriminator[0], 3) == 0) {
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 std::string const& discriminator_ { discriminator };
 size_t discriminator_length_ { discriminator_.length() };
-if('1' == discriminator[0]) {
+if('1' == discriminator_[0]) {
   if(2 > discriminator_length_) return;
 
-  if('2' == discriminator[1]) {
+  if('2' == discriminator_[1]) {
     if(3 > discriminator_length_) return;
 
-    if('4' == discriminator[2]) {
+    if('4' == discriminator_[2]) {
       // Leaf node: potential hit on "124"
       if(3 == discriminator_length_) {
         handleValue124(buffer);
@@ -236,7 +255,7 @@ if('1' == discriminator[0]) {
       }
     }
 
-    if('5' == discriminator[2]) {
+    if('5' == discriminator_[2]) {
       // Leaf node: potential hit on "125"
       if(3 == discriminator_length_) {
         handleValue125(buffer);
@@ -244,7 +263,7 @@ if('1' == discriminator[0]) {
       }
       if(4 > discriminator_length_) return;
 
-      if('8' == discriminator[3]) {
+      if('8' == discriminator_[3]) {
         // Leaf node: potential hit on "1258"
         if(4 == discriminator_length_) {
           handleValue1258(buffer);
@@ -252,7 +271,7 @@ if('1' == discriminator[0]) {
         }
       }
 
-      if('9' == discriminator[3]) {
+      if('9' == discriminator_[3]) {
         // Leaf node: potential hit on "1259"
         if(4 == discriminator_length_) {
           handleValue1259(buffer);
@@ -262,7 +281,7 @@ if('1' == discriminator[0]) {
     }
   }
 
-  if('3' == discriminator[1]) {
+  if('3' == discriminator_[1]) {
     // Leaf node: potential hit on "13"
     if(2 == discriminator_length_) {
       handleValue13(buffer);
@@ -270,7 +289,7 @@ if('1' == discriminator[0]) {
     }
   }
 }
-if(strncmp("256", &discriminator[0], 3) == 0) {
+if(strncmp("256", &discriminator_[0], 3) == 0) {
   // Leaf node: potential hit on "256"
   if(3 == discriminator_length_) {
     handleValue256(buffer);
@@ -278,7 +297,7 @@ if(strncmp("256", &discriminator[0], 3) == 0) {
   }
   if(2 > discriminator_length_) return;
 
-  if('8' == discriminator[3]) {
+  if('8' == discriminator_[3]) {
     // Leaf node: potential hit on "2568"
     if(4 == discriminator_length_) {
       handleValue2568(buffer);
@@ -286,7 +305,7 @@ if(strncmp("256", &discriminator[0], 3) == 0) {
     }
   }
 }
-if(strncmp("32", &discriminator[0], 2) == 0) {
+if(strncmp("32", &discriminator_[0], 2) == 0) {
   // Leaf node: potential hit on "32"
   if(2 == discriminator_length_) {
     handleValue32(buffer);

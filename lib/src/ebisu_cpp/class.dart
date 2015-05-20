@@ -103,7 +103,7 @@ const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
 
 /// Establishes an interface for generated class methods like
 /// consructors, destructors, overloaded operators, etc.
-abstract class ClassMethod extends Object with Loggable {
+abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
   Class get parent => _parent;
   /// If true add logging
   bool isLogged = false;
@@ -113,8 +113,18 @@ abstract class ClassMethod extends Object with Loggable {
 
   // custom <class ClassMethod>
 
+  ClassMethod() {
+    /// By default methods won't include custom block
+    includesCustom = false;
+  }
+
   String get definition;
   String get className => _parent.className;
+
+  /// Alias - deprecated
+  get hasCustom => includesCustom;
+  set hasCustom(v) => includesCustom = v;
+
   List<Member> get members => _parent.members;
   set template(Object t) =>
       _template = _makeTemplate('class_method', t); // TODO: make entity
@@ -131,8 +141,6 @@ abstract class ClassMethod extends Object with Loggable {
 /// Also provides for *delete*d methods.
 abstract class DefaultMethod extends ClassMethod {
 
-  /// Has custom code, so needs protect block
-  bool hasCustom = false;
   /// Code snippet to inject at beginning of method. The intent is for the
   /// methods to have standard generated implementations, but to also
   /// support programatic injection of implmementation into the
@@ -155,6 +163,11 @@ abstract class DefaultMethod extends ClassMethod {
 
   _templateWrap(s) => _template != null ? '$_template\n$s' : s;
 
+  String functionContents(String signature, String blockTag) {
+    final cb = hasCustom ? indentBlock(customBlock(blockTag)) : '';
+    return brCompact(['$signature {', topInject, cb, bottomInject, '}']);
+  }
+
   // end <class DefaultMethod>
 
 }
@@ -166,16 +179,8 @@ class DefaultCtor extends DefaultMethod {
 
   String get prototype => '${className}()';
 
-  String get customDefinition {
-    final cb = customBlock('${className} defaultCtor');
-    var result = '''
-${className}() {
-$topInject
-${hasCustom? indentBlock(cb) : ''}
-$bottomInject
-}''';
-    return result;
-  }
+  String get customDefinition =>
+      functionContents('${className}()', '${className} defaultCtor');
 
   // end <class DefaultCtor>
 
@@ -188,16 +193,8 @@ class CopyCtor extends DefaultMethod {
 
   String get prototype => '${className}(${className} const& other)';
 
-  String get customDefinition {
-    final cb = customBlock('${className} copyCtor');
-    var result = '''
-${className}(${className} const& other) {
-$topInject
-${hasCustom? indentBlock(cb) : ''}
-$bottomInject
-}''';
-    return result;
-  }
+  String get customDefinition => functionContents(
+      '${className}(${className} const& other)', '${className} copyCtor');
 
   // end <class CopyCtor>
 
@@ -441,10 +438,6 @@ class MemberCtor extends ClassMethod {
   List<MemberCtorParm> memberParms = [];
   /// List of additional decls ["Type Argname", ...]
   List<String> decls;
-  /// Has custom code, so needs protect block
-  set hasCustom(bool hasCustom) => _hasCustom = hasCustom;
-  /// Label for custom protect block if desired
-  set customLabel(String customLabel) => _customLabel = customLabel;
   /// If set automatically includes all members as args
   bool hasAllMembers = false;
   /// If true makes the ctor explicit
@@ -492,24 +485,25 @@ member being initialized or a MemberCtorParm instance'''));
 
     final explicitTag = isExplicit ? 'explicit ' : '';
 
-    return '''
+    return brCompact([
+      '''
 ${explicitTag}${_templateDecl}${className}(
 ${indentBlock(argDecls.join(',\n'))}) :
-${indentBlock(initializers.join(',\n'))} {
-${indentBlock(_protectBlock)}}''';
+${indentBlock(initializers.join(',\n'))} {''',
+      indentBlock(_protectBlock),
+      '}'
+    ]);
   }
 
-  get hasCustom => _hasCustom || _customLabel != null;
+  set customLabel(String label) {
+    includesCustom = true;
+    tag = label;
+  }
 
-  get customLabel => _customLabel != null ? _customLabel : decls.join(', ');
-
-  get _protectBlock =>
-      hasCustom ? customBlock('${className}($customLabel)') : '';
+  get _protectBlock => includesCustom ? customBlock('${className}($tag)') : '';
 
   // end <class MemberCtor>
 
-  bool _hasCustom = false;
-  String _customLabel;
 }
 
 /// Provides *operator==()*
@@ -1193,7 +1187,7 @@ $classStyle $className$_baseDecl$_finalDecl
 ///
 /// All classes must be named with an [Id]. This method accepts an [Id] or
 /// creates one. Creation of [Id] requires a string in *snake case*
-Class class_(Object id) => new Class(id is Id ? id : new Id(id));
+Class class_(id) => new Class(id is Id ? id : new Id(id));
 
 /// Create a template from (1) a single string (2) [Iterable] of arguments for
 /// construction
