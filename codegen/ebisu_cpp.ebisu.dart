@@ -672,17 +672,6 @@ consructors, destructors, overloaded operators, etc.
             ..doc = 'C++ style access of method'
             ..type = 'CppAccess'
             ..classInit = 'public',
-          ],
-          class_('default_method')
-          ..doc = '''
-Unifies the [ClassMethod]s that can be specified as *default*,
-like [DefaultCtor], [CopyCtor], etc.
-
-Also provides for *delete*d methods.
-'''
-          ..isAbstract = true
-          ..extend = 'ClassMethod'
-          ..members = [
             member('top_inject')
             ..doc = '''
 Code snippet to inject at beginning of method. The intent is for the
@@ -695,6 +684,32 @@ methods. This supports injection near the top of the method.'''
 Supports injecting code near the bottom of the method. *See*
 *topInject*'''
             ..classInit = '',
+            member('includes_protect_block')
+            ..doc = r'''
+If set will include protection block for hand-coding in method.
+
+Normally an a class mixing in [CustomCodeBlock] would provide a setter
+[includesProtectBlock] that would set the [tag] field of the [CodeBlock] mixed
+in by the [CustomCodeBlock] to some unique name. For example, [Class] has an
+[includesProtectBlock] that sets the [tag] to 'class $name'.
+
+In the case of [ClassMethod] the owning [Class] is not usually established early
+on so there is no easy way to name the protect block when the [ClassMethod] is
+constructed. This member is used to track the request to include a protection
+block and tagging is deferred until needed.
+'''
+            ..classInit = false,
+          ],
+          class_('default_method')
+          ..doc = '''
+Unifies the [ClassMethod]s that can be specified as *default*,
+like [DefaultCtor], [CopyCtor], etc.
+
+Also provides for *delete*d methods.
+'''
+          ..isAbstract = true
+          ..extend = 'ClassMethod'
+          ..members = [
             member('uses_default')..classInit = false,
             member('has_delete')..classInit = false,
           ],

@@ -110,24 +110,45 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
   Template get template => _template;
   /// C++ style access of method
   CppAccess cppAccess = public;
+  /// Code snippet to inject at beginning of method. The intent is for the
+  /// methods to have standard generated implementations, but to also
+  /// support programatic injection of implmementation into the
+  /// methods. This supports injection near the top of the method.
+  String topInject = '';
+  /// Supports injecting code near the bottom of the method. *See*
+  /// *topInject*
+  String bottomInject = '';
+  /// If set will include protection block for hand-coding in method.
+  ///
+  /// Normally an a class mixing in [CustomCodeBlock] would provide a setter
+  /// [includesProtectBlock] that would set the [tag] field of the [CodeBlock] mixed
+  /// in by the [CustomCodeBlock] to some unique name. For example, [Class] has an
+  /// [includesProtectBlock] that sets the [tag] to 'class $name'.
+  ///
+  /// In the case of [ClassMethod] the owning [Class] is not usually established early
+  /// on so there is no easy way to name the protect block when the [ClassMethod] is
+  /// constructed. This member is used to track the request to include a protection
+  /// block and tagging is deferred until needed.
+  bool includesProtectBlock = false;
 
   // custom <class ClassMethod>
-
-  ClassMethod() {
-    /// By default methods won't include custom block
-    includesCustom = false;
-  }
 
   String get definition;
   String get className => _parent.className;
 
-  /// Alias - deprecated
-  get hasCustom => includesCustom;
-  set hasCustom(v) => includesCustom = v;
-
   List<Member> get members => _parent.members;
+
+  /// Set the [template] for the [ClassMethod]
   set template(Object t) =>
       _template = _makeTemplate('class_method', t); // TODO: make entity
+
+  /// Given [signature] and [blockTag] returns the function contents
+  String functionContents(String signature, String blockTag) {
+    if (includesProtectBlock || super.includesProtectBlock) {
+      customCodeBlock..tag = blockTag;
+    }
+    return brCompact(['$signature {', topInject, blockText, bottomInject, '}']);
+  }
 
   // end <class ClassMethod>
 
@@ -140,15 +161,6 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
 ///
 /// Also provides for *delete*d methods.
 abstract class DefaultMethod extends ClassMethod {
-
-  /// Code snippet to inject at beginning of method. The intent is for the
-  /// methods to have standard generated implementations, but to also
-  /// support programatic injection of implmementation into the
-  /// methods. This supports injection near the top of the method.
-  String topInject = '';
-  /// Supports injecting code near the bottom of the method. *See*
-  /// *topInject*
-  String bottomInject = '';
   bool usesDefault = false;
   bool hasDelete = false;
 
@@ -162,11 +174,6 @@ abstract class DefaultMethod extends ClassMethod {
       : hasDelete ? '$prototype = delete;' : customDefinition);
 
   _templateWrap(s) => _template != null ? '$_template\n$s' : s;
-
-  String functionContents(String signature, String blockTag) {
-    final cb = hasCustom ? indentBlock(customBlock(blockTag)) : '';
-    return brCompact(['$signature {', topInject, cb, bottomInject, '}']);
-  }
 
   // end <class DefaultMethod>
 
@@ -485,22 +492,20 @@ member being initialized or a MemberCtorParm instance'''));
 
     final explicitTag = isExplicit ? 'explicit ' : '';
 
-    return brCompact([
-      '''
+    return functionContents('''
 ${explicitTag}${_templateDecl}${className}(
 ${indentBlock(argDecls.join(',\n'))}) :
-${indentBlock(initializers.join(',\n'))} {''',
-      indentBlock(_protectBlock),
-      '}'
-    ]);
+${indentBlock(initializers.join(',\n'))}''', tag != null
+        ? '${className}($tag)'
+        : '${className}(${argDecls.join(':')})');
   }
 
-  set customLabel(String label) {
-    includesCustom = true;
-    tag = label;
-  }
-
-  get _protectBlock => includesCustom ? customBlock('${className}($tag)') : '';
+  /// Set a [label] for the *protect block*.
+  ///
+  /// This will set the [tag] of the *protect block* in a way that incorporates
+  /// the [label]. It also includes the *className* to prevent *protection
+  /// block* trampling.
+  set customLabel(String label) => tag = label;
 
   // end <class MemberCtor>
 

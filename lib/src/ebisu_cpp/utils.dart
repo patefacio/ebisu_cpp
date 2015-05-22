@@ -160,7 +160,7 @@ ${_helper(it, txt)}
 
 }
 
-/// A using statement
+/// A using namespace statement
 class UsingNamespace {
 
   /// May be constructed with a [Namespace] instance or string representing
@@ -179,9 +179,9 @@ class UsingNamespace {
 
   UsingNamespace(ns, [this.alias]) : namespace = _makeNamespace(ns);
 
-  get usingNamespaceStatement =>
-    alias != null && alias.isNotEmpty? 'namespace $alias = $namespace' :
-    namespace.using;
+  get usingNamespaceStatement => alias != null && alias.isNotEmpty
+      ? 'namespace $alias = $namespace'
+      : namespace.using;
 
   toString() => usingNamespaceStatement;
 
@@ -428,7 +428,7 @@ Namespace _makeNamespace(ns) => ns is List<String>
 final namespace = _makeNamespace;
 
 UsingNamespace usingNamespace(ns, [String alias]) =>
-  new UsingNamespace(ns, alias);
+    new UsingNamespace(ns, alias);
 
 Includes includes([List<String> includes]) => new Includes(includes);
 

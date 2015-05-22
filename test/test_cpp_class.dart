@@ -715,11 +715,43 @@ class Transformer {
 '''), true);
   });
 
-  test('class method are customizable', () {
+  test('class method are customizable by injection', () {
     final cls = class_('goo')
       ..memberCtors = [memberCtor(['a'])..customCodeBlock.snippets.add('//goo')]
       ..members = [member('a')..init = 5,];
-    print(cls.definition);
+
+    expect(darkMatter(cls.definition), darkMatter('''
+class Goo
+{
+
+public:
+  Goo(int a) : a_ { a } {
+    //goo
+  }
+private:
+  int a_ { 5 };
+};
+'''));
+  });
+
+  test('class method customizable by tagging for handcoding', () {
+    final cls = class_('goo')
+      ..memberCtors = [memberCtor(['a'])..tag = 'special ctor']
+      ..members = [member('a')..init = 5,];
+
+    expect(darkMatter(cls.definition), darkMatter('''
+class Goo
+{
+
+public:
+  Goo(int a) : a_ { a } {
+    // custom <Goo(special ctor)>
+    // end <Goo(special ctor)>
+  }
+private:
+  int a_ { 5 };
+};
+'''));
   });
 
 // end <main>
