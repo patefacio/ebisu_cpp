@@ -12,13 +12,11 @@ dependencies:
 
 # custom <ebisu_cpp dependencies>
 
-  magus: "^0.0.12"
   quiver: ">=0.21.0<0.22.0"  
   ini: ">=1.0.0<1.2.0"
   github: ">=2.1.2<2.2.0"
-  sqljocky: ">=0.11.0<0.12.0"
   id: "^1.0.10"  
-  ebisu: "^0.5.3"
+  ebisu: "^0.6.0"
   path: "^1.3.0"
 
 
@@ -45,6 +43,7 @@ dependency_overrides:
 
 #  ebisu:
 #    path: /home/dbdavidson/dev/open_source/ebisu
+#    git: git://github.com/patefacio/ebisu
 
 # end <ebisu_cpp dependency overrides>
 
