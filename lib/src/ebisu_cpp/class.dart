@@ -605,6 +605,10 @@ char const* indent(indenter.current_indentation_text());
         : ''
   ]);
 
+  String _streamBase(Base b) => 'out << "\\n  " << static_cast<${b.className}>(item);';
+  get _streamBases =>
+      parent.bases.where((b) => b.isStreamable).map((b) => _streamBase(b));
+
   String get definition => '''
 friend inline
 std::ostream& operator<<(std::ostream &out,
@@ -612,6 +616,7 @@ std::ostream& operator<<(std::ostream &out,
 ${indentBlock(chomp(brCompact([
   _indentSupport,
   _outputOpener('$className(" << &item << ") {'),
+  _streamBases,
   brCompact(members.map((m) => _streamMember(m))),
   _outputText('}\\n'),
 ])))}
@@ -971,7 +976,7 @@ default [Interfaceimplementation] is used''').toList();
   Iterable<Member> get privateMembers =>
       members.where((m) => m.cppAccess == private);
 
-  void _finalizeEntity() {
+  onOwnershipEstablished() {
     interfaceImplementations
         .where((i) => i.isVirtual)
         .forEach((i) => bases.add(base(i.name)));
@@ -992,16 +997,13 @@ default [Interfaceimplementation] is used''').toList();
 
   get _ctorMethods => [_defaultCtor, _copyCtor, _moveCtor];
 
-  get _allCtors => []
-    ..addAll(_ctorMethods.where((m) => m != null))
-    ..addAll(memberCtors);
+  get _allCtors =>
+      []..addAll(_ctorMethods.where((m) => m != null))..addAll(memberCtors);
 
   get _opMethods =>
       [_assignCopy, _assignMove, _dtor, _opEqual, _opLess, _opOut];
 
-  get _standardMethods => []
-    ..addAll(_ctorMethods)
-    ..addAll(_opMethods);
+  get _standardMethods => []..addAll(_ctorMethods)..addAll(_opMethods);
 
   get _pragmaPackPush =>
       packAlign != null ? '#pragma pack(push, $packAlign)' : '';
@@ -1120,14 +1122,6 @@ ${_access(access)}${txt}'''
 
   /// Class names are capitalized *snake case*
   String get className => namer.nameClass(id);
-
-  String get _streamInstanceOpener =>
-      'out << "${className}(" << &item << ") {";';
-  String get _streamInstanceCloser => r'outX << "\n}\n";';
-
-  String _streamBase(Base b) => 'out << static_cast<${b.className}>(item);';
-  get _streamBases =>
-      bases.where((b) => b.isStreamable).map((b) => _streamBase(b));
 
   get _finalDecl => isFinal ? ' final' : '';
 

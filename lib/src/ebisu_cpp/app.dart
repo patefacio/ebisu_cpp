@@ -434,8 +434,6 @@ if(options.help()) {
 
   // end <class App>
 
-  /// Namespace associated with application code
-  Namespace _namespace;
 }
 
 /// Base class establishing interface for generating build scripts for

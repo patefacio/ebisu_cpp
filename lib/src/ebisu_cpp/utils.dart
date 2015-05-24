@@ -48,7 +48,7 @@ class ConstExpr extends CppEntity {
   }
 
   get valueText => (_value is String)
-      ? (_value.length == 1 ? "'$_value'" : doubleQuote(_value))
+      ? ((_value as String).length == 1 ? "'$_value'" : doubleQuote(_value))
       : ((_value is num)
           ? ((isHex && _value is int)
               ? '0x${(_value as int).toRadixString(16)}'
@@ -493,6 +493,10 @@ const defaultNamer = const EbisuCppNamer();
 /// Wrap string in double quotes
 String doubleQuote(String s) => '"$s"';
 
+String smartDoubleQuote(String s) =>
+  (s.startsWith('"') && s.endsWith('"'))? s :
+  doubleQuote(s);
+
 /// Given a [datum], as in a value initializing a C++ variable, try to infer the
 /// corresponding C++ type
 String inferCppType(Object datum) {
@@ -501,7 +505,6 @@ String inferCppType(Object datum) {
     inferredType = 'double';
   } else if (datum is String) {
     inferredType = 'std::string';
-    datum = doubleQuote(datum);
   } else if (datum is bool) {
     inferredType = 'bool';
   } else if (datum is List) {

@@ -187,6 +187,8 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
 
   Lib(Id id) : super(id);
 
+  get libName => id.snake;
+
   set headers(Iterable<Header> hdrs) {
     _headers = new List<Header>.from(hdrs);
     _preserveStandardizedHeaders();
@@ -334,7 +336,6 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
 
   _initCommonHeader() {
     if (_commonHeader == null) {
-      final libName = id.snake;
       _commonHeader = header('${libName}_common')
         ..namespace = this.namespace
         ..owner = this;
@@ -354,6 +355,12 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
     return _initLoggingHeader;
   }
 
+  _initAllHeader() {
+    if (_allHeader == null) {
+      _allHeader = header('${libName}_all')..namespace = this.namespace;
+    }
+  }
+
   /// As a design choice - Initialization includes a dependency on logging. If
   /// specialized initialization is required for a [Lib] - logging will be
   /// helpful.
@@ -361,7 +368,6 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
     if (_initializationHeader == null) {
       _initLoggingHeader();
       assert(_loggingHeader != null);
-      final libName = id.snake;
       _initializationHeader = header('${libName}_initialization')
         ..namespace = this.namespace
         ..getCodeBlock(fcbBeginNamespace).snippets.add('''

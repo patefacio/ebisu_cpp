@@ -101,19 +101,6 @@ CPpEntities must be created with id of String or Id: ${id.runtimeType}=$id''';
     return _namer;
   }
 
-  /// This is called after ownership has been established and provides a
-  /// mechanism for any work required before code generation but after all
-  /// declarations are in.
-  /// An example would be the act of doing lookups on
-  /// [Interfaces] required by classes. When a class is defined it may
-  /// implement one or more [Interfaces]. Rather than require those
-  /// interfaces to be named, they may be created elsewhere and
-  /// referenced by [Id] in the class. The act of finding the relevant
-  /// [Interfaces] prior to generating the class needs to be done at a
-  /// time when all declarations are complete but before generation.
-  ///
-  void _finalizeEntity() {}
-
   /// Returns the installation, usually the root node, of this entity
   Installation get installation {
     if (owner == null) {

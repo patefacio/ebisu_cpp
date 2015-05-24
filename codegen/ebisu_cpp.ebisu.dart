@@ -6,6 +6,8 @@ import "package:logging/logging.dart";
 
 String _topDir;
 
+final _logger = new Logger('ebisu.ebisu');
+
 void main() {
 
   Logger.root.onRecord.listen((LogRecord r) =>
@@ -27,7 +29,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.1'
+    ..pubSpec.version = '0.3.2'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -35,6 +37,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_enum'),
       library('test_cpp_member'),
       library('test_cpp_class'),
+      library('test_cpp_opout'),
       library('test_cpp_method'),
       library('test_cpp_utils'),
       library('test_cpp_namer'),
@@ -1381,9 +1384,6 @@ Set of argument types supported by command line option processing.
             member('args')
             ..doc = 'Command line arguments specific to this application'
             ..type = 'List<AppArg>'..classInit = [],
-            member('namespace')
-            ..doc = 'Namespace associated with application code'
-            ..type = 'Namespace'..access = IA,
             member('headers')
             ..doc = '''
 Additional headers that are associated with the application itself, as
@@ -1841,6 +1841,11 @@ log group. An empty list will include all members in the table.
   ];
 
   ebisu.generate();
+
+  _logger.warning('''
+**** NON GENERATED FILES ****
+${indentBlock(brCompact(nonGeneratedFiles))}
+''');  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

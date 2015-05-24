@@ -299,6 +299,11 @@ class Member extends CppEntity {
       type = inferCppType(init_);
     }
     _init = init_.toString();
+
+    if(type == 'std::string') {
+      _init = smartDoubleQuote(_init);
+    }
+
   }
 
   //  String get _initValue => init is! String? init.toString() : init;

@@ -297,11 +297,11 @@ class CharNode {
 
   CharNode.from(
       this.parent, this.char, Iterable<String> literals, this.isLeaf) {
-    literals = new List.from(literals);
-    literals.sort();
+    final literalsSorted = new List.from(literals);
+    literalsSorted.sort();
 
     Map headToTail = {};
-    for (String literal in literals) {
+    for (String literal in literalsSorted) {
       if (literal.isEmpty) continue;
 
       final head = literal.substring(0, 1);
@@ -388,9 +388,6 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
       'size_t discriminator_length_ { $_cppDiscriminatorLength };',
       root.children.map((c) => visitNodes(c))
     ]));
-
-    return brCompact(
-        ['auto const& discriminator_ { $enumerator };', enumeratorsSorted]);
   }
 
   get _cppDiscriminatorLength {

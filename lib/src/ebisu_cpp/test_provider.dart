@@ -230,8 +230,6 @@ class CatchTestProvider extends TestProvider {
   generateTests(Installation installation) {
     final testables = installation.testables;
     if (testables.isNotEmpty) {
-      final installation = testables.first.installation;
-
       testables.forEach((Testable testable) {
         final testableEntity = testable as Entity;
         final test = testable.test;
