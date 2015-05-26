@@ -494,8 +494,7 @@ const defaultNamer = const EbisuCppNamer();
 String doubleQuote(String s) => '"$s"';
 
 String smartDoubleQuote(String s) =>
-  (s.startsWith('"') && s.endsWith('"'))? s :
-  doubleQuote(s);
+    (s.startsWith('"') && s.endsWith('"')) ? s : doubleQuote(s);
 
 /// Given a [datum], as in a value initializing a C++ variable, try to infer the
 /// corresponding C++ type

@@ -28,7 +28,9 @@ main([List<String> args]) {
       ..members = [
         member('a')..init = 1,
         member('b')..init = 3.14,
-        member('c')..type = 'std::string'..init = "foo",                
+        member('c')
+          ..type = 'std::string'
+          ..init = "foo",
       ];
 
     expect(darkMatter(c.definition), darkMatter(r'''
@@ -54,23 +56,22 @@ private:
 
 };
 '''));
-
   });
 
   test('opOut with bases', () {
     final b = class_('base')
       ..isStreamable = true
-      ..members = [
-        member('x')..init = 50
-      ];
-    
+      ..members = [member('x')..init = 50];
+
     final c = class_('cls')
-      ..bases = [ base('Base')..isStreamable = true ]
+      ..bases = [base('Base')..isStreamable = true]
       ..isStreamable = true
       ..members = [
         member('a')..init = 1,
         member('b')..init = 3.14,
-        member('c')..type = 'std::string'..init = "foo",                
+        member('c')
+          ..type = 'std::string'
+          ..init = "foo",
       ];
 
     expect(darkMatter(c.definition), darkMatter(r'''
@@ -98,10 +99,8 @@ private:
 
 };
 '''));
-
   });
 
-  
 // end <main>
 
 }

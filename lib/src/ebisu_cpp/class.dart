@@ -605,7 +605,8 @@ char const* indent(indenter.current_indentation_text());
         : ''
   ]);
 
-  String _streamBase(Base b) => 'out << "\\n  " << static_cast<${b.className}>(item);';
+  String _streamBase(Base b) =>
+      'out << "\\n  " << static_cast<${b.className}>(item);';
   get _streamBases =>
       parent.bases.where((b) => b.isStreamable).map((b) => _streamBase(b));
 

@@ -300,10 +300,9 @@ class Member extends CppEntity {
     }
     _init = init_.toString();
 
-    if(type == 'std::string') {
+    if (type == 'std::string') {
       _init = smartDoubleQuote(_init);
     }
-
   }
 
   //  String get _initValue => init is! String? init.toString() : init;
