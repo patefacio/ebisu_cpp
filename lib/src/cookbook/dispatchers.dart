@@ -386,6 +386,7 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
     return (brCompact([
       '${cppType(discriminatorType)} const& discriminator_ { $enumerator };',
       'size_t discriminator_length_ { $_cppDiscriminatorLength };',
+      _sizeCheck(0),
       root.children.map((c) => visitNodes(c))
     ]));
   }
