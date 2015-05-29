@@ -197,12 +197,14 @@ if(1 == discriminator_) {
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 std::string const& discriminator_ { discriminator };
 size_t discriminator_length_ { discriminator_.length() };
+if(1 > discriminator_length_) return;
 if(strncmp("125", &discriminator_[0], 3) == 0) {
   // Leaf node: potential hit on "125"
   if(3 == discriminator_length_) {
     handleValue125(buffer);
     return;
   }
+  return;
 }'''));
     });
 
@@ -210,17 +212,19 @@ if(strncmp("125", &discriminator_[0], 3) == 0) {
       var dispatcher = new CharBinaryDispatcher(['125',],
           (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..enumeratorType = dctStringLiteral
-        ..exitExpression = 'contine';
+        ..exitExpression = 'continue';
 
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 std::string const& discriminator_ { discriminator };
 size_t discriminator_length_ { discriminator_.length() };
+if(1 > discriminator_length_) continue;
 if(strncmp("125", &discriminator_[0], 3) == 0) {
   // Leaf node: potential hit on "125"
   if(3 == discriminator_length_) {
     handleValue125(buffer);
-    contine;
+    continue;
   }
+  continue;
 }
 '''));
     });
@@ -241,6 +245,7 @@ if(strncmp("125", &discriminator_[0], 3) == 0) {
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 std::string const& discriminator_ { discriminator };
 size_t discriminator_length_ { discriminator_.length() };
+if(1 > discriminator_length_) return;
 if('1' == discriminator_[0]) {
   if(2 > discriminator_length_) return;
 
@@ -253,6 +258,7 @@ if('1' == discriminator_[0]) {
         handleValue124(buffer);
         return;
       }
+      return;
     }
 
     if('5' == discriminator_[2]) {
@@ -269,6 +275,7 @@ if('1' == discriminator_[0]) {
           handleValue1258(buffer);
           return;
         }
+        return;
       }
 
       if('9' == discriminator_[3]) {
@@ -277,8 +284,11 @@ if('1' == discriminator_[0]) {
           handleValue1259(buffer);
           return;
         }
+        return;
       }
+      return;
     }
+    return;
   }
 
   if('3' == discriminator_[1]) {
@@ -287,7 +297,9 @@ if('1' == discriminator_[0]) {
       handleValue13(buffer);
       return;
     }
+    return;
   }
+  return;
 }
 if(strncmp("256", &discriminator_[0], 3) == 0) {
   // Leaf node: potential hit on "256"
@@ -303,7 +315,9 @@ if(strncmp("256", &discriminator_[0], 3) == 0) {
       handleValue2568(buffer);
       return;
     }
+    return;
   }
+  return;
 }
 if(strncmp("32", &discriminator_[0], 2) == 0) {
   // Leaf node: potential hit on "32"
@@ -311,8 +325,8 @@ if(strncmp("32", &discriminator_[0], 2) == 0) {
     handleValue32(buffer);
     return;
   }
+  return;
 }
-
 '''));
     });
   });

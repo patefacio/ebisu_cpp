@@ -427,6 +427,7 @@ ${indentBlock(dispatcher(this, node.fullName))}
       node.children.isNotEmpty ? _sizeCheck(charIndex + 1) : null,
       node.children.map((c) => visitNodes(c, charIndex + node.length))
     ])),
+    indentBlock('$exitExpression;'),
     '}',
   ]);
 
