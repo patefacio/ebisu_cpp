@@ -1437,6 +1437,27 @@ libraries, apps, and tests'''
           ..members = [
           ],
         ],
+        
+        part('benchmark')
+        ..classes = [
+          class_('benchmark')
+          ..extend = 'Impl'
+          ..members = []
+        ],
+
+        part('emacs_support')
+        ..doc = 'Support for generating emacs functions for accessing generated code'
+        ..classes = [
+          class_('installation_walker')
+          ..doc = 'Walks installation and creates single emacs file with utility functions'
+          ..implement = [ 'CodeGenerator' ]
+          ..isImmutable = true
+          ..members = [
+            member('installation')
+            ..type = 'Installation'
+          ]
+        ],
+        
         part('test')
         ..classes = [
           class_('test')

@@ -98,12 +98,14 @@ import 'package:quiver/iterables.dart';
 
 part 'src/ebisu_cpp/access.dart';
 part 'src/ebisu_cpp/app.dart';
+part 'src/ebisu_cpp/benchmark.dart';
 part 'src/ebisu_cpp/class.dart';
 part 'src/ebisu_cpp/cmake_support.dart';
 part 'src/ebisu_cpp/cpp_entity.dart';
 part 'src/ebisu_cpp/cpp_standard.dart';
 part 'src/ebisu_cpp/decorator.dart';
 part 'src/ebisu_cpp/doxy.dart';
+part 'src/ebisu_cpp/emacs_support.dart';
 part 'src/ebisu_cpp/enum.dart';
 part 'src/ebisu_cpp/exception.dart';
 part 'src/ebisu_cpp/file.dart';
