@@ -113,7 +113,7 @@ Installation($rootFilePath)
   // generateDoxyFile:        If true generates config file for doxygen
   //
   generate({generateBuildScripts: false, generateHeaderSmokeTest: false,
-    generateDoxyFile: false, generateEmacs: false}) {
+      generateDoxyFile: false, generateEmacs: false}) {
 
     /// This assignment triggers the linkup of all children
     owner = null;
@@ -166,10 +166,10 @@ Installation($rootFilePath)
           path.join(docPath, '${id.snake}.doxy'));
     }
 
-    if(generateEmacs) {
+    if (generateEmacs) {
       new InstallationWalker(this).generate();
     }
-    
+
     _logger.info(brCompact(progeny.map((e) => e.detailedPath)));
   }
 

@@ -9,9 +9,8 @@ String _topDir;
 final _logger = new Logger('ebisu.ebisu');
 
 void main() {
-
-  Logger.root.onRecord.listen((LogRecord r) =>
-      print("${r.loggerName} [${r.level}]:\t${r.message}"));
+  Logger.root.onRecord.listen(
+      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
   String here = path.absolute(Platform.script.toFilePath());
 
   Logger.root.level = Level.OFF;
@@ -50,44 +49,51 @@ files, build scripts, test files, etc.)
     ]
     ..libraries = [
       library('ebisu_cpp')
-      ..doc = cppLibraryDoc
-      ..includesLogger = true
-      ..imports = [
-        'package:id/id.dart',
-        'package:ebisu/ebisu.dart',
-        'package:quiver/iterables.dart',
-        "'package:path/path.dart' as path",
-        'io',
-        'collection',
-        "'dart:math' hide max",
-      ]
-      ..parts = [
-        part('generic')
-        ..classes = [
-          class_('traits')
-          ..members = [
-            member('usings')..type = 'Map<String, Using>'..classInit = {},
-            member('const_exprs')..type = 'List<ConstExpr>'..classInit = [],
-          ],
-          class_('traits_requirements')
-          ..doc = 'Collection of requirements for a [Traits] entry in a [TraitsFamily]'
-          ..members = [
-            member('usings')..type = 'List<Id>'..access = RO,
-            member('const_exprs')..type = 'List<Id>'..access = RO,
-          ],
-          class_('traits_family')
-          ..extend = 'CppEntity'
-          ..members = [
-            member('traits_requirements')..type = 'TraitsRequirements',
-            member('traits')..type = 'List<Traits>',
-          ],
-        ],
-
-        part('log_provider')
-        ..classes = [
-
-          class_('log_provider')
-          ..doc = '''
+        ..doc = cppLibraryDoc
+        ..includesLogger = true
+        ..imports = [
+          'package:id/id.dart',
+          'package:ebisu/ebisu.dart',
+          'package:quiver/iterables.dart',
+          "'package:path/path.dart' as path",
+          'io',
+          'collection',
+          "'dart:math' hide max",
+        ]
+        ..parts = [
+          part('generic')
+            ..classes = [
+              class_('traits')
+                ..members = [
+                  member('usings')
+                    ..type = 'Map<String, Using>'
+                    ..classInit = {},
+                  member('const_exprs')
+                    ..type = 'List<ConstExpr>'
+                    ..classInit = [],
+                ],
+              class_('traits_requirements')
+                ..doc =
+                'Collection of requirements for a [Traits] entry in a [TraitsFamily]'
+                ..members = [
+                  member('usings')
+                    ..type = 'List<Id>'
+                    ..access = RO,
+                  member('const_exprs')
+                    ..type = 'List<Id>'
+                    ..access = RO,
+                ],
+              class_('traits_family')
+                ..extend = 'CppEntity'
+                ..members = [
+                  member('traits_requirements')..type = 'TraitsRequirements',
+                  member('traits')..type = 'List<Traits>',
+                ],
+            ],
+          part('log_provider')
+            ..classes = [
+              class_('log_provider')
+                ..doc = '''
 Establishes an abstract interface to provide customizable c++ log messages
 
 Not wanting to commit to a single logging solution, this class allows
@@ -95,46 +101,43 @@ client code to make certain items [Loggable] and not tie the generated
 code to a particular logging solution. A default [LogProvider] that makes
 use of *spdlog* is provided.
 '''
-          ..isAbstract = true
-          ..members = [
-            member('include_requirements')..type = 'Includes',
-            member('namer')..type = 'Namer'..ctors = [''],
-          ],
-
-          class_('spdlog_provider')
-          ..doc = 'Provides support for logging via spdlog'
-          ..extend = 'LogProvider',
-
-          class_('cpp_logger')
-          ..doc = 'Represents a single C++ logger'
-          ..extend = 'CppEntity',
-
-          class_('loggable')
-          ..doc = '''
+                ..isAbstract = true
+                ..members = [
+                  member('include_requirements')..type = 'Includes',
+                  member('namer')
+                    ..type = 'Namer'
+                    ..ctors = [''],
+                ],
+              class_('spdlog_provider')
+                ..doc = 'Provides support for logging via spdlog'
+                ..extend = 'LogProvider',
+              class_('cpp_logger')
+                ..doc = 'Represents a single C++ logger'
+                ..extend = 'CppEntity',
+              class_('loggable')
+                ..doc = '''
 Mixin to indicate an item is loggable.
 
 Examples might be member accessors, member constructors, etc
 '''
-          ..members = [
-            member('is_logged')
-            ..doc = 'If true the [Loggable] item is logged'
-            ..classInit = false,
-          ],
-        ],
-
-        part('cpp_entity')
-        ..classes = [
-          class_('cpp_entity')
-          ..mixins = ['Entity']
-          ..isAbstract = true
-          ..doc = cppEntityDoc
-          ..members = [
-            member('id')
-            ..doc = 'Id for the [CppEntity]'
-            ..type = 'Id',
-
-            member('namer')
-            ..doc = '''
+                ..members = [
+                  member('is_logged')
+                    ..doc = 'If true the [Loggable] item is logged'
+                    ..classInit = false,
+                ],
+            ],
+          part('cpp_entity')
+            ..classes = [
+              class_('cpp_entity')
+                ..mixins = ['Entity']
+                ..isAbstract = true
+                ..doc = cppEntityDoc
+                ..members = [
+                  member('id')
+                    ..doc = 'Id for the [CppEntity]'
+                    ..type = 'Id',
+                  member('namer')
+                    ..doc = '''
 CppEntity specific [Namer].
 
 Prefer to use the [Installation] namer which is provided via [namer]
@@ -142,83 +145,83 @@ getter. It assumes the [CppEntity] is progeny of an [Installation],
 which is not always the case. Use in cases where not - e.g. creating
 content without being tied to an installation - this can be used.
 '''
-            ..access = IA
-            ..type = 'Namer',
-          ],
-
-        ],
-
-        part('using')
-        ..classes = [
-          class_('using')
-          ..doc = 'Object corresponding to a using statement'
-          ..extend = 'CppEntity'
-          ..members = [
-            member('rhs')
-            ..doc = '''
+                    ..access = IA
+                    ..type = 'Namer',
+                ],
+            ],
+          part('using')
+            ..classes = [
+              class_('using')
+                ..doc = 'Object corresponding to a using statement'
+                ..extend = 'CppEntity'
+                ..members = [
+                  member('rhs')
+                    ..doc = '''
 The right hand side of using (ie the type decl being named)'''
-            ..access = RO,
-          ],
-        ],
-
-        part('pointer')
-        ..doc = 'Deals with pointers and references'
-        ..enums = [
-          enum_('ref_type')
-          ..doc = 'Reference type'
-          ..hasLibraryScopedValues = true
-          ..values = [
-            enumValue(id('ref'))
-            ..doc = 'Indicates a reference to type: *T &*',
-            enumValue(id('cref'))
-            ..doc = 'Indicates a const reference to type: *T const&*',
-            enumValue(id('vref'))
-            ..doc = 'Indicates a volatile reference to type: *T volatile&*',
-            enumValue(id('cvref'))
-            ..doc = 'Indicates a const volatile reference to type: *T const volatile&*',
-            enumValue(id('value'))
-            ..doc = 'Indicates not a reference'
-          ],
-          enum_('ptr_type')
-          ..doc = 'Standard pointer type declaration'
-          ..hasLibraryScopedValues = true
-          ..values = [
-            enumValue(id('ptr'))
-            ..doc = 'Indicates a *naked* or *dumb* pointer - T*',
-            enumValue(id('cptr'))
-            ..doc = 'Indicates a *naked* or *dumb* pointer - T const *',
-            enumValue(id('sptr'))
-            ..doc = 'Indicates *std::shared_ptr< T >*',
-            enumValue(id('uptr'))
-            ..doc = 'Indicates *std::unique_ptr< T >*',
-            enumValue(id('scptr'))
-            ..doc = 'Indicates *std::shared_ptr< const T >*',
-            enumValue(id('ucptr'))
-            ..doc = 'Indicates *std::unique_ptr< const T >*',
-          ],
-        ],
-
-        part('access')
-        ..doc = 'Focuses on stylized *access* and standard C++ access'
-        ..enums = [
-          enum_('access')
-          ..doc = accessDoc
-          ..hasLibraryScopedValues = true
-          ..values = [
-            enumValue(id('ia'))
-            ..doc = '**Inaccessible**. Designates a member that is *private* by default and no accessors',
-            enumValue(id('ro'))
-            ..doc = '**Read-Only**. Designates a member tht is *private* by default and a read accessor',
-            enumValue(id('rw'))
-            ..doc = '**Read-Write**. Designates a member tht is *private* by default and both read and write accessors',
-            enumValue(id('wo'))
-            ..doc = '''
+                    ..access = RO,
+                ],
+            ],
+          part('pointer')
+            ..doc = 'Deals with pointers and references'
+            ..enums = [
+              enum_('ref_type')
+                ..doc = 'Reference type'
+                ..hasLibraryScopedValues = true
+                ..values = [
+                  enumValue(id('ref'))
+                    ..doc = 'Indicates a reference to type: *T &*',
+                  enumValue(id('cref'))
+                    ..doc = 'Indicates a const reference to type: *T const&*',
+                  enumValue(id('vref'))
+                    ..doc =
+                    'Indicates a volatile reference to type: *T volatile&*',
+                  enumValue(id('cvref'))
+                    ..doc =
+                    'Indicates a const volatile reference to type: *T const volatile&*',
+                  enumValue(id('value'))..doc = 'Indicates not a reference'
+                ],
+              enum_('ptr_type')
+                ..doc = 'Standard pointer type declaration'
+                ..hasLibraryScopedValues = true
+                ..values = [
+                  enumValue(id('ptr'))
+                    ..doc = 'Indicates a *naked* or *dumb* pointer - T*',
+                  enumValue(id('cptr'))
+                    ..doc = 'Indicates a *naked* or *dumb* pointer - T const *',
+                  enumValue(id('sptr'))
+                    ..doc = 'Indicates *std::shared_ptr< T >*',
+                  enumValue(id('uptr'))
+                    ..doc = 'Indicates *std::unique_ptr< T >*',
+                  enumValue(id('scptr'))
+                    ..doc = 'Indicates *std::shared_ptr< const T >*',
+                  enumValue(id('ucptr'))
+                    ..doc = 'Indicates *std::unique_ptr< const T >*',
+                ],
+            ],
+          part('access')
+            ..doc = 'Focuses on stylized *access* and standard C++ access'
+            ..enums = [
+              enum_('access')
+                ..doc = accessDoc
+                ..hasLibraryScopedValues = true
+                ..values = [
+                  enumValue(id('ia'))
+                    ..doc =
+                    '**Inaccessible**. Designates a member that is *private* by default and no accessors',
+                  enumValue(id('ro'))
+                    ..doc =
+                    '**Read-Only**. Designates a member tht is *private* by default and a read accessor',
+                  enumValue(id('rw'))
+                    ..doc =
+                    '**Read-Write**. Designates a member tht is *private* by default and both read and write accessors',
+                  enumValue(id('wo'))
+                    ..doc = '''
 **Write-Only**. Designates a member tht is *private* by default and
 write accessor only.  Useful if you want the standard write accessor
 but a custom reader.''',
-          ],
-          enum_('cpp_access')
-          ..doc = '''
+                ],
+              enum_('cpp_access')
+                ..doc = '''
 Cpp access designations:
 
   * public
@@ -231,22 +234,17 @@ This designation is used in multiple contexts such as:
   * On *Base* instances to indicate the access associated with inheritance
   * On class methods (ctor, dtor, ...) to designate access
 '''
-          ..hasLibraryScopedValues = true
-          ..values = [
-            enumValue(id('public'))
-            ..doc = 'C++ public designation',
-            enumValue(id('protected'))
-            ..doc = 'C++ protected designation',
-            enumValue(id('private'))
-            ..doc = 'C++ private designation',
-          ],
-
-        ],
-
-        part('utils')
-        ..classes = [
-          class_('const_expr')
-          ..doc = """
+                ..hasLibraryScopedValues = true
+                ..values = [
+                  enumValue(id('public'))..doc = 'C++ public designation',
+                  enumValue(id('protected'))..doc = 'C++ protected designation',
+                  enumValue(id('private'))..doc = 'C++ private designation',
+                ],
+            ],
+          part('utils')
+            ..classes = [
+              class_('const_expr')
+                ..doc = """
 Simple variable constexprs.
 
       print(new ConstExpr('secret', 42));
@@ -259,63 +257,65 @@ prints:
     constexpr char const* Voo_doo { "foo" };
     constexpr double Pi { 3.14 };
 """
-          ..extend = 'CppEntity'
-          ..members = [
-            member('type')
-            ..doc = 'The c++ type of the constexpr',
-            member('value')
-            ..doc = 'The initialization for the constexpr'
-            ..type = 'Object'
-            ..access = IA,
-            member('namespace')
-            ..doc = 'Any namespace to wrap the constexpr in'
-            ..type = 'Namespace',
-            member('is_class_scoped')
-            ..doc = 'If class scoped the expr should be static'
-            ..classInit = false,
-            member('is_hex')
-            ..doc = '''
+                ..extend = 'CppEntity'
+                ..members = [
+                  member('type')..doc = 'The c++ type of the constexpr',
+                  member('value')
+                    ..doc = 'The initialization for the constexpr'
+                    ..type = 'Object'
+                    ..access = IA,
+                  member('namespace')
+                    ..doc = 'Any namespace to wrap the constexpr in'
+                    ..type = 'Namespace',
+                  member('is_class_scoped')
+                    ..doc = 'If class scoped the expr should be static'
+                    ..classInit = false,
+                  member('is_hex')
+                    ..doc = '''
 If true and literal is numeric it is assigned as hex.
 The idea is to make C++ more readable when large constants are used.
 '''
-            ..classInit = false,
-          ],
-          class_('forward_decl')
-          ..doc = 'A forward declaration'
-          ..hasCtorSansNew = true
-          ..members = [
-            member('type')
-            ..doc = 'The c++ type being forward declared'
-            ..ctors = [''],
-            member('namespace')
-            ..doc = 'The namespace to which the class being forward declared belongs'
-            ..type = 'Namespace'..ctorsOpt = [''],
-          ],
-          class_('code_generator')
-          ..doc = 'Establishes an interface for generating code'
-          ..isAbstract = true,
-          class_('friend_class_decl')
-          ..doc = 'Friend class declaration'
-          ..isImmutable = true
-          ..hasCtorSansNew = true
-          ..members = [
-            member('decl')
-            ..doc = 'Declaration text without the *friend* and *class* keywords'
-          ],
-
-          class_('namespace')
-          ..doc = 'Represents a c++ namespace which is essentially a list of names'
-          ..members = [
-            member('names')
-            ..doc = 'The individual names in the namespace'
-            ..type = 'List<String>'..classInit = [],
-          ],
-
-          class_('using_namespace')
-          ..doc = 'A using namespace statement'
-          ..members = [
-            member('namespace')
-            ..doc = '''
+                    ..classInit = false,
+                ],
+              class_('forward_decl')
+                ..doc = 'A forward declaration'
+                ..hasCtorSansNew = true
+                ..members = [
+                  member('type')
+                    ..doc = 'The c++ type being forward declared'
+                    ..ctors = [''],
+                  member('namespace')
+                    ..doc =
+                    'The namespace to which the class being forward declared belongs'
+                    ..type = 'Namespace'
+                    ..ctorsOpt = [''],
+                ],
+              class_('code_generator')
+                ..doc = 'Establishes an interface for generating code'
+                ..isAbstract = true,
+              class_('friend_class_decl')
+                ..doc = 'Friend class declaration'
+                ..isImmutable = true
+                ..hasCtorSansNew = true
+                ..members = [
+                  member('decl')
+                    ..doc =
+                    'Declaration text without the *friend* and *class* keywords'
+                ],
+              class_('namespace')
+                ..doc =
+                'Represents a c++ namespace which is essentially a list of names'
+                ..members = [
+                  member('names')
+                    ..doc = 'The individual names in the namespace'
+                    ..type = 'List<String>'
+                    ..classInit = [],
+                ],
+              class_('using_namespace')
+                ..doc = 'A using namespace statement'
+                ..members = [
+                  member('namespace')
+                    ..doc = '''
 May be constructed with a [Namespace] instance or string representing
 the namespace as appears in code:
 
@@ -325,370 +325,404 @@ the namespace as appears in code:
       usingNamespace('foo::bar::goo', 'fbg'),
     ]
 '''
-            ..type = 'Namespace',
-            member('alias')
-            ..doc = 'Optional alias for the namespace',
-          ],
-
-          class_('includes')
-          ..doc = 'Collection of header includes'
-          ..members = [
-            member('included')
-            ..doc = 'Set of strings representing the includes'
-            ..access = RO
-            ..type = 'Set<String>'
-          ],
-
-          class_('namer')
-          ..doc = 'Provides support for consistent naming of C++ entities'
-          ..isAbstract = true,
-
-          class_('ebisu_cpp_namer')
-          ..implement = [ 'Namer' ]
-          ..doc = '''
+                    ..type = 'Namespace',
+                  member('alias')..doc = 'Optional alias for the namespace',
+                ],
+              class_('includes')
+                ..doc = 'Collection of header includes'
+                ..members = [
+                  member('included')
+                    ..doc = 'Set of strings representing the includes'
+                    ..access = RO
+                    ..type = 'Set<String>'
+                ],
+              class_('namer')
+                ..doc = 'Provides support for consistent naming of C++ entities'
+                ..isAbstract = true,
+              class_('ebisu_cpp_namer')
+                ..implement = ['Namer']
+                ..doc = '''
 Default namer establishing reasonable conventions, that are fairly
 *snake* case heavy like the STL.
 ''',
-          class_('google_namer')
-          ..implement = [ 'Namer' ]
-          ..doc = 'Namer based on google coding conventions',
-
-          class_('base')
-          ..doc = baseDoc
-          ..hasCtorSansNew = true
-          ..members = [
-            member('class_name')
-            ..doc = 'The name of the class being derived from'
-            ..ctors = [''],
-            member('access')
-            ..doc = 'Is base class public, protected, or private'
-            ..type = 'CppAccess'..classInit = 'public',
-            member('init')
-            ..doc = 'How to initiailize the base class in ctor initializer',
-            member('is_virtual')
-            ..doc = 'If true inheritance is virtual'
-            ..classInit = false,
-            member('is_streamable')
-            ..doc = 'If true and streamers are being provided, base is streamed first'
-            ..classInit = false,
-          ]
-        ],
-        part('file')
-        ..classes = [
-          class_('cpp_file')
-          ..doc = '''
+              class_('google_namer')
+                ..implement = ['Namer']
+                ..doc = 'Namer based on google coding conventions',
+              class_('base')
+                ..doc = baseDoc
+                ..hasCtorSansNew = true
+                ..members = [
+                  member('class_name')
+                    ..doc = 'The name of the class being derived from'
+                    ..ctors = [''],
+                  member('access')
+                    ..doc = 'Is base class public, protected, or private'
+                    ..type = 'CppAccess'
+                    ..classInit = 'public',
+                  member('init')
+                    ..doc =
+                    'How to initiailize the base class in ctor initializer',
+                  member('is_virtual')
+                    ..doc = 'If true inheritance is virtual'
+                    ..classInit = false,
+                  member('is_streamable')
+                    ..doc =
+                    'If true and streamers are being provided, base is streamed first'
+                    ..classInit = false,
+                ]
+            ],
+          part('file')
+            ..classes = [
+              class_('cpp_file')
+                ..doc = '''
 Establishes an interface and common elements for c++ file, such as
 *Header* and *Impl*.'''
-          ..isAbstract = true
-          ..extend = 'CppEntity'
-          ..mixins = [ 'Testable' ]
-          ..members = [
-            member('namespace')
-            ..doc = 'Namespace associated with this file'
-            ..type = 'Namespace',
-            member('custom_blocks')
-            ..doc = '''
+                ..isAbstract = true
+                ..extend = 'CppEntity'
+                ..mixins = ['Testable']
+                ..members = [
+                  member('namespace')
+                    ..doc = 'Namespace associated with this file'
+                    ..type = 'Namespace',
+                  member('custom_blocks')
+                    ..doc = '''
 List of blocks requiring custom code and therefore inserted into the
 file with *Protect Blocks*. Note it is a list of *FileCodeBlock*
 enumeration values. *CodeBlocks* can be used to inject code into
 the location designated by their value. Additionally *CodeBlocks*
 have support for a single custom *Protect Block*'''
-            ..type = 'List<FileCodeBlock>'..classInit = [],
-            member('code_blocks')
-            ..doc = '''
+                    ..type = 'List<FileCodeBlock>'
+                    ..classInit = [],
+                  member('code_blocks')
+                    ..doc = '''
 Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
-            ..type = 'Map<FileCodeBlock, CodeBlock>'..access = IA..classInit = {},
-            member('classes')
-            ..doc = 'List of classes whose definitions are included in this file'
-            ..type = 'List<Class>'..classInit = [],
-            member('includes')
-            ..doc = 'List of includes required by this c++ file'
-            ..type = 'Includes'..access = RO..classInit = 'new Includes()',
-            member('const_exprs')
-            ..doc = 'List of c++ *constexprs* that will appear near the top of the file'
-            ..type = 'List<ConstExpr>'..classInit = [],
-            member('forward_decls')
-            ..doc = 'List of forward declarations that will appear near the top of the file'
-            ..type = 'List<ForwardDecl>'..classInit = [],
-            member('usings')
-            ..doc = 'List of using statements that will appear near the top of the file'
-            ..type = 'List<Using>'..access = RO..classInit = [],
-            member('enums')
-            ..doc = 'List of enumerations that will appear near the top of the file'
-            ..type = 'List<Enum>'..classInit = [],
-            member('interfaces')
-            ..doc = '''
+                    ..type = 'Map<FileCodeBlock, CodeBlock>'
+                    ..access = IA
+                    ..classInit = {},
+                  member('classes')
+                    ..doc =
+                    'List of classes whose definitions are included in this file'
+                    ..type = 'List<Class>'
+                    ..classInit = [],
+                  member('includes')
+                    ..doc = 'List of includes required by this c++ file'
+                    ..type = 'Includes'
+                    ..access = RO
+                    ..classInit = 'new Includes()',
+                  member('const_exprs')
+                    ..doc =
+                    'List of c++ *constexprs* that will appear near the top of the file'
+                    ..type = 'List<ConstExpr>'
+                    ..classInit = [],
+                  member('forward_decls')
+                    ..doc =
+                    'List of forward declarations that will appear near the top of the file'
+                    ..type = 'List<ForwardDecl>'
+                    ..classInit = [],
+                  member('usings')
+                    ..doc =
+                    'List of using statements that will appear near the top of the file'
+                    ..type = 'List<Using>'
+                    ..access = RO
+                    ..classInit = [],
+                  member('enums')
+                    ..doc =
+                    'List of enumerations that will appear near the top of the file'
+                    ..type = 'List<Enum>'
+                    ..classInit = [],
+                  member('interfaces')
+                    ..doc = '''
 List of interfaces for this header. Interfaces result in either:
 
 * abstract base class with pure virtual methods
 * static polymorphic base class with inline forwarding methods
 '''
-            ..type = 'List<Interface>'..classInit = [],
-            member('basename')
-            ..access = RO,
-            member('file_path')..access = RO,
-
-            member('standardized_inclusions')
-            ..doc = '''
+                    ..type = 'List<Interface>'
+                    ..classInit = [],
+                  member('basename')..access = RO,
+                  member('file_path')..access = RO,
+                  member('standardized_inclusions')
+                    ..doc = '''
 A list of [StandardizedHeader] indexed bool values indicating desire
 to include/exclude given header.
 '''
-            ..type = 'Map<StandardizedHeader, bool>'
-            ..access = IA
-            ..classInit = {},
-          ],
-        ],
-        part('template')
-        ..doc = '''
+                    ..type = 'Map<StandardizedHeader, bool>'
+                    ..access = IA
+                    ..classInit = {},
+                ],
+            ],
+          part('template')
+            ..doc = '''
 Classes to facilitate generating C++ template code
 '''
-        ..enums = [
-          enum_('template_parm_type')
-          ..values = [
-            enumValue('type')
-            ..doc = 'Indicates the template parameter names a type',
-            enumValue('non_type')
-            ..doc = '''Indicates the template parameter indicates a non-type
+            ..enums = [
+              enum_('template_parm_type')
+                ..values = [
+                  enumValue('type')
+                    ..doc = 'Indicates the template parameter names a type',
+                  enumValue('non_type')
+                    ..doc =
+                    '''Indicates the template parameter indicates a non-type
 (e.g. *MAX_SIZE = 10* - a constant literal)''',
-          ],
-        ]
-        ..classes = [
-          class_('template_parm')
-          ..isAbstract = true
-          ..extend = 'CppEntity',
-          class_('type_template_parm')
-          ..extend = 'TemplateParm'
-          ..members = [
-            member('type_id'),
-          ],
-          class_('decl_template_parm')
-          ..extend = 'TemplateParm'
-          ..members = [
-            member('terms')..type = 'List<String>',
-            member('id_index')..doc = 'Index into the terms indicating the id'
-            ..type = 'int',
-          ],
-          class_('template')
-          ..extend = 'CppEntity'
-          ..doc = '''
+                ],
+            ]
+            ..classes = [
+              class_('template_parm')
+                ..isAbstract = true
+                ..extend = 'CppEntity',
+              class_('type_template_parm')
+                ..extend = 'TemplateParm'
+                ..members = [member('type_id'),],
+              class_('decl_template_parm')
+                ..extend = 'TemplateParm'
+                ..members = [
+                  member('terms')..type = 'List<String>',
+                  member('id_index')
+                    ..doc = 'Index into the terms indicating the id'
+                    ..type = 'int',
+                ],
+              class_('template')
+                ..extend = 'CppEntity'
+                ..doc = '''
 Represents a template declaration comprized of a list of [decls]
 '''
-          ..members = [
-            member('parms')
-            ..type = 'List<TemplateParm>',
-          ],
-        ],
-        part('enum')
-        ..classes = [
-          class_('enum')
-          ..doc = enumDoc
-          ..extend = 'CppEntity'
-          ..members = [
-            member('values')
-            ..doc = 'Strings for the values of the enum'
-            ..type = 'List<String>'
-            ..access = RO,
-            member('ids')
-            ..doc = 'Ids for the values of the enum'
-            ..type = 'List<Id>'
-            ..access = IA,
-            member('value_names')
-            ..doc = 'Names for values as they appear'
-            ..type = 'List<String>'
-            ..access = IA,
-            member('value_map')
-            ..doc = 'String value, numeric value pairs'
-            ..type = 'Map<String, int>'
-            ..access = RO,
-            member('is_class')
-            ..doc = 'If true the enum is a class enum as opposed to "plain" enum'
-            ..classInit = false,
-            member('enum_base')
-            ..doc = 'Base of enum - if set must be an integral type',
-            member('has_from_c_str')
-            ..doc = 'If true adds from_c_str method'..classInit = false,
-            member('has_to_c_str')
-            ..doc = 'If true adds to_c_str method'..classInit = false,
-            member('is_streamable')
-            ..doc = 'If true adds streaming support'..classInit = false,
-            member('is_mask')
-            ..doc = 'If true the values are powers of two for bit masking'
-            ..classInit = false,
-            member('is_nested')
-            ..doc = 'If true is nested in class and requires *friend* stream support'
-            ..classInit = false,
-            member('is_displayed_hex')
-            ..doc = '''
+                ..members = [member('parms')..type = 'List<TemplateParm>',],
+            ],
+          part('enum')
+            ..classes = [
+              class_('enum')
+                ..doc = enumDoc
+                ..extend = 'CppEntity'
+                ..members = [
+                  member('values')
+                    ..doc = 'Strings for the values of the enum'
+                    ..type = 'List<String>'
+                    ..access = RO,
+                  member('ids')
+                    ..doc = 'Ids for the values of the enum'
+                    ..type = 'List<Id>'
+                    ..access = IA,
+                  member('value_names')
+                    ..doc = 'Names for values as they appear'
+                    ..type = 'List<String>'
+                    ..access = IA,
+                  member('value_map')
+                    ..doc = 'String value, numeric value pairs'
+                    ..type = 'Map<String, int>'
+                    ..access = RO,
+                  member('is_class')
+                    ..doc =
+                    'If true the enum is a class enum as opposed to "plain" enum'
+                    ..classInit = false,
+                  member('enum_base')
+                    ..doc = 'Base of enum - if set must be an integral type',
+                  member('has_from_c_str')
+                    ..doc = 'If true adds from_c_str method'
+                    ..classInit = false,
+                  member('has_to_c_str')
+                    ..doc = 'If true adds to_c_str method'
+                    ..classInit = false,
+                  member('is_streamable')
+                    ..doc = 'If true adds streaming support'
+                    ..classInit = false,
+                  member('is_mask')
+                    ..doc =
+                    'If true the values are powers of two for bit masking'
+                    ..classInit = false,
+                  member('is_nested')
+                    ..doc =
+                    'If true is nested in class and requires *friend* stream support'
+                    ..classInit = false,
+                  member('is_displayed_hex')
+                    ..doc = '''
 If the map has values assigned by user, this can be used to display
 them in the enum as hex'''
-            ..classInit = false,
-          ],
-        ],
-        part('member')
-        ..classes = [
-          class_('member')
-          ..doc = memberDoc
-          ..extend = 'CppEntity'
-          ..members = [
-            member('type')..doc = 'Type of member',
-            member('init')
-            ..doc = memberInitDoc
-            ..access = RO,
-            member('ctor_init')
-            ..doc = '''
+                    ..classInit = false,
+                ],
+            ],
+          part('member')
+            ..classes = [
+              class_('member')
+                ..doc = memberDoc
+                ..extend = 'CppEntity'
+                ..members = [
+                  member('type')..doc = 'Type of member',
+                  member('init')
+                    ..doc = memberInitDoc
+                    ..access = RO,
+                  member('ctor_init')
+                    ..doc = '''
 Rare usage - member b depends on member a (e.g. b is just a string rep of a
 which is int), a is passed in for construction but b can be initialized directly
 from a. If ctorInit is set on a member, any memberCtor will include this text to
 initialize it''',
-            member('access')
-            ..doc = 'Idiomatic access of member'
-            ..type = 'Access'
-            ..access = WO,
-            member('cpp_access')
-            ..doc = 'C++ style access of member'..type = 'CppAccess'..access = WO,
-            member('ref_type')
-            ..doc = 'Ref type of member'..type = 'RefType'..classInit = 'value',
-            member('is_by_ref')
-            ..doc = 'Pass member around by reference'..type = 'bool'..access = WO,
-            member('is_static')..doc = 'Is the member static'
-            ..classInit = false,
-            member('is_mutable')..doc = 'Is the member mutable'
-            ..classInit = false,
-            member('is_const')..doc = 'Is the member const'
-            ..classInit = false
-            ..access = WO,
-            member('is_const_expr')..doc = 'Is the member a constexprt'
-            ..classInit = false,
-            member('has_no_init')
-            ..doc = 'If set will not initialize variable - use sparingly'
-            ..classInit = false,
-            member('is_serialized_as_int')
-            ..doc = 'Indicates this member is an enum and if serialized should be serialized as int'
-            ..classInit = false,
-            member('is_cereal_transient')
-            ..doc = 'Indicates this member should not be serialized via cereal'
-            ..classInit = false,
-            member('getter_return_modifier')
-            ..doc = getterReturnModifierDoc
-            ..type = 'GetterReturnModifier',
-            member('custom_block')
-            ..doc = '''
+                  member('access')
+                    ..doc = 'Idiomatic access of member'
+                    ..type = 'Access'
+                    ..access = WO,
+                  member('cpp_access')
+                    ..doc = 'C++ style access of member'
+                    ..type = 'CppAccess'
+                    ..access = WO,
+                  member('ref_type')
+                    ..doc = 'Ref type of member'
+                    ..type = 'RefType'
+                    ..classInit = 'value',
+                  member('is_by_ref')
+                    ..doc = 'Pass member around by reference'
+                    ..type = 'bool'
+                    ..access = WO,
+                  member('is_static')
+                    ..doc = 'Is the member static'
+                    ..classInit = false,
+                  member('is_mutable')
+                    ..doc = 'Is the member mutable'
+                    ..classInit = false,
+                  member('is_const')
+                    ..doc = 'Is the member const'
+                    ..classInit = false
+                    ..access = WO,
+                  member('is_const_expr')
+                    ..doc = 'Is the member a constexprt'
+                    ..classInit = false,
+                  member('has_no_init')
+                    ..doc =
+                    'If set will not initialize variable - use sparingly'
+                    ..classInit = false,
+                  member('is_serialized_as_int')
+                    ..doc =
+                    'Indicates this member is an enum and if serialized should be serialized as int'
+                    ..classInit = false,
+                  member('is_cereal_transient')
+                    ..doc =
+                    'Indicates this member should not be serialized via cereal'
+                    ..classInit = false,
+                  member('getter_return_modifier')
+                    ..doc = getterReturnModifierDoc
+                    ..type = 'GetterReturnModifier',
+                  member('custom_block')
+                    ..doc = '''
 A single customBlock that will be injected in the public section
 of the owning class. For example, if generating code that needs
 special getters/setters (e.g. atypical coding pattern) then the
 member could be set with *access = ro* and custom accessors may
 be provided.
 '''
-            ..type = 'CodeBlock'
-            ..classInit = 'new CodeBlock(null)',
-
-            member('getter_creator')
-            ..doc = '''
+                    ..type = 'CodeBlock'
+                    ..classInit = 'new CodeBlock(null)',
+                  member('getter_creator')
+                    ..doc = '''
 Will create the getter. To provide custom getter implement
 GetterCreator and assign
 '''
-            ..type = 'GetterCreator',
-
-            member('setter_creator')
-            ..doc = '''
+                    ..type = 'GetterCreator',
+                  member('setter_creator')
+                    ..doc = '''
 Will create the setter. To provide custom setter implement
 SetterCreator and assign'''
-            ..type = 'SetterCreator',
-
-            member('is_streamable')
-            ..doc = '''
+                    ..type = 'SetterCreator',
+                  member('is_streamable')
+                    ..doc = '''
 Indicates member should be streamed if class is streamable.
 One of the few flags defaulted to *true*, this flag provides
 an opportunity to *not* stream specific members'''
-            ..classInit = true,
-            member('custom_streamable')
-            ..doc = '''
+                    ..classInit = true,
+                  member('custom_streamable')
+                    ..doc = '''
 If not-null a custom streamable block. Use this to either hand code or
 generate a streamable entry in the containing [Class].
 '''
-            ..type = 'CodeBlock'
-            ..access = RO,
-          ],
-
-          class_('getter_creator')
-          ..doc = 'Responsible for creating the getter (i.e. reader) for member'
-          ..isAbstract = true
-          ..members = [
-            member('member')
-            ..doc = 'Member this creator will create getter for'
-            ..type = 'Member'
-            ..ctors = ['']
-          ],
-
-          class_('standard_getter_creator')
-          ..extend = 'GetterCreator',
-
-          class_('setter_creator')
-          ..doc = 'Responsible for creating the setter (i.e. writer) for member'
-          ..isAbstract = true
-          ..members = [
-            member('member')
-            ..doc = 'Member this creator will create setter for'
-            ..type = 'Member'
-            ..ctors = ['']
-          ],
-
-          class_('standard_setter_creator')
-          ..extend = 'SetterCreator',
-
-        ],
-        part('class')
-        ..enums = [
-          enum_('class_code_block')
-          ..doc = classCodeBlockDoc
-          ..hasLibraryScopedValues = true
-          ..values = [
-            enumValue(id('cls_open'))
-            ..doc = 'The custom block appearing just after class is opened',
-            enumValue(id('cls_public'))
-            ..doc = 'The custom block appearing in the standard *public* section',
-            enumValue(id('cls_protected'))
-            ..doc = 'The custom block appearing in the standard *protected* section',
-            enumValue(id('cls_private'))
-            ..doc = 'The custom block appearing in the standard *private* section',
-            enumValue(id('cls_close'))
-            ..doc = 'The custom block appearing just before class is closed',
-            enumValue(id('cls_pre_decl'))
-            ..doc = 'The custom block appearing just before the class definition',
-            enumValue(id('cls_post_decl'))
-            ..doc = 'The custom block appearing just after the class definition',
-          ],
-        ]
-        ..classes = [
-          class_('class_method')
-          ..doc = '''
+                    ..type = 'CodeBlock'
+                    ..access = RO,
+                ],
+              class_('getter_creator')
+                ..doc =
+                'Responsible for creating the getter (i.e. reader) for member'
+                ..isAbstract = true
+                ..members = [
+                  member('member')
+                    ..doc = 'Member this creator will create getter for'
+                    ..type = 'Member'
+                    ..ctors = ['']
+                ],
+              class_('standard_getter_creator')..extend = 'GetterCreator',
+              class_('setter_creator')
+                ..doc =
+                'Responsible for creating the setter (i.e. writer) for member'
+                ..isAbstract = true
+                ..members = [
+                  member('member')
+                    ..doc = 'Member this creator will create setter for'
+                    ..type = 'Member'
+                    ..ctors = ['']
+                ],
+              class_('standard_setter_creator')..extend = 'SetterCreator',
+            ],
+          part('class')
+            ..enums = [
+              enum_('class_code_block')
+                ..doc = classCodeBlockDoc
+                ..hasLibraryScopedValues = true
+                ..values = [
+                  enumValue(id('cls_open'))
+                    ..doc =
+                    'The custom block appearing just after class is opened',
+                  enumValue(id('cls_public'))
+                    ..doc =
+                    'The custom block appearing in the standard *public* section',
+                  enumValue(id('cls_protected'))
+                    ..doc =
+                    'The custom block appearing in the standard *protected* section',
+                  enumValue(id('cls_private'))
+                    ..doc =
+                    'The custom block appearing in the standard *private* section',
+                  enumValue(id('cls_close'))
+                    ..doc =
+                    'The custom block appearing just before class is closed',
+                  enumValue(id('cls_pre_decl'))
+                    ..doc =
+                    'The custom block appearing just before the class definition',
+                  enumValue(id('cls_post_decl'))
+                    ..doc =
+                    'The custom block appearing just after the class definition',
+                ],
+            ]
+            ..classes = [
+              class_('class_method')
+                ..doc = '''
 Establishes an interface for generated class methods like
 consructors, destructors, overloaded operators, etc.
 '''
-          ..isAbstract = true
-          ..mixins = [ 'Loggable', 'CustomCodeBlock' ]
-          ..members = [
-            member('parent')..type = 'Class'..access = RO,
-            member('is_logged')..doc = 'If true add logging'..classInit = false,
-            member('template')..type = 'Template'..access = RO,
-            member('cpp_access')
-            ..doc = 'C++ style access of method'
-            ..type = 'CppAccess'
-            ..classInit = 'public',
-            member('top_inject')
-            ..doc = '''
+                ..isAbstract = true
+                ..mixins = ['Loggable', 'CustomCodeBlock']
+                ..members = [
+                  member('parent')
+                    ..type = 'Class'
+                    ..access = RO,
+                  member('is_logged')
+                    ..doc = 'If true add logging'
+                    ..classInit = false,
+                  member('template')
+                    ..type = 'Template'
+                    ..access = RO,
+                  member('cpp_access')
+                    ..doc = 'C++ style access of method'
+                    ..type = 'CppAccess'
+                    ..classInit = 'public',
+                  member('top_inject')
+                    ..doc = '''
 Code snippet to inject at beginning of method. The intent is for the
 methods to have standard generated implementations, but to also
 support programatic injection of implmementation into the
 methods. This supports injection near the top of the method.'''
-            ..classInit = '',
-            member('bottom_inject')
-            ..doc = '''
+                    ..classInit = '',
+                  member('bottom_inject')
+                    ..doc = '''
 Supports injecting code near the bottom of the method. *See*
 *topInject*'''
-            ..classInit = '',
-            member('includes_protect_block')
-            ..doc = r'''
+                    ..classInit = '',
+                  member('includes_protect_block')
+                    ..doc = r'''
 If set will include protection block for hand-coding in method.
 
 Normally an a class mixing in [CustomCodeBlock] would provide a setter
@@ -701,47 +735,50 @@ on so there is no easy way to name the protect block when the [ClassMethod] is
 constructed. This member is used to track the request to include a protection
 block and tagging is deferred until needed.
 '''
-            ..classInit = false,
-          ],
-          class_('default_method')
-          ..doc = '''
+                    ..classInit = false,
+                ],
+              class_('default_method')
+                ..doc = '''
 Unifies the [ClassMethod]s that can be specified as *default*,
 like [DefaultCtor], [CopyCtor], etc.
 
 Also provides for *delete*d methods.
 '''
-          ..isAbstract = true
-          ..extend = 'ClassMethod'
-          ..members = [
-            member('uses_default')..classInit = false,
-            member('has_delete')..classInit = false,
-          ],
-          class_('default_ctor')
-          ..doc = 'Default ctor, autoinitialized on read'..extend = 'DefaultMethod',
-          class_('copy_ctor')
-          ..doc = 'Copy ctor, autoinitialized on read'..extend = 'DefaultMethod',
-          class_('move_ctor')
-          ..doc = 'Move ctor, autoinitialized on read'..extend = 'DefaultMethod',
-          class_('assign_copy')..extend = 'DefaultMethod',
-          class_('assign_move')..extend = 'DefaultMethod',
-          class_('dtor')
-          ..doc = 'Provides a destructor'
-          ..extend = 'DefaultMethod'
-          ..members = [
-            member('is_abstract')..classInit = false
-          ],
-          class_('member_ctor_parm')
-          ..doc = memberCtorParmDoc
-          ..hasCtorSansNew = true
-          ..members = [
-            member('name')
-            ..doc = 'Name of member initialized by argument to member ctor'
-            ..isFinal = true
-            ..ctors = [''],
-            member('member')
-            ..doc = 'cpp member to be initialized'
-            ..type = 'Member',
-            member('parm_decl')..doc = '''
+                ..isAbstract = true
+                ..extend = 'ClassMethod'
+                ..members = [
+                  member('uses_default')..classInit = false,
+                  member('has_delete')..classInit = false,
+                ],
+              class_('default_ctor')
+                ..doc = 'Default ctor, autoinitialized on read'
+                ..extend = 'DefaultMethod',
+              class_('copy_ctor')
+                ..doc = 'Copy ctor, autoinitialized on read'
+                ..extend = 'DefaultMethod',
+              class_('move_ctor')
+                ..doc = 'Move ctor, autoinitialized on read'
+                ..extend = 'DefaultMethod',
+              class_('assign_copy')..extend = 'DefaultMethod',
+              class_('assign_move')..extend = 'DefaultMethod',
+              class_('dtor')
+                ..doc = 'Provides a destructor'
+                ..extend = 'DefaultMethod'
+                ..members = [member('is_abstract')..classInit = false],
+              class_('member_ctor_parm')
+                ..doc = memberCtorParmDoc
+                ..hasCtorSansNew = true
+                ..members = [
+                  member('name')
+                    ..doc =
+                    'Name of member initialized by argument to member ctor'
+                    ..isFinal = true
+                    ..ctors = [''],
+                  member('member')
+                    ..doc = 'cpp member to be initialized'
+                    ..type = 'Member',
+                  member('parm_decl')
+                    ..doc = '''
 *Override* for arguemnt declaration. This is rarely needed. Suppose
 you want to initialize member *Y y* from an input argument *X x* that
 requires a special function *f* to do the conversion:
@@ -757,11 +794,11 @@ Which would be achieved by:
     ])
 
 ''',
-            member('init')
-            ..doc = memberCtorInitDoc
-            ..access = WO,
-            member('default_value')
-            ..doc = '''
+                  member('init')
+                    ..doc = memberCtorInitDoc
+                    ..access = WO,
+                  member('default_value')
+                    ..doc = '''
 If set provides a default value for the parm in the ctor. For example:
 
     memberCtorParm('x')..defaultValue = '42'
@@ -771,10 +808,9 @@ where the type of member *x* is *int* might yield:
     Cls(int x = 42) : x_{x}
 
 ''',
-          ],
-
-          class_('member_ctor')
-          ..doc = '''
+                ],
+              class_('member_ctor')
+                ..doc = '''
 Specificication for a member constructor. A member constructor is a constructor
 with the intent of initializing one or more members of a class.
 
@@ -793,67 +829,75 @@ custom block. In that case the class might look like:
       // end <Class>
     }
 '''
-          ..extend = 'ClassMethod'
-          ..members = [
-            member('member_parms')
-            ..doc = 'List of members that are passed as arguments for initialization'
-            ..type = 'List<MemberCtorParm>'
-            ..classInit = [],
-            member('decls')
-            ..doc = 'List of additional decls ["Type Argname", ...]'
-            ..type = 'List<String>',
-            member('has_all_members')
-            ..doc = 'If set automatically includes all members as args'
-            ..classInit = false,
-            member('is_explicit')
-            ..doc = 'If true makes the ctor explicit'..classInit = false,
-          ],
-          class_('op_equal')
-          ..doc = 'Provides *operator==()*'
-          ..extend = 'ClassMethod',
-          class_('op_less')
-          ..doc = 'Provides *operator<()*'
-          ..extend = 'ClassMethod',
-          class_('op_out')
-          ..doc = 'Provides *operator<<()*'
-          ..extend = 'ClassMethod'
-          ..members = [
-            member('uses_indent')
-            ..doc = '''
+                ..extend = 'ClassMethod'
+                ..members = [
+                  member('member_parms')
+                    ..doc =
+                    'List of members that are passed as arguments for initialization'
+                    ..type = 'List<MemberCtorParm>'
+                    ..classInit = [],
+                  member('decls')
+                    ..doc = 'List of additional decls ["Type Argname", ...]'
+                    ..type = 'List<String>',
+                  member('has_all_members')
+                    ..doc = 'If set automatically includes all members as args'
+                    ..classInit = false,
+                  member('is_explicit')
+                    ..doc = 'If true makes the ctor explicit'
+                    ..classInit = false,
+                ],
+              class_('op_equal')
+                ..doc = 'Provides *operator==()*'
+                ..extend = 'ClassMethod',
+              class_('op_less')
+                ..doc = 'Provides *operator<()*'
+                ..extend = 'ClassMethod',
+              class_('op_out')
+                ..doc = 'Provides *operator<<()*'
+                ..extend = 'ClassMethod'
+                ..members = [
+                  member('uses_indent')
+                    ..doc = '''
 If true uses tls indentation tracking to indent nested
 components when streaming'''
-            ..classInit = false
-          ],
-          class_('class')
-          ..doc = classDoc
-          ..extend = 'CppEntity'
-          ..mixins = [ 'Testable' ]
-          ..members = [
-            member('definition')
-            ..doc = '''
+                    ..classInit = false
+                ],
+              class_('class')
+                ..doc = classDoc
+                ..extend = 'CppEntity'
+                ..mixins = ['Testable']
+                ..members = [
+                  member('definition')
+                    ..doc = '''
 The contents of the class definition. *Inaccessible* and established
 as a member so custom *definition* getter can be called multiple times
 on the same class and results lazy-inited here'''
-            ..access = IA,
-            member('is_struct')
-            ..doc = 'Is this definition a *struct*'
-            ..classInit = false,
-            member('template')
-            ..doc = 'The template by which the class is parameterized'
-            ..type = 'Template'..access = RO,
-            member('forward_decls')
-            ..doc = 'List of forward declarations that will appear near the top of the file'
-            ..type = 'List<ForwardDecl>'..classInit = [],
-            member('const_exprs')
-            ..doc = '*constexpr*s associated with the class'
-            ..type = 'List<ConstExpr>'..classInit = [],
-            member('usings')
-            ..doc = '''
+                    ..access = IA,
+                  member('is_struct')
+                    ..doc = 'Is this definition a *struct*'
+                    ..classInit = false,
+                  member('template')
+                    ..doc = 'The template by which the class is parameterized'
+                    ..type = 'Template'
+                    ..access = RO,
+                  member('forward_decls')
+                    ..doc =
+                    'List of forward declarations that will appear near the top of the file'
+                    ..type = 'List<ForwardDecl>'
+                    ..classInit = [],
+                  member('const_exprs')
+                    ..doc = '*constexpr*s associated with the class'
+                    ..type = 'List<ConstExpr>'
+                    ..classInit = [],
+                  member('usings')
+                    ..doc = '''
 List of usings that will be scoped to this class near the top of
 the class definition.'''
-            ..type = 'List<Using>'..access = RO..classInit = [],
-            member('usings_post_decl')
-            ..doc = '''
+                    ..type = 'List<Using>'
+                    ..access = RO
+                    ..classInit = [],
+                  member('usings_post_decl')
+                    ..doc = '''
 List of usings to occur after the class declaration. Sometimes it is
 useful to establish some type definitions directly following the class
 so they may be reused among any client of the class. For instance if
@@ -863,59 +907,88 @@ just after the class definition will work:
     using Foo = std::vector<Foo>;
 
 '''
-            ..type = 'List<Using>'..classInit = []..access = RO,
-            member('bases')
-            ..doc = '''
+                    ..type = 'List<Using>'
+                    ..classInit = []
+                    ..access = RO,
+                  member('bases')
+                    ..doc = '''
 Base classes this class derives form.
 '''
-            ..type = 'List<Base>'..classInit = [],
-            member('default_ctor')
-            ..doc = 'The default constructor'
-            ..type = 'DefaultCtor'..access = IA,
-            member('copy_ctor')
-            ..doc = 'The copy constructor'
-            ..type = 'CopyCtor'..access = IA,
-            member('move_ctor')
-            ..doc = 'The move constructor'
-            ..type = 'MoveCtor'..access = IA,
-            member('assign_copy')
-            ..doc = 'The assignment operator'
-            ..type = 'AssignCopy'..access = IA,
-            member('assign_move')
-            ..doc = 'The assignment move operator'
-            ..type = 'AssignMove'..access = IA,
-            member('dtor')
-            ..doc = 'The destructor'
-            ..type = 'Dtor'..access = IA,
-            member('member_ctors')
-            ..doc = 'A list of member constructors'
-            ..type = 'List<MemberCtor>'..classInit = [],
-            member('op_equal')..type = 'OpEqual'..access = IA,
-            member('op_less')..type = 'OpLess'..access = IA,
-            member('op_out')..type = 'OpOut'..access = IA,
-            member('forward_ptrs')..type = 'List<PtrType>'..classInit = [],
-            member('enums_forward')..type = 'List<Enum>'..classInit = [],
-            member('enums')..type = 'List<Enum>'..classInit = [],
-            member('members')..type = 'List<Member>'..classInit = [],
-            member('friend_class_decls')..type = 'List<FriendClassDecl>'..classInit = [],
-            member('custom_blocks')..type = 'List<ClassCodeBlock>'..classInit = [],
-            member('is_singleton')..classInit = false,
-            member('code_blocks')
-            ..access = RO
-            ..type = 'Map<ClassCodeBlock, CodeBlock>'..classInit = {},
-            member('uses_streamers')
-            ..doc = '''
+                    ..type = 'List<Base>'
+                    ..classInit = [],
+                  member('default_ctor')
+                    ..doc = 'The default constructor'
+                    ..type = 'DefaultCtor'
+                    ..access = IA,
+                  member('copy_ctor')
+                    ..doc = 'The copy constructor'
+                    ..type = 'CopyCtor'
+                    ..access = IA,
+                  member('move_ctor')
+                    ..doc = 'The move constructor'
+                    ..type = 'MoveCtor'
+                    ..access = IA,
+                  member('assign_copy')
+                    ..doc = 'The assignment operator'
+                    ..type = 'AssignCopy'
+                    ..access = IA,
+                  member('assign_move')
+                    ..doc = 'The assignment move operator'
+                    ..type = 'AssignMove'
+                    ..access = IA,
+                  member('dtor')
+                    ..doc = 'The destructor'
+                    ..type = 'Dtor'
+                    ..access = IA,
+                  member('member_ctors')
+                    ..doc = 'A list of member constructors'
+                    ..type = 'List<MemberCtor>'
+                    ..classInit = [],
+                  member('op_equal')
+                    ..type = 'OpEqual'
+                    ..access = IA,
+                  member('op_less')
+                    ..type = 'OpLess'
+                    ..access = IA,
+                  member('op_out')
+                    ..type = 'OpOut'
+                    ..access = IA,
+                  member('forward_ptrs')
+                    ..type = 'List<PtrType>'
+                    ..classInit = [],
+                  member('enums_forward')
+                    ..type = 'List<Enum>'
+                    ..classInit = [],
+                  member('enums')
+                    ..type = 'List<Enum>'
+                    ..classInit = [],
+                  member('members')
+                    ..type = 'List<Member>'
+                    ..classInit = [],
+                  member('friend_class_decls')
+                    ..type = 'List<FriendClassDecl>'
+                    ..classInit = [],
+                  member('custom_blocks')
+                    ..type = 'List<ClassCodeBlock>'
+                    ..classInit = [],
+                  member('is_singleton')..classInit = false,
+                  member('code_blocks')
+                    ..access = RO
+                    ..type = 'Map<ClassCodeBlock, CodeBlock>'
+                    ..classInit = {},
+                  member('uses_streamers')
+                    ..doc = '''
 If true adds {using fcs::utils::streamers::operator<<} to streamer.
 Also, when set assumes streaming required and [isStreamable]
 is *set* as well. So not required to set both.
 '''
-            ..access = RO
-            ..classInit = false,
-            member('is_final')
-            ..doc = 'If true adds final keyword to class'
-            ..classInit = false,
-            member('is_immutable')
-            ..doc = '''
+                    ..access = RO
+                    ..classInit = false,
+                  member('is_final')
+                    ..doc = 'If true adds final keyword to class'
+                    ..classInit = false,
+                  member('is_immutable')
+                    ..doc = '''
 If true makes all members const provides single member ctor
 initializing all.
 
@@ -925,18 +998,19 @@ initialized. An alternative concept is immutable from perspective of
 user. This can be achieved with use of [addFullMemberCtor] and the
 developer ensuring the members are not modified. This provides a
 stronger guarantee of immutability.'''
-            ..classInit = false,
-            member('serializers')
-            ..doc = 'List of processors supporting flavors of serialization'
-            ..type = 'List<Serializer>'
-            ..classInit = [],
-            member('interface_implementations')
-            ..doc = ''
-            ..type = 'List<InterfaceImplementation>'
-            ..access = RO
-            ..classInit = [],
-            member('methods')
-            ..doc = '''
+                    ..classInit = false,
+                  member('serializers')
+                    ..doc =
+                    'List of processors supporting flavors of serialization'
+                    ..type = 'List<Serializer>'
+                    ..classInit = [],
+                  member('interface_implementations')
+                    ..doc = ''
+                    ..type = 'List<InterfaceImplementation>'
+                    ..access = RO
+                    ..classInit = [],
+                  member('methods')
+                    ..doc = '''
 The [Method]s that are implemented by this [Class]. A [Class]
 implements the union of methods in its
 [interfaceimplementations]. Each [Method] is identified by its
@@ -946,31 +1020,34 @@ qualified id *string* which is:
 
 Lookup is done by pattern match.
 '''
-            ..type = 'Map<String, Method>'
-            ..access = IA
-            ..classInit = {},
-            member('cpp_access')
-            ..doc = 'A [CppAccess] specifier - only pertinent if class is nested'
-            ..type = 'CppAccess'..classInit = 'public',
-            member('nested_classes')
-            ..doc = 'Classes nested within this class'
-            ..type = 'List<Class>'
-            ..classInit = [],
-            member('pack_align')
-            ..doc = r'''
+                    ..type = 'Map<String, Method>'
+                    ..access = IA
+                    ..classInit = {},
+                  member('cpp_access')
+                    ..doc =
+                    'A [CppAccess] specifier - only pertinent if class is nested'
+                    ..type = 'CppAccess'
+                    ..classInit = 'public',
+                  member('nested_classes')
+                    ..doc = 'Classes nested within this class'
+                    ..type = 'List<Class>'
+                    ..classInit = [],
+                  member('pack_align')
+                    ..doc = r'''
 If set, will include *#pragma pack(push, $packAlign)* before the class
 and *#pragma pack(pop)* after.
 '''
-            ..type = 'int',
-            member('default_member_access')
-            ..doc = 'If set and member has no [access] set, this is used'
-            ..type = 'Access',
-          ],
-        ],
-        part('method')
-        ..classes = [
-          class_('parm_decl')
-          ..doc = r"""
+                    ..type = 'int',
+                  member('default_member_access')
+                    ..doc =
+                    'If set and member has no [access] set, this is used'
+                    ..type = 'Access',
+                ],
+            ],
+          part('method')
+            ..classes = [
+              class_('parm_decl')
+                ..doc = r"""
 A parameter declaration.
 
 Method signatures consist of a List of [ParmDecl] and a return type.
@@ -1002,12 +1079,10 @@ prints:
     id    => matrix (Id)
     type  => std::vector< std::vector < double > >
 """
-          ..extend = 'CppEntity'
-          ..members = [
-            member('type'),
-          ],
-          class_('method_decl')
-          ..doc = r"""
+                ..extend = 'CppEntity'
+                ..members = [member('type'),],
+              class_('method_decl')
+                ..doc = r"""
 A method declaration, which consists of a List of [ParmDecl] (i.e. the
 parameters) and a [returnType]
 
@@ -1038,19 +1113,21 @@ Row_list_t find_row(std::string s) {
 
 }
 """
-          ..extend = 'CppEntity'
-          ..members = [
-            member('template')
-            ..doc = 'The template by which the method is parameterized'
-            ..type = 'Template',
-            member('parm_decls')..type = 'List<ParmDecl>'..classInit = [],
-            member('return_type'),
-            member('is_const')
-            ..doc = 'True if this [MethodDecl] is *const*'
-            ..classInit = false
-          ],
-          class_('method')
-          ..doc = '''
+                ..extend = 'CppEntity'
+                ..members = [
+                  member('template')
+                    ..doc = 'The template by which the method is parameterized'
+                    ..type = 'Template',
+                  member('parm_decls')
+                    ..type = 'List<ParmDecl>'
+                    ..classInit = [],
+                  member('return_type'),
+                  member('is_const')
+                    ..doc = 'True if this [MethodDecl] is *const*'
+                    ..classInit = false
+                ],
+              class_('method')
+                ..doc = '''
 A [Method] represents a single class method that will be *owned* by
 the class implementing it. A [Method] method is *owned* by a single
 class and therefore has an implementation defined in that class. The
@@ -1063,453 +1140,464 @@ created and owned by the [Class] based on the [implementedInterfaces]
 specified. To access the [CodeBlock] of a [Method] in a [Class], use
 the [getMethod] function.
 '''
-          ..members = [
-            member('method_decl')..type = 'MethodDecl',
-            member('code_block')..type = 'CodeBlock',
-            //// TODO: figure best way to support final methods
-            // member('is_final')
-            // ..doc = 'If true adds final keyword to method'
-            // ..classInit = false,
-          ],
-          class_('interface')
-          ..doc = interfaceDoc
-          ..extend = 'CppEntity'
-          ..members = [
-            member('method_decls')
-            ..type = 'List<MethodDecl>'
-            ..access = RO
-            ..classInit = [],
-          ],
-          class_('interface_implementation')
-          ..doc = 'An [interface] with a [CppAccess] to be implemented by a [Class]'
-          ..members = [
-            member('interface')..type = 'Interface',
-            member('cpp_access')..type = 'CppAccess'..classInit = 'public',
-            member('is_virtual')
-            ..doc = 'If true the interface is virtual'
-            ..classInit = false
-          ],
-        ],
-
-        part('exception')
-        ..doc = 'Support for creating standard based exception hierarchies'
-        ..classes = [
-
-          class_('exception_class')
-          ..doc = '''
+                ..members = [
+                  member('method_decl')..type = 'MethodDecl',
+                  member('code_block')..type = 'CodeBlock',
+                  //// TODO: figure best way to support final methods
+                  // member('is_final')
+                  // ..doc = 'If true adds final keyword to method'
+                  // ..classInit = false,
+                ],
+              class_('interface')
+                ..doc = interfaceDoc
+                ..extend = 'CppEntity'
+                ..members = [
+                  member('method_decls')
+                    ..type = 'List<MethodDecl>'
+                    ..access = RO
+                    ..classInit = [],
+                ],
+              class_('interface_implementation')
+                ..doc =
+                'An [interface] with a [CppAccess] to be implemented by a [Class]'
+                ..members = [
+                  member('interface')..type = 'Interface',
+                  member('cpp_access')
+                    ..type = 'CppAccess'
+                    ..classInit = 'public',
+                  member('is_virtual')
+                    ..doc = 'If true the interface is virtual'
+                    ..classInit = false
+                ],
+            ],
+          part('exception')
+            ..doc = 'Support for creating standard based exception hierarchies'
+            ..classes = [
+              class_('exception_class')
+                ..doc = '''
 Creates a new *exception* class derived from std::exception.
 '''
-          ..extend = 'Class'
-          ..members = [
-            member('base_exception')
-            ..doc = 'Base class for this exception class'
-          ]
-        ],
-
-        part('serializer')
-        ..enums = [
-          enum_('serialization_style')
-          ..doc = 'Serialization using *cereal* supports these types of serialization'
-          ..hasLibraryScopedValues = true
-          ..values = [
-            id('json_serialization'),
-            id('xml_serialization'),
-            id('binary_serialization'),
-          ]
-        ]
-        ..classes = [
-          class_('serializer')
-          ..doc = 'Establishes an interface for instance serialization'
-          ..isAbstract = true,
-          class_('dsv_serializer')
-          ..doc = 'Provides support for serialization as *delimited separated values*'
-          ..implement = [ 'Serializer' ]
-          ..members = [
-            member('delimiter')..classInit = ':',
-          ],
-          class_('cereal')
-          ..doc = 'Adds support for serialization using *cereal*'
-          ..implement = [ 'Serializer' ]
-          ..members = [
-            member('styles')..type = 'List<SerializationStyle>'..classInit = [],
-          ],
-        ],
-        part('header')
-        ..classes = [
-          class_('header')
-          ..doc = 'A single c++ header'
-          ..extend = 'CppFile'
-          ..members = [],
-        ],
-        part('impl')
-        ..classes = [
-          class_('impl')
-          ..doc = 'A single implementation file (i.e. *cpp* file)'
-          ..extend = 'CppFile'
-          ..members = [
-          ]
-        ],
-        part('test_provider')
-        ..enums = [
-          enum_('tc_code_block')
-          ..doc = '''
+                ..extend = 'Class'
+                ..members = [
+                  member('base_exception')
+                    ..doc = 'Base class for this exception class'
+                ]
+            ],
+          part('serializer')
+            ..enums = [
+              enum_('serialization_style')
+                ..doc =
+                'Serialization using *cereal* supports these types of serialization'
+                ..hasLibraryScopedValues = true
+                ..values = [
+                  id('json_serialization'),
+                  id('xml_serialization'),
+                  id('binary_serialization'),
+                ]
+            ]
+            ..classes = [
+              class_('serializer')
+                ..doc = 'Establishes an interface for instance serialization'
+                ..isAbstract = true,
+              class_('dsv_serializer')
+                ..doc =
+                'Provides support for serialization as *delimited separated values*'
+                ..implement = ['Serializer']
+                ..members = [member('delimiter')..classInit = ':',],
+              class_('cereal')
+                ..doc = 'Adds support for serialization using *cereal*'
+                ..implement = ['Serializer']
+                ..members = [
+                  member('styles')
+                    ..type = 'List<SerializationStyle>'
+                    ..classInit = [],
+                ],
+            ],
+          part('header')
+            ..classes = [
+              class_('header')
+                ..doc = 'A single c++ header'
+                ..extend = 'CppFile'
+                ..members = [],
+            ],
+          part('impl')
+            ..classes = [
+              class_('impl')
+                ..doc = 'A single implementation file (i.e. *cpp* file)'
+                ..extend = 'CppFile'
+                ..members = []
+            ],
+          part('test_provider')
+            ..enums = [
+              enum_('tc_code_block')
+                ..doc = '''
 The various supported code blocks associated with *TestClause*.
 The *TestClauses* are modeled after the *Catch* library *BDD* approach.
 '''
-          ..hasLibraryScopedValues = true
-          ..values = [
-            enumValue(id('tc_open'))
-            ..doc = 'The custom block appearing at the start of the clause',
-            enumValue(id('tc_close'))
-            ..doc = 'The custom block appearing at the end of the clause',
-          ],
-        ]
-        ..classes = [
-          class_('test_clause')
-          ..isAbstract = true
-          ..extend = 'CppEntity'
-          ..doc = '''
+                ..hasLibraryScopedValues = true
+                ..values = [
+                  enumValue(id('tc_open'))
+                    ..doc =
+                    'The custom block appearing at the start of the clause',
+                  enumValue(id('tc_close'))
+                    ..doc =
+                    'The custom block appearing at the end of the clause',
+                ],
+            ]
+            ..classes = [
+              class_('test_clause')
+                ..isAbstract = true
+                ..extend = 'CppEntity'
+                ..doc = '''
 Models common elements of the *Given*, *When*, *Then* clauses.
 Each *TestClause* has its own [clause] text associated with it
 and [CodeBlock]s to augment/initialize/teardown.
 '''
-          ..members = [
-            member('start_code_block')
-            ..type = 'CodeBlock'
-            ..classInit = 'new CodeBlock(null)',
-            member('end_code_block')
-            ..type = 'CodeBlock'
-            ..classInit = 'new CodeBlock(null)',
-          ],
-          class_('then')
-          ..extend = 'TestClause'
-          ..members = [
-            member('is_and')
-            ..classInit = false
-          ],
-          class_('when')
-          ..extend = 'TestClause'
-          ..members = [
-            member('thens')
-            ..type = 'List<Then>'
-          ],
-          class_('given')
-          ..extend = 'TestClause'
-          ..members = [
-            member('whens')
-            ..type = 'List<When>',
-            member('thens')
-            ..type = 'List<Then>',
-          ],
-          class_('test_scenario')
-          ..extend = 'CppEntity'
-          ..members = [
-            member('givens')..type = 'List<Given>',
-          ],
-
-          class_('testable')
-          ..members = [
-            member('test_scenarios')..type = 'List<TestScenario>'..classInit = [],
-
-            member('test')
-            ..doc = 'The single test for this [Testable]'
-            ..type = 'Test'
-            ..access = WO,
-
-          ],
-
-          class_('test_provider')
-          ..isAbstract = true
-          ..members = [],
-
-          class_('catch_test_provider')
-          ..extend = 'TestProvider'
-          ..members = [
-          ],
-        ],
-        part('lib')
-        ..enums = [
-
-          enum_('standardized_header')
-          ..doc = standardizedHeaderDoc
-          ..values = [
-            enumValue(id('lib_common_header')),
-            enumValue(id('lib_logging_header')),
-            enumValue(id('lib_initialization_header')),
-            enumValue(id('lib_all_header')),
-          ]
-          ..hasLibraryScopedValues = true,
-
-          enum_('file_code_block')
-          ..doc = fileCodeBlockDoc
-          ..hasLibraryScopedValues = true
-          ..values = [
-            enumValue(id('fcb_pre_includes'))
-            ..doc = '''
+                ..members = [
+                  member('start_code_block')
+                    ..type = 'CodeBlock'
+                    ..classInit = 'new CodeBlock(null)',
+                  member('end_code_block')
+                    ..type = 'CodeBlock'
+                    ..classInit = 'new CodeBlock(null)',
+                ],
+              class_('then')
+                ..extend = 'TestClause'
+                ..members = [member('is_and')..classInit = false],
+              class_('when')
+                ..extend = 'TestClause'
+                ..members = [member('thens')..type = 'List<Then>'],
+              class_('given')
+                ..extend = 'TestClause'
+                ..members = [
+                  member('whens')..type = 'List<When>',
+                  member('thens')..type = 'List<Then>',
+                ],
+              class_('test_scenario')
+                ..extend = 'CppEntity'
+                ..members = [member('givens')..type = 'List<Given>',],
+              class_('testable')
+                ..members = [
+                  member('test_scenarios')
+                    ..type = 'List<TestScenario>'
+                    ..classInit = [],
+                  member('test')
+                    ..doc = 'The single test for this [Testable]'
+                    ..type = 'Test'
+                    ..access = WO,
+                ],
+              class_('test_provider')
+                ..isAbstract = true
+                ..members = [],
+              class_('catch_test_provider')
+                ..extend = 'TestProvider'
+                ..members = [],
+            ],
+          part('lib')
+            ..enums = [
+              enum_('standardized_header')
+                ..doc = standardizedHeaderDoc
+                ..values = [
+                  enumValue(id('lib_common_header')),
+                  enumValue(id('lib_logging_header')),
+                  enumValue(id('lib_initialization_header')),
+                  enumValue(id('lib_all_header')),
+                ]
+                ..hasLibraryScopedValues = true,
+              enum_('file_code_block')
+                ..doc = fileCodeBlockDoc
+                ..hasLibraryScopedValues = true
+                ..values = [
+                  enumValue(id('fcb_pre_includes'))
+                    ..doc = '''
 Custom block any code just before includes begin
 Useful for putting definitions just prior to includes, e.g.
 
     #define CATCH_CONFIG_MAIN
     #include "catch.hpp"
 ''',
-            enumValue(id('fcb_custom_includes'))
-            ..doc = 'Custom block for any additional includes appearing just after generated includes',
-            enumValue(id('fcb_pre_namespace'))
-            ..doc = 'Custom block appearing just before the namespace declaration in the code',
-            enumValue(id('fcb_begin_namespace'))
-            ..doc = 'Custom block appearing at the begining of and inside the namespace',
-            enumValue(id('fcb_end_namespace'))
-            ..doc = 'Custom block appearing at the end of and inside the namespace',
-            enumValue(id('fcb_post_namespace'))
-            ..doc = 'Custom block appearing just after the namespace declaration in the code',
-          ]
-        ]
-        ..classes = [
-
-          class_('lib_initializer')
-          ..doc = '''
+                  enumValue(id('fcb_custom_includes'))
+                    ..doc =
+                    'Custom block for any additional includes appearing just after generated includes',
+                  enumValue(id('fcb_pre_namespace'))
+                    ..doc =
+                    'Custom block appearing just before the namespace declaration in the code',
+                  enumValue(id('fcb_begin_namespace'))
+                    ..doc =
+                    'Custom block appearing at the begining of and inside the namespace',
+                  enumValue(id('fcb_end_namespace'))
+                    ..doc =
+                    'Custom block appearing at the end of and inside the namespace',
+                  enumValue(id('fcb_post_namespace'))
+                    ..doc =
+                    'Custom block appearing just after the namespace declaration in the code',
+                ]
+            ]
+            ..classes = [
+              class_('lib_initializer')
+                ..doc = '''
 Wrap (un)initialization of a Lib in static methods of a class
 '''
-          ..members = [
-            member('init_custom_block')
-            ..doc = 'CodeBlock for customizing intialization of [Lib]'
-            ..type = 'CodeBlock',
-            member('uninit_custom_block')
-            ..doc = 'CodeBlock for customizing unintialization of [Lib]'
-            ..type = 'CodeBlock',
-          ],
-
-          class_('lib')
-          ..doc = 'A c++ library'
-          ..extend = 'CppEntity'
-          ..mixins = [ 'Testable' ]
-          ..implement = [ 'CodeGenerator' ]
-          ..members = [
-            member('version')
-            ..doc = 'Semantic Version for this [Lib]'
-            ..type = 'SemanticVersion'
-            ..access = RO..classInit = 'new SemanticVersion(0,0,0)',
-            member('namespace')
-            ..doc = 'Names for [Lib]'
-            ..type = 'Namespace'..classInit = 'new Namespace()',
-            member('headers')
-            ..doc = 'List of [Header] objects in this [Lib]'
-            ..type = 'List<Header>'..classInit = []
-            ..access = RO,
-            member('impls')
-            ..doc = 'List of [Impl] objects in this [Impl]'
-            ..type = 'List<Impl>'..classInit = [],
-            member('requires_logging')
-            ..type = 'bool'..access = WO,
-
-            member('lib_initializer')
-            ..type = 'LibInitializer'
-            ..access = WO,
-
-            member('common_header')
-            ..doc = '''
+                ..members = [
+                  member('init_custom_block')
+                    ..doc = 'CodeBlock for customizing intialization of [Lib]'
+                    ..type = 'CodeBlock',
+                  member('uninit_custom_block')
+                    ..doc = 'CodeBlock for customizing unintialization of [Lib]'
+                    ..type = 'CodeBlock',
+                ],
+              class_('lib')
+                ..doc = 'A c++ library'
+                ..extend = 'CppEntity'
+                ..mixins = ['Testable']
+                ..implement = ['CodeGenerator']
+                ..members = [
+                  member('version')
+                    ..doc = 'Semantic Version for this [Lib]'
+                    ..type = 'SemanticVersion'
+                    ..access = RO
+                    ..classInit = 'new SemanticVersion(0,0,0)',
+                  member('namespace')
+                    ..doc = 'Names for [Lib]'
+                    ..type = 'Namespace'
+                    ..classInit = 'new Namespace()',
+                  member('headers')
+                    ..doc = 'List of [Header] objects in this [Lib]'
+                    ..type = 'List<Header>'
+                    ..classInit = []
+                    ..access = RO,
+                  member('impls')
+                    ..doc = 'List of [Impl] objects in this [Impl]'
+                    ..type = 'List<Impl>'
+                    ..classInit = [],
+                  member('requires_logging')
+                    ..type = 'bool'
+                    ..access = WO,
+                  member('lib_initializer')
+                    ..type = 'LibInitializer'
+                    ..access = WO,
+                  member('common_header')
+                    ..doc = '''
 A header for placing types and definitions to be shared among all
 other headers in the [Lib]. If this were used for windows, this would
 be a good place for the API decl definitions.
 '''
-            ..type = 'Header'..access = IA,
-
-            member('logging_header')
-            ..doc = 'A header for initializing a single logger for the [Lib] if required'
-            ..type = 'Header'..access = IA,
-
-            member('initialization_header')
-            ..doc = '''
+                    ..type = 'Header'
+                    ..access = IA,
+                  member('logging_header')
+                    ..doc =
+                    'A header for initializing a single logger for the [Lib] if required'
+                    ..type = 'Header'
+                    ..access = IA,
+                  member('initialization_header')
+                    ..doc = '''
 For [Lib]s that need certain *initialization*/*uninitialization*
 functions to be run this will provide a mechanism.
 '''
-            ..type = 'Header'..access = IA,
-
-            member('all_header')
-            ..doc = '''
+                    ..type = 'Header'
+                    ..access = IA,
+                  member('all_header')
+                    ..doc = '''
 A single header including all other headers - intended as a
 convenience mechanism for clients not so worried about compile times.
 '''
-            ..type = 'Header'..access = IA,
-          ],
-        ],
-
-        part('versioning')
-        ..doc = 'Support for *Semantic Versioning*'
-        ..classes = [
-          class_('semantic_version')
-          ..doc = 'Provides data required to track a Semantic Version'
-          ..isImmutable = true
-          ..members = [
-            member('major')..classInit = 0,
-            member('minor')..classInit = 0,
-            member('patch')..classInit = 0,
-          ]
-        ],
-
-        part('app')
-        ..enums = [
-          enum_('arg_type')
-          ..doc = '''
+                    ..type = 'Header'
+                    ..access = IA,
+                ],
+            ],
+          part('versioning')
+            ..doc = 'Support for *Semantic Versioning*'
+            ..classes = [
+              class_('semantic_version')
+                ..doc = 'Provides data required to track a Semantic Version'
+                ..isImmutable = true
+                ..members = [
+                  member('major')..classInit = 0,
+                  member('minor')..classInit = 0,
+                  member('patch')..classInit = 0,
+                ]
+            ],
+          part('app')
+            ..enums = [
+              enum_('arg_type')
+                ..doc = '''
 Set of argument types supported by command line option processing.
 '''
-          ..requiresClass = true
-          ..values = [
-            enumValue(id('int'))
-            ..doc = 'The command line arg is an integer',
-            enumValue(id('double'))
-            ..doc = 'The command line arg is a double',
-            enumValue(id('string'))
-            ..doc = 'The command line arg is a string',
-            enumValue(id('flag'))
-            ..doc = 'The command line arg is a flag - i.e. a boolean',
-          ]
-        ]
-        ..classes = [
-          class_('app_arg')
-          ..doc = appArgDoc
-          ..extend = 'CppEntity'
-          ..members = [
-            member('type')..type = 'ArgType'..classInit = 'ArgType.STRING',
-            member('short_name'),
-            member('is_multiple')..classInit = false,
-            member('is_required')..classInit = false,
-            member('default_value')..type = 'Object'..access = RO,
-          ],
-          class_('app')
-          ..doc = appDoc
-          ..extend = 'Impl'
-          ..implement = [ 'CodeGenerator' ]
-          ..members = [
-            member('args')
-            ..doc = 'Command line arguments specific to this application'
-            ..type = 'List<AppArg>'..classInit = [],
-            member('headers')
-            ..doc = '''
+                ..requiresClass = true
+                ..values = [
+                  enumValue(id('int'))
+                    ..doc = 'The command line arg is an integer',
+                  enumValue(id('double'))
+                    ..doc = 'The command line arg is a double',
+                  enumValue(id('string'))
+                    ..doc = 'The command line arg is a string',
+                  enumValue(id('flag'))
+                    ..doc = 'The command line arg is a flag - i.e. a boolean',
+                ]
+            ]
+            ..classes = [
+              class_('app_arg')
+                ..doc = appArgDoc
+                ..extend = 'CppEntity'
+                ..members = [
+                  member('type')
+                    ..type = 'ArgType'
+                    ..classInit = 'ArgType.STRING',
+                  member('short_name'),
+                  member('is_multiple')..classInit = false,
+                  member('is_required')..classInit = false,
+                  member('default_value')
+                    ..type = 'Object'
+                    ..access = RO,
+                ],
+              class_('app')
+                ..doc = appDoc
+                ..extend = 'Impl'
+                ..implement = ['CodeGenerator']
+                ..members = [
+                  member('args')
+                    ..doc =
+                    'Command line arguments specific to this application'
+                    ..type = 'List<AppArg>'
+                    ..classInit = [],
+                  member('headers')
+                    ..doc = '''
 Additional headers that are associated with the application itself, as
 opposed to belonging to a reusable library.'''
-            ..type = 'List<Header>'..classInit = [],
-            member('impls')
-            ..doc = '''
+                    ..type = 'List<Header>'
+                    ..classInit = [],
+                  member('impls')
+                    ..doc = '''
 Additional implementation files associated with the
 application itself, as opposed to belonging to a reusable
 library.'''
-            ..type = 'List<Impl>'..classInit = [],
-            member('required_libs')
-            ..doc = '''
+                    ..type = 'List<Impl>'
+                    ..classInit = [],
+                  member('required_libs')
+                    ..doc = '''
 Libraries required to build this executable. *Warning* potentially
 deprecated in the future. Originally when generating boost jam files
 it was convenient to associate the required libraries directly in the
 code generation scripts. With cmake it was simpler to just incorporate
 protect blocks where the required libs could be easily added.
 '''
-            ..type = 'List<String>'..classInit = [],
-            member('main_code_block')
-            ..doc = '''
+                    ..type = 'List<String>'
+                    ..classInit = [],
+                  member('main_code_block')
+                    ..doc = '''
 An App is an Impl and therefore contains accesors to FileCodeBlock
 sections (e.g. fcbBeginNamespace, fcbPostNamespace, ...). The heart of
 an application impl file is the main, so this [CodeBlock] supports
 injecting code in main
 '''
-            ..type = 'CodeBlock'
-            ..classInit = "new CodeBlock('main')",
-          ],
-          class_('app_builder')
-          ..doc = '''
+                    ..type = 'CodeBlock'
+                    ..classInit = "new CodeBlock('main')",
+                ],
+              class_('app_builder')
+                ..doc = '''
 Base class establishing interface for generating build scripts for
 libraries, apps, and tests'''
-          ..isAbstract = true
-          ..implement = [ 'CodeGenerator' ]
-          ..members = [
-            member('app')..type = 'App'
-          ],
-        ],
-        part('cmake_support')
-        ..classes = [
-          class_('cmake_installation_builder')
-          ..extend = 'InstallationBuilder',
-        ],
-        part('script')
-        ..classes = [
-          class_('script')
-          ..extend = 'CppEntity'
-          ..implement = [ 'CodeGenerator' ]
-          ..members = [
-          ],
-        ],
-        
-        part('benchmark')
-        ..classes = [
-          class_('benchmark')
-          ..extend = 'Impl'
-          ..members = []
-        ],
-
-        part('emacs_support')
-        ..doc = 'Support for generating emacs functions for accessing generated code'
-        ..classes = [
-          class_('installation_walker')
-          ..doc = 'Walks installation and creates single emacs file with utility functions'
-          ..implement = [ 'CodeGenerator' ]
-          ..isImmutable = true
-          ..members = [
-            member('installation')
-            ..type = 'Installation'
-          ]
-        ],
-        
-        part('test')
-        ..classes = [
-          class_('test')
-          ..extend = 'Impl'
-          ..implement = [ 'CodeGenerator' ]
-          ..members = [
-            member('testable')..type = 'Testable',
-            member('headers')..type = 'List<Header>'..classInit = [],
-            member('impls')..type = 'List<Impl>'..classInit = [],
-            member('test_implementations')..type = 'Map<String, String>'..classInit = {}..access = RO,
-            member('required_libs')..type = 'List<String>'..classInit = [],
-          ],
-        ],
-
-        part('installation')
-        ..classes = [
-          class_('installation_builder')
-          ..isAbstract = true
-          ..implement = [ 'CodeGenerator' ]
-          ..doc = '''
+                ..isAbstract = true
+                ..implement = ['CodeGenerator']
+                ..members = [member('app')..type = 'App'],
+            ],
+          part('cmake_support')
+            ..classes = [
+              class_('cmake_installation_builder')
+                ..extend = 'InstallationBuilder',
+            ],
+          part('script')
+            ..classes = [
+              class_('script')
+                ..extend = 'CppEntity'
+                ..implement = ['CodeGenerator']
+                ..members = [],
+            ],
+          part('benchmark')
+            ..classes = [
+              class_('benchmark')
+                ..extend = 'Impl'
+                ..members = []
+            ],
+          part('emacs_support')
+            ..doc =
+            'Support for generating emacs functions for accessing generated code'
+            ..classes = [
+              class_('installation_walker')
+                ..doc =
+                'Walks installation and creates single emacs file with utility functions'
+                ..implement = ['CodeGenerator']
+                ..isImmutable = true
+                ..members = [member('installation')..type = 'Installation']
+            ],
+          part('test')
+            ..classes = [
+              class_('test')
+                ..extend = 'Impl'
+                ..implement = ['CodeGenerator']
+                ..members = [
+                  member('testable')..type = 'Testable',
+                  member('headers')
+                    ..type = 'List<Header>'
+                    ..classInit = [],
+                  member('impls')
+                    ..type = 'List<Impl>'
+                    ..classInit = [],
+                  member('test_implementations')
+                    ..type = 'Map<String, String>'
+                    ..classInit = {}
+                    ..access = RO,
+                  member('required_libs')
+                    ..type = 'List<String>'
+                    ..classInit = [],
+                ],
+            ],
+          part('installation')
+            ..classes = [
+              class_('installation_builder')
+                ..isAbstract = true
+                ..implement = ['CodeGenerator']
+                ..doc = '''
 Creates builder for an installation (ie ties together all build artifacts)
 '''
-          ..members = [
-            member('installation')..type = 'Installation'
-          ],
-
-          class_('installation')
-          ..doc = installationDoc
-          ..extend = 'CppEntity'
-          ..implement = [ 'CodeGenerator' ]
-          ..members = [
-            member('root_file_path')
-            ..doc = 'Fully qualified file path to installation'..access = RO,
-            member('paths')..type = 'Map<String, String>'..classInit = {}..access = RO,
-            member('cpp_loggers')..type = 'List<CppLogger>'..classInit = [],
-            member('libs')..type = 'List<Lib>'..classInit = [],
-            member('apps')..type = 'List<App>'..classInit = [],
-            member('scripts')..type = 'List<Script>'..classInit = [],
-            member('test_provider')
-            ..doc = 'Provider for generating tests'
-            ..type = 'TestProvider'
-            ..classInit = 'new CatchTestProvider()',
-            member('log_provider')
-            ..doc = 'Provider for generating tests'
-            ..type = 'LogProvider'
-            ..classInit = 'new SpdlogProvider(new EbisuCppNamer())',
-            member('installation_builder')
-            ..doc = 'The builder for this installation'
-            ..type = 'InstallationBuilder',
-
-            member('namer')
-            ..doc = '''
+                ..members = [member('installation')..type = 'Installation'],
+              class_('installation')
+                ..doc = installationDoc
+                ..extend = 'CppEntity'
+                ..implement = ['CodeGenerator']
+                ..members = [
+                  member('root_file_path')
+                    ..doc = 'Fully qualified file path to installation'
+                    ..access = RO,
+                  member('paths')
+                    ..type = 'Map<String, String>'
+                    ..classInit = {}
+                    ..access = RO,
+                  member('cpp_loggers')
+                    ..type = 'List<CppLogger>'
+                    ..classInit = [],
+                  member('libs')
+                    ..type = 'List<Lib>'
+                    ..classInit = [],
+                  member('apps')
+                    ..type = 'List<App>'
+                    ..classInit = [],
+                  member('scripts')
+                    ..type = 'List<Script>'
+                    ..classInit = [],
+                  member('test_provider')
+                    ..doc = 'Provider for generating tests'
+                    ..type = 'TestProvider'
+                    ..classInit = 'new CatchTestProvider()',
+                  member('log_provider')
+                    ..doc = 'Provider for generating tests'
+                    ..type = 'LogProvider'
+                    ..classInit = 'new SpdlogProvider(new EbisuCppNamer())',
+                  member('installation_builder')
+                    ..doc = 'The builder for this installation'
+                    ..type = 'InstallationBuilder',
+                  member('namer')
+                    ..doc = '''
 Namer to be used when generating names during generation. There is a
 default namer, [EbisuCppNamer] that is used if one is not provide. To
 create your own naming conventions, provide an implementation of
@@ -1517,93 +1605,88 @@ create your own naming conventions, provide an implementation of
 the [Installation]. The assigned namer will be propogated to all
 genration utilities.
 '''
-            ..access = IA
-            ..type = 'Namer'
-            ..classInit = 'defaultNamer',
-
-            member('doxy_config')
-            ..type = 'DoxyConfig'
-            ..classInit = 'new DoxyConfig()',
-            member('logs_api_initializations')
-            ..doc = '''
+                    ..access = IA
+                    ..type = 'Namer'
+                    ..classInit = 'defaultNamer',
+                  member('doxy_config')
+                    ..type = 'DoxyConfig'
+                    ..classInit = 'new DoxyConfig()',
+                  member('logs_api_initializations')
+                    ..doc = '''
 If true logs initialization of libraries - useful for tracking
 down order of initialization issues.
 '''
-            ..classInit = false,
-          ],
-          class_('path_locator')
-          ..members = [
-            member('env_var')
-            ..doc = 'Environment variable specifying location of path, if set this path is used'
-            ..isFinal = true,
-            member('default_path')
-            ..doc = 'Default path for the item in question'
-            ..isFinal = true,
-            member('path')..access = RO,
-          ],
-        ],
-
-        part('cpp_standard')
-        ..doc = '''
+                    ..classInit = false,
+                ],
+              class_('path_locator')
+                ..members = [
+                  member('env_var')
+                    ..doc =
+                    'Environment variable specifying location of path, if set this path is used'
+                    ..isFinal = true,
+                  member('default_path')
+                    ..doc = 'Default path for the item in question'
+                    ..isFinal = true,
+                  member('path')..access = RO,
+                ],
+            ],
+          part('cpp_standard')
+            ..doc = '''
 Provides for minimal identification of C++ standard items.
 For example - the set of standard system headers is made available.
 ''',
-
-        part('decorator')
-        ..doc = '''
+          part('decorator')
+            ..doc = '''
 Establishes capability for decorating an [Installation] prior to generation.
 '''
-        ..classes = [
-
-          class_('installation_decorator')
-          ..isAbstract = true
-          ..doc = '''
+            ..classes = [
+              class_('installation_decorator')
+                ..isAbstract = true
+                ..doc = '''
 Establishes an interface to allow decoration of classes and updates
 (primarily additions) to an [Installation].
 ''',
-
+            ],
+          part('doxy')
+            ..classes = [
+              class_('doxy_config')
+                ..members = [
+                  member('project_name')..classInit = '',
+                  member('project_brief')..classInit = '',
+                  member('output_directory')..classInit = '',
+                  member('input')..classInit = '',
+                  member('exclude')..classInit = '',
+                  member('example_path')..classInit = '',
+                  member('image_path')..classInit = '',
+                  member('html_stylesheet')..classInit = '',
+                  member('chm_file')..classInit = '',
+                  member('include_path')..classInit = '',
+                ]
+            ],
         ],
-
-        part('doxy')
-        ..classes = [
-          class_('doxy_config')
-          ..members = [
-            member('project_name')..classInit = '',
-            member('project_brief')..classInit = '',
-            member('output_directory')..classInit = '',
-            member('input')..classInit = '',
-            member('exclude')..classInit = '',
-            member('example_path')..classInit = '',
-            member('image_path')..classInit = '',
-            member('html_stylesheet')..classInit = '',
-            member('chm_file')..classInit = '',
-            member('include_path')..classInit = '',
-          ]
-        ],
-
-      ],
-
       library('cookbook')
-      ..includesLogger = true
-      ..imports = [
-        'package:id/id.dart',
-        'package:ebisu/ebisu.dart',
-        'package:ebisu_cpp/ebisu_cpp.dart',
-      ]
-      ..parts = [
-        part('dispatchers')
-        ..enums = [
-          enum_('dispatch_cpp_type')
-          ..hasLibraryScopedValues = true
-          ..values = [
-            'dct_std_string', 'dct_cptr', 'dct_string_literal',
-            'dct_integer', 'dct_byte_array',
-          ],
+        ..includesLogger = true
+        ..imports = [
+          'package:id/id.dart',
+          'package:ebisu/ebisu.dart',
+          'package:ebisu_cpp/ebisu_cpp.dart',
         ]
-        ..classes = [
-
-          class_('enumerated_dispatcher')
-          ..doc = '''
+        ..parts = [
+          part('dispatchers')
+            ..enums = [
+              enum_('dispatch_cpp_type')
+                ..hasLibraryScopedValues = true
+                ..values = [
+                  'dct_std_string',
+                  'dct_cptr',
+                  'dct_string_literal',
+                  'dct_integer',
+                  'dct_byte_array',
+                ],
+            ]
+            ..classes = [
+              class_('enumerated_dispatcher')
+                ..doc = '''
 Provides support for generating functions to dispach on a set of one or more
 elements.
 
@@ -1626,10 +1709,10 @@ discriminate on. Suppose the elements of interest are:
 Often you will need code that effectively does a switch on a *tag* associated
 with the data and passes that data to its proper handler.
 '''
-          ..isAbstract = true
-          ..members = [
-            member('enumeration')
-            ..doc = '''
+                ..isAbstract = true
+                ..members = [
+                  member('enumeration')
+                    ..doc = '''
 Set of valid values *all of same type* to index on.
 
 For example, to discriminate on a set of named tags:
@@ -1646,64 +1729,53 @@ use:
 
     ..enumeration = ['typeDeclaration', 'struct', 'member', 'function']
 '''
-            ..type = 'List<dynamic>'
-            ..classInit = []
-            ..access = RO,
-
-            member('enumerator')
-            ..doc = '''
+                    ..type = 'List<dynamic>'
+                    ..classInit = []
+                    ..access = RO,
+                  member('enumerator')
+                    ..doc = '''
 C++ expression suitable for a switch or variable assignment,
 representing the enumerated value''',
-
-            member('dispatcher')
-            ..doc = '''
+                  member('dispatcher')
+                    ..doc = '''
 Functor allowing client to dictate the dispatch on the enumerant.
 '''
-            ..type = 'Dispatcher',
-
-            member('type')
-            ..doc = '''
+                    ..type = 'Dispatcher',
+                  member('type')
+                    ..doc = '''
 Type associated with the enumerated values. That type may be *string* or some
 form of int.
 ''',
-            member('enumerator_type')
-            ..doc = 'Type of the enumerator entries'
-            ..type = 'DispatchCppType',
-
-            member('discriminator_type')
-            ..doc = 'Type of the discriminator'
-            ..type = 'DispatchCppType',
-
-            member('error_dispatcher')
-            ..doc = '''
+                  member('enumerator_type')
+                    ..doc = 'Type of the enumerator entries'
+                    ..type = 'DispatchCppType',
+                  member('discriminator_type')
+                    ..doc = 'Type of the discriminator'
+                    ..type = 'DispatchCppType',
+                  member('error_dispatcher')
+                    ..doc = '''
 Functor allowing client to dictate the dispatch of an unidentified
 enumerator.
 '''
-            ..type = 'Dispatcher',
-
-            member('exit_expression')
-            ..doc = '''
+                    ..type = 'Dispatcher',
+                  member('exit_expression')
+                    ..doc = '''
 Since this is generates a block, there are a few ways to exit the
 block after reaching a handler or finishing. The default is
 "return". Another option would be "continue".
 '''
-            ..classInit = 'return',
-          ],
-
-          class_('switch_dispatcher')
-          ..doc = 'Dispatcher implemented with *switch* statement'
-          ..extend = 'EnumeratedDispatcher',
-
-          class_('if_else_if_dispatcher')
-          ..doc = 'Dipatcher implemented with *if-else-if* statements'
-          ..extend = 'EnumeratedDispatcher'
-          ..members = [
-            member('compare_expression')
-            ..type = 'CompareExpression'
-          ],
-
-          class_('char_node')
-          ..doc = '''
+                    ..classInit = 'return',
+                ],
+              class_('switch_dispatcher')
+                ..doc = 'Dispatcher implemented with *switch* statement'
+                ..extend = 'EnumeratedDispatcher',
+              class_('if_else_if_dispatcher')
+                ..doc = 'Dipatcher implemented with *if-else-if* statements'
+                ..extend = 'EnumeratedDispatcher'
+                ..members =
+                [member('compare_expression')..type = 'CompareExpression'],
+              class_('char_node')
+                ..doc = '''
 A node in a tree-structure.
 
 The tree-structure represents a set of strings where a traversal of
@@ -1755,110 +1827,103 @@ The tree shrunk by calling flatten:
       32 in 32
       isLeaf:true
 '''
-          ..members = [
-            member('char'),
-            member('is_leaf')..type = 'bool',
-            member('parent')..type = 'CharNode',
-            member('children')
-            ..type = 'List<CharNode>'..classInit = [],
-          ],
-
-          class_('char_binary_dispatcher')
-          ..doc = '''
+                ..members = [
+                  member('char'),
+                  member('is_leaf')..type = 'bool',
+                  member('parent')..type = 'CharNode',
+                  member('children')
+                    ..type = 'List<CharNode>'
+                    ..classInit = [],
+                ],
+              class_('char_binary_dispatcher')
+                ..doc = '''
 Dipatcher implemented with *if-else-if* statements visiting character by
 character - *only* valid for strings as discriminators.
 '''
-          ..extend = 'EnumeratedDispatcher',
-        ]
-      ],
-
+                ..extend = 'EnumeratedDispatcher',
+            ]
+        ],
       library('hdf5_support')
-      ..imports = [
-        'package:ebisu_cpp/ebisu_cpp.dart',
-        'package:id/id.dart',
-      ]
-      ..doc = 'Provide C++ classes support for reading/writing to hdf5 packet table'
-      ..parts = [
-        part('packet_table')
-        ..classes = [
-          class_('class_not_found_exception')
-          ..doc = '''
+        ..imports = ['package:ebisu_cpp/ebisu_cpp.dart', 'package:id/id.dart',]
+        ..doc =
+        'Provide C++ classes support for reading/writing to hdf5 packet table'
+        ..parts = [
+          part('packet_table')
+            ..classes = [
+              class_('class_not_found_exception')
+                ..doc = '''
 Indicates a class could not be found in the [Installation] for adding
 hdf5 packet table support
 '''
-          ..implement = ['Exception']
-          ..members = [
-            member('message')
-            ..isFinal = true
-            ..access = RO
-            ..doc = 'Exception details',
-          ],
-          class_('log_group')
-          ..hasCtorSansNew = true
-          ..members = [
-            member('class_name')
-            ..doc = 'Name of class, *snake case*, to add a packet table log group'
-            ..ctors = ['']
-            ..isFinal = true,
-            member('member_names')
-            ..doc = '''
+                ..implement = ['Exception']
+                ..members = [
+                  member('message')
+                    ..isFinal = true
+                    ..access = RO
+                    ..doc = 'Exception details',
+                ],
+              class_('log_group')
+                ..hasCtorSansNew = true
+                ..members = [
+                  member('class_name')
+                    ..doc =
+                    'Name of class, *snake case*, to add a packet table log group'
+                    ..ctors = ['']
+                    ..isFinal = true,
+                  member('member_names')
+                    ..doc = '''
 Name of members of class, *snake case*, to include in the packet table
 log group. An empty list will include all members in the table.
 '''
-            ..type = 'List<String>'
-            ..ctorInit = 'const []'
-            ..ctorsOpt = ['']
-            ..isFinal = true,
-          ],
-          class_('packet_table_decorator')
-          ..isImmutable = true
-          ..hasCtorSansNew = true
-          ..implement = [
-            'InstallationDecorator',
-          ]
-          ..members = [
-            member('log_groups')..type = 'List<LogGroup>'
-          ]
-        ]
-      ],
-
+                    ..type = 'List<String>'
+                    ..ctorInit = 'const []'
+                    ..ctorsOpt = ['']
+                    ..isFinal = true,
+                ],
+              class_('packet_table_decorator')
+                ..isImmutable = true
+                ..hasCtorSansNew = true
+                ..implement = ['InstallationDecorator',]
+                ..members = [member('log_groups')..type = 'List<LogGroup>']
+            ]
+        ],
     ];
 
   ebisu.scripts = [
     script('bootstrap_ebisu_cpp')
-    ..imports = [
-      'package:id/id.dart',
-      'package:path/path.dart',
-      "'package:ebisu/ebisu.dart' as ebisu",
-      'package:ebisu/ebisu_dart_meta.dart',
-    ]
-    ..doc = 'Creates an ebisu_cpp setup'
-    ..classes = [
-      class_('project')
-      ..hasJsonToString = true
-      ..members = [
-        member('id')..type = 'Id',
-        member('root_path'),
-        member('codegen_path'),
-        member('script_name'),
-        member('ebisu_file_path'),
-        member('cpp_file_path'),
+      ..imports = [
+        'package:id/id.dart',
+        'package:path/path.dart',
+        "'package:ebisu/ebisu.dart' as ebisu",
+        'package:ebisu/ebisu_dart_meta.dart',
       ]
-    ]
-    ..args = [
-      scriptArg('project_path')
-      ..doc = 'Path to top level of desired ebisu project'
-      ..abbr = 'p',
-      scriptArg('add_app')
-      ..doc = 'Add library to project'
-      ..abbr = 'a',
-      scriptArg('add_lib')
-      ..doc = 'Add library to project'
-      ..abbr = 'l',
-      scriptArg('add_script')
-      ..doc = 'Add script to project'
-      ..abbr = 's',
-    ]
+      ..doc = 'Creates an ebisu_cpp setup'
+      ..classes = [
+        class_('project')
+          ..hasJsonToString = true
+          ..members = [
+            member('id')..type = 'Id',
+            member('root_path'),
+            member('codegen_path'),
+            member('script_name'),
+            member('ebisu_file_path'),
+            member('cpp_file_path'),
+          ]
+      ]
+      ..args = [
+        scriptArg('project_path')
+          ..doc = 'Path to top level of desired ebisu project'
+          ..abbr = 'p',
+        scriptArg('add_app')
+          ..doc = 'Add library to project'
+          ..abbr = 'a',
+        scriptArg('add_lib')
+          ..doc = 'Add library to project'
+          ..abbr = 'l',
+        scriptArg('add_script')
+          ..doc = 'Add script to project'
+          ..abbr = 's',
+      ]
   ];
 
   ebisu.generate();
@@ -1866,7 +1931,7 @@ log group. An empty list will include all members in the table.
   _logger.warning('''
 **** NON GENERATED FILES ****
 ${indentBlock(brCompact(nonGeneratedFiles))}
-''');  
+''');
 }
 
 ////////////////////////////////////////////////////////////////////////////////

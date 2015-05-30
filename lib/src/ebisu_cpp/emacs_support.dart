@@ -10,8 +10,8 @@ class InstallationWalker implements CodeGenerator {
   // custom <class InstallationWalker>
 
   generate() {
-    final outPath = path.join(installation.rootFilePath, 'doc',
-        '${installation.id.emacs}.el');
+    final outPath = path.join(
+        installation.rootFilePath, 'doc', '${installation.id.emacs}.el');
 
     mergeWithFile(brCompact([
       installation.libs.map((l) => '''
@@ -19,7 +19,7 @@ class InstallationWalker implements CodeGenerator {
 '''),
     ]), outPath);
   }
-  
+
   // end <class InstallationWalker>
 
 }
