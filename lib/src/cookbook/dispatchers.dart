@@ -126,7 +126,7 @@ abstract class EnumeratedDispatcher {
   /// Sets the values used to discriminate the dispatch
   ///
   /// Attempts to infer a type
-  set enumeration(List<dynamic> enumerates) {
+  set enumeration(Iterable<dynamic> enumerates) {
     _enumeration = new List.from(enumerates);
     if (enumeratorType == null) {
       final inferreds = new Set.from(enumeration.map((e) => _inferredType(e)));

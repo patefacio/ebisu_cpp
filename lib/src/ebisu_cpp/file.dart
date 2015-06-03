@@ -101,7 +101,7 @@ abstract class CppFile extends CppEntity with Testable {
     _usingFormatted(u) => (u.hasComment ? '\n' : '') + u.usingStatement(namer);
 
     return br([
-      _codeBlockText(fcbPreIncludes),
+      brCompact([briefComment, _codeBlockText(fcbPreIncludes)]),
       allIncludes.includes,
       _codeBlockText(fcbCustomIncludes),
       _codeBlockText(fcbPreNamespace),

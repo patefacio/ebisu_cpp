@@ -298,13 +298,13 @@ class App extends Impl implements CodeGenerator {
     if (args.isNotEmpty) _includes.add('boost/program_options.hpp');
     setAppFilePathFromRoot(cppPath);
 
-    getCodeBlock(fcbBeginNamespace).snippets.add('''
+    getCodeBlock(fcbBeginNamespace).snippets.add(brCompact(['''
 namespace {
-  char const* app_descr = R"(
-$descr
+  char const* app_descr = R"(''',
+      br([brief, descr]), '''
 
 AllowedOptions)";
-}''');
+}''']));
 
     getCodeBlock(fcbPostNamespace).snippets.add(_cppContents);
     classes.add(_programOptions);
