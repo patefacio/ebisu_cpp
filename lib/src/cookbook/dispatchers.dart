@@ -69,22 +69,19 @@ abstract class EnumeratedDispatcher {
   /// C++ expression suitable for a switch or variable assignment,
   /// representing the enumerated value
   String enumerator;
-  /// Functor allowing client to dictate the dispatch on the enumerant.
+  /// Functor allowing client to dictate the dispatch on the
+  /// enumerant. *Note* client must supply trailing semicolon if needed.
   Dispatcher dispatcher;
-  /// Type associated with the enumerated values. That type may be *string* or some
-  /// form of int.
+  /// Type associated with the enumerated values. That type may be *string*
+  /// or some form of int.
   String type;
   /// Type of the enumerator entries
   DispatchCppType enumeratorType;
   /// Type of the discriminator
   DispatchCppType discriminatorType;
   /// Functor allowing client to dictate the dispatch of an unidentified
-  /// enumerator.
-  Dispatcher errorDispatcher;
-  /// Since this is generates a block, there are a few ways to exit the
-  /// block after reaching a handler or finishing. The default is
-  /// "return". Another option would be "continue".
-  String exitExpression = 'return';
+  /// enumerator. *Note* client must supply trailing semicolon if needed.
+  ErrorDispatcher errorDispatcher;
 
   // custom <class EnumeratedDispatcher>
 
@@ -92,8 +89,8 @@ abstract class EnumeratedDispatcher {
       {this.errorDispatcher, this.enumerator: 'discriminator'}) {
     enumeration = enumeration_;
     if (errorDispatcher == null) {
-      errorDispatcher = (_, enumerator) =>
-          'assert(!"Enumerator not in {${enumeration.join(", ")}}");';
+      errorDispatcher =
+          (_) => 'assert(!"Enumerator not in {${enumeration.join(", ")}}");';
     }
   }
 
@@ -171,10 +168,12 @@ class SwitchDispatcher extends EnumeratedDispatcher {
       _enumeration.map((var e) => '''
 case $e: {
   ${dispatcher(this, e)}
-  break;
 }
 '''),
-      '}'
+      '''
+default: ${indentBlock(errorDispatcher(this))}
+      }
+'''
     ]);
   }
 
@@ -217,18 +216,20 @@ class IfElseIfDispatcher extends EnumeratedDispatcher {
   IfElseIfDispatcher(enumeration, dispatcher, {enumerator: 'discriminator'})
       : super(enumeration, dispatcher, enumerator: enumerator);
 
+  _dispatchCall(e) => indentBlock(dispatcher(this, e));
+
   String get dispatchBlock {
     return brCompact([
       '$discriminatorCppType const& discriminator_ { $enumerator };',
       'if(${_compareEnumeratorToDiscriminator(enumeration.first, 'discriminator_')}) {',
-      indentBlock(dispatcher(this, enumeration.first)),
+      _dispatchCall(enumeration.first),
       _enumeration.skip(1).map((var e) => '''
 } else if(${_compareEnumeratorToDiscriminator(e, "discriminator_")}) {
-${indentBlock(dispatcher(this, e))}
+${_dispatchCall(e)}
 '''),
       '''
 } else {
-${indentBlock(errorDispatcher(this, "discriminator_"))}
+${indentBlock(errorDispatcher(this))}
 }'''
     ]);
   }
@@ -373,7 +374,7 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
 
   String get dispatchBlock {
     if (enumeratorType != dctStringLiteral) {
-      throw 'CharBinaryDispatcher requires literal enumeration';
+      throw 'CharBinaryDispatcher requires literal enumeration: not $enumeratorType';
     }
 
     final enumeratorsSorted = new List.from(enumeration);
@@ -401,7 +402,7 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
   }
 
   _sizeCheck(index) =>
-      'if(${index + 1} > discriminator_length_) $exitExpression;';
+      'if(${index + 1} > discriminator_length_) ${errorDispatcher(this)}';
 
   _cmpNode(node, index) => node.length == 1
       ? 'if(${node.asCpp} == discriminator_[$index]) {'
@@ -417,7 +418,6 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
 // Leaf node: potential hit on "${node.fullName}"
 if(${node.fullName.length} == discriminator_length_) {
 ${indentBlock(dispatcher(this, node.fullName))}
-  $exitExpression;
 }
 '''),
       ])
@@ -427,7 +427,7 @@ ${indentBlock(dispatcher(this, node.fullName))}
       node.children.isNotEmpty ? _sizeCheck(charIndex + 1) : null,
       node.children.map((c) => visitNodes(c, charIndex + node.length))
     ])),
-    indentBlock('$exitExpression;'),
+    indentBlock(errorDispatcher(this)),
     '}',
   ]);
 
@@ -440,6 +440,10 @@ ${indentBlock(dispatcher(this, node.fullName))}
 /// Given a dispatcher and enumerator, returns suitable dispatch function
 /// invocation on the enumerator
 typedef String Dispatcher(EnumeratedDispatcher dispatcher, var enumerator);
+
+/// Returns text suitable for handling the case where the discriminator could
+/// not be found
+typedef String ErrorDispatcher(EnumeratedDispatcher dispatcher);
 
 /// Given the [enumerator] expression (ie the item being tested) and one of the
 /// testEnumerators - returns a comparison expression suitable for if statement

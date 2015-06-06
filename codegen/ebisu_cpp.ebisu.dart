@@ -1738,13 +1738,14 @@ C++ expression suitable for a switch or variable assignment,
 representing the enumerated value''',
                   member('dispatcher')
                     ..doc = '''
-Functor allowing client to dictate the dispatch on the enumerant.
+Functor allowing client to dictate the dispatch on the
+enumerant. *Note* client must supply trailing semicolon if needed.
 '''
                     ..type = 'Dispatcher',
                   member('type')
                     ..doc = '''
-Type associated with the enumerated values. That type may be *string* or some
-form of int.
+Type associated with the enumerated values. That type may be *string*
+or some form of int.
 ''',
                   member('enumerator_type')
                     ..doc = 'Type of the enumerator entries'
@@ -1755,16 +1756,9 @@ form of int.
                   member('error_dispatcher')
                     ..doc = '''
 Functor allowing client to dictate the dispatch of an unidentified
-enumerator.
+enumerator. *Note* client must supply trailing semicolon if needed.
 '''
-                    ..type = 'Dispatcher',
-                  member('exit_expression')
-                    ..doc = '''
-Since this is generates a block, there are a few ways to exit the
-block after reaching a handler or finishing. The default is
-"return". Another option would be "continue".
-'''
-                    ..classInit = 'return',
+                    ..type = 'ErrorDispatcher',
                 ],
               class_('switch_dispatcher')
                 ..doc = 'Dispatcher implemented with *switch* statement'

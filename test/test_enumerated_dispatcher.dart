@@ -32,7 +32,8 @@ main([List<String> args]) {
         3,
         4
       ], (EnumeratedDispatcher dispatcher, enumerator) =>
-          'handle_value_$enumerator(buffer);');
+          'handle_value_$enumerator(buffer);\nbreak;');
+      if (showCode) print(switchDispatcher.dispatchBlock);
       expect(darkMatter(switchDispatcher.dispatchBlock), darkMatter('''
 switch(discriminator) {
 case 1: {
@@ -51,10 +52,9 @@ case 4: {
   handle_value_4(buffer);
   break;
 }
+default: assert(!"Enumerator not in {1, 2, 3, 4}");
 }
 '''));
-
-      if (showCode) print(switchDispatcher.dispatchBlock);
     });
 
     test('SwitchDispatcher disallows string', () {
@@ -70,6 +70,7 @@ case 4: {
         'baz'
       ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);');
 
+      if (showCode) print(dispatcher.dispatchBlock);
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 std::string const& discriminator_ { discriminator };
 if(foo == discriminator_) {
@@ -84,7 +85,6 @@ if(foo == discriminator_) {
   assert(!"Enumerator not in {foo, bar, goo, baz}");
 }
 '''));
-      if (showCode) print(dispatcher.dispatchBlock);
     });
 
     test('IfElseIfDispatcher (d is cptr, e is string) uses e.== ', () {
@@ -190,41 +190,45 @@ if(1 == discriminator_) {
     });
 
     test('CharBinaryDispatcher with single entry', () {
-      var dispatcher = new CharBinaryDispatcher(['125',],
-          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      var dispatcher = new CharBinaryDispatcher([
+        '125',
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);\nreturn;')
         ..enumeratorType = dctStringLiteral;
 
+      if (showCode) print(dispatcher.dispatchBlock);
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 std::string const& discriminator_ { discriminator };
 size_t discriminator_length_ { discriminator_.length() };
-if(1 > discriminator_length_) return;
+if(1 > discriminator_length_) assert(!"Enumerator not in {125}");
 if(strncmp("125", &discriminator_[0], 3) == 0) {
   // Leaf node: potential hit on "125"
   if(3 == discriminator_length_) {
     handleValue125(buffer);
     return;
   }
-  return;
+  assert(!"Enumerator not in {125}");
 }'''));
     });
 
-    test('CharBinaryDispatcher with continue exitExpression', () {
-      var dispatcher = new CharBinaryDispatcher(['125',],
-          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
-        ..enumeratorType = dctStringLiteral
-        ..exitExpression = 'continue';
+    test('CharBinaryDispatcher with continue and logged error', () {
+      var dispatcher = new CharBinaryDispatcher(['125',], (dispatcher,
+          enumerator) => 'handleValue$enumerator(buffer);\ncontinue;')
+        ..errorDispatcher =
+        ((_) => 'std::cerr << "Bogus tag " << discriminator;')
+        ..enumeratorType = dctStringLiteral;
 
+      if (showCode) print(dispatcher.dispatchBlock);
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 std::string const& discriminator_ { discriminator };
 size_t discriminator_length_ { discriminator_.length() };
-if(1 > discriminator_length_) continue;
+if(1 > discriminator_length_) std::cerr << "Bogus tag " << discriminator;
 if(strncmp("125", &discriminator_[0], 3) == 0) {
   // Leaf node: potential hit on "125"
   if(3 == discriminator_length_) {
     handleValue125(buffer);
     continue;
   }
-  continue;
+  std::cerr << "Bogus tag " << discriminator;
 }
 '''));
     });
@@ -239,7 +243,8 @@ if(strncmp("125", &discriminator_[0], 3) == 0) {
         '1259',
         '13',
         '2568',
-      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);\nreturn;')
+        ..errorDispatcher = ((_) => 'return;')
         ..enumeratorType = dctStringLiteral;
 
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
