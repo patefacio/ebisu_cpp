@@ -856,7 +856,7 @@ custom block. In that case the class might look like:
                 ..doc = 'Provides *operator<<()*'
                 ..extend = 'ClassMethod'
                 ..members = [
-                  member('uses_indent')
+                  member('uses_nested_indent')
                     ..doc = '''
 If true uses tls indentation tracking to indent nested
 components when streaming'''

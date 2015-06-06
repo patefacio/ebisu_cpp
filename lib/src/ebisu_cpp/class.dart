@@ -558,22 +558,22 @@ class OpOut extends ClassMethod {
 
   /// If true uses tls indentation tracking to indent nested
   /// components when streaming
-  bool usesIndent = false;
+  bool usesNestedIndent = false;
 
   // custom <class OpOut>
 
   get _nl => r"\n";
 
-  _outputMember(name, value) => usesIndent
+  _outputMember(name, value) => usesNestedIndent
       ? 'out << \'$_nl\' << indent << "  $name:" << $value;'
       : 'out << "$_nl  $name:" << $value;';
 
-  _outputText(text) => usesIndent
+  _outputText(text) => usesNestedIndent
       ? 'out << \'$_nl\' << indent << "$text";'
       : 'out << "$_nl$text";';
 
   _outputOpener(text) =>
-      usesIndent ? 'out << indent << "$text";' : 'out << "$text";';
+      usesNestedIndent ? 'out << indent << "$text";' : 'out << "$text";';
 
   _streamMember(Member m) {
     if (m.hasCustomStreamable) {
@@ -597,7 +597,7 @@ using ebisu::utils::streamers::operator<<;
       : '';
   get _indentSupport => br([
     _usesStreamersNamespace,
-    usesIndent
+    usesNestedIndent
         ? '''
 ebisu::utils::Block_indenter indenter;
 char const* indent(indenter.current_indentation_text());
@@ -804,7 +804,13 @@ class Class extends CppEntity with Testable {
     nestedClasses
   ]).where((child) => child != null);
 
+  /// If set, the [OpOut] streamer will use nested indenting
+  set usesNestedIndent(value) => opOut.usesNestedIndent = value;
+
+  /// Set the using statements that appear in the *public* section
   set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();
+
+  /// Set the using statements that appear after the class definition
   set usingsPostDecl(Iterable items) =>
       _usingsPostDecl = items.map((u) => using(u)).toList();
 

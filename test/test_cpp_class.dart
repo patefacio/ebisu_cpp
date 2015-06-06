@@ -174,7 +174,7 @@ $tricky
               }))
             ..withOpOut((op) => op
               ..cppAccess = access
-              ..usesIndent = true);
+              ..usesNestedIndent = true);
 
           // if access is not private there should be two access sections, the
           // first is *access*, the second private. Otherwise it's all private
@@ -727,6 +727,31 @@ class Goo
 public:
   Goo(int a) : a_ { a } {
     //goo
+  }
+private:
+  int a_ { 5 };
+};
+'''));
+  });
+
+  test('class usesNestedIndent proper streamer', () {
+    final cls = class_('goo')
+      ..usesNestedIndent = true
+      ..members = [member('a')..init = 5,];
+    expect(darkMatter(cls.definition), darkMatter(r'''
+class Goo
+{
+
+public:
+  friend inline
+  std::ostream& operator<<(std::ostream &out,
+                           Goo const& item) {
+    ebisu::utils::Block_indenter indenter;
+    char const* indent(indenter.current_indentation_text());
+    out << indent << "Goo(" << &item << ") {";
+    out << '\n' << indent << "  a:" << item.a_;
+    out << '\n' << indent << "}\n";
+    return out;
   }
 private:
   int a_ { 5 };
