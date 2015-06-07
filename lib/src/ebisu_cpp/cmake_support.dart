@@ -64,7 +64,6 @@ include(CheckCXXCompilerFlag)
 set(CMAKE_CXX_FLAGS "\${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_CXX_FLAGS_DEBUG "\${CMAKE_CXX_FLAGS_DEBUG} -O0 -DDEBUG")
 
-
 ######################################################################
 # Find boost and include desired components
 ######################################################################
@@ -74,6 +73,9 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.54.0 COMPONENTS program_options system thread
 ${chomp(scriptCustomBlock('boost lib components'))}
 )
+
+## TO ENABLE LIB INIT LOGGING MOVE THIS TO custom
+## set(CMAKE_CXX_FLAGS "\${CMAKE_CXX_FLAGS} -DLIB_INIT_LOGGING")
 
 ${scriptCustomBlock('misc section')}
 
