@@ -1042,6 +1042,10 @@ and *#pragma pack(pop)* after.
                     ..doc =
                     'If set and member has no [access] set, this is used'
                     ..type = 'Access',
+                  member('default_cpp_access')
+                    ..doc =
+                    'If set and member has no [cppAccess] set, this is used'
+                    ..type = 'CppAccess',
                 ],
             ],
           part('method')

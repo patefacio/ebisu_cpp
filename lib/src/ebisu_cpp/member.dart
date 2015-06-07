@@ -232,6 +232,8 @@ class Member extends CppEntity {
 
   Member(id) : super(id);
 
+  Class get ownerClass => owner as Class;
+
   /// Member has no children - returns empty [Iterable]
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
@@ -249,10 +251,13 @@ class Member extends CppEntity {
   /// custom streaming support
   get hasCustomGetter => getterReturnModifier != null;
 
+  get _ownerDefaultAccess =>
+      owner == null ? null : ownerClass.defaultMemberAccess;
+
+  get _ownerCppAccess => owner == null ? null : ownerClass.defaultCppAccess;
+
   get access => _access == null
-      ? ((owner != null && (owner as Class).defaultMemberAccess != null)
-          ? (owner as Class).defaultMemberAccess
-          : ia)
+      ? (_ownerDefaultAccess != null ? _ownerDefaultAccess : ia)
       : _access;
 
   getCustomStreamable() {
@@ -333,8 +338,11 @@ class Member extends CppEntity {
     return setterCreator.setter;
   }
 
-  CppAccess get cppAccess =>
-      _cppAccess != null ? _cppAccess : (access != null) ? private : public;
+  CppAccess get cppAccess => _cppAccess != null
+      ? _cppAccess
+      : _ownerCppAccess != null
+          ? _ownerCppAccess
+          : access != null ? private : public;
 
   get _argType => isByRef ? '$type &' : type;
   get _constAccess => isByRef ? '$type const&' : type;

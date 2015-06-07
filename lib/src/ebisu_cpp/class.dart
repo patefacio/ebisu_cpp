@@ -780,6 +780,8 @@ class Class extends CppEntity with Testable {
   int packAlign;
   /// If set and member has no [access] set, this is used
   Access defaultMemberAccess;
+  /// If set and member has no [cppAccess] set, this is used
+  CppAccess defaultCppAccess;
 
   // custom <class Class>
 

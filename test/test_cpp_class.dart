@@ -734,6 +734,24 @@ private:
 '''));
   });
 
+  test('class defaultCppAccess', () {
+    {
+      final cls = class_('goo')
+        ..defaultCppAccess = private
+        ..members = [member('a')..init = 5,];
+      expect(cls.definition.contains('private:'), true);
+    }
+    {
+      final cls = class_('goo')
+        ..defaultCppAccess = public
+        ..defaultMemberAccess = ia
+        ..members = [member('a')..init = 5,];
+      /// Required to establish relationships
+      cls.owner = null;
+      expect(cls.definition.contains('public:'), true);
+    }
+  });
+
   test('class usesNestedIndent proper streamer', () {
     final cls = class_('goo')
       ..usesNestedIndent = true
