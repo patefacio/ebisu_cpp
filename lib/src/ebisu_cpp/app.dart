@@ -263,6 +263,10 @@ class App extends Impl implements CodeGenerator {
   /// an application impl file is the main, so this [CodeBlock] supports
   /// injecting code in main
   CodeBlock mainCodeBlock = new CodeBlock('main');
+  /// If true adds --log-level to the set of options for the app. This app
+  /// argument will default the app to having no logging, but allow user
+  /// control.
+  bool hasLogLevel = false;
 
   // custom <class App>
 
@@ -288,12 +292,8 @@ class App extends Impl implements CodeGenerator {
   onOwnershipEstablished() {
     if (namespace == null) throw new Exception('App $id requires a namespace');
 
-    if (!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {
-      args.insert(0, new AppArg(new Id('help'))
-        ..shortName = 'h'
-        ..defaultValue = false
-        ..descr = 'Display help information');
-    }
+    _checkAddLogLevel();
+    _checkAddHelp();
     _includes.add('iostream');
     if (args.isNotEmpty) _includes.add('boost/program_options.hpp');
     setAppFilePathFromRoot(cppPath);
@@ -317,6 +317,28 @@ AllowedOptions)";
     }
 
     if (_hasString) _includes.add('string');
+  }
+
+  void _checkAddHelp() {
+    if (!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {
+      args.insert(0, new AppArg(new Id('help'))
+        ..shortName = 'h'
+        ..defaultValue = false
+        ..descr = 'Display help information');
+    }
+  }
+
+  void _checkAddLogLevel() {
+    if (hasLogLevel) {
+      args.add(arg('log_level')
+        ..type = ArgType.STRING
+        ..doc = '''
+Specify log level [trace, debug, info, notice, warn, err, critical, alert, emerg, off]'''
+        ..defaultValue = 'off');
+      _includes.addAll(root.logProvider.includeRequirements.included);
+    } else {
+      args.removeWhere((arg) => arg.id.snake == 'log_level');
+    }
   }
 
   get _hasMultiple => args.any((a) => a.isMultiple);
@@ -401,26 +423,28 @@ if(parsed_options.count("${arg.optName}") > 0) {
 }'''
       : '';
 
-  get _cppContents => '''
-int main(int argc, char** argv) {
-${
-  combine([
-    indentBlock(namespace.using) + ';',
-    indentBlock('''
+  get _cppContents => brCompact([
+    'int main(int argc, char** argv) {',
+    combine([
+      namespace.using + ';',
+      '''
 try{
 ${_readProgramOptions}
+''',
+      hasLogLevel ? root.logProvider.setLogLevel('options.log_level()') : null,
+      '''
 ${indentBlock(mainCodeBlock.toString())}
 } catch(std::exception const& e) {
   std::cout << "Caught exception: " << e.what() << std::endl;
   Program_options::show_help(std::cout);
   return -1;
 }
-'''),
-  ])
+
+return 0;
 }
-  return 0;
-}
-''';
+'''
+    ])
+  ]);
 
   get _showHelp => _hasHelp
       ? '''

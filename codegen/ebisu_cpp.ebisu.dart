@@ -1492,6 +1492,13 @@ injecting code in main
 '''
                     ..type = 'CodeBlock'
                     ..classInit = "new CodeBlock('main')",
+                  member('has_log_level')
+                  ..doc = '''
+If true adds --log-level to the set of options for the app. This app
+argument will default the app to having no logging, but allow user
+control.
+'''
+                  ..classInit = false,
                 ],
               class_('app_builder')
                 ..doc = '''

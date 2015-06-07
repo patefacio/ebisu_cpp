@@ -373,12 +373,16 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
         ..getCodeBlock(fcbBeginNamespace).snippets.add('''
 /// Initialization function for $libName
 inline void ${libName}_init() {
+#if defined(DEBUG)
   $loggerVariableName->info("init of ${libName} ($version)");
+#endif
 }
 
 /// Uninitialization function for $libName
 inline void ${libName}_uninit() {
+#if defined(DEBUG)
   $loggerVariableName->info("uninit of ${libName} ($version)");
+#endif
 }
 
 /// Singleton for $libName initializer
