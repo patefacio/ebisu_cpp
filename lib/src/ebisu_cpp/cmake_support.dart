@@ -108,7 +108,7 @@ ${chomp(br(apps.map((app) => appCmake(app))))}
 ${chomp(br(testables.map((testable) => testCmake(testable))))}
 ''', cmakeRoot);
 
-    final cmakeGenerator = path.join(path.dirname(cmakeRoot), 'cmake.gen.sh');
+    final cmakeGenerator = path.join(path.dirname(cmakeRoot), '.cmake.gen.sh');
     scriptMergeWithFile('''
 ${scriptCustomBlock('additional exports')}
 cmake -DCMAKE_BUILD_TYPE=Release -B../cmake_build/release -H.

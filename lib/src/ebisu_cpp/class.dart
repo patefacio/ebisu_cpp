@@ -409,10 +409,15 @@ class MemberCtorParm {
   ///     }
   ///
   get member_init => member.ctorInit != null
-      ? '${member.vname} { ${member.ctorInit} }'
+      ? '${member.vname} ${_memberInitExpression(member.ctorInit)}'
       : _init != null
-          ? '${member.vname} { $_init }'
-          : '${member.vname} { ${member.name} }';
+          ? '${member.vname} ${_memberInitExpression(_init)}'
+          : '${member.vname} ${_memberInitExpression(member.name)}';
+
+
+  /// gcc is not fond of init lists for references
+  _memberInitExpression(txt) =>
+    member.isRefType != null? '($txt)' : '{ $txt }';
 
   // end <class MemberCtorParm>
 
