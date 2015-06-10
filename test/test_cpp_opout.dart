@@ -58,6 +58,44 @@ private:
 '''));
   });
 
+
+  test('basic opOut with indentation', () {
+    final c = class_('cls')
+      ..usesNestedIndent = true
+      ..members = [
+        member('a')..init = 1,
+        member('b')..init = 3.14,
+        member('c')
+          ..type = 'std::string'
+          ..init = "foo",
+      ];
+    expect(darkMatter(c.definition), darkMatter(r'''
+class Cls
+{
+
+public:
+  friend inline
+  std::ostream& operator<<(std::ostream &out,
+                           Cls const& item) {
+    ebisu::utils::Block_indenter indenter;
+    char const* indent(indenter.current_indentation_text());
+    out << indent << "Cls(" << &item << ") {";
+    out << '\n' << indent << "  a:" << item.a_;
+    out << '\n' << indent << "  b:" << item.b_;
+    out << '\n' << indent << "  c:" << item.c_;
+    out << '\n' << indent << "}\n";
+    return out;
+  }
+
+private:
+  int a_ { 1 };
+  double b_ { 3.14 };
+  std::string c_ { "foo" };
+
+};
+'''));
+  });
+
   test('opOut with bases', () {
     final b = class_('base')
       ..isStreamable = true
