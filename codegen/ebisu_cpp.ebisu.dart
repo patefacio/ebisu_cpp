@@ -44,6 +44,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_test_provider'),
       library('test_cpp_exception'),
       library('test_cpp_versioning'),
+      library('test_cpp_switch'),
       library('test_hdf5_support'),
       library('test_enumerated_dispatcher'),
     ]
@@ -658,6 +659,37 @@ generate a streamable entry in the containing [Class].
                 ],
               class_('standard_setter_creator')..extend = 'SetterCreator',
             ],
+
+          part('control_flow')
+          ..classes = [
+            class_('switch')
+            ..ctorCustoms = ['']
+            ..members = [
+              member('switch_value')
+              ..doc = 'Text repesenting the value to be switched on'
+              ..ctors = [''],
+              member('cases')
+              ..type = 'List<Int>'
+              ..classInit = []
+              ..ctors = [''],
+              member('on_case')
+              ..doc = 'Function for providing a block for *case*'
+              ..type = 'CaseFunctor'
+              ..ctors = [''],
+              member('on_default')
+              ..doc = '''
+Block of text for the default case.
+
+Break will be provided. If default case is a one or more statements
+client must provide semicolons.
+'''
+              ..ctorsOpt = [''],
+              member('is_char')
+              ..doc = 'If cases should be interpreted as char'
+              ..ctorsOpt = [''],
+            ],
+          ],
+
           part('class')
             ..enums = [
               enum_('class_code_block')
@@ -1770,6 +1802,20 @@ Functor allowing client to dictate the dispatch of an unidentified
 enumerator. *Note* client must supply trailing semicolon if needed.
 '''
                     ..type = 'ErrorDispatcher',
+                  member('uses_enumerator_directly')
+                ..doc = r'''
+For [dctStdString] type enumerations.
+
+If true does not declare separate *descriminator_* local variable, but
+rather uses the enumerator value directly. Since the enumerator might
+be some function call (e.g. String  const& get_value()), the defulat behavior
+is to assign to local:
+
+    std::string const& discriminator_ { $enumerator };
+
+Setting this to true bypasses that and uses $enumerator directly.
+'''
+                ..classInit = false,
                 ],
               class_('switch_dispatcher')
                 ..doc = 'Dispatcher implemented with *switch* statement'
@@ -1840,12 +1886,37 @@ The tree shrunk by calling flatten:
                     ..type = 'List<CharNode>'
                     ..classInit = [],
                 ],
+
               class_('char_binary_dispatcher')
                 ..doc = '''
 Dipatcher implemented with *if-else-if* statements visiting character by
 character - *only* valid for strings as discriminators.
 '''
-                ..extend = 'EnumeratedDispatcher',
+                ..extend = 'EnumeratedDispatcher'
+              ..members = [
+
+                member('has_no_length_checks')
+                ..doc = '''
+Bypasses normal length checks.
+
+Applicable when caller all enumerants of same length and caller
+ensures dispatch is as large as that length'''
+                ..classInit = false
+              ],
+
+              class_('strlen_binary_dispatcher')
+                ..doc = '''
+Dipatcher that first partitions the discriminator by length then implemented
+with *if-else-if* statements visiting character by character - *only* valid for
+strings as discriminators.
+'''
+                ..extend = 'EnumeratedDispatcher'
+              ..members = [
+                member('length_map')
+                ..doc = 'Map the length of the enumerant to the set of enumerants of same length'
+                ..access = RO
+                ..classInit = {}
+              ],
             ]
         ],
       library('hdf5_support')

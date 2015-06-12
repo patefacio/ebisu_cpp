@@ -415,8 +415,7 @@ class MemberCtorParm {
           : '${member.vname} ${_memberInitExpression(member.name)}';
 
   /// gcc is not fond of init lists for references
-  _memberInitExpression(txt) =>
-      member.isRefType != null ? '($txt)' : '{ $txt }';
+  _memberInitExpression(txt) => member.isRefType ? '($txt)' : '{ $txt }';
 
   // end <class MemberCtorParm>
 

@@ -689,15 +689,16 @@ class Point {
   });
 
   test('forward declarations class', () {
-    expect(darkSame((class_('transformer')
-      ..forwardDecls =
-      [forwardDecl('text_stream', namespace(['decode', 'streamers']))]
-      ..memberCtors = [memberCtor(['out'])]
-      ..members = [
-        member('out')
+    final cls = class_('transformer')
+        ..forwardDecls =
+        [forwardDecl('text_stream', namespace(['decode', 'streamers']))]
+        ..memberCtors = [memberCtor(['out'])]
+        ..members = [
+          member('out')
           ..refType = ref
           ..type = 'decode::streamers::text_stream',
-      ]).definition, '''
+        ];
+    expect(darkSame(cls.definition, '''
 namespace decode {
   namespace streamers {
     class text_stream;
@@ -707,7 +708,7 @@ namespace decode {
 class Transformer {
  public:
 
-  Transformer(decode::streamers::text_stream& out) : out_{out} {}
+  Transformer(decode::streamers::text_stream& out) : out_(out) {}
 
  private:
   decode::streamers::text_stream& out_;

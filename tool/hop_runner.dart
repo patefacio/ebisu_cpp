@@ -25,6 +25,7 @@ void main(List<String> args) {
     "test/test_cpp_test_provider.dart",
     "test/test_cpp_exception.dart",
     "test/test_cpp_versioning.dart",
+    "test/test_cpp_switch.dart",
     "test/test_hdf5_support.dart",
     "test/test_enumerated_dispatcher.dart"
   ]));

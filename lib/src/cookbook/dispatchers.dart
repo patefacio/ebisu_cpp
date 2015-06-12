@@ -82,6 +82,17 @@ abstract class EnumeratedDispatcher {
   /// Functor allowing client to dictate the dispatch of an unidentified
   /// enumerator. *Note* client must supply trailing semicolon if needed.
   ErrorDispatcher errorDispatcher;
+  /// For [dctStdString] type enumerations.
+  ///
+  /// If true does not declare separate *descriminator_* local variable, but
+  /// rather uses the enumerator value directly. Since the enumerator might
+  /// be some function call (e.g. String  const& get_value()), the defulat behavior
+  /// is to assign to local:
+  ///
+  ///     std::string const& discriminator_ { $enumerator };
+  ///
+  /// Setting this to true bypasses that and uses $enumerator directly.
+  bool usesEnumeratorDirectly = false;
 
   // custom <class EnumeratedDispatcher>
 
@@ -144,6 +155,26 @@ abstract class EnumeratedDispatcher {
   /// The mechanism for dispatching is not specified, but rather user provided
   /// via [dispatcher]
   String get dispatchBlock;
+
+  get cppDiscriminatorLength {
+    final dct = discriminatorCppType;
+    return dct == 'std::string'
+        ? 'discriminator_.length()'
+        : dct == 'char const*'
+            ? 'strlen(discriminator_)'
+            : throw 'Can not get length of discriminator_';
+  }
+
+  get _discriminatorVar =>
+      usesEnumeratorDirectly ? enumerator : 'discriminator_';
+
+  get _discriminatorDecl =>
+    usesEnumeratorDirectly? null :
+    '$discriminatorCppType const& discriminator_ { $enumerator };';
+
+  get _discriminatorLengthDecl =>
+    hasNoLengthChecks? null :
+    'size_t discriminator_length_ { $cppDiscriminatorLength };';
 
   // end <class EnumeratedDispatcher>
 
@@ -220,11 +251,11 @@ class IfElseIfDispatcher extends EnumeratedDispatcher {
 
   String get dispatchBlock {
     return brCompact([
-      '$discriminatorCppType const& discriminator_ { $enumerator };',
-      'if(${_compareEnumeratorToDiscriminator(enumeration.first, 'discriminator_')}) {',
+      _discriminatorDecl,
+      'if(${_compareEnumeratorToDiscriminator(enumeration.first, _discriminatorVar)}) {',
       _dispatchCall(enumeration.first),
       _enumeration.skip(1).map((var e) => '''
-} else if(${_compareEnumeratorToDiscriminator(e, "discriminator_")}) {
+} else if(${_compareEnumeratorToDiscriminator(e, _discriminatorVar)}) {
 ${_dispatchCall(e)}
 '''),
       '''
@@ -367,6 +398,12 @@ class CharNode {
 /// character - *only* valid for strings as discriminators.
 class CharBinaryDispatcher extends EnumeratedDispatcher {
 
+  /// Bypasses normal length checks.
+  ///
+  /// Applicable when caller all enumerants of same length and caller
+  /// ensures dispatch is as large as that length
+  bool hasNoLengthChecks = false;
+
   // custom <class CharBinaryDispatcher>
 
   CharBinaryDispatcher(enumeration, dispatcher, {enumerator: 'discriminator'})
@@ -385,54 +422,102 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
     _logger.fine(root);
 
     return (brCompact([
-      '${cppType(discriminatorType)} const& discriminator_ { $enumerator };',
-      'size_t discriminator_length_ { $_cppDiscriminatorLength };',
+      _discriminatorDecl,
+      _discriminatorLengthDecl,
       _sizeCheck(0),
       root.children.map((c) => visitNodes(c))
     ]));
   }
 
-  get _cppDiscriminatorLength {
-    final dct = discriminatorCppType;
-    return dct == 'std::string'
-        ? 'discriminator_.length()'
-        : dct == 'char const*'
-            ? 'strlen(discriminator_)'
-            : throw 'Can not get length of discriminator_';
-  }
-
-  _sizeCheck(index) =>
+  _sizeCheck(index) => hasNoLengthChecks? null :
       'if(${index + 1} > discriminator_length_) ${errorDispatcher(this)}';
 
   _cmpNode(node, index) => node.length == 1
       ? 'if(${node.asCpp} == discriminator_[$index]) {'
       : 'if(strncmp(${node.asCpp}, &discriminator_[$index], ${node.length}) == 0) {';
 
+  _hitNode(node) => '''
+
+// Hit on "${node.fullName}"
+${dispatcher(this, node.fullName)}
+''';
+
   visitNodes(CharNode node, [int charIndex = 0]) => brCompact([
     combine([
       _cmpNode(node, charIndex),
       node.isLeaf
           ? br([
-        indentBlock('''
+            indentBlock(brCompact([
+              hasNoLengthChecks? _hitNode(node) :
+              '''
 
 // Leaf node: potential hit on "${node.fullName}"
 if(${node.fullName.length} == discriminator_length_) {
-${indentBlock(dispatcher(this, node.fullName))}
+${indentBlock(_hitNode(node))}
 }
-'''),
-      ])
+'''])),
+          ])
           : null,
     ]),
     indentBlock(br([
       node.children.isNotEmpty ? _sizeCheck(charIndex + 1) : null,
       node.children.map((c) => visitNodes(c, charIndex + node.length))
     ])),
-    indentBlock(errorDispatcher(this)),
+    hasNoLengthChecks? null : indentBlock(errorDispatcher(this)),
     '}',
   ]);
 
   // end <class CharBinaryDispatcher>
 
+}
+
+/// Dipatcher that first partitions the discriminator by length then implemented
+/// with *if-else-if* statements visiting character by character - *only* valid for
+/// strings as discriminators.
+class StrlenBinaryDispatcher extends EnumeratedDispatcher {
+
+  /// Map the length of the enumerant to the set of enumerants of same length
+  Map get lengthMap => _lengthMap;
+
+  // custom <class StrlenBinaryDispatcher>
+
+  StrlenBinaryDispatcher(enumeration, dispatcher, {enumerator: 'discriminator'})
+      : super(enumeration, dispatcher, enumerator: enumerator) {
+    _lengthMap = enumeration.fold(
+        {}, (prev, elm) => prev..putIfAbsent(elm.length, () => []).add(elm));
+  }
+
+  String get dispatchBlock {
+    return brCompact([
+      '''
+${cppType(discriminatorType)} const& discriminator_ { $enumerator };
+size_t discriminator_length_ { $cppDiscriminatorLength };
+switch(discriminator_length_) {
+${brCompact(_lengthMap.keys.map((length) => _innerCase(length)))}
+default: ${errorDispatcher(this)}
+}
+'''
+    ]);
+  }
+
+  _innerSwitch(values) {
+    return (new CharBinaryDispatcher(values, dispatcher, enumerator: enumerator)
+      ..usesEnumeratorDirectly = true
+      ..hasNoLengthChecks = true
+      ..enumeratorType = dctStringLiteral).dispatchBlock;
+  }
+
+  _innerCase(length) => '''
+case $length: {
+${brCompact(_innerSwitch(_lengthMap[length]))}
+  ${errorDispatcher(this)}
+  break;
+}
+''';
+
+  // end <class StrlenBinaryDispatcher>
+
+  Map _lengthMap = {};
 }
 
 // custom <part dispatchers>

@@ -101,6 +101,7 @@ part 'src/ebisu_cpp/app.dart';
 part 'src/ebisu_cpp/benchmark.dart';
 part 'src/ebisu_cpp/class.dart';
 part 'src/ebisu_cpp/cmake_support.dart';
+part 'src/ebisu_cpp/control_flow.dart';
 part 'src/ebisu_cpp/cpp_entity.dart';
 part 'src/ebisu_cpp/cpp_standard.dart';
 part 'src/ebisu_cpp/decorator.dart';

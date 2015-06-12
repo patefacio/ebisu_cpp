@@ -281,7 +281,7 @@ class Member extends CppEntity {
       _isByRef == null ? (type == 'std::string' ? true : false) : _isByRef;
 
   set initText(String txt) => _init = txt;
-  get isRefType => refType != value;
+  get isRefType => refType != null && refType != value;
 
   get passType => refType == value
       ? (isByRef ? '$type const &' : type)

@@ -58,7 +58,6 @@ private:
 '''));
   });
 
-
   test('basic opOut with indentation', () {
     final c = class_('cls')
       ..usesNestedIndent = true
