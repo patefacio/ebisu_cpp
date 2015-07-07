@@ -1,6 +1,5 @@
 library ebisu_cpp.test_cpp_class;
 
-import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:test/test.dart';
 
