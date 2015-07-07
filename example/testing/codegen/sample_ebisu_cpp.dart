@@ -14,7 +14,7 @@ main() {
   String here = absolute(Platform.script.toFilePath());
   final dir = dirname(dirname(here));
   final sample = installation('sample')
-    ..root = dir
+    ..rootFilePath = dir
     ..libs = [
       lib('sample')
       ..headers = [

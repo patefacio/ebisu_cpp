@@ -669,7 +669,7 @@ generate a streamable entry in the containing [Class].
               ..doc = 'Text repesenting the value to be switched on'
               ..ctors = [''],
               member('cases')
-              ..type = 'List<Int>'
+              ..type = 'List<int>'
               ..classInit = []
               ..ctors = [''],
               member('on_case')
@@ -686,6 +686,7 @@ client must provide semicolons.
               ..ctorsOpt = [''],
               member('is_char')
               ..doc = 'If cases should be interpreted as char'
+              ..type = 'bool'
               ..ctorsOpt = [''],
             ],
           ],

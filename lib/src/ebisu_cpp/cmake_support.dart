@@ -36,7 +36,9 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
 
     testCmake(Testable testable) {
       final test = testable.test;
-      final testBaseName = path.basenameWithoutExtension(testable.testFileName);
+      final basename = path.basenameWithoutExtension(testable.testFileName);
+      final owningLib = testable.owningLib.id.snake;
+      final testBaseName = '$owningLib.$basename';
       final relPath = path.relative(path.dirname(test.filePath),
           from: installation.cppPath);
       return '''

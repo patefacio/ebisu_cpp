@@ -89,7 +89,7 @@ Wee willy winkee went through the town.'''
 
   test('ref fields can not have init', () {
     try {
-      final m = member('foo')
+      member('foo')
         ..brief = 'This is a foo'
         ..refType = cvref
         ..descr = '''

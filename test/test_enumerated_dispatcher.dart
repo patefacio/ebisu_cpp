@@ -361,7 +361,7 @@ if(strncmp("32", &discriminator_[0], 2) == 0) {
       '13',
       '21',
       '22'
-      '125',
+          '125',
     ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);\ncontinue;')
       ..errorDispatcher = ((_) => 'std::cerr << "Bogus tag " << discriminator;')
       ..enumeratorType = dctStringLiteral;
@@ -420,7 +420,6 @@ switch (discriminator_length_) {
     std::cerr << "Bogus tag " << discriminator;
 }
 '''));
-
   });
 
 // end <main>

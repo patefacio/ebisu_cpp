@@ -159,7 +159,7 @@ class Cereal implements Serializer {
 
   String serialize(Class cls) {
     final parts = [];
-    cls.members.where((m) => !m.cerealTransient).forEach((Member m) {
+    cls.members.where((m) => !m.isCerealTransient).forEach((Member m) {
       parts.add('  ar__(cereal::make_nvp("${m.name}", ${m.vname}));');
     });
     parts.add('}');

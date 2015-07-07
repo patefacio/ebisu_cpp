@@ -96,9 +96,6 @@ private:
   });
 
   test('opOut with bases', () {
-    final b = class_('base')
-      ..isStreamable = true
-      ..members = [member('x')..init = 50];
 
     final c = class_('cls')
       ..bases = [base('Base')..isStreamable = true]

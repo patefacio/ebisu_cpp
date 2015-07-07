@@ -529,8 +529,6 @@ private:
 '''
     };
 
-    int _i = 0;
-    i() => _i++;
     expectations.forEach((cppAccess, expected) {
       final c1 = class_('c1')
         ..members = [member('m1')..init = 1, member('m2')..init = 2]
@@ -690,14 +688,14 @@ class Point {
 
   test('forward declarations class', () {
     final cls = class_('transformer')
-        ..forwardDecls =
-        [forwardDecl('text_stream', namespace(['decode', 'streamers']))]
-        ..memberCtors = [memberCtor(['out'])]
-        ..members = [
-          member('out')
+      ..forwardDecls =
+      [forwardDecl('text_stream', namespace(['decode', 'streamers']))]
+      ..memberCtors = [memberCtor(['out'])]
+      ..members = [
+        member('out')
           ..refType = ref
           ..type = 'decode::streamers::text_stream',
-        ];
+      ];
     expect(darkSame(cls.definition, '''
 namespace decode {
   namespace streamers {

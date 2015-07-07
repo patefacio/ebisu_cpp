@@ -18,7 +18,7 @@ class Switch {
 
   /// Text repesenting the value to be switched on
   String switchValue;
-  List<Int> cases = [];
+  List<int> cases = [];
   /// Function for providing a block for *case*
   CaseFunctor onCase;
   /// Block of text for the default case.
@@ -27,7 +27,7 @@ class Switch {
   /// client must provide semicolons.
   String onDefault;
   /// If cases should be interpreted as char
-  String isChar;
+  bool isChar;
 
   // custom <class Switch>
 

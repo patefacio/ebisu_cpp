@@ -168,13 +168,13 @@ abstract class EnumeratedDispatcher {
   get _discriminatorVar =>
       usesEnumeratorDirectly ? enumerator : 'discriminator_';
 
-  get _discriminatorDecl =>
-    usesEnumeratorDirectly? null :
-    '$discriminatorCppType const& discriminator_ { $enumerator };';
+  get _discriminatorDecl => usesEnumeratorDirectly
+      ? null
+      : '$discriminatorCppType const& discriminator_ { $enumerator };';
 
-  get _discriminatorLengthDecl =>
-    hasNoLengthChecks? null :
-    'size_t discriminator_length_ { $cppDiscriminatorLength };';
+  get _discriminatorLengthDecl => hasNoLengthChecks
+      ? null
+      : 'size_t discriminator_length_ { $cppDiscriminatorLength };';
 
   // end <class EnumeratedDispatcher>
 
@@ -429,8 +429,9 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
     ]));
   }
 
-  _sizeCheck(index) => hasNoLengthChecks? null :
-      'if(${index + 1} > discriminator_length_) ${errorDispatcher(this)}';
+  _sizeCheck(index) => hasNoLengthChecks
+      ? null
+      : 'if(${index + 1} > discriminator_length_) ${errorDispatcher(this)}';
 
   _cmpNode(node, index) => node.length == 1
       ? 'if(${node.asCpp} == discriminator_[$index]) {'
@@ -447,23 +448,25 @@ ${dispatcher(this, node.fullName)}
       _cmpNode(node, charIndex),
       node.isLeaf
           ? br([
-            indentBlock(brCompact([
-              hasNoLengthChecks? _hitNode(node) :
-              '''
+        indentBlock(brCompact([
+          hasNoLengthChecks
+              ? _hitNode(node)
+              : '''
 
 // Leaf node: potential hit on "${node.fullName}"
 if(${node.fullName.length} == discriminator_length_) {
 ${indentBlock(_hitNode(node))}
 }
-'''])),
-          ])
+'''
+        ])),
+      ])
           : null,
     ]),
     indentBlock(br([
       node.children.isNotEmpty ? _sizeCheck(charIndex + 1) : null,
       node.children.map((c) => visitNodes(c, charIndex + node.length))
     ])),
-    hasNoLengthChecks? null : indentBlock(errorDispatcher(this)),
+    hasNoLengthChecks ? null : indentBlock(errorDispatcher(this)),
     '}',
   ]);
 
