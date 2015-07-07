@@ -15,11 +15,6 @@ import 'test_cpp_switch.dart' as test_cpp_switch;
 import 'test_hdf5_support.dart' as test_hdf5_support;
 import 'test_enumerated_dispatcher.dart' as test_enumerated_dispatcher;
 
-void testCore(Configuration config) {
-  unittestConfiguration = config;
-  main();
-}
-
 main() {
   Logger.root.level = Level.OFF;
   Logger.root.onRecord.listen((LogRecord rec) {

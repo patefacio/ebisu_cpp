@@ -96,7 +96,6 @@ private:
   });
 
   test('opOut with bases', () {
-
     final c = class_('cls')
       ..bases = [base('Base')..isStreamable = true]
       ..isStreamable = true

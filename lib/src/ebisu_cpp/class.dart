@@ -1009,13 +1009,16 @@ default [Interfaceimplementation] is used''').toList();
 
   get _ctorMethods => [_defaultCtor, _copyCtor, _moveCtor];
 
-  get _allCtors =>
-      []..addAll(_ctorMethods.where((m) => m != null))..addAll(memberCtors);
+  get _allCtors => []
+    ..addAll(_ctorMethods.where((m) => m != null))
+    ..addAll(memberCtors);
 
   get _opMethods =>
       [_assignCopy, _assignMove, _dtor, _opEqual, _opLess, _opOut];
 
-  get _standardMethods => []..addAll(_ctorMethods)..addAll(_opMethods);
+  get _standardMethods => []
+    ..addAll(_ctorMethods)
+    ..addAll(_opMethods);
 
   get _pragmaPackPush =>
       packAlign != null ? '#pragma pack(push, $packAlign)' : '';

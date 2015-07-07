@@ -134,6 +134,9 @@ main(List<String> args) {
   Logger.root.onRecord.listen(
       (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
   Logger.root.level = Level.OFF;
+  Map argResults = _parseArgs(args);
+  Map options = argResults['options'];
+  List positionals = argResults['rest'];
   // custom <bootstrapEbisuCpp main>
   // end <bootstrapEbisuCpp main>
 
