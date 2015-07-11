@@ -62,13 +62,48 @@ inline void from_c_str(char const* str, Color_$isClass &e) {
 
       expect(sample.toString().replaceAll(ws, ''), expected.replaceAll(ws, ''));
 
-      final sample_map = enum_('${id}_mapper')
+      final mapperEnumWithHexDisplay = enum_('${id}_mapper')
         ..isClass = isClass
         ..hasToCStr = true
         ..hasFromCStr = true
-        ..valueMap = {'red': 0xA00000, 'green': 0x009900, 'blue': 0x3333FF,};
+        ..isDisplayedHex = true
+        ..values = [
+          enumValue('red', 0xA00000),
+          enumValue('green', 0x009900),
+          enumValue('blue', 0x3333FF)
+        ];
 
-      if (false) print(sample_map.toString());
+      if (false) print(mapperEnumWithHexDisplay.toString());
+
+      expect(darkMatter(mapperEnumWithHexDisplay.toString()), darkMatter('''
+enum ${isClass? 'class':''} Color_${isClass}_mapper {
+  Red_e = 0xa00000,
+  Green_e = 0x009900,
+  Blue_e = 0x3333ff
+};
+
+inline char const* to_c_str(Color_${isClass}_mapper e) {
+  switch(e) {
+    case Color_${isClass}_mapper::Red_e: return "Red_e";
+    case Color_${isClass}_mapper::Green_e: return "Green_e";
+    case Color_${isClass}_mapper::Blue_e: return "Blue_e";
+    default: {
+      std::ostringstream msg;
+      msg << "to_c_str(Color_${isClass}_mapper) encountered invalid value:" << int(e);
+      throw std::logic_error(msg.str());
+    }
+  }
+}
+
+inline void from_c_str(char const* str, Color_${isClass}_mapper &e) {
+  using namespace std;
+  if(0 == strcmp("Red_e", str)) { e = Color_${isClass}_mapper::Red_e; return; }
+  if(0 == strcmp("Green_e", str)) { e = Color_${isClass}_mapper::Green_e; return; }
+  if(0 == strcmp("Blue_e", str)) { e = Color_${isClass}_mapper::Blue_e; return; }
+  string msg { "No Color_${isClass}_mapper matching:" };
+  throw std::runtime_error(msg + str);
+}
+'''));
 
       final sample_mask = enum_('${id}_mask')
         ..isClass = isClass
@@ -90,9 +125,84 @@ enum ${isClass? "class ":""}Color_${isClass}_mask {
         ..values = ['red', 'green', 'blue']
         ..isMask = true;
 
-      //print(sample_mask_base);
+      if (false) print(sample_mask_base);
+
+      expect(darkMatter(sample_mask_base.toString()), darkMatter('''
+enum ${isClass? "class ":""}Color_${isClass}_mask : std::int8_t {
+  Red_e = 1 << 0,
+  Green_e = 1 << 1,
+  Blue_e = 1 << 2
+};
+
+inline char const* Color_${isClass}_mask_mask_to_c_str(std::int8_t e) {
+  std::ostringstream out__;
+  out__ << '[';
+  if(e & std::int8_t(Color_${isClass}_mask::Red_e)) { out__ << "Color_${isClass}_mask::Red_e, ";}
+  if(e & std::int8_t(Color_${isClass}_mask::Green_e)) { out__ << "Color_${isClass}_mask::Green_e, ";}
+  if(e & std::int8_t(Color_${isClass}_mask::Blue_e)) { out__ << "Color_${isClass}_mask::Blue_e, ";}
+  out__ << ']';
+  return out__.str().c_str();
+}
+inline char const* to_c_str(Color_${isClass}_mask e) {
+  switch(e) {
+    case Color_${isClass}_mask::Red_e: return "Red_e";
+    case Color_${isClass}_mask::Green_e: return "Green_e";
+    case Color_${isClass}_mask::Blue_e: return "Blue_e";
+    default: {
+      std::ostringstream msg;
+      msg << "to_c_str(Color_${isClass}_mask) encountered invalid value:" << std::int8_t(e);
+      throw std::logic_error(msg.str());
+    }
+  }
+}
+
+inline std::ostream& operator<<(std::ostream &out, Color_${isClass}_mask e) {
+  return out << to_c_str(e);
+}
+'''));
     });
   });
+
+  test('enumValue', () {
+    final e = enum_('with_values')
+      ..isClass = true
+      ..enumBase = 'std::int8_t'
+      ..isStreamable = true
+      ..values = [
+        enumValue('foo', 1)..doc = 'This is a foo',
+        enumValue('bar', 2)..doc = 'This is a bar',
+      ];
+
+    expect(darkMatter(e.toString()), darkMatter('''
+enum class With_values : std::int8_t {
+  /**
+   This is a foo
+  */
+  Foo_e = 1,
+  /**
+   This is a bar
+  */
+  Bar_e = 2
+};
+
+inline char const* to_c_str(With_values e) {
+  switch(e) {
+    case With_values::Foo_e: return "Foo_e";
+    case With_values::Bar_e: return "Bar_e";
+    default: {
+      std::ostringstream msg;
+      msg << "to_c_str(With_values) encountered invalid value:" << std::int8_t(e);
+      throw std::logic_error(msg.str());
+    }
+  }
+}
+
+inline std::ostream& operator<<(std::ostream &out, With_values e) {
+  return out << to_c_str(e);
+}
+'''));
+  });
+
 // end <main>
 
 }

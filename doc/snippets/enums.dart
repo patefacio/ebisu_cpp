@@ -10,7 +10,11 @@ main() {
   print(enum_('region')..values = ['north', 'south', 'east', 'west']);
 
   print(enum_('thresholds')
-      ..valueMap = { 'high' : 100, 'medium' : 50, 'low' : 10 });
+      ..values = [
+        enumValue('high', 100),
+        enumValue('medium', 50),
+        enumValue('low', 10)
+      ]);
 
   var e = enum_('color_basic')
     ..values = ['red', 'green', 'blue'].map((c) => 'cb_$c');
@@ -48,17 +52,29 @@ main() {
   print(e);
 
 
-  e = enum_('color')
-    ..valueMap = {'red': 0xA00000, 'green': 0x009900, 'blue': 0x3333FF}
+  e = enum_('color_hex')
+    ..isClass = true
+    ..hasToCStr = true
+    ..hasFromCStr = true
     ..isDisplayedHex = true
-    ..isStreamable = true;
-  print(e);
+    ..values = [
+      enumValue('red', 0xA00000)..doc = 'Red value is red',
+      enumValue('green', 0x009900)..doc = 'Green value is green',
+      enumValue('blue', 0x3333FF)..doc = 'Blue value is blue',
+    ];
 
+  print(e);
 
   e = enum_('color')
     ..values = ['red', 'green', 'blue']
     ..isStreamable = true
     ..isMask = true;
+  print(e);
+
+
+  e = enum_('uses_predefined')
+    ..values = [ enumValue('open', 'OPEN'), enumValue('close', 'CLOSE')]
+    ..isStreamable = true;
   print(e);
 
 }

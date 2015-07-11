@@ -6,7 +6,7 @@ import "package:logging/logging.dart";
 
 String _topDir;
 
-final _logger = new Logger('ebisu.ebisu');
+final _logger = new Logger('ebisu_cpp');
 
 void main() {
   Logger.root.onRecord.listen(
@@ -491,13 +491,27 @@ Represents a template declaration comprized of a list of [decls]
             ],
           part('enum')
             ..classes = [
+
+              class_('enum_value')
+              ..extend = 'CppEntity'
+              ..doc = 'Name value pairs for entries in a enum - when default values will not cut it'
+              ..members = [
+                member('value')..type = 'dynamic'..access = RO,
+                member('name')..access = RO,
+              ],
+
               class_('enum')
                 ..doc = enumDoc
                 ..extend = 'CppEntity'
                 ..members = [
                   member('values')
-                    ..doc = 'Strings for the values of the enum'
-                    ..type = 'List<String>'
+                    ..doc = '''
+Value entries of the enum.
+
+Support for assignment from string, or id implies default values.
+
+'''
+                    ..type = 'List<EnumValue>'
                     ..access = RO,
                   member('ids')
                     ..doc = 'Ids for the values of the enum'
@@ -507,10 +521,6 @@ Represents a template declaration comprized of a list of [decls]
                     ..doc = 'Names for values as they appear'
                     ..type = 'List<String>'
                     ..access = IA,
-                  member('value_map')
-                    ..doc = 'String value, numeric value pairs'
-                    ..type = 'Map<String, int>'
-                    ..access = RO,
                   member('is_class')
                     ..doc =
                     'If true the enum is a class enum as opposed to "plain" enum'
@@ -2718,10 +2728,15 @@ will print:
 
 Sometimes it is important not only to distinguish, but also to assign
 values. For this purpose the values associated with the entries may be
-provided via the [valueMap]
+provided as [EnumValue]s. This allow allows comments to be associated
+with the values.
 
     print(enum_('thresholds')
-          ..valueMap = { 'high' : 100, 'medium' : 50, 'low' : 10 });
+          ..values = [
+            enumValue('high', 100)..doc = 'Dangerously high',
+            enumValue('medium', 50)..doc = 'About right height',
+            enumValue('low', 10)..doc = 'Low height',
+          ]);
 
 gives:
 

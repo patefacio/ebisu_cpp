@@ -1,5 +1,34 @@
 part of ebisu_cpp.ebisu_cpp;
 
+/// Name value pairs for entries in a enum - when default values will not cut it
+class EnumValue extends CppEntity {
+  dynamic get value => _value;
+  String get name => _name;
+
+  // custom <class EnumValue>
+
+  EnumValue(id, [this._value]) : super(id) {
+    _name = namer.nameEnumConst(this.id);
+  }
+
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+
+  get decl => chomp(brCompact([briefComment, detailedComment, _declImpl]));
+
+  get _declImpl => value == null ? _name : '$_name = $value';
+
+  String _declAsHex(int padWidth) => chomp(brCompact([
+    briefComment,
+    detailedComment,
+    '$name = ${_asHexString(value, padWidth)}'
+  ]));
+
+  // end <class EnumValue>
+
+  dynamic _value;
+  String _name;
+}
+
 /// A c++ enumeration.
 ///
 /// There are two main styles of enumerations, *standard* and
@@ -39,10 +68,15 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 /// Sometimes it is important not only to distinguish, but also to assign
 /// values. For this purpose the values associated with the entries may be
-/// provided via the [valueMap]
+/// provided as [EnumValue]s. This allow allows comments to be associated
+/// with the values.
 ///
 ///     print(enum_('thresholds')
-///           ..valueMap = { 'high' : 100, 'medium' : 50, 'low' : 10 });
+///           ..values = [
+///             enumValue('high', 100),
+///             enumValue('medium', 50),
+///             enumValue('low', 10)
+///           ]);
 ///
 /// gives:
 ///
@@ -124,10 +158,10 @@ part of ebisu_cpp.ebisu_cpp;
 ///     }
 class Enum extends CppEntity {
 
-  /// Strings for the values of the enum
-  List<String> get values => _values;
-  /// String value, numeric value pairs
-  Map<String, int> get valueMap => _valueMap;
+  /// Value entries of the enum.
+  ///
+  /// Support for assignment from string, or id implies default values.
+  List<EnumValue> get values => _values;
   /// If true the enum is a class enum as opposed to "plain" enum
   bool isClass = false;
   /// Base of enum - if set must be an integral type
@@ -150,27 +184,26 @@ class Enum extends CppEntity {
 
   Enum(Id id) : super(id);
 
-  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+  Iterable<Entity> get children => values;
 
   get includes => hasToCStr
       ? new Includes(['iosfwd', 'sstream', 'stdexcept', 'cstring'])
       : new Includes();
 
-  set values(Iterable<String> values) {
-    _values = new List<String>.from(values);
-    if (_values.any((String v) =>
-        !Id.isSnake(v))) throw 'For CppEnum($id) *values* must be snake case';
-    _ids = _values.map((v) => new Id(v)).toList();
-    _valueNames = _ids.map((id) => namer.nameEnumConst(id)).toList();
-  }
+  static EnumValue _makeEnumValue(var ev) => ev is EnumValue
+      ? ev
+      : ev is String || ev is Id
+          ? new EnumValue(ev)
+          : throw 'Enum values must be String|Id|EnumValue';
 
-  set valueMap(Map<String, int> valueMap) {
-    values = valueMap.keys;
-    _valueMap = valueMap;
+  set values(Iterable values) {
+    _values = new List<EnumValue>.from(values.map((v) => _makeEnumValue(v)));
+    _ids = new List<Id>.from(_values.map((v) => v.id));
+    _valueNames =
+        new List<String>.from(_ids.map((id) => namer.nameEnumConst(id)));
   }
 
   String toString() {
-    _checkRequirements();
     return br([decl, streamSupport]);
   }
 
@@ -181,9 +214,7 @@ class Enum extends CppEntity {
   ]);
 
   /// The enum declaration string
-  get decl => isMask
-      ? _makeMaskEnum()
-      : valueMap != null ? _makeMapEnum() : _makeBasicEnum();
+  get decl => isMask ? _makeMaskEnum() : _makeEnum();
 
   /// The C++ name as provided by the namer
   get name => namer.nameEnum(id);
@@ -248,10 +279,21 @@ ${
   get _enumHead =>
       'enum $_classDecl' + (enumBase != null ? ' : $enumBase' : '');
 
-  String _makeBasicEnum() => '''
+  String _makeEnum() {
+    if (isDisplayedHex) {
+      final maxValue = max(_values.map((ev) => ev.value));
+      final padWidth = _padWidth(maxValue);
+      return '''
 $_enumHead {
-${indentBlock(_valueNames.join(',\n'))}
+${indentBlock(_values.map((v) => v._declAsHex(padWidth)).join(',\n'))}
 };''';
+    } else {
+      return '''
+$_enumHead {
+${indentBlock(_values.map((v) => v.decl).join(',\n'))}
+};''';
+    }
+  }
 
   String _makeMaskEnum() {
     int i = 0;
@@ -261,44 +303,24 @@ ${indentBlock(_valueNames.map((n) => n + ' = 1 << ${i++}').join(',\n'))}
 };''';
   }
 
-  get _maxValue => max(valueMap.values);
-  get _padWidth => (log(_maxValue) / log(2)).ceil() ~/ 4;
-
-  _enumDisplayValue(v) =>
-      isDisplayedHex ? '0x' + v.toRadixString(16).padLeft(_padWidth, '0') : v;
-
-  String _makeMapEnum() {
-    if (valueMap.keys.any((String v) => !Id.isSnake(
-        v))) throw 'For CppEnum($id) *valueMap* must have snake case keys';
-    return '''
-$_enumHead {
-${
-  indentBlock(
-    valueMap.keys.map((k) =>
-      namer.nameEnumConst(idFromString(k)) +
-        ' = ${_enumDisplayValue(valueMap[k])}').join(',\n'))
-}
-};''';
-  }
-
-  _checkRequirements() {
-    if (values == null &&
-        valueMap ==
-            null) throw 'For CppEnum($id) *values* or *valueMap* must be set';
-  }
-
   // end <class Enum>
 
-  List<String> _values;
+  List<EnumValue> _values;
   /// Ids for the values of the enum
   List<Id> _ids;
   /// Names for values as they appear
   List<String> _valueNames;
-  Map<String, int> _valueMap;
 }
 
 // custom <part enum>
 
 Enum enum_(Object id) => new Enum(id is Id ? id : new Id(id));
+
+EnumValue enumValue(id, [value]) => new EnumValue(id, value);
+
+_padWidth(maxValue) => (log(maxValue) / log(2)).ceil() ~/ 4;
+
+_asHexString(int n, int padWidth) =>
+    '0x${n.toRadixString(16).padLeft(padWidth, "0")}';
 
 // end <part enum>
