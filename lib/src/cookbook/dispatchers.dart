@@ -329,8 +329,14 @@ class CharNode {
 
   CharNode.from(
       this.parent, this.char, Iterable<String> literals, this.isLeaf) {
+    _logger.fine('Literals: $literals for $char');
+
     final literalsSorted = new List.from(literals);
-    literalsSorted.sort();
+
+    literalsSorted.sort((var a, var b) {
+      final lenCmp = a.length.compareTo(b.length);
+      return lenCmp == 0 ? a.compareTo(b) : lenCmp;
+    });
 
     Map headToTail = {};
     for (String literal in literalsSorted) {
@@ -347,6 +353,8 @@ class CharNode {
   }
 
   get fullName => _fullName();
+
+  get fullLength => fullName.length;
 
   _fullName([name = '']) =>
       parent == null ? '' : combine([parent._fullName(name), char], '');
@@ -421,21 +429,39 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
     root.flatten();
     _logger.fine(root);
 
+    final sizeChecks = new Set();
     return (brCompact([
       _discriminatorDecl,
       _discriminatorLengthDecl,
-      _sizeCheck(0),
-      root.children.map((c) => visitNodes(c))
+      root.children.map((c) => visitNodes(c, 0, sizeChecks))
     ]));
   }
 
-  _sizeCheck(index) => hasNoLengthChecks
-      ? null
-      : 'if(${index + 1} > discriminator_length_) ${errorDispatcher(this)}';
+  _sizeCheck(node, fullLength) => '''
+// Ensure size of descriminator is at least as large as $fullLength for "${node.fullName}"
+if($fullLength > discriminator_length_) ${errorDispatcher(this)}
+''';
 
-  _cmpNode(node, index) => node.length == 1
-      ? 'if(${node.asCpp} == discriminator_[$index]) {'
-      : 'if(strncmp(${node.asCpp}, &discriminator_[$index], ${node.length}) == 0) {';
+  _cmpWithStrncmp(node, index) =>
+      'if(strncmp(${node.asCpp}, &discriminator_[$index], ${node.length}) == 0) {';
+
+  _cmpNode(node, index, sizeChecks) {
+    var sizeCheck;
+    if (!hasNoLengthChecks) {
+      final fullLength = node.fullLength;
+      if (!sizeChecks.contains(fullLength)) {
+        sizeCheck = _sizeCheck(node, fullLength);
+        sizeChecks.add(fullLength);
+      }
+    }
+
+    return brCompact([
+      sizeCheck,
+      node.length == 1
+          ? 'if(${node.asCpp} == discriminator_[$index]) {'
+          : _cmpWithStrncmp(node, index)
+    ]);
+  }
 
   _hitNode(node) => '''
 
@@ -443,32 +469,41 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
 ${dispatcher(this, node.fullName)}
 ''';
 
-  visitNodes(CharNode node, [int charIndex = 0]) => brCompact([
-    combine([
-      _cmpNode(node, charIndex),
-      node.isLeaf
-          ? br([
-        indentBlock(brCompact([
-          hasNoLengthChecks
-              ? _hitNode(node)
-              : '''
+  visitNodes(CharNode node, int charIndex, Set sizeChecks) {
+    visitChildren() {
+      if (!node.children.isEmpty) {
+        sizeChecks = new Set.from(sizeChecks);
+        return node.children
+            .map((c) => visitNodes(c, charIndex + node.length, sizeChecks));
+      } else {
+        return null;
+      }
+    }
+
+    return brCompact([
+      combine([
+        _cmpNode(node, charIndex, sizeChecks),
+        node.isLeaf
+            ? br([
+          indentBlock(brCompact([
+            hasNoLengthChecks
+                ? _hitNode(node)
+                : '''
 
 // Leaf node: potential hit on "${node.fullName}"
 if(${node.fullName.length} == discriminator_length_) {
 ${indentBlock(_hitNode(node))}
 }
 '''
-        ])),
-      ])
-          : null,
-    ]),
-    indentBlock(br([
-      node.children.isNotEmpty ? _sizeCheck(charIndex + 1) : null,
-      node.children.map((c) => visitNodes(c, charIndex + node.length))
-    ])),
-    hasNoLengthChecks ? null : indentBlock(errorDispatcher(this)),
-    '}',
-  ]);
+          ])),
+        ])
+            : null,
+      ]),
+      visitChildren(),
+      hasNoLengthChecks ? null : indentBlock(errorDispatcher(this)),
+      '}',
+    ]);
+  }
 
   // end <class CharBinaryDispatcher>
 

@@ -198,16 +198,21 @@ if(1 == discriminator_) {
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 std::string const& discriminator_ { discriminator };
 size_t discriminator_length_ { discriminator_.length() };
-if(1 > discriminator_length_) assert(!"Enumerator not in {125}");
+// Ensure size of descriminator is at least as large as 3 for "125"
+if(3 > discriminator_length_) assert(!"Enumerator not in {125}");
 if(strncmp("125", &discriminator_[0], 3) == 0) {
+
   // Leaf node: potential hit on "125"
   if(3 == discriminator_length_) {
+
     // Hit on "125"
     handleValue125(buffer);
     return;
+
   }
   assert(!"Enumerator not in {125}");
-}'''));
+}
+'''));
     });
 
     test('CharBinaryDispatcher with continue and logged error', () {
@@ -221,13 +226,17 @@ if(strncmp("125", &discriminator_[0], 3) == 0) {
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
 std::string const& discriminator_ { discriminator };
 size_t discriminator_length_ { discriminator_.length() };
-if(1 > discriminator_length_) std::cerr << "Bogus tag " << discriminator;
+// Ensure size of descriminator is at least as large as 3 for "125"
+if(3 > discriminator_length_) std::cerr << "Bogus tag " << discriminator;
 if(strncmp("125", &discriminator_[0], 3) == 0) {
+
   // Leaf node: potential hit on "125"
   if(3 == discriminator_length_) {
+
     // Hit on "125"
     handleValue125(buffer);
     continue;
+
   }
   std::cerr << "Bogus tag " << discriminator;
 }
@@ -248,104 +257,100 @@ if(strncmp("125", &discriminator_[0], 3) == 0) {
         ..errorDispatcher = ((_) => 'return;')
         ..enumeratorType = dctStringLiteral;
 
+      if (showCode) print(clangFormat(dispatcher.dispatchBlock));
+
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
-std::string const& discriminator_ { discriminator };
-size_t discriminator_length_ { discriminator_.length() };
-if(1 > discriminator_length_) return;
-if('1' == discriminator_[0]) {
-  if(2 > discriminator_length_) return;
-
-  if('2' == discriminator_[1]) {
-    if(3 > discriminator_length_) return;
-
-    if('4' == discriminator_[2]) {
-      // Leaf node: potential hit on "124"
-      if(3 == discriminator_length_) {
-        // Hit on "124"
-        handleValue124(buffer);
-        return;
-
-      }
-      return;
-    }
-
-    if('5' == discriminator_[2]) {
-      // Leaf node: potential hit on "125"
-      if(3 == discriminator_length_) {
-        // Hit on "125"
-        handleValue125(buffer);
-        return;
-
-      }
-      if(4 > discriminator_length_) return;
-
-      if('8' == discriminator_[3]) {
-        // Leaf node: potential hit on "1258"
-        if(4 == discriminator_length_) {
-          // Hit on "1258"
-          handleValue1258(buffer);
-          return;
-
-        }
-        return;
-      }
-
-      if('9' == discriminator_[3]) {
-        // Leaf node: potential hit on "1259"
-        if(4 == discriminator_length_) {
-          // Hit on "1259"
-          handleValue1259(buffer);
-          return;
-
-        }
-        return;
-      }
-      return;
-    }
-    return;
-  }
-
-  if('3' == discriminator_[1]) {
+std::string const& discriminator_{discriminator};
+size_t discriminator_length_{discriminator_.length()};
+// Ensure size of descriminator is at least as large as 1 for "1"
+if (1 > discriminator_length_) return;
+if ('1' == discriminator_[0]) {
+  // Ensure size of descriminator is at least as large as 2 for "13"
+  if (2 > discriminator_length_) return;
+  if ('3' == discriminator_[1]) {
     // Leaf node: potential hit on "13"
-    if(2 == discriminator_length_) {
+    if (2 == discriminator_length_) {
       // Hit on "13"
       handleValue13(buffer);
       return;
-
     }
     return;
   }
-  return;
-}
-if(strncmp("256", &discriminator_[0], 3) == 0) {
-  // Leaf node: potential hit on "256"
-  if(3 == discriminator_length_) {
-    // Hit on "256"
-    handleValue256(buffer);
-    return;
-
-  }
-  if(2 > discriminator_length_) return;
-
-  if('8' == discriminator_[3]) {
-    // Leaf node: potential hit on "2568"
-    if(4 == discriminator_length_) {
-      // Hit on "2568"
-      handleValue2568(buffer);
+  if ('2' == discriminator_[1]) {
+    // Ensure size of descriminator is at least as large as 3 for "124"
+    if (3 > discriminator_length_) return;
+    if ('4' == discriminator_[2]) {
+      // Leaf node: potential hit on "124"
+      if (3 == discriminator_length_) {
+        // Hit on "124"
+        handleValue124(buffer);
+        return;
+      }
       return;
-
+    }
+    if ('5' == discriminator_[2]) {
+      // Leaf node: potential hit on "125"
+      if (3 == discriminator_length_) {
+        // Hit on "125"
+        handleValue125(buffer);
+        return;
+      }
+      // Ensure size of descriminator is at least as large as 4 for "1258"
+      if (4 > discriminator_length_) return;
+      if ('8' == discriminator_[3]) {
+        // Leaf node: potential hit on "1258"
+        if (4 == discriminator_length_) {
+          // Hit on "1258"
+          handleValue1258(buffer);
+          return;
+        }
+        return;
+      }
+      if ('9' == discriminator_[3]) {
+        // Leaf node: potential hit on "1259"
+        if (4 == discriminator_length_) {
+          // Hit on "1259"
+          handleValue1259(buffer);
+          return;
+        }
+        return;
+      }
+      return;
     }
     return;
   }
   return;
 }
-if(strncmp("32", &discriminator_[0], 2) == 0) {
+// Ensure size of descriminator is at least as large as 2 for "32"
+if (2 > discriminator_length_) return;
+if (strncmp("32", &discriminator_[0], 2) == 0) {
   // Leaf node: potential hit on "32"
-  if(2 == discriminator_length_) {
+  if (2 == discriminator_length_) {
     // Hit on "32"
     handleValue32(buffer);
     return;
-
+  }
+  return;
+}
+// Ensure size of descriminator is at least as large as 3 for "256"
+if (3 > discriminator_length_) return;
+if (strncmp("256", &discriminator_[0], 3) == 0) {
+  // Leaf node: potential hit on "256"
+  if (3 == discriminator_length_) {
+    // Hit on "256"
+    handleValue256(buffer);
+    return;
+  }
+  // Ensure size of descriminator is at least as large as 4 for "2568"
+  if (4 > discriminator_length_) return;
+  if ('8' == discriminator_[3]) {
+    // Leaf node: potential hit on "2568"
+    if (4 == discriminator_length_) {
+      // Hit on "2568"
+      handleValue2568(buffer);
+      return;
+    }
+    return;
   }
   return;
 }

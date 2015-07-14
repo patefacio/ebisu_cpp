@@ -73,9 +73,9 @@ class EnumValue extends CppEntity {
 ///
 ///     print(enum_('thresholds')
 ///           ..values = [
-///             enumValue('high', 100),
-///             enumValue('medium', 50),
-///             enumValue('low', 10)
+///             enumValue('high', 100)..doc = 'Dangerously high',
+///             enumValue('medium', 50)..doc = 'About right height',
+///             enumValue('low', 10)..doc = 'Low height',
 ///           ]);
 ///
 /// gives:
