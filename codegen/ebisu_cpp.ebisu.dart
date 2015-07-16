@@ -538,7 +538,25 @@ Support for assignment from string, or id implies default values.
                     ..classInit = false,
                   member('is_mask')
                     ..doc =
-                    'If true the values are powers of two for bit masking'
+                  '''
+If true the values are powers of two for bit masking.
+
+When specifying values for a mask specify the *bit* associated with
+the value.
+
+    final sample_mask = enum_('mask_green_bit_specified')
+      ..isClass = true
+      ..values = ['red', enumValue('green', 5), 'blue']
+      ..isMask = true;
+
+And *print(sample_mask)* gives:
+
+    enum class Mask_with_green_bit_specified {
+      Red_e = 1 << 0,
+      Green_e = 1 << 5,
+      Blue_e = 1 << 2
+    };
+'''
                     ..classInit = false,
                   member('is_nested')
                     ..doc =

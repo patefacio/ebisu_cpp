@@ -203,6 +203,21 @@ inline std::ostream& operator<<(std::ostream &out, With_values e) {
 '''));
   });
 
+  test('enum mask with bit assigned', () {
+    final sample_mask = enum_('mask_with_green_bit_specified')
+      ..isClass = true
+      ..values = ['red', enumValue('green', 5), 'blue']
+      ..isMask = true;
+
+    expect(darkMatter(sample_mask.toString()), darkMatter('''
+enum class Mask_with_green_bit_specified {
+  Red_e = 1 << 0,
+  Green_e = 1 << 5,
+  Blue_e = 1 << 2
+};
+'''));
+  });
+
 // end <main>
 
 }

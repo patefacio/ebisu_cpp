@@ -172,7 +172,23 @@ class Enum extends CppEntity {
   bool hasToCStr = false;
   /// If true adds streaming support
   bool isStreamable = false;
-  /// If true the values are powers of two for bit masking
+  /// If true the values are powers of two for bit masking.
+  ///
+  /// When specifying values for a mask specify the *bit* associated with
+  /// the value.
+  ///
+  ///     final sample_mask = enum_('mask_green_bit_specified')
+  ///       ..isClass = true
+  ///       ..values = ['red', enumValue('green', 5), 'blue']
+  ///       ..isMask = true;
+  ///
+  /// And *print(sample_mask)* gives:
+  ///
+  ///     enum class Mask_with_green_bit_specified {
+  ///       Red_e = 1 << 0,
+  ///       Green_e = 1 << 5,
+  ///       Blue_e = 1 << 2
+  ///     };
   bool isMask = false;
   /// If true is nested in class and requires *friend* stream support
   bool isNested = false;
@@ -296,10 +312,15 @@ ${indentBlock(_values.map((v) => v.decl).join(',\n'))}
   }
 
   String _makeMaskEnum() {
-    int i = 0;
+    _bitShifted(IndexedValue iv) {
+      final ev = iv.value;
+      final bit = ev.value == null ? iv.index : ev.value;
+      return '${_valueNames[iv.index]} = 1 << $bit';
+    }
+
     return '''
 $_enumHead {
-${indentBlock(_valueNames.map((n) => n + ' = 1 << ${i++}').join(',\n'))}
+${indentBlock(enumerate(_values).map((IndexedValue iv) => _bitShifted(iv)).join(',\n'))}
 };''';
   }
 
