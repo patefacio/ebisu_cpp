@@ -728,15 +728,33 @@ client must provide semicolons.
                   enumValue(id('cls_open'))
                     ..doc =
                     'The custom block appearing just after class is opened',
+                  enumValue(id('cls_public_begin'))
+                    ..doc =
+                    'The custom block appearing at start *public* section',
                   enumValue(id('cls_public'))
                     ..doc =
                     'The custom block appearing in the standard *public* section',
+                  enumValue(id('cls_public_end'))
+                    ..doc =
+                    'The custom block appearing at end *public* section',
+                  enumValue(id('cls_protected_begin'))
+                    ..doc =
+                    'The custom block appearing at start *protected* section',
                   enumValue(id('cls_protected'))
                     ..doc =
                     'The custom block appearing in the standard *protected* section',
+                  enumValue(id('cls_protected_end'))
+                    ..doc =
+                    'The custom block appearing at end *protected* section',
+                  enumValue(id('cls_private_begin'))
+                    ..doc =
+                    'The custom block appearing at start *private* section',
                   enumValue(id('cls_private'))
                     ..doc =
                     'The custom block appearing in the standard *private* section',
+                  enumValue(id('cls_private_end'))
+                    ..doc =
+                    'The custom block appearing at end *private* section',
                   enumValue(id('cls_close'))
                     ..doc =
                     'The custom block appearing just before class is closed',
@@ -943,7 +961,12 @@ on the same class and results lazy-inited here'''
                     ..access = RO,
                   member('forward_decls')
                     ..doc =
-                    'List of forward declarations that will appear near the top of the file'
+                    'Forward declarations near top of file, before the class definition'
+                    ..type = 'List<ForwardDecl>'
+                    ..classInit = [],
+                  member('class_forward_decls')
+                    ..doc =
+                    'Forward declarations within class, ideal for forward declaring nested classes'
                     ..type = 'List<ForwardDecl>'
                     ..classInit = [],
                   member('const_exprs')

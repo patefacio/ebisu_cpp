@@ -689,21 +689,36 @@ class Point {
     final cls = class_('transformer')
       ..forwardDecls =
       [forwardDecl('text_stream', namespace(['decode', 'streamers']))]
+      ..classForwardDecls = [forwardDecl('Nested_class_b')]
+      ..nestedClasses = [
+        class_('nested_class_a')
+          ..members = [member('b')..type = 'Nested_class_b*'],
+        class_('nested_class_b'),
+      ]
       ..memberCtors = [memberCtor(['out'])]
       ..members = [
         member('out')
           ..refType = ref
           ..type = 'decode::streamers::text_stream',
       ];
+
     expect(darkSame(cls.definition, '''
 namespace decode {
-  namespace streamers {
-    class text_stream;
-  }
+namespace streamers {
+class text_stream;
+}
 }
 
 class Transformer {
  public:
+  class Nested_class_b;
+
+  class Nested_class_a {
+   private:
+    Nested_class_b* b_{};
+  };
+
+  class Nested_class_b {};
 
   Transformer(decode::streamers::text_stream& out) : out_(out) {}
 
@@ -795,6 +810,65 @@ private:
 '''));
   });
 
+  test('protect blocks', () {
+    final cls = class_('blocks')
+      ..customBlocks = [
+        clsPreDecl,
+        clsOpen,
+        clsPublicBegin, clsPublic, clsPublicEnd,
+        clsProtectedBegin, clsProtected, clsProtectedEnd,
+        clsPrivateBegin, clsPrivate, clsPrivateEnd,
+        clsClose,
+        clsPostDecl
+      ];
+
+    expect(darkMatter(cls.definition), darkMatter('''
+// custom <ClsPreDecl Blocks>
+// end <ClsPreDecl Blocks>
+
+class Blocks {
+  // custom <ClsOpen Blocks>
+  // end <ClsOpen Blocks>
+
+ public:
+  // custom <ClsPublicBegin Blocks>
+  // end <ClsPublicBegin Blocks>
+
+  // custom <ClsPublic Blocks>
+  // end <ClsPublic Blocks>
+
+  // custom <ClsPublicEnd Blocks>
+  // end <ClsPublicEnd Blocks>
+
+ protected:
+  // custom <ClsProtectedBegin Blocks>
+  // end <ClsProtectedBegin Blocks>
+
+  // custom <ClsProtected Blocks>
+  // end <ClsProtected Blocks>
+
+  // custom <ClsProtectedEnd Blocks>
+  // end <ClsProtectedEnd Blocks>
+
+ private:
+  // custom <ClsPrivateBegin Blocks>
+  // end <ClsPrivateBegin Blocks>
+
+  // custom <ClsPrivate Blocks>
+  // end <ClsPrivate Blocks>
+
+  // custom <ClsPrivateEnd Blocks>
+  // end <ClsPrivateEnd Blocks>
+
+  // custom <ClsClose Blocks>
+  // end <ClsClose Blocks>
+};
+
+// custom <ClsPostDecl Blocks>
+// end <ClsPostDecl Blocks>
+'''));
+
+  });
 // end <main>
 
 }

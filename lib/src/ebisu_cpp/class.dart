@@ -45,19 +45,31 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 enum ClassCodeBlock {
   /// The custom block appearing just after class is opened
-  clsOpen,
+clsOpen,
+  /// The custom block appearing at start *public* section
+clsPublicBegin,
   /// The custom block appearing in the standard *public* section
-  clsPublic,
+clsPublic,
+  /// The custom block appearing at end *public* section
+clsPublicEnd,
+  /// The custom block appearing at start *protected* section
+clsProtectedBegin,
   /// The custom block appearing in the standard *protected* section
-  clsProtected,
+clsProtected,
+  /// The custom block appearing at end *protected* section
+clsProtectedEnd,
+  /// The custom block appearing at start *private* section
+clsPrivateBegin,
   /// The custom block appearing in the standard *private* section
-  clsPrivate,
+clsPrivate,
+  /// The custom block appearing at end *private* section
+clsPrivateEnd,
   /// The custom block appearing just before class is closed
-  clsClose,
+clsClose,
   /// The custom block appearing just before the class definition
-  clsPreDecl,
+clsPreDecl,
   /// The custom block appearing just after the class definition
-  clsPostDecl
+clsPostDecl
 }
 /// Convenient access to ClassCodeBlock.clsOpen with *clsOpen* see [ClassCodeBlock].
 ///
@@ -65,11 +77,29 @@ enum ClassCodeBlock {
 ///
 const ClassCodeBlock clsOpen = ClassCodeBlock.clsOpen;
 
+/// Convenient access to ClassCodeBlock.clsPublicBegin with *clsPublicBegin* see [ClassCodeBlock].
+///
+/// The custom block appearing at start *public* section
+///
+const ClassCodeBlock clsPublicBegin = ClassCodeBlock.clsPublicBegin;
+
 /// Convenient access to ClassCodeBlock.clsPublic with *clsPublic* see [ClassCodeBlock].
 ///
 /// The custom block appearing in the standard *public* section
 ///
 const ClassCodeBlock clsPublic = ClassCodeBlock.clsPublic;
+
+/// Convenient access to ClassCodeBlock.clsPublicEnd with *clsPublicEnd* see [ClassCodeBlock].
+///
+/// The custom block appearing at end *public* section
+///
+const ClassCodeBlock clsPublicEnd = ClassCodeBlock.clsPublicEnd;
+
+/// Convenient access to ClassCodeBlock.clsProtectedBegin with *clsProtectedBegin* see [ClassCodeBlock].
+///
+/// The custom block appearing at start *protected* section
+///
+const ClassCodeBlock clsProtectedBegin = ClassCodeBlock.clsProtectedBegin;
 
 /// Convenient access to ClassCodeBlock.clsProtected with *clsProtected* see [ClassCodeBlock].
 ///
@@ -77,11 +107,29 @@ const ClassCodeBlock clsPublic = ClassCodeBlock.clsPublic;
 ///
 const ClassCodeBlock clsProtected = ClassCodeBlock.clsProtected;
 
+/// Convenient access to ClassCodeBlock.clsProtectedEnd with *clsProtectedEnd* see [ClassCodeBlock].
+///
+/// The custom block appearing at end *protected* section
+///
+const ClassCodeBlock clsProtectedEnd = ClassCodeBlock.clsProtectedEnd;
+
+/// Convenient access to ClassCodeBlock.clsPrivateBegin with *clsPrivateBegin* see [ClassCodeBlock].
+///
+/// The custom block appearing at start *private* section
+///
+const ClassCodeBlock clsPrivateBegin = ClassCodeBlock.clsPrivateBegin;
+
 /// Convenient access to ClassCodeBlock.clsPrivate with *clsPrivate* see [ClassCodeBlock].
 ///
 /// The custom block appearing in the standard *private* section
 ///
 const ClassCodeBlock clsPrivate = ClassCodeBlock.clsPrivate;
+
+/// Convenient access to ClassCodeBlock.clsPrivateEnd with *clsPrivateEnd* see [ClassCodeBlock].
+///
+/// The custom block appearing at end *private* section
+///
+const ClassCodeBlock clsPrivateEnd = ClassCodeBlock.clsPrivateEnd;
 
 /// Convenient access to ClassCodeBlock.clsClose with *clsClose* see [ClassCodeBlock].
 ///
@@ -104,6 +152,7 @@ const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
 /// Establishes an interface for generated class methods like
 /// consructors, destructors, overloaded operators, etc.
 abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
+
   Class get parent => _parent;
   /// If true add logging
   bool isLogged = false;
@@ -154,13 +203,16 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
 
   Class _parent;
   Template _template;
+
 }
+
 
 /// Unifies the [ClassMethod]s that can be specified as *default*,
 /// like [DefaultCtor], [CopyCtor], etc.
 ///
 /// Also provides for *delete*d methods.
 abstract class DefaultMethod extends ClassMethod {
+
   bool usesDefault = false;
   bool hasDelete = false;
 
@@ -179,6 +231,7 @@ abstract class DefaultMethod extends ClassMethod {
 
 }
 
+
 /// Default ctor, autoinitialized on read
 class DefaultCtor extends DefaultMethod {
 
@@ -192,6 +245,7 @@ class DefaultCtor extends DefaultMethod {
   // end <class DefaultCtor>
 
 }
+
 
 /// Copy ctor, autoinitialized on read
 class CopyCtor extends DefaultMethod {
@@ -207,6 +261,7 @@ class CopyCtor extends DefaultMethod {
 
 }
 
+
 /// Move ctor, autoinitialized on read
 class MoveCtor extends DefaultMethod {
 
@@ -220,6 +275,7 @@ class MoveCtor extends DefaultMethod {
 
 }
 
+
 class AssignCopy extends DefaultMethod {
 
   // custom <class AssignCopy>
@@ -231,6 +287,7 @@ class AssignCopy extends DefaultMethod {
   // end <class AssignCopy>
 
 }
+
 
 class AssignMove extends DefaultMethod {
 
@@ -244,8 +301,10 @@ class AssignMove extends DefaultMethod {
 
 }
 
+
 /// Provides a destructor
 class Dtor extends DefaultMethod {
+
   bool isAbstract = false;
 
   // custom <class Dtor>
@@ -271,6 +330,7 @@ $bottomInject
   // end <class Dtor>
 
 }
+
 
 /// A *Member Constructor Parameter*. Defines a single parameter to be passed to a
 /// MemberCtor in order to initialize a single member variable. MemberCtor will
@@ -318,6 +378,7 @@ $bottomInject
 ///       int y_ { 0 };
 ///     };
 class MemberCtorParm {
+
   MemberCtorParm(this.name);
 
   /// Name of member initialized by argument to member ctor
@@ -420,10 +481,14 @@ class MemberCtorParm {
   // end <class MemberCtorParm>
 
   String _init;
+
 }
 
 /// Create a MemberCtorParm sans new, for more declarative construction
-MemberCtorParm memberCtorParm([String name]) => new MemberCtorParm(name);
+MemberCtorParm
+memberCtorParm([String name]) =>
+  new MemberCtorParm(name);
+
 
 /// Specificication for a member constructor. A member constructor is a constructor
 /// with the intent of initializing one or more members of a class.
@@ -514,6 +579,7 @@ ${indentBlock(initializers.join(',\n'))}''', tag != null
 
 }
 
+
 /// Provides *operator==()*
 class OpEqual extends ClassMethod {
 
@@ -533,6 +599,7 @@ bool operator!=($className const& rhs) const {
   // end <class OpEqual>
 
 }
+
 
 /// Provides *operator<()*
 class OpLess extends ClassMethod {
@@ -555,6 +622,7 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
   // end <class OpLess>
 
 }
+
 
 /// Provides *operator<<()*
 class OpOut extends ClassMethod {
@@ -630,6 +698,7 @@ ${indentBlock(chomp(brCompact([
   // end <class OpOut>
 
 }
+
 
 /// A C++ class.
 ///
@@ -727,8 +796,10 @@ class Class extends CppEntity with Testable {
   bool isStruct = false;
   /// The template by which the class is parameterized
   Template get template => _template;
-  /// List of forward declarations that will appear near the top of the file
+  /// Forward declarations near top of file, before the class definition
   List<ForwardDecl> forwardDecls = [];
+  /// Forward declarations within class, ideal for forward declaring nested classes
+  List<ForwardDecl> classForwardDecls = [];
   /// *constexpr*s associated with the class
   List<ConstExpr> constExprs = [];
   /// List of usings that will be scoped to this class near the top of
@@ -772,8 +843,7 @@ class Class extends CppEntity with Testable {
   bool isImmutable = false;
   /// List of processors supporting flavors of serialization
   List<Serializer> serializers = [];
-  List<InterfaceImplementation> get interfaceImplementations =>
-      _interfaceImplementations;
+  List<InterfaceImplementation> get interfaceImplementations => _interfaceImplementations;
   /// A [CppAccess] specifier - only pertinent if class is nested
   CppAccess cppAccess = public;
   /// Classes nested within this class
@@ -1038,10 +1108,12 @@ default [Interfaceimplementation] is used''').toList();
       _templateDecl,
       _pragmaPackPush,
       _classOpener,
-      _codeBlockText(clsOpen)
+      _codeBlockText(clsOpen),
     ]),
     _wrapInAccess(isStruct ? null : public, indentBlock(br([
       brCompact([
+        _codeBlockText(clsPublicBegin),
+        classForwardDecls,
         constExprs..forEach((ce) => ce.isClassScoped = true),
         usings.map((u) => u.usingStatement(namer))
       ]),
@@ -1068,8 +1140,10 @@ default [Interfaceimplementation] is used''').toList();
       _memberJoinFormat(publicMembers.where((m) => !m.isPublicStaticConst)),
       br(members.map((m) => br([m.getter, m.setter]))),
       serializers.map((s) => s.serialize(this)),
+      _codeBlockText(clsPublicEnd),
     ]))),
     _wrapInAccess(protected, indentBlock(combine([
+      _codeBlockText(clsProtectedBegin),
       _codeBlockText(clsProtected),
       br(nestedClasses
           .where((c) => c.cppAccess == protected)
@@ -1083,9 +1157,11 @@ default [Interfaceimplementation] is used''').toList();
       br(interfaceImplementations
           .where((i) => i.cppAccess == protected)
           .map((i) => i.methodImpls)),
-      _memberJoinFormat(protectedMembers)
+      _memberJoinFormat(protectedMembers),
+      _codeBlockText(clsProtectedEnd),
     ]))),
     _wrapInAccess(private, indentBlock(combine([
+      _codeBlockText(clsPrivateBegin),
       _codeBlockText(clsPrivate),
       br(nestedClasses
           .where((c) => c.cppAccess == private)
@@ -1099,7 +1175,8 @@ default [Interfaceimplementation] is used''').toList();
       br(interfaceImplementations
           .where((i) => i.cppAccess == private)
           .map((i) => i.methodImpls)),
-      _memberJoinFormat(privateMembers)
+      _memberJoinFormat(privateMembers),
+      _codeBlockText(clsPrivateEnd)
     ]))),
     br([_codeBlockText(clsClose), _classCloser, _pragmaPackPop]),
     br(usingsPostDecl.map((u) => u.usingStatement(namer))),
@@ -1193,6 +1270,7 @@ $classStyle $className$_baseDecl$_finalDecl
   ///
   /// Lookup is done by pattern match.
   Map<String, Method> _methods = {};
+
 }
 
 // custom <part class>
