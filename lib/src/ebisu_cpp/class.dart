@@ -45,31 +45,31 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 enum ClassCodeBlock {
   /// The custom block appearing just after class is opened
-clsOpen,
+  clsOpen,
   /// The custom block appearing at start *public* section
-clsPublicBegin,
+  clsPublicBegin,
   /// The custom block appearing in the standard *public* section
-clsPublic,
+  clsPublic,
   /// The custom block appearing at end *public* section
-clsPublicEnd,
+  clsPublicEnd,
   /// The custom block appearing at start *protected* section
-clsProtectedBegin,
+  clsProtectedBegin,
   /// The custom block appearing in the standard *protected* section
-clsProtected,
+  clsProtected,
   /// The custom block appearing at end *protected* section
-clsProtectedEnd,
+  clsProtectedEnd,
   /// The custom block appearing at start *private* section
-clsPrivateBegin,
+  clsPrivateBegin,
   /// The custom block appearing in the standard *private* section
-clsPrivate,
+  clsPrivate,
   /// The custom block appearing at end *private* section
-clsPrivateEnd,
+  clsPrivateEnd,
   /// The custom block appearing just before class is closed
-clsClose,
+  clsClose,
   /// The custom block appearing just before the class definition
-clsPreDecl,
+  clsPreDecl,
   /// The custom block appearing just after the class definition
-clsPostDecl
+  clsPostDecl
 }
 /// Convenient access to ClassCodeBlock.clsOpen with *clsOpen* see [ClassCodeBlock].
 ///
@@ -152,7 +152,6 @@ const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
 /// Establishes an interface for generated class methods like
 /// consructors, destructors, overloaded operators, etc.
 abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
-
   Class get parent => _parent;
   /// If true add logging
   bool isLogged = false;
@@ -203,16 +202,13 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
 
   Class _parent;
   Template _template;
-
 }
-
 
 /// Unifies the [ClassMethod]s that can be specified as *default*,
 /// like [DefaultCtor], [CopyCtor], etc.
 ///
 /// Also provides for *delete*d methods.
 abstract class DefaultMethod extends ClassMethod {
-
   bool usesDefault = false;
   bool hasDelete = false;
 
@@ -231,7 +227,6 @@ abstract class DefaultMethod extends ClassMethod {
 
 }
 
-
 /// Default ctor, autoinitialized on read
 class DefaultCtor extends DefaultMethod {
 
@@ -245,7 +240,6 @@ class DefaultCtor extends DefaultMethod {
   // end <class DefaultCtor>
 
 }
-
 
 /// Copy ctor, autoinitialized on read
 class CopyCtor extends DefaultMethod {
@@ -261,7 +255,6 @@ class CopyCtor extends DefaultMethod {
 
 }
 
-
 /// Move ctor, autoinitialized on read
 class MoveCtor extends DefaultMethod {
 
@@ -275,7 +268,6 @@ class MoveCtor extends DefaultMethod {
 
 }
 
-
 class AssignCopy extends DefaultMethod {
 
   // custom <class AssignCopy>
@@ -287,7 +279,6 @@ class AssignCopy extends DefaultMethod {
   // end <class AssignCopy>
 
 }
-
 
 class AssignMove extends DefaultMethod {
 
@@ -301,10 +292,8 @@ class AssignMove extends DefaultMethod {
 
 }
 
-
 /// Provides a destructor
 class Dtor extends DefaultMethod {
-
   bool isAbstract = false;
 
   // custom <class Dtor>
@@ -330,7 +319,6 @@ $bottomInject
   // end <class Dtor>
 
 }
-
 
 /// A *Member Constructor Parameter*. Defines a single parameter to be passed to a
 /// MemberCtor in order to initialize a single member variable. MemberCtor will
@@ -378,7 +366,6 @@ $bottomInject
 ///       int y_ { 0 };
 ///     };
 class MemberCtorParm {
-
   MemberCtorParm(this.name);
 
   /// Name of member initialized by argument to member ctor
@@ -481,14 +468,10 @@ class MemberCtorParm {
   // end <class MemberCtorParm>
 
   String _init;
-
 }
 
 /// Create a MemberCtorParm sans new, for more declarative construction
-MemberCtorParm
-memberCtorParm([String name]) =>
-  new MemberCtorParm(name);
-
+MemberCtorParm memberCtorParm([String name]) => new MemberCtorParm(name);
 
 /// Specificication for a member constructor. A member constructor is a constructor
 /// with the intent of initializing one or more members of a class.
@@ -579,7 +562,6 @@ ${indentBlock(initializers.join(',\n'))}''', tag != null
 
 }
 
-
 /// Provides *operator==()*
 class OpEqual extends ClassMethod {
 
@@ -599,7 +581,6 @@ bool operator!=($className const& rhs) const {
   // end <class OpEqual>
 
 }
-
 
 /// Provides *operator<()*
 class OpLess extends ClassMethod {
@@ -622,7 +603,6 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
   // end <class OpLess>
 
 }
-
 
 /// Provides *operator<<()*
 class OpOut extends ClassMethod {
@@ -698,7 +678,6 @@ ${indentBlock(chomp(brCompact([
   // end <class OpOut>
 
 }
-
 
 /// A C++ class.
 ///
@@ -843,7 +822,8 @@ class Class extends CppEntity with Testable {
   bool isImmutable = false;
   /// List of processors supporting flavors of serialization
   List<Serializer> serializers = [];
-  List<InterfaceImplementation> get interfaceImplementations => _interfaceImplementations;
+  List<InterfaceImplementation> get interfaceImplementations =>
+      _interfaceImplementations;
   /// A [CppAccess] specifier - only pertinent if class is nested
   CppAccess cppAccess = public;
   /// Classes nested within this class
@@ -1270,7 +1250,6 @@ $classStyle $className$_baseDecl$_finalDecl
   ///
   /// Lookup is done by pattern match.
   Map<String, Method> _methods = {};
-
 }
 
 // custom <part class>

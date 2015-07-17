@@ -815,9 +815,15 @@ private:
       ..customBlocks = [
         clsPreDecl,
         clsOpen,
-        clsPublicBegin, clsPublic, clsPublicEnd,
-        clsProtectedBegin, clsProtected, clsProtectedEnd,
-        clsPrivateBegin, clsPrivate, clsPrivateEnd,
+        clsPublicBegin,
+        clsPublic,
+        clsPublicEnd,
+        clsProtectedBegin,
+        clsProtected,
+        clsProtectedEnd,
+        clsPrivateBegin,
+        clsPrivate,
+        clsPrivateEnd,
         clsClose,
         clsPostDecl
       ];
@@ -867,7 +873,6 @@ class Blocks {
 // custom <ClsPostDecl Blocks>
 // end <ClsPostDecl Blocks>
 '''));
-
   });
 // end <main>
 
