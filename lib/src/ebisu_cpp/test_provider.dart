@@ -138,7 +138,7 @@ ${indentBlock(br(givens))}
 
 }
 
-class Testable {
+abstract class Testable {
   List<TestScenario> testScenarios = [];
   /// The single test for this [Testable]
   set test(Test test) => _test = test;
@@ -148,6 +148,9 @@ class Testable {
   Test get test => _test == null
       ? (_test = new Test(this)..owner = (this as CppEntity))
       : _test;
+
+  // All tests must belong to an entity within a [Lib]
+  get owningLib;
 
   get hasTest => testScenarios.isNotEmpty;
 

@@ -1368,6 +1368,7 @@ and [CodeBlock]s to augment/initialize/teardown.
                 ..extend = 'CppEntity'
                 ..members = [member('givens')..type = 'List<Given>',],
               class_('testable')
+              ..isAbstract = true
                 ..members = [
                   member('test_scenarios')
                     ..type = 'List<TestScenario>'
