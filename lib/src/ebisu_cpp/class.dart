@@ -304,17 +304,9 @@ class Dtor extends DefaultMethod {
 
   String get prototype => '~${className}()';
 
-  String get customDefinition => isAbstract
-      ? '''
-virtual ~${className}() {
-$topInject
-$bottomInject
-}'''
-      : '''
-~${className}() {
-$topInject
-$bottomInject
-}''';
+  String get customDefinition => functionContents(
+      isAbstract ? 'virtual ~${className}()' : '~${className}()',
+      '$className dtor');
 
   // end <class Dtor>
 
@@ -803,6 +795,8 @@ class Class extends CppEntity with Testable {
   List<FriendClassDecl> friendClassDecls = [];
   List<ClassCodeBlock> customBlocks = [];
   bool isSingleton = false;
+  /// If true deletes copy ctor and assignment operator
+  bool isNoncopyable = false;
   Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
   /// If true adds {using fcs::utils::streamers::operator<<} to streamer.
   /// Also, when set assumes streaming required and [isStreamable]
@@ -1011,6 +1005,11 @@ default [Interfaceimplementation] is used''').toList();
 
       if (isSingleton) {
         defaultCtor.cppAccess = private;
+      }
+
+      if (isNoncopyable) {
+        copyCtor.hasDelete = true;
+        assignCopy.hasDelete = true;
       }
 
       enums.forEach((e) => e.isNested = true);

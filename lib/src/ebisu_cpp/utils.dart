@@ -490,12 +490,6 @@ String ev(v) => v.toString().split('.')[1];
 
 const defaultNamer = const EbisuCppNamer();
 
-/// Wrap string in double quotes
-String doubleQuote(String s) => '"$s"';
-
-String smartDoubleQuote(String s) =>
-    (s.startsWith('"') && s.endsWith('"')) ? s : doubleQuote(s);
-
 /// Given a [datum], as in a value initializing a C++ variable, try to infer the
 /// corresponding C++ type
 String inferCppType(Object datum) {

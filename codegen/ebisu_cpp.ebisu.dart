@@ -28,7 +28,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.2'
+    ..pubSpec.version = '0.3.3'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -1056,6 +1056,9 @@ Base classes this class derives form.
                     ..type = 'List<ClassCodeBlock>'
                     ..classInit = [],
                   member('is_singleton')..classInit = false,
+                  member('is_noncopyable')
+                  ..doc = 'If true deletes copy ctor and assignment operator'
+                  ..classInit = false,
                   member('code_blocks')
                     ..access = RO
                     ..type = 'Map<ClassCodeBlock, CodeBlock>'
@@ -1585,6 +1588,23 @@ injecting code in main
 If true adds --log-level to the set of options for the app. This app
 argument will default the app to having no logging, but allow user
 control.
+'''
+                  ..classInit = false,
+                  member('has_signal_handler')
+                  ..doc = 'If true support for handling signals included in app'
+                  ..classInit = false,
+                  member('has_quit_loop')
+                  ..doc = '''
+If true adds quit loop at end of main.
+
+The quit loop loops as:
+
+    do {
+      std::cout << "Enter 'q' or 'Q' to quit'" << std::endl;
+      if(c == 'q' || c == 'Q') {
+        break;
+      }
+    } while(std::cin >> c);
 '''
                   ..classInit = false,
                 ],

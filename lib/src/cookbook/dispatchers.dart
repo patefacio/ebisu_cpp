@@ -438,7 +438,7 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
   }
 
   _sizeCheck(node, fullLength) => '''
-// Ensure size of descriminator is at least as large as $fullLength for "${node.fullName}"
+// Ensure size of discriminator is at least as large as $fullLength for "${node.fullName}"
 if($fullLength > discriminator_length_) ${errorDispatcher(this)}
 ''';
 

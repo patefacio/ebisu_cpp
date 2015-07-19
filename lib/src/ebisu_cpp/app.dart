@@ -267,6 +267,19 @@ class App extends Impl implements CodeGenerator {
   /// argument will default the app to having no logging, but allow user
   /// control.
   bool hasLogLevel = false;
+  /// If true support for handling signals included in app
+  bool hasSignalHandler = false;
+  /// If true adds quit loop at end of main.
+  ///
+  /// The quit loop loops as:
+  ///
+  ///     do {
+  ///       std::cout << "Enter 'q' or 'Q' to quit'" << std::endl;
+  ///       if(c == 'q' || c == 'Q') {
+  ///         break;
+  ///       }
+  ///     } while(std::cin >> c);
+  bool hasQuitLoop = false;
 
   // custom <class App>
 
@@ -295,6 +308,8 @@ class App extends Impl implements CodeGenerator {
     _checkAddLogLevel();
     _checkAddHelp();
     _includes.add('iostream');
+    if (hasSignalHandler) _includes
+        .add('ebisu/linux_specific/application_signal_handler.hpp');
     if (args.isNotEmpty) _includes.add('boost/program_options.hpp');
     setAppFilePathFromRoot(cppPath);
 
@@ -419,27 +434,67 @@ if(parsed_options.count("${arg.optName}") > 0) {
  else {
   std::ostringstream msg;
   msg << "$id option '${arg.optName}' is required";
-  throw std::runtime_error(msg.str());
+  throw boost::program_options::error(msg.str());
 }'''
       : '';
+
+  get _quitLoop => hasQuitLoop
+      ? '''
+
+    //////////////////////////////////////////////////////////////////////
+    // Basic loop until q or Q is entered
+    //////////////////////////////////////////////////////////////////////
+    char c;
+    do {
+      std::cout << "Enter \'q\' or \'Q\' to quit" << std::endl;
+      if(c == \'q\' || c == \'Q\') {
+        break;
+      }
+    } while(std::cin >> c);
+'''
+      : null;
 
   get _cppContents => brCompact([
     'int main(int argc, char** argv) {',
     combine([
       namespace.using + ';',
+      hasSignalHandler
+          ? '''
+
+////////////////////////////////////////////////////////////////////////////
+// Ensure RAII clean up of signal handler thread
+////////////////////////////////////////////////////////////////////////////
+ebisu::linux_specific::Application_signal_handler_exit signal_handler_cleanup__;
+
+////////////////////////////////////////////////////////////////////////////
+// Add signal handlers
+////////////////////////////////////////////////////////////////////////////
+{
+  auto &signal_handler = ebisu::linux_specific::Application_signal_handler<>::instance();
+${indentBlock(customBlock('$name add signal handlers'))}
+}
+'''
+          : null,
       '''
 try{
 ${_readProgramOptions}
 ''',
       hasLogLevel ? root.logProvider.setLogLevel('options.log_level()') : null,
       '''
+//////////////////////////////////////////////////////////////////////
+// User supplied $name protect block
+//////////////////////////////////////////////////////////////////////
 ${indentBlock(mainCodeBlock.toString())}
-} catch(std::exception const& e) {
-  std::cout << "Caught exception: " << e.what() << std::endl;
+} catch(boost::program_options::error const& e) {
+  std::cerr << "Caught boost program options exception: " << e.what() << std::endl;
   Program_options::show_help(std::cout);
   return -1;
-}
-
+} catch(std::exception const& e) {
+  std::cerr << "Caught exception: " << e.what() << std::endl;
+  return -1;
+}''',
+      _quitLoop,
+      '''
 return 0;
 }
 '''
@@ -457,7 +512,15 @@ if(options.help()) {
 
   get _readProgramOptions => args.isEmpty
       ? null
-      : combine(['Program_options options = { argc, argv };', _showHelp,]);
+      : combine([
+    '''
+//////////////////////////////////////////////////////////////////////
+// Read program options and display help if requested
+//////////////////////////////////////////////////////////////////////
+''',
+    'Program_options options = { argc, argv };',
+    _showHelp,
+  ]);
 
   // end <class App>
 

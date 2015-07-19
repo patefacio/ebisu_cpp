@@ -21,7 +21,13 @@ class CmakeInstallationBuilder extends InstallationBuilder {
 
     appCmake(app) {
       final relPath = path.relative(app.appPath, from: installation.cppPath);
-      return '''
+      final requiredLibs = app.requiredLibs;
+      if (app.hasSignalHandler && !requiredLibs.contains('pthread')) {
+        requiredLibs.add('pthread');
+      }
+      final isMacroRe = new RegExp(r'^\s*\$');
+      return brCompact([
+        '''
 add_executable(${app.name}
   ${app.sources.map((src) => '$relPath/$src.cpp').join('\n  ')}
 )
@@ -31,7 +37,11 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
   \${Boost_PROGRAM_OPTIONS_LIBRARY}
   \${Boost_SYSTEM_LIBRARY}
   \${Boost_THREAD_LIBRARY}
-)''';
+''',
+        requiredLibs
+            .map((l) => indentBlock(l.contains(isMacroRe) ? l : '-${l}')),
+        ')'
+      ]);
     }
 
     testCmake(Testable testable) {
