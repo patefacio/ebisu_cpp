@@ -130,7 +130,7 @@ $tricky
             ];
 
           expect(darkMatter(cls.definition).contains(darkMatter('''
-(T t = 25, int y = 42) : x_{2*t}, y_{y}
+(T t = 25, int y = 42) : x_(2*t), y_(y)
 ''')), true);
         });
 
@@ -270,7 +270,7 @@ $tricky
     test('makes member const',
         () => expect(definition.contains(darkMatter('int const a_')), true));
     test('provides member init all members', () => expect(
-        definition.contains(darkMatter('C_1(int a) : a_ { a } {}')), true));
+        definition.contains(darkMatter('C_1(int a) : a_ ( a ) {}')), true));
   });
 
   group('access code blocks', () {
@@ -333,7 +333,7 @@ class C_1
 class C_1
 {
 public:
-  C_1(int a) : a_{ a } {}
+  C_1(int a) : a_( a ) {}
 
 private:
   int a_ { 1 };
@@ -349,7 +349,7 @@ private:
 class C_1
 {
 public:
-  C_1(int a, int b) : a_{ a }, b_{ b } { }
+  C_1(int a, int b) : a_( a ), b_( b ) { }
 
 private:
   int a_ { 1 };
@@ -670,7 +670,7 @@ private:
         '''
 class Point {
  public:
-  Point(int x, int y) : x_{x}, y_{y} {}
+  Point(int x, int y) : x_(x), y_(y) {}
 
   //! getter for x_ (access is Ro)
   int x() const { return x_; }
@@ -738,7 +738,7 @@ class Goo
 {
 
 public:
-  Goo(int a) : a_ { a } {
+  Goo(int a) : a_ ( a ) {
     //goo
   }
 private:
@@ -800,7 +800,7 @@ class Goo
 {
 
 public:
-  Goo(int a) : a_ { a } {
+  Goo(int a) : a_ ( a ) {
     // custom <Goo(special ctor)>
     // end <Goo(special ctor)>
   }

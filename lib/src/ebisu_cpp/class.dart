@@ -448,14 +448,14 @@ class MemberCtorParm {
   ///     ...
   ///     }
   ///
-  get member_init => member.ctorInit != null
+  get memberInit => member.ctorInit != null
       ? '${member.vname} ${_memberInitExpression(member.ctorInit)}'
       : _init != null
           ? '${member.vname} ${_memberInitExpression(_init)}'
           : '${member.vname} ${_memberInitExpression(member.name)}';
 
   /// gcc is not fond of init lists for references
-  _memberInitExpression(txt) => member.isRefType ? '($txt)' : '{ $txt }';
+  _memberInitExpression(txt) => '($txt)';
 
   // end <class MemberCtorParm>
 
@@ -530,7 +530,7 @@ member being initialized or a MemberCtorParm instance'''));
 
     memberParms.forEach((MemberCtorParm parm) {
       argDecls.add(parm.decl);
-      initializers.add(parm.member_init);
+      initializers.add(parm.memberInit);
     });
 
     final explicitTag = isExplicit ? 'explicit ' : '';
