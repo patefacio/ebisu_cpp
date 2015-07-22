@@ -53,6 +53,8 @@ class SpdlogProvider extends LogProvider {
 std::string const desired_log_level { $varExpression };
 if(desired_log_level == "off") {
   spdlog::set_level(spdlog::level::off);
+} else if(desired_log_level == "debug") {
+  spdlog::set_level(spdlog::level::debug);
 } else if(desired_log_level == "info") {
   spdlog::set_level(spdlog::level::info);
 } else if(desired_log_level == "notice") {
