@@ -444,13 +444,20 @@ if(parsed_options.count("${arg.optName}") > 0) {
     //////////////////////////////////////////////////////////////////////
     // Basic loop until q or Q is entered
     //////////////////////////////////////////////////////////////////////
-    char c;
+    char c {0};
     do {
-      std::cout << "Enter \'q\' or \'Q\' to quit" << std::endl;
       if(c == \'q\' || c == \'Q\') {
         break;
+      } else if(c != 0) {
+        std::cout << "Invalid input to quit loop: " << c << std::endl;
       }
+      std::cout << "Enter \'q\' or \'Q\' to quit" << std::endl;
     } while(std::cin >> c);
+
+    //////////////////////////////////////////////////////////////////////
+    // Any cleanup work required after quit loop exit
+    //////////////////////////////////////////////////////////////////////
+${indentBlock(customBlock('$name post quit loop'), '    ')}
 '''
       : null;
 
@@ -485,6 +492,9 @@ ${_readProgramOptions}
 // User supplied $name protect block
 //////////////////////////////////////////////////////////////////////
 ${indentBlock(mainCodeBlock.toString())}
+''',
+      _quitLoop,
+      '''
 } catch(boost::program_options::error const& e) {
   std::cerr << "Caught boost program options exception: " << e.what() << std::endl;
   Program_options::show_help(std::cout);
@@ -493,7 +503,6 @@ ${indentBlock(mainCodeBlock.toString())}
   std::cerr << "Caught exception: " << e.what() << std::endl;
   return -1;
 }''',
-      _quitLoop,
       '''
 return 0;
 }
