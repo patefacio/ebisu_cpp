@@ -1172,7 +1172,7 @@ static $className & instance() {
 
   get _templateDecl => _template != null ? _template.decl : null;
   get _enumDecls => enums.map((e) => e.decl);
-  get _enumStreamers => enums.map((e) => e.streamSupport);
+  get _enumStreamers => enums.map((e) => e._streamSupport);
   _access(CppAccess access) => access == null
       ? ''
       : '''

@@ -687,8 +687,9 @@ class Point {
 
   test('forward declarations class', () {
     final cls = class_('transformer')
-      ..forwardDecls =
-      [forwardDecl('text_stream', namespace(['decode', 'streamers']))]
+      ..forwardDecls = [
+        forwardDecl('text_stream', namespace(['decode', 'streamers']))
+      ]
       ..classForwardDecls = [forwardDecl('Nested_class_b')]
       ..nestedClasses = [
         class_('nested_class_a')

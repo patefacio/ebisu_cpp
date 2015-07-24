@@ -558,6 +558,11 @@ And *print(sample_mask)* gives:
     };
 '''
                     ..classInit = false,
+                  member('has_bitmask_functions')
+                  ..doc = '''
+If set provides test, set and clear methods.
+'''
+                  ..classInit = false,
                   member('is_nested')
                     ..doc =
                     'If true is nested in class and requires *friend* stream support'

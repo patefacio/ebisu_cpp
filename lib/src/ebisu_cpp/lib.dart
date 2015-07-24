@@ -194,8 +194,8 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
     _preserveStandardizedHeaders();
   }
 
-  _preserveStandardizedHeaders() => _standardizedHeaders
-      .forEach((Header header) {
+  _preserveStandardizedHeaders() => _standardizedHeaders.forEach(
+      (Header header) {
     if (header != null) {
       _logger.severe('Preserved standardized header ${header.id}');
       _headers.add(header);

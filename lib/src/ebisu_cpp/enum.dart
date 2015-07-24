@@ -190,6 +190,8 @@ class Enum extends CppEntity {
   ///       Blue_e = 1 << 2
   ///     };
   bool isMask = false;
+  /// If set provides test, set and clear methods.
+  bool hasBitmaskFunctions = false;
   /// If true is nested in class and requires *friend* stream support
   bool isNested = false;
   /// If the map has values assigned by user, this can be used to display
@@ -220,14 +222,37 @@ class Enum extends CppEntity {
   }
 
   String toString() {
-    return br([decl, streamSupport]);
+    return br([decl, _streamSupport, _bitmaskFunctions]);
   }
 
-  get streamSupport => br([
+  get _streamSupport => br([
     (isStreamable || hasToCStr) ? toCString : null,
     isStreamable ? outStreamer : null,
     hasFromCStr ? fromCString : null,
   ]);
+
+  _enumValueName(EnumValue ev) => '$name::${ev.name}';
+
+  get _bitmaskFunctions => isMask && hasBitmaskFunctions
+      ? br([
+    '''
+/// Test if the $name *bit* is set in *value* mask
+inline bool test_bit(int value, $name bit) {
+  return (bit & value) == bit;
+}
+
+/// Set the $name *bit* in *value* mask
+inline void set_bit(int &value, $name bit) {
+  value |= bit;
+}
+
+/// Cllear the $name *bit* in *value* mask
+inline void clear_bit(int &value, $name bit) {
+  value &= ~bit;
+}
+'''
+  ])
+      : null;
 
   /// The enum declaration string
   get decl => isMask ? _makeMaskEnum() : _makeEnum();
@@ -240,23 +265,23 @@ class Enum extends CppEntity {
 
   get _classDecl => isClass ? 'class $name' : name;
   get _intType => enumBase != null ? enumBase : 'int';
+  _streamPatch(String s) => _intType.contains('int8')? 'int($s)' : s;
 
   /// Masks are printed as a list of entries that are set
   ///
   ///
   get _maskToCString => '''
-${_friend}inline char const* ${name}_mask_to_c_str($_intType e) {
+${isNested? 'static ':''}inline std::string ${name}_mask_to_str($_intType e) {
   std::ostringstream out__;
-  out__ << '[';
+  out__ << '(' << std::hex << ${_streamPatch('e')} << std::dec << ")[";
 ${
   indentBlock(_valueNames.map((n) =>
     'if(e & $_intType($name::$n)) { out__ << "$name::$n, ";}')
   .join('\n'))
 }
   out__ << ']';
-  return out__.str().c_str();
-}
-$_generalToCString''';
+  return out__.str();
+}''';
 
   String get _friend => isNested ? 'friend ' : '';
   String get _generalToCString => '''
@@ -273,7 +298,12 @@ ${
   }
 }''';
 
-  String get outStreamer => '''
+  String get outStreamer => isMask?
+    '''
+${_friend}inline std::ostream& operator<<(std::ostream &out, $name e) {
+  return out << ${name}_mask_to_str($_intType(e));
+}''' :
+    '''
 ${_friend}inline std::ostream& operator<<(std::ostream &out, $name e) {
   return out << to_c_str(e);
 }''';

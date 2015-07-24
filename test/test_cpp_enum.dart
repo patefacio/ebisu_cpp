@@ -108,14 +108,32 @@ inline void from_c_str(char const* str, Color_${isClass}_mapper &e) {
       final sample_mask = enum_('${id}_mask')
         ..isClass = isClass
         ..values = ['red', 'green', 'blue']
+        ..hasBitmaskFunctions = true
         ..isMask = true;
 
+      if(false) print(sample_mask.toString());
       expect(darkMatter(sample_mask.toString()), darkMatter('''
 enum ${isClass? "class ":""}Color_${isClass}_mask {
   Red_e = 1 << 0,
   Green_e = 1 << 1,
   Blue_e = 1 << 2
 };
+
+
+/// Test if the Color_${isClass}_mask *bit* is set in *value* mask
+inline bool test_bit(int value, Color_${isClass}_mask bit) {
+  return (bit & value) == bit;
+}
+
+/// Set the Color_${isClass}_mask *bit* in *value* mask
+inline void set_bit(int &value, Color_${isClass}_mask bit) {
+  value |= bit;
+}
+
+/// Cllear the Color_${isClass}_mask *bit* in *value* mask
+inline void clear_bit(int &value, Color_${isClass}_mask bit) {
+  value &= ~bit;
+}
 '''));
 
       final sample_mask_base = enum_('${id}_mask')
@@ -127,39 +145,28 @@ enum ${isClass? "class ":""}Color_${isClass}_mask {
 
       if (false) print(sample_mask_base);
 
-      expect(darkMatter(sample_mask_base.toString()), darkMatter('''
+      final expectedDefinition = '''
 enum ${isClass? "class ":""}Color_${isClass}_mask : std::int8_t {
   Red_e = 1 << 0,
   Green_e = 1 << 1,
   Blue_e = 1 << 2
 };
 
-inline char const* Color_${isClass}_mask_mask_to_c_str(std::int8_t e) {
+inline std::string Color_${isClass}_mask_mask_to_str(std::int8_t e) {
   std::ostringstream out__;
-  out__ << '[';
+  out__ << '(' << std::hex << int(e) << std::dec << ")[";
   if(e & std::int8_t(Color_${isClass}_mask::Red_e)) { out__ << "Color_${isClass}_mask::Red_e, ";}
   if(e & std::int8_t(Color_${isClass}_mask::Green_e)) { out__ << "Color_${isClass}_mask::Green_e, ";}
   if(e & std::int8_t(Color_${isClass}_mask::Blue_e)) { out__ << "Color_${isClass}_mask::Blue_e, ";}
   out__ << ']';
-  return out__.str().c_str();
-}
-inline char const* to_c_str(Color_${isClass}_mask e) {
-  switch(e) {
-    case Color_${isClass}_mask::Red_e: return "Red_e";
-    case Color_${isClass}_mask::Green_e: return "Green_e";
-    case Color_${isClass}_mask::Blue_e: return "Blue_e";
-    default: {
-      std::ostringstream msg;
-      msg << "to_c_str(Color_${isClass}_mask) encountered invalid value:" << std::int8_t(e);
-      throw std::logic_error(msg.str());
-    }
-  }
+  return out__.str();
 }
 
 inline std::ostream& operator<<(std::ostream &out, Color_${isClass}_mask e) {
-  return out << to_c_str(e);
+  return out << Color_${isClass}_mask_mask_to_str(std::int8_t(e));
 }
-'''));
+''';
+      expect(darkMatter(sample_mask_base.toString()), darkMatter(expectedDefinition));
     });
   });
 
@@ -214,6 +221,62 @@ enum class Mask_with_green_bit_specified {
   Red_e = 1 << 0,
   Green_e = 1 << 5,
   Blue_e = 1 << 2
+};
+'''));
+  });
+
+  test('nested enum mask', () {
+    final cls =
+      class_('nesting')
+      ..isStreamable = true
+      ..enums = [
+        enum_('mask_with_green_bit_specified')
+        ..isClass = true
+        ..values = ['red', enumValue('green', 5), 'blue']
+        ..isMask = true
+        ..isStreamable = true
+      ]
+      ..members = [
+        member('n')..type = 'Mask_with_green_bit_specified'
+      ]
+      ..owner = null;
+
+    expect(darkMatter(cls.definition), darkMatter(r'''
+class Nesting
+{
+
+public:
+  enum class Mask_with_green_bit_specified {
+    Red_e = 1 << 0,
+    Green_e = 1 << 5,
+    Blue_e = 1 << 2
+  };
+  static inline std::string Mask_with_green_bit_specified_mask_to_str(int e) {
+    std::ostringstream out__;
+    out__ << '(' << std::hex << e << std::dec << ")[";
+    if(e & int(Mask_with_green_bit_specified::Red_e)) { out__ << "Mask_with_green_bit_specified::Red_e, ";}
+    if(e & int(Mask_with_green_bit_specified::Green_e)) { out__ << "Mask_with_green_bit_specified::Green_e, ";}
+    if(e & int(Mask_with_green_bit_specified::Blue_e)) { out__ << "Mask_with_green_bit_specified::Blue_e, ";}
+    out__ << ']';
+    return out__.str();
+  }
+
+  friend inline std::ostream& operator<<(std::ostream &out, Mask_with_green_bit_specified e) {
+    return out << Mask_with_green_bit_specified_mask_to_str(int(e));
+  }
+
+  friend inline
+  std::ostream& operator<<(std::ostream &out,
+                           Nesting const& item) {
+    out << "Nesting(" << &item << ") {";
+    out << "\n  n:" << item.n_;
+    out << "\n}\n";
+    return out;
+  }
+
+private:
+  Mask_with_green_bit_specified n_ {};
+
 };
 '''));
   });
