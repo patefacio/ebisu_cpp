@@ -1,7 +1,6 @@
 part of ebisu_cpp.ebisu_cpp;
 
 class Script extends CppEntity implements CodeGenerator {
-
   // custom <class Script>
 
   Script(Id id) : super(id);

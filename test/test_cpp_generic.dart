@@ -28,13 +28,16 @@ main([List<String> args]) {
           true);
       expect(
           darkSame(using('a = vector<it>'), 'using A_t = vector<it>;'), true);
-      expect(darkSame(using(new Using('goo', 'vector<vector<x>>')),
-          'using Goo_t = vector<vector<x>>;'), true);
-      expect(darkSame(using('this_is_a_test', 'List<int>'),
-          'using This_is_a_test_t = List<int>;'), true);
+      expect(
+          darkSame(using(new Using('goo', 'vector<vector<x>>')),
+              'using Goo_t = vector<vector<x>>;'),
+          true);
+      expect(
+          darkSame(using('this_is_a_test', 'List<int>'),
+              'using This_is_a_test_t = List<int>;'),
+          true);
     });
   });
 
 // end <main>
-
 }

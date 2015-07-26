@@ -4,13 +4,13 @@ part of ebisu_cpp.ebisu_cpp;
 enum TemplateParmType {
   /// Indicates the template parameter names a type
   type,
+
   /// Indicates the template parameter indicates a non-type
   /// (e.g. *MAX_SIZE = 10* - a constant literal)
   nonType
 }
 
 abstract class TemplateParm extends CppEntity {
-
   // custom <class TemplateParm>
   TemplateParm(id) : super(id);
   Iterable<Entity> get children => [];
@@ -36,6 +36,7 @@ class TypeTemplateParm extends TemplateParm {
 
 class DeclTemplateParm extends TemplateParm {
   List<String> terms;
+
   /// Index into the terms indicating the id
   int idIndex;
 

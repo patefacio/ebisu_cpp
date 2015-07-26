@@ -2,7 +2,6 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// Object corresponding to a using statement
 class Using extends CppEntity {
-
   /// The right hand side of using (ie the type decl being named)
   String get rhs => _rhs;
 

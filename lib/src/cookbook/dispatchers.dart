@@ -7,6 +7,7 @@ enum DispatchCppType {
   dctInteger,
   dctByteArray
 }
+
 /// Convenient access to DispatchCppType.dctStdString with *dctStdString* see [DispatchCppType].
 ///
 const DispatchCppType dctStdString = DispatchCppType.dctStdString;
@@ -49,7 +50,6 @@ const DispatchCppType dctByteArray = DispatchCppType.dctByteArray;
 /// Often you will need code that effectively does a switch on a *tag* associated
 /// with the data and passes that data to its proper handler.
 abstract class EnumeratedDispatcher {
-
   /// Set of valid values *all of same type* to index on.
   ///
   /// For example, to discriminate on a set of named tags:
@@ -66,22 +66,29 @@ abstract class EnumeratedDispatcher {
   ///
   ///     ..enumeration = ['typeDeclaration', 'struct', 'member', 'function']
   List<dynamic> get enumeration => _enumeration;
+
   /// C++ expression suitable for a switch or variable assignment,
   /// representing the enumerated value
   String enumerator;
+
   /// Functor allowing client to dictate the dispatch on the
   /// enumerant. *Note* client must supply trailing semicolon if needed.
   Dispatcher dispatcher;
+
   /// Type associated with the enumerated values. That type may be *string*
   /// or some form of int.
   String type;
+
   /// Type of the enumerator entries
   DispatchCppType enumeratorType;
+
   /// Type of the discriminator
   DispatchCppType discriminatorType;
+
   /// Functor allowing client to dictate the dispatch of an unidentified
   /// enumerator. *Note* client must supply trailing semicolon if needed.
   ErrorDispatcher errorDispatcher;
+
   /// For [dctStdString] type enumerations.
   ///
   /// If true does not declare separate *descriminator_* local variable, but
@@ -100,8 +107,8 @@ abstract class EnumeratedDispatcher {
       {this.errorDispatcher, this.enumerator: 'discriminator'}) {
     enumeration = enumeration_;
     if (errorDispatcher == null) {
-      errorDispatcher =
-          (_) => 'assert(!"Enumerator not in {${enumeration.join(", ")}}");';
+      errorDispatcher = (_) =>
+          'assert(!"Enumerator not in {${enumeration.join(", ")}}");';
     }
   }
 
@@ -183,7 +190,6 @@ abstract class EnumeratedDispatcher {
 
 /// Dispatcher implemented with *switch* statement
 class SwitchDispatcher extends EnumeratedDispatcher {
-
   // custom <class SwitchDispatcher>
 
   SwitchDispatcher(enumeration, dispatcher, {enumerator: 'discriminator'})
@@ -393,10 +399,10 @@ class CharNode {
   get asCpp => length == 1 ? "'$char'" : doubleQuote(char);
 
   toString() => brCompact([
-    '$char in $fullName',
-    'isLeaf:$isLeaf',
-    indentBlock(brCompact(children))
-  ]);
+        '$char in $fullName',
+        'isLeaf:$isLeaf',
+        indentBlock(brCompact(children))
+      ]);
 
   // end <class CharNode>
 
@@ -405,7 +411,6 @@ class CharNode {
 /// Dipatcher implemented with *if-else-if* statements visiting character by
 /// character - *only* valid for strings as discriminators.
 class CharBinaryDispatcher extends EnumeratedDispatcher {
-
   /// Bypasses normal length checks.
   ///
   /// Applicable when caller all enumerants of same length and caller
@@ -485,18 +490,18 @@ ${dispatcher(this, node.fullName)}
         _cmpNode(node, charIndex, sizeChecks),
         node.isLeaf
             ? br([
-          indentBlock(brCompact([
-            hasNoLengthChecks
-                ? _hitNode(node)
-                : '''
+                indentBlock(brCompact([
+                  hasNoLengthChecks
+                      ? _hitNode(node)
+                      : '''
 
 // Leaf node: potential hit on "${node.fullName}"
 if(${node.fullName.length} == discriminator_length_) {
 ${indentBlock(_hitNode(node))}
 }
 '''
-          ])),
-        ])
+                ])),
+              ])
             : null,
       ]),
       visitChildren(),
@@ -513,7 +518,6 @@ ${indentBlock(_hitNode(node))}
 /// with *if-else-if* statements visiting character by character - *only* valid for
 /// strings as discriminators.
 class StrlenBinaryDispatcher extends EnumeratedDispatcher {
-
   /// Map the length of the enumerant to the set of enumerants of same length
   Map get lengthMap => _lengthMap;
 

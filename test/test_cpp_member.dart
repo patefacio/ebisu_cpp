@@ -42,11 +42,19 @@ Wee willy winkee went through the town.'''
   test('type inference: string',
       () => expect((member('foo')..init = 'goo').type, 'std::string'));
 
-  test('type inference: List', () =>
-      expect((member('foo')..init = [1, 2, 3]).type, 'std::vector< int >'));
+  test(
+      'type inference: List',
+      () =>
+          expect((member('foo')..init = [1, 2, 3]).type, 'std::vector< int >'));
 
-  test('type inference: List of lists', () => expect((member('foo')
-    ..init = [[1, 2, 3]]).type, 'std::vector< std::vector< int > >'));
+  test(
+      'type inference: List of lists',
+      () => expect(
+          (member('foo')
+            ..init = [
+              [1, 2, 3]
+            ]).type,
+          'std::vector< std::vector< int > >'));
 
   test('member turns non-snake id to id', () {
     final m = member('thisIsATest');
@@ -103,11 +111,11 @@ Wee willy winkee went through the town.'''
 
   aContainsB(String a, String b) => darkMatter(a).contains(darkMatter(b));
 
-  memberWithAccess(access, [cppAccess = null]) => class_('c_1')
-    ..members.add(member('x')
-      ..type = 'std::string'
-      ..access = access
-      ..cppAccess = cppAccess);
+  memberWithAccess(access, [cppAccess = null]) =>
+      class_('c_1')..members.add(member('x')
+        ..type = 'std::string'
+        ..access = access
+        ..cppAccess = cppAccess);
 
   final reader = 'std::string const& x() const';
   final writer = 'void x(std::string &x)';
@@ -160,7 +168,6 @@ ${indentBlock(definition, '    ')}
   });
 
   test('class defaultMemberAccess', () {
-
     /// Note the ..owner = null, this triggers the ownership walk. Normally
     /// triggered at top level installation.generate. But for testing this needs
     /// to be triggered.
@@ -172,32 +179,39 @@ ${indentBlock(definition, '    ')}
   });
 
   test('member getReturnModifier', () {
-    expect(darkSame((member('message_length')
-      ..type = 'int32_t'
-      ..access = ro
-      ..getterReturnModifier =
-      ((member, oldValue) => 'endian_convert($oldValue)')).getter, '''
+    expect(
+        darkSame(
+            (member('message_length')
+              ..type = 'int32_t'
+              ..access = ro
+              ..getterReturnModifier = ((member, oldValue) =>
+                  'endian_convert($oldValue)')).getter,
+            '''
 //! getter for message_length_ (access is Ro)
 int32_t message_length() const {
   return endian_convert(message_length_);
 }
-'''), true);
+'''),
+        true);
 
-    expect(darkSame((class_('class_with_special_accessor')
-      ..members = [
-        member('only_one')
-          ..type = 'some_struct_t'
-          ..access = ia
-          ..withCustomBlock((Member m, CodeBlock cb) {
-            cb.snippets.add('''
+    expect(
+        darkSame(
+            (class_('class_with_special_accessor')
+              ..members = [
+                member('only_one')
+                  ..type = 'some_struct_t'
+                  ..access = ia
+                  ..withCustomBlock((Member m, CodeBlock cb) {
+                    cb.snippets.add('''
 /// just to illustrate custom member function
 ${m.type} const& get_${m.type}() {
   _logger.info("badabing accessed my struct");
   return ${m.vname};
 }
 ''');
-          }),
-      ]).definition, '''
+                  }),
+              ]).definition,
+            '''
 class Class_with_special_accessor
 {
 
@@ -212,9 +226,9 @@ private:
   some_struct_t only_one_ {};
 
 };
-'''), true);
+'''),
+        true);
   });
 
 // end <main>
-
 }

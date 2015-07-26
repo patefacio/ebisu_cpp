@@ -49,17 +49,17 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 ///       tests:
 abstract class CppEntity extends Object with Entity {
-
   /// Id for the [CppEntity]
   Id id;
 
   // custom <class CppEntity>
 
-  CppEntity(Object id) : this.id = id is String
-          ? idFromString(id)
-          : id is Id
-              ? id
-              : throw '''
+  CppEntity(Object id)
+      : this.id = id is String
+            ? idFromString(id)
+            : id is Id
+                ? id
+                : throw '''
 CPpEntities must be created with id of String or Id: ${id.runtimeType}=$id''';
 
   String get briefComment => brief != null ? '//! $brief' : null;

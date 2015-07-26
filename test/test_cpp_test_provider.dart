@@ -21,19 +21,24 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
-  vectorSample() => testScenario('basics', given('a vector with some items', [
-    when('the size is increased', then('the size and capacity change')),
-    when('the size is reduced', then('the size channges but not capacity')),
-    when('more capacity is reserved',
-        then('the capacity changes but not the size')),
-    when('less capacity is reserved',
-        then('neither size nore capacity is changed')),
-  ]));
+  vectorSample() => testScenario(
+      'basics',
+      given('a vector with some items', [
+        when('the size is increased', then('the size and capacity change')),
+        when('the size is reduced', then('the size channges but not capacity')),
+        when('more capacity is reserved',
+            then('the capacity changes but not the size')),
+        when('less capacity is reserved',
+            then('neither size nore capacity is changed')),
+      ]));
 
   test('test_scenario', () {
     final sampleTestScenario = vectorSample();
     sampleTestScenario.owner = null;
-    expect(darkSame(br(scenarioTestText(sampleTestScenario)), '''
+    expect(
+        darkSame(
+            br(scenarioTestText(sampleTestScenario)),
+            '''
 SCENARIO("basics") {
   GIVEN("a vector with some items") {
   // custom <(862084306)>
@@ -77,9 +82,9 @@ SCENARIO("basics") {
 
   }
 }
-'''), true);
+'''),
+        true);
   });
 
 // end <main>
-
 }

@@ -13,11 +13,13 @@ class InstallationWalker implements CodeGenerator {
     final outPath = path.join(
         installation.rootFilePath, 'doc', '${installation.id.emacs}.el');
 
-    mergeWithFile(brCompact([
-      installation.libs.map((l) => '''
+    mergeWithFile(
+        brCompact([
+          installation.libs.map((l) => '''
 (defun ${installation.id.emacs}:${l.id.emacs}() (interactive) )
 '''),
-    ]), outPath);
+        ]),
+        outPath);
   }
 
   // end <class InstallationWalker>

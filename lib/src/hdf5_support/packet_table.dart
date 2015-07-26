@@ -3,7 +3,6 @@ part of ebisu_cpp.hdf5_support;
 /// Indicates a class could not be found in the [Installation] for adding
 /// hdf5 packet table support
 class ClassNotFoundException implements Exception {
-
   /// Exception details
   String get message => _message;
 
@@ -27,6 +26,7 @@ class LogGroup {
 
   /// Name of class, *snake case*, to add a packet table log group
   final String className;
+
   /// Name of members of class, *snake case*, to include in the packet table
   /// log group. An empty list will include all members in the table.
   final List<String> memberNames;
@@ -57,7 +57,8 @@ class PacketTableDecorator implements InstallationDecorator {
       assert(targetClass is Class);
 
       targetClass
-        ..getCodeBlock(clsPublic).snippets
+        ..getCodeBlock(clsPublic)
+            .snippets
             .addAll(['/// hdf5 goodness added here'])
         ..friendClassDecls = [
           friendClassDecl(installation.namer.nameClass(

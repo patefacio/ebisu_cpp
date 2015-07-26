@@ -89,8 +89,9 @@ namespace c {
   });
 
   test('mergeIncludes', () {
-    expect((includes(['iostream', 'sstream'])
-      ..mergeIncludes(includes(['stdexcept', 'iostream']))).includes,
+    expect(
+        (includes(['iostream', 'sstream'])
+          ..mergeIncludes(includes(['stdexcept', 'iostream']))).includes,
         includes(['iostream', 'sstream', 'stdexcept']).includes);
 
     expect((includes(['iostream', 'sstream'])..mergeIncludes(null)).includes,
@@ -103,20 +104,31 @@ namespace c {
   });
 
   test('pointer usings', () {
-    expect(darkSame(usingPtr('foo_bar', 'List<Goo>'),
-        'using Foo_bar_ptr_t = List<Goo> *;'), true);
-    expect(darkSame(usingCptr('foo_bar', 'List<Goo>'),
-        'using Foo_bar_cptr_t = List<Goo> const*;'), true);
-    expect(darkSame(usingSptr('foo_bar', 'List<Goo>'),
-        'using Foo_bar_sptr_t = std::shared_ptr<List<Goo>>;'), true);
-    expect(darkSame(usingUptr('foo_bar', 'List<Goo>'),
-        'using Foo_bar_uptr_t = std::unique_ptr<List<Goo>>;'), true);
-    expect(darkSame(usingScptr('foo_bar', 'List<Goo>'),
-        'using Foo_bar_scptr_t = std::shared_ptr<List<Goo> const>;'), true);
-    expect(darkSame(usingUcptr('foo_bar', 'List<Goo>'),
-        'using Foo_bar_ucptr_t = std::unique_ptr<List<Goo> const>;'), true);
+    expect(
+        darkSame(usingPtr('foo_bar', 'List<Goo>'),
+            'using Foo_bar_ptr_t = List<Goo> *;'),
+        true);
+    expect(
+        darkSame(usingCptr('foo_bar', 'List<Goo>'),
+            'using Foo_bar_cptr_t = List<Goo> const*;'),
+        true);
+    expect(
+        darkSame(usingSptr('foo_bar', 'List<Goo>'),
+            'using Foo_bar_sptr_t = std::shared_ptr<List<Goo>>;'),
+        true);
+    expect(
+        darkSame(usingUptr('foo_bar', 'List<Goo>'),
+            'using Foo_bar_uptr_t = std::unique_ptr<List<Goo>>;'),
+        true);
+    expect(
+        darkSame(usingScptr('foo_bar', 'List<Goo>'),
+            'using Foo_bar_scptr_t = std::shared_ptr<List<Goo> const>;'),
+        true);
+    expect(
+        darkSame(usingUcptr('foo_bar', 'List<Goo>'),
+            'using Foo_bar_ucptr_t = std::unique_ptr<List<Goo> const>;'),
+        true);
   });
 
 // end <main>
-
 }

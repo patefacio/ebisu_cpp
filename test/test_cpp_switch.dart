@@ -22,11 +22,8 @@ main([List<String> args]) {
 // custom <main>
 
   test('basic switch', () {
-    final s = new Switch('some_input', [
-      1,
-      10,
-      100
-    ], (caseValue) => 'std::cout << $caseValue << std::endl;');
+    final s = new Switch('some_input', [1, 10, 100],
+        (caseValue) => 'std::cout << $caseValue << std::endl;');
 
     expect(darkMatter(s.definition), darkMatter('''
 switch (some_input) {
@@ -51,11 +48,8 @@ switch (some_input) {
   });
 
   test('basic switch via function', () {
-    final s = switch_('some_input', [
-      1,
-      10,
-      100
-    ], (caseValue) => 'std::cout << $caseValue << std::endl;');
+    final s = switch_('some_input', [1, 10, 100],
+        (caseValue) => 'std::cout << $caseValue << std::endl;');
     expect(darkMatter(s.definition), darkMatter('''
 switch (some_input) {
   case 1: {
@@ -79,11 +73,8 @@ switch (some_input) {
   });
 
   test('basic char switch', () {
-    final s = new Switch('some_char_input', [
-      'x',
-      'y',
-      'z'
-    ], (caseValue) => 'std::cout << $caseValue << std::endl;')..isChar = true;
+    final s = new Switch('some_char_input', ['x', 'y', 'z'],
+        (caseValue) => 'std::cout << $caseValue << std::endl;')..isChar = true;
     expect(darkMatter(s.definition), darkMatter('''
 switch (some_char_input) {
   // Following is for character ('x'=120)
@@ -110,5 +101,4 @@ switch (some_char_input) {
   });
 
 // end <main>
-
 }

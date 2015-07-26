@@ -32,6 +32,7 @@ enum StandardizedHeader {
   libInitializationHeader,
   libAllHeader
 }
+
 /// Convenient access to StandardizedHeader.libCommonHeader with *libCommonHeader* see [StandardizedHeader].
 ///
 const StandardizedHeader libCommonHeader = StandardizedHeader.libCommonHeader;
@@ -102,17 +103,23 @@ enum FileCodeBlock {
   ///     #include "catch.hpp"
   ///
   fcbPreIncludes,
+
   /// Custom block for any additional includes appearing just after generated includes
   fcbCustomIncludes,
+
   /// Custom block appearing just before the namespace declaration in the code
   fcbPreNamespace,
+
   /// Custom block appearing at the begining of and inside the namespace
   fcbBeginNamespace,
+
   /// Custom block appearing at the end of and inside the namespace
   fcbEndNamespace,
+
   /// Custom block appearing just after the namespace declaration in the code
   fcbPostNamespace
 }
+
 /// Convenient access to FileCodeBlock.fcbPreIncludes with *fcbPreIncludes* see [FileCodeBlock].
 ///
 /// Custom block any code just before includes begin
@@ -156,9 +163,9 @@ const FileCodeBlock fcbPostNamespace = FileCodeBlock.fcbPostNamespace;
 
 /// Wrap (un)initialization of a Lib in static methods of a class
 class LibInitializer {
-
   /// CodeBlock for customizing intialization of [Lib]
   CodeBlock initCustomBlock;
+
   /// CodeBlock for customizing unintialization of [Lib]
   CodeBlock uninitCustomBlock;
 
@@ -169,13 +176,15 @@ class LibInitializer {
 
 /// A c++ library
 class Lib extends CppEntity with Testable implements CodeGenerator {
-
   /// Semantic Version for this [Lib]
   SemanticVersion get version => _version;
+
   /// Names for [Lib]
   Namespace namespace = new Namespace();
+
   /// List of [Header] objects in this [Lib]
   List<Header> get headers => _headers;
+
   /// List of [Impl] objects in this [Impl]
   List<Impl> impls = [];
   set requiresLogging(bool requiresLogging) =>
@@ -194,13 +203,13 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
     _preserveStandardizedHeaders();
   }
 
-  _preserveStandardizedHeaders() => _standardizedHeaders.forEach(
-      (Header header) {
-    if (header != null) {
-      _logger.severe('Preserved standardized header ${header.id}');
-      _headers.add(header);
-    }
-  });
+  _preserveStandardizedHeaders() =>
+      _standardizedHeaders.forEach((Header header) {
+        if (header != null) {
+          _logger.severe('Preserved standardized header ${header.id}');
+          _headers.add(header);
+        }
+      });
 
   set version(version_) => _version = version_ is SemanticVersion
       ? version_
@@ -419,15 +428,19 @@ namespace {
   List<Header> _headers = [];
   bool _requiresLogging;
   LibInitializer _libInitializer;
+
   /// A header for placing types and definitions to be shared among all
   /// other headers in the [Lib]. If this were used for windows, this would
   /// be a good place for the API decl definitions.
   Header _commonHeader;
+
   /// A header for initializing a single logger for the [Lib] if required
   Header _loggingHeader;
+
   /// For [Lib]s that need certain *initialization*/*uninitialization*
   /// functions to be run this will provide a mechanism.
   Header _initializationHeader;
+
   /// A single header including all other headers - intended as a
   /// convenience mechanism for clients not so worried about compile times.
   Header _allHeader;

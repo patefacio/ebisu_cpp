@@ -2,7 +2,6 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// A single c++ header
 class Header extends CppFile {
-
   // custom <class Header>
 
   Header(Id id) : super(id);

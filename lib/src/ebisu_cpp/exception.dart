@@ -3,7 +3,6 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// Creates a new *exception* class derived from std::exception.
 class ExceptionClass extends Class {
-
   /// Base class for this exception class
   String baseException;
 

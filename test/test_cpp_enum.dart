@@ -111,7 +111,7 @@ inline void from_c_str(char const* str, Color_${isClass}_mapper &e) {
         ..hasBitmaskFunctions = true
         ..isMask = true;
 
-      if(false) print(sample_mask.toString());
+      if (false) print(sample_mask.toString());
       expect(darkMatter(sample_mask.toString()), darkMatter('''
 enum ${isClass? "class ":""}Color_${isClass}_mask {
   Red_e = 1 << 0,
@@ -166,7 +166,8 @@ inline std::ostream& operator<<(std::ostream &out, Color_${isClass}_mask e) {
   return out << Color_${isClass}_mask_mask_to_str(std::int8_t(e));
 }
 ''';
-      expect(darkMatter(sample_mask_base.toString()), darkMatter(expectedDefinition));
+      expect(darkMatter(sample_mask_base.toString()),
+          darkMatter(expectedDefinition));
     });
   });
 
@@ -226,19 +227,16 @@ enum class Mask_with_green_bit_specified {
   });
 
   test('nested enum mask', () {
-    final cls =
-      class_('nesting')
+    final cls = class_('nesting')
       ..isStreamable = true
       ..enums = [
         enum_('mask_with_green_bit_specified')
-        ..isClass = true
-        ..values = ['red', enumValue('green', 5), 'blue']
-        ..isMask = true
-        ..isStreamable = true
+          ..isClass = true
+          ..values = ['red', enumValue('green', 5), 'blue']
+          ..isMask = true
+          ..isStreamable = true
       ]
-      ..members = [
-        member('n')..type = 'Mask_with_green_bit_specified'
-      ]
+      ..members = [member('n')..type = 'Mask_with_green_bit_specified']
       ..owner = null;
 
     expect(darkMatter(cls.definition), darkMatter(r'''
@@ -282,5 +280,4 @@ private:
   });
 
 // end <main>
-
 }

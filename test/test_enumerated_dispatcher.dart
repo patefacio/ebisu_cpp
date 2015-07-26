@@ -25,13 +25,10 @@ main([List<String> args]) {
   final showCode = false;
   group('dispatcher', () {
     test('SwitchDispatcher', () {
-      final switchDispatcher = new SwitchDispatcher([
-        1,
-        2,
-        3,
-        4
-      ], (EnumeratedDispatcher dispatcher, enumerator) =>
-          'handle_value_$enumerator(buffer);\nbreak;');
+      final switchDispatcher = new SwitchDispatcher(
+          [1, 2, 3, 4],
+          (EnumeratedDispatcher dispatcher, enumerator) =>
+              'handle_value_$enumerator(buffer);\nbreak;');
       if (showCode) print(switchDispatcher.dispatchBlock);
       expect(darkMatter(switchDispatcher.dispatchBlock), darkMatter('''
 switch(discriminator) {
@@ -62,12 +59,8 @@ default: assert(!"Enumerator not in {1, 2, 3, 4}");
     });
 
     test('IfElseIfDispatcher', () {
-      final dispatcher = new IfElseIfDispatcher([
-        'foo',
-        'bar',
-        'goo',
-        'baz'
-      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);');
+      final dispatcher = new IfElseIfDispatcher(['foo', 'bar', 'goo', 'baz'],
+          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);');
 
       if (showCode) print(dispatcher.dispatchBlock);
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
@@ -87,10 +80,8 @@ if(foo == discriminator_) {
     });
 
     test('IfElseIfDispatcher (d is cptr, e is string) uses e.== ', () {
-      var dispatcher = new IfElseIfDispatcher([
-        'foo',
-        'bar',
-      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      var dispatcher = new IfElseIfDispatcher(['foo', 'bar',],
+          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..discriminatorType = dctCptr;
 
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
@@ -106,10 +97,8 @@ if(foo == discriminator_) {
     });
 
     test('IfElseIfDispatcher (e is cptr, d is string) uses d.== ', () {
-      var dispatcher = new IfElseIfDispatcher([
-        'foo',
-        'bar',
-      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      var dispatcher = new IfElseIfDispatcher(['foo', 'bar',],
+          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..discriminatorType = dctStdString
         ..enumeratorType = dctCptr;
 
@@ -126,10 +115,8 @@ if(discriminator_ == foo}) {
     });
 
     test('IfElseIfDispatcher (e is cptr, d is cptr) uses strcmp ', () {
-      var dispatcher = new IfElseIfDispatcher([
-        'foo',
-        'bar',
-      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      var dispatcher = new IfElseIfDispatcher(['foo', 'bar',],
+          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..discriminatorType = dctCptr
         ..enumeratorType = dctCptr;
 
@@ -146,10 +133,8 @@ if(strcmp(foo, discriminator_) == 0) {
     });
 
     test('IfElseIfDispatcher (d is dctInteger, e is dctInteger) uses == ', () {
-      var dispatcher = new IfElseIfDispatcher([
-        'foo',
-        'bar',
-      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      var dispatcher = new IfElseIfDispatcher(['foo', 'bar',],
+          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..discriminatorType = dctInteger
         ..enumeratorType = dctInteger;
 
@@ -166,11 +151,8 @@ if(foo == discriminator_) {
     });
 
     test('IfElseIfDispatcher (d is int literal, e is dctInteger) uses == ', () {
-      var dispatcher = new IfElseIfDispatcher([
-        1,
-        2,
-        3
-      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      var dispatcher = new IfElseIfDispatcher([1, 2, 3],
+          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..discriminatorType = dctInteger
         ..enumeratorType = dctInteger;
 
@@ -216,10 +198,12 @@ if(strncmp("125", &discriminator_[0], 3) == 0) {
     });
 
     test('CharBinaryDispatcher with continue and logged error', () {
-      var dispatcher = new CharBinaryDispatcher(['125',], (dispatcher,
-          enumerator) => 'handleValue$enumerator(buffer);\ncontinue;')
-        ..errorDispatcher =
-        ((_) => 'std::cerr << "Bogus tag " << discriminator;')
+      var dispatcher = new CharBinaryDispatcher(
+          ['125',],
+          (dispatcher, enumerator) =>
+              'handleValue$enumerator(buffer);\ncontinue;')
+        ..errorDispatcher = ((_) =>
+            'std::cerr << "Bogus tag " << discriminator;')
         ..enumeratorType = dctStringLiteral;
 
       if (showCode) print(dispatcher.dispatchBlock);
@@ -427,5 +411,4 @@ switch (discriminator_length_) {
   });
 
 // end <main>
-
 }

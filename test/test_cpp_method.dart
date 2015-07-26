@@ -110,12 +110,13 @@ main([List<String> args]) {
         expect(methodDecl.parmDecls.last.type, 'int');
         expect(methodDecl.parmDecls.last.id.snake, 'b');
 
-        expect(darkMatter(methodDecl.asNonVirtual)
-            .contains(darkMatter('template< typename FOO >')), true);
+        expect(
+            darkMatter(methodDecl.asNonVirtual)
+                .contains(darkMatter('template< typename FOO >')),
+            true);
       });
     }
   });
 
 // end <main>
-
 }

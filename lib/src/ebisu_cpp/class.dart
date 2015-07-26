@@ -46,31 +46,44 @@ part of ebisu_cpp.ebisu_cpp;
 enum ClassCodeBlock {
   /// The custom block appearing just after class is opened
   clsOpen,
+
   /// The custom block appearing at start *public* section
   clsPublicBegin,
+
   /// The custom block appearing in the standard *public* section
   clsPublic,
+
   /// The custom block appearing at end *public* section
   clsPublicEnd,
+
   /// The custom block appearing at start *protected* section
   clsProtectedBegin,
+
   /// The custom block appearing in the standard *protected* section
   clsProtected,
+
   /// The custom block appearing at end *protected* section
   clsProtectedEnd,
+
   /// The custom block appearing at start *private* section
   clsPrivateBegin,
+
   /// The custom block appearing in the standard *private* section
   clsPrivate,
+
   /// The custom block appearing at end *private* section
   clsPrivateEnd,
+
   /// The custom block appearing just before class is closed
   clsClose,
+
   /// The custom block appearing just before the class definition
   clsPreDecl,
+
   /// The custom block appearing just after the class definition
   clsPostDecl
 }
+
 /// Convenient access to ClassCodeBlock.clsOpen with *clsOpen* see [ClassCodeBlock].
 ///
 /// The custom block appearing just after class is opened
@@ -153,19 +166,24 @@ const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
 /// consructors, destructors, overloaded operators, etc.
 abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
   Class get parent => _parent;
+
   /// If true add logging
   bool isLogged = false;
   Template get template => _template;
+
   /// C++ style access of method
   CppAccess cppAccess = public;
+
   /// Code snippet to inject at beginning of method. The intent is for the
   /// methods to have standard generated implementations, but to also
   /// support programatic injection of implmementation into the
   /// methods. This supports injection near the top of the method.
   String topInject = '';
+
   /// Supports injecting code near the bottom of the method. *See*
   /// *topInject*
   String bottomInject = '';
+
   /// If set will include protection block for hand-coding in method.
   ///
   /// Normally an a class mixing in [CustomCodeBlock] would provide a setter
@@ -229,7 +247,6 @@ abstract class DefaultMethod extends ClassMethod {
 
 /// Default ctor, autoinitialized on read
 class DefaultCtor extends DefaultMethod {
-
   // custom <class DefaultCtor>
 
   String get prototype => '${className}()';
@@ -243,7 +260,6 @@ class DefaultCtor extends DefaultMethod {
 
 /// Copy ctor, autoinitialized on read
 class CopyCtor extends DefaultMethod {
-
   // custom <class CopyCtor>
 
   String get prototype => '${className}(${className} const& other)';
@@ -257,7 +273,6 @@ class CopyCtor extends DefaultMethod {
 
 /// Move ctor, autoinitialized on read
 class MoveCtor extends DefaultMethod {
-
   // custom <class MoveCtor>
 
   String get prototype => '${className}(${className} && other)';
@@ -269,7 +284,6 @@ class MoveCtor extends DefaultMethod {
 }
 
 class AssignCopy extends DefaultMethod {
-
   // custom <class AssignCopy>
 
   String get prototype => '${className}& operator=(${className} const&)';
@@ -281,7 +295,6 @@ class AssignCopy extends DefaultMethod {
 }
 
 class AssignMove extends DefaultMethod {
-
   // custom <class AssignMove>
 
   String get prototype => '${className}& operator=(${className} &&)';
@@ -362,8 +375,10 @@ class MemberCtorParm {
 
   /// Name of member initialized by argument to member ctor
   final String name;
+
   /// cpp member to be initialized
   Member member;
+
   /// *Override* for arguemnt declaration. This is rarely needed. Suppose
   /// you want to initialize member *Y y* from an input argument *X x* that
   /// requires a special function *f* to do the conversion:
@@ -378,6 +393,7 @@ class MemberCtorParm {
   ///       ..init = "f(x)"
   ///     ])
   String parmDecl;
+
   /// *Override* of initialization text. This is rarely needed since
   /// initialization of members in a member ctor is straightforward:
   ///
@@ -411,6 +427,7 @@ class MemberCtorParm {
   ///       ..init = "umask(new_mode)"
   ///     ])
   set init(String init) => _init = init;
+
   /// If set provides a default value for the parm in the ctor. For example:
   ///
   ///     memberCtorParm('x')..defaultValue = '42'
@@ -483,13 +500,15 @@ MemberCtorParm memberCtorParm([String name]) => new MemberCtorParm(name);
 ///       // end <Class>
 ///     }
 class MemberCtor extends ClassMethod {
-
   /// List of members that are passed as arguments for initialization
   List<MemberCtorParm> memberParms = [];
+
   /// List of additional decls ["Type Argname", ...]
   List<String> decls;
+
   /// If set automatically includes all members as args
   bool hasAllMembers = false;
+
   /// If true makes the ctor explicit
   bool isExplicit = false;
 
@@ -497,9 +516,7 @@ class MemberCtor extends ClassMethod {
 
   static _makeParm(parm) => (parm is String)
       ? memberCtorParm(parm)
-      : (parm is MemberCtorParm)
-          ? parm
-          : (throw new Exception('''
+      : (parm is MemberCtorParm) ? parm : (throw new Exception('''
 MemberCtor ctor requires list of parms where each parm is a *String* naming the
 member being initialized or a MemberCtorParm instance'''));
 
@@ -535,12 +552,14 @@ member being initialized or a MemberCtorParm instance'''));
 
     final explicitTag = isExplicit ? 'explicit ' : '';
 
-    return functionContents('''
+    return functionContents(
+        '''
 ${explicitTag}${_templateDecl}${className}(
 ${indentBlock(argDecls.join(',\n'))}) :
-${indentBlock(initializers.join(',\n'))}''', tag != null
-        ? '${className}($tag)'
-        : '${className}(${argDecls.join(':')})');
+${indentBlock(initializers.join(',\n'))}''',
+        tag != null
+            ? '${className}($tag)'
+            : '${className}(${argDecls.join(':')})');
   }
 
   /// Set a [label] for the *protect block*.
@@ -556,7 +575,6 @@ ${indentBlock(initializers.join(',\n'))}''', tag != null
 
 /// Provides *operator==()*
 class OpEqual extends ClassMethod {
-
   // custom <class OpEqual>
 
   String get definition => '''bool operator==(${className} const& rhs) const {
@@ -576,7 +594,6 @@ bool operator!=($className const& rhs) const {
 
 /// Provides *operator<()*
 class OpLess extends ClassMethod {
-
   // custom <class OpLess>
 
   String get definition {
@@ -598,7 +615,6 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
 
 /// Provides *operator<<()*
 class OpOut extends ClassMethod {
-
   /// If true uses tls indentation tracking to indent nested
   /// components when streaming
   bool usesNestedIndent = false;
@@ -639,14 +655,14 @@ using ebisu::utils::streamers::operator<<;
 '''
       : '';
   get _indentSupport => br([
-    _usesStreamersNamespace,
-    usesNestedIndent
-        ? '''
+        _usesStreamersNamespace,
+        usesNestedIndent
+            ? '''
 ebisu::utils::Block_indenter indenter;
 char const* indent(indenter.current_indentation_text());
 '''
-        : ''
-  ]);
+            : ''
+      ]);
 
   String _streamBase(Base b) =>
       'out << "\\n  " << static_cast<${b.className}>(item);';
@@ -762,20 +778,25 @@ ${indentBlock(chomp(brCompact([
 ///   providing *CustomBlocks* and/or for dynamically injecting code - see
 ///   [CodeBlock].
 class Class extends CppEntity with Testable {
-
   /// Is this definition a *struct*
   bool isStruct = false;
+
   /// The template by which the class is parameterized
   Template get template => _template;
+
   /// Forward declarations near top of file, before the class definition
   List<ForwardDecl> forwardDecls = [];
+
   /// Forward declarations within class, ideal for forward declaring nested classes
   List<ForwardDecl> classForwardDecls = [];
+
   /// *constexpr*s associated with the class
   List<ConstExpr> constExprs = [];
+
   /// List of usings that will be scoped to this class near the top of
   /// the class definition.
   List<Using> get usings => _usings;
+
   /// List of usings to occur after the class declaration. Sometimes it is
   /// useful to establish some type definitions directly following the class
   /// so they may be reused among any client of the class. For instance if
@@ -784,8 +805,10 @@ class Class extends CppEntity with Testable {
   ///
   ///     using Foo = std::vector<Foo>;
   List<Using> get usingsPostDecl => _usingsPostDecl;
+
   /// Base classes this class derives form.
   List<Base> bases = [];
+
   /// A list of member constructors
   List<MemberCtor> memberCtors = [];
   List<PtrType> forwardPtrs = [];
@@ -795,15 +818,19 @@ class Class extends CppEntity with Testable {
   List<FriendClassDecl> friendClassDecls = [];
   List<ClassCodeBlock> customBlocks = [];
   bool isSingleton = false;
+
   /// If true deletes copy ctor and assignment operator
   bool isNoncopyable = false;
   Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
+
   /// If true adds {using fcs::utils::streamers::operator<<} to streamer.
   /// Also, when set assumes streaming required and [isStreamable]
   /// is *set* as well. So not required to set both.
   bool get usesStreamers => _usesStreamers;
+
   /// If true adds final keyword to class
   bool isFinal = false;
+
   /// If true makes all members const provides single member ctor
   /// initializing all.
   ///
@@ -814,19 +841,25 @@ class Class extends CppEntity with Testable {
   /// developer ensuring the members are not modified. This provides a
   /// stronger guarantee of immutability.
   bool isImmutable = false;
+
   /// List of processors supporting flavors of serialization
   List<Serializer> serializers = [];
   List<InterfaceImplementation> get interfaceImplementations =>
       _interfaceImplementations;
+
   /// A [CppAccess] specifier - only pertinent if class is nested
   CppAccess cppAccess = public;
+
   /// Classes nested within this class
   List<Class> nestedClasses = [];
+
   /// If set, will include *#pragma pack(push, $packAlign)* before the class
   /// and *#pragma pack(pop)* after.
   int packAlign;
+
   /// If set and member has no [access] set, this is used
   Access defaultMemberAccess;
+
   /// If set and member has no [cppAccess] set, this is used
   CppAccess defaultCppAccess;
 
@@ -843,15 +876,15 @@ class Class extends CppEntity with Testable {
       requiresLogging ? installation.logProvider.includeRequirements : null;
 
   Iterable<Entity> get children => concat([
-    enumsForward,
-    enums,
-    members,
-    usings,
-    usingsPostDecl,
-    [template],
-    testScenarios,
-    nestedClasses
-  ]).where((child) => child != null);
+        enumsForward,
+        enums,
+        members,
+        usings,
+        usingsPostDecl,
+        [template],
+        testScenarios,
+        nestedClasses
+      ]).where((child) => child != null);
 
   /// If set, the [OpOut] streamer will use nested indenting
   set usesNestedIndent(value) => opOut.usesNestedIndent = value;
@@ -864,14 +897,16 @@ class Class extends CppEntity with Testable {
       _usingsPostDecl = items.map((u) => using(u)).toList();
 
   set interfaceImplementations(Iterable impls) =>
-      _interfaceImplementations = impls.map((i) => i is InterfaceImplementation
-          ? i
-          : i is Interface
-              ? new InterfaceImplementation(i)
-              : throw '''
+      _interfaceImplementations = impls
+          .map((i) => i is InterfaceImplementation
+              ? i
+              : i is Interface
+                  ? new InterfaceImplementation(i)
+                  : throw '''
 [interfaceImplementations] set requires Iterable of [Interface]
 or [Interfaceimplementations]. If an [Interface] is provided an
-default [Interfaceimplementation] is used''').toList();
+default [Interfaceimplementation] is used''')
+          .toList();
 
   String get classStyle => isStruct ? 'struct' : 'class';
 
@@ -1030,9 +1065,11 @@ default [Interfaceimplementation] is used''').toList();
   /// Members defined in the [public] section
   Iterable<Member> get publicMembers =>
       members.where((m) => m.cppAccess == public);
+
   /// Members defined in the [protected] section
   Iterable<Member> get protectedMembers =>
       members.where((m) => m.cppAccess == protected);
+
   /// Members defined in the [private] section
   Iterable<Member> get privateMembers =>
       members.where((m) => m.cppAccess == private);
@@ -1058,16 +1095,13 @@ default [Interfaceimplementation] is used''').toList();
 
   get _ctorMethods => [_defaultCtor, _copyCtor, _moveCtor];
 
-  get _allCtors => []
-    ..addAll(_ctorMethods.where((m) => m != null))
-    ..addAll(memberCtors);
+  get _allCtors =>
+      []..addAll(_ctorMethods.where((m) => m != null))..addAll(memberCtors);
 
   get _opMethods =>
       [_assignCopy, _assignMove, _dtor, _opEqual, _opLess, _opOut];
 
-  get _standardMethods => []
-    ..addAll(_ctorMethods)
-    ..addAll(_opMethods);
+  get _standardMethods => []..addAll(_ctorMethods)..addAll(_opMethods);
 
   get _pragmaPackPush =>
       packAlign != null ? '#pragma pack(push, $packAlign)' : '';
@@ -1077,90 +1111,97 @@ default [Interfaceimplementation] is used''').toList();
       brCompact(mems.map((m) => m.hasComment ? '\n$m' : '$m'));
 
   get _parts => [
-    _forwardPtrs,
-    forwardDecls,
-    enumsForward.map((e) => e.toString()),
-    _codeBlockText(clsPreDecl),
-    briefComment,
-    brCompact([
-      detailedComment,
-      _templateDecl,
-      _pragmaPackPush,
-      _classOpener,
-      _codeBlockText(clsOpen),
-    ]),
-    _wrapInAccess(isStruct ? null : public, indentBlock(br([
-      brCompact([
-        _codeBlockText(clsPublicBegin),
-        classForwardDecls,
-        constExprs..forEach((ce) => ce.isClassScoped = true),
-        usings.map((u) => u.usingStatement(namer))
-      ]),
-      brCompact([_enumDecls, _enumStreamers]),
-      brCompact(friendClassDecls.map((fcd) => fcd.toString())),
-      br(nestedClasses
-          .where((c) => c.cppAccess == public)
-          .map((c) => c.definition)),
-      br(members
-          .where((m) => m.customBlock.hasContent)
-          .map((m) => m.customBlock.toString())),
-      br(publicMembers.where((m) => m.isPublicStaticConst)),
-      br(_allCtors
-          .where((m) => m.cppAccess == public)
-          .map((m) => m.definition)),
-      br(_opMethods
-          .where((m) => m != null && m.cppAccess == public)
-          .map((m) => m.definition)),
-      br(interfaceImplementations
-          .where((i) => i.cppAccess == public)
-          .map((i) => i.methodImpls)),
-      br(_singleton),
-      _codeBlockText(clsPublic),
-      _memberJoinFormat(publicMembers.where((m) => !m.isPublicStaticConst)),
-      br(members.map((m) => br([m.getter, m.setter]))),
-      serializers.map((s) => s.serialize(this)),
-      _codeBlockText(clsPublicEnd),
-    ]))),
-    _wrapInAccess(protected, indentBlock(combine([
-      _codeBlockText(clsProtectedBegin),
-      _codeBlockText(clsProtected),
-      br(nestedClasses
-          .where((c) => c.cppAccess == protected)
-          .map((c) => c.definition)),
-      br(_allCtors
-          .where((m) => m.cppAccess == protected)
-          .map((m) => m.definition)),
-      br(_opMethods
-          .where((m) => m != null && m.cppAccess == protected)
-          .map((m) => m.definition)),
-      br(interfaceImplementations
-          .where((i) => i.cppAccess == protected)
-          .map((i) => i.methodImpls)),
-      _memberJoinFormat(protectedMembers),
-      _codeBlockText(clsProtectedEnd),
-    ]))),
-    _wrapInAccess(private, indentBlock(combine([
-      _codeBlockText(clsPrivateBegin),
-      _codeBlockText(clsPrivate),
-      br(nestedClasses
-          .where((c) => c.cppAccess == private)
-          .map((c) => c.definition)),
-      br(_allCtors
-          .where((m) => m.cppAccess == private)
-          .map((m) => m.definition)),
-      br(_opMethods
-          .where((m) => m != null && m.cppAccess == private)
-          .map((m) => m.definition)),
-      br(interfaceImplementations
-          .where((i) => i.cppAccess == private)
-          .map((i) => i.methodImpls)),
-      _memberJoinFormat(privateMembers),
-      _codeBlockText(clsPrivateEnd)
-    ]))),
-    br([_codeBlockText(clsClose), _classCloser, _pragmaPackPop]),
-    br(usingsPostDecl.map((u) => u.usingStatement(namer))),
-    _codeBlockText(clsPostDecl),
-  ];
+        _forwardPtrs,
+        forwardDecls,
+        enumsForward.map((e) => e.toString()),
+        _codeBlockText(clsPreDecl),
+        briefComment,
+        brCompact([
+          detailedComment,
+          _templateDecl,
+          _pragmaPackPush,
+          _classOpener,
+          _codeBlockText(clsOpen),
+        ]),
+        _wrapInAccess(
+            isStruct ? null : public,
+            indentBlock(br([
+              brCompact([
+                _codeBlockText(clsPublicBegin),
+                classForwardDecls,
+                constExprs..forEach((ce) => ce.isClassScoped = true),
+                usings.map((u) => u.usingStatement(namer))
+              ]),
+              brCompact([_enumDecls, _enumStreamers]),
+              brCompact(friendClassDecls.map((fcd) => fcd.toString())),
+              br(nestedClasses
+                  .where((c) => c.cppAccess == public)
+                  .map((c) => c.definition)),
+              br(members
+                  .where((m) => m.customBlock.hasContent)
+                  .map((m) => m.customBlock.toString())),
+              br(publicMembers.where((m) => m.isPublicStaticConst)),
+              br(_allCtors
+                  .where((m) => m.cppAccess == public)
+                  .map((m) => m.definition)),
+              br(_opMethods
+                  .where((m) => m != null && m.cppAccess == public)
+                  .map((m) => m.definition)),
+              br(interfaceImplementations
+                  .where((i) => i.cppAccess == public)
+                  .map((i) => i.methodImpls)),
+              br(_singleton),
+              _codeBlockText(clsPublic),
+              _memberJoinFormat(
+                  publicMembers.where((m) => !m.isPublicStaticConst)),
+              br(members.map((m) => br([m.getter, m.setter]))),
+              serializers.map((s) => s.serialize(this)),
+              _codeBlockText(clsPublicEnd),
+            ]))),
+        _wrapInAccess(
+            protected,
+            indentBlock(combine([
+              _codeBlockText(clsProtectedBegin),
+              _codeBlockText(clsProtected),
+              br(nestedClasses
+                  .where((c) => c.cppAccess == protected)
+                  .map((c) => c.definition)),
+              br(_allCtors
+                  .where((m) => m.cppAccess == protected)
+                  .map((m) => m.definition)),
+              br(_opMethods
+                  .where((m) => m != null && m.cppAccess == protected)
+                  .map((m) => m.definition)),
+              br(interfaceImplementations
+                  .where((i) => i.cppAccess == protected)
+                  .map((i) => i.methodImpls)),
+              _memberJoinFormat(protectedMembers),
+              _codeBlockText(clsProtectedEnd),
+            ]))),
+        _wrapInAccess(
+            private,
+            indentBlock(combine([
+              _codeBlockText(clsPrivateBegin),
+              _codeBlockText(clsPrivate),
+              br(nestedClasses
+                  .where((c) => c.cppAccess == private)
+                  .map((c) => c.definition)),
+              br(_allCtors
+                  .where((m) => m.cppAccess == private)
+                  .map((m) => m.definition)),
+              br(_opMethods
+                  .where((m) => m != null && m.cppAccess == private)
+                  .map((m) => m.definition)),
+              br(interfaceImplementations
+                  .where((i) => i.cppAccess == private)
+                  .map((i) => i.methodImpls)),
+              _memberJoinFormat(privateMembers),
+              _codeBlockText(clsPrivateEnd)
+            ]))),
+        br([_codeBlockText(clsClose), _classCloser, _pragmaPackPop]),
+        br(usingsPostDecl.map((u) => u.usingStatement(namer))),
+        _codeBlockText(clsPostDecl),
+      ];
 
   get _singleton => isSingleton
       ? '''
@@ -1222,16 +1263,22 @@ $classStyle $className$_baseDecl$_finalDecl
   Template _template;
   List<Using> _usings = [];
   List<Using> _usingsPostDecl = [];
+
   /// The default constructor
   DefaultCtor _defaultCtor;
+
   /// The copy constructor
   CopyCtor _copyCtor;
+
   /// The move constructor
   MoveCtor _moveCtor;
+
   /// The assignment operator
   AssignCopy _assignCopy;
+
   /// The assignment move operator
   AssignMove _assignMove;
+
   /// The destructor
   Dtor _dtor;
   OpEqual _opEqual;
@@ -1240,6 +1287,7 @@ $classStyle $className$_baseDecl$_finalDecl
   Map<ClassCodeBlock, CodeBlock> _codeBlocks = {};
   bool _usesStreamers = false;
   List<InterfaceImplementation> _interfaceImplementations = [];
+
   /// The [Method]s that are implemented by this [Class]. A [Class]
   /// implements the union of methods in its
   /// [interfaceimplementations]. Each [Method] is identified by its
@@ -1267,20 +1315,28 @@ Template _makeTemplate(id, Object t) => t is Iterable
 
 /// Convenience returning empty [DefaultCtor]
 DefaultCtor defaultCtor() => new DefaultCtor();
+
 /// Convenience returning empty [CopyCtor]
 CopyCtor copyCtor() => new CopyCtor();
+
 /// Convenience returning empty [MoveCtor]
 MoveCtor moveCtor() => new MoveCtor();
+
 /// Convenience returning empty [AssignCopy]
 AssignCopy assignCopy() => new AssignCopy();
+
 /// Convenience returning empty [AssignMove]
 AssignMove assignMove() => new AssignMove();
+
 /// Convenience returning empty [Dtor]
 Dtor dtor() => new Dtor();
+
 /// Convenience returning empty [OpEqual]
 OpEqual opEqual() => new OpEqual();
+
 /// Convenience returning empty [OpLess]
 OpLess opLess() => new OpLess();
+
 /// Convenience returning empty [OpOut]
 OpOut opOut() => new OpOut();
 

@@ -34,7 +34,6 @@ abstract class LogProvider {
 
 /// Provides support for logging via spdlog
 class SpdlogProvider extends LogProvider {
-
   // custom <class SpdlogProvider>
 
   SpdlogProvider(Namer namer) : super(namer) {
@@ -111,7 +110,8 @@ namespace {
     return header(id)
       ..namespace = namespace
       ..includes.mergeIncludes(includeRequirements)
-      ..getCodeBlock(fcbBeginNamespace).snippets
+      ..getCodeBlock(fcbBeginNamespace)
+          .snippets
           .add(createLoggerInstance(owner))
       ..owner = owner;
   }
@@ -122,7 +122,6 @@ namespace {
 
 /// Represents a single C++ logger
 class CppLogger extends CppEntity {
-
   // custom <class CppLogger>
 
   CppLogger(id) : super(id);
@@ -138,7 +137,6 @@ class CppLogger extends CppEntity {
 ///
 /// Examples might be member accessors, member constructors, etc
 class Loggable {
-
   /// If true the [Loggable] item is logged
   bool isLogged = false;
 

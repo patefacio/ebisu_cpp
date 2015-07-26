@@ -6,9 +6,11 @@ part of ebisu_cpp.ebisu_cpp;
 enum TcCodeBlock {
   /// The custom block appearing at the start of the clause
   tcOpen,
+
   /// The custom block appearing at the end of the clause
   tcClose
 }
+
 /// Convenient access to TcCodeBlock.tcOpen with *tcOpen* see [TcCodeBlock].
 ///
 /// The custom block appearing at the start of the clause
@@ -140,6 +142,7 @@ ${indentBlock(br(givens))}
 
 abstract class Testable {
   List<TestScenario> testScenarios = [];
+
   /// The single test for this [Testable]
   set test(Test test) => _test = test;
 
@@ -168,6 +171,7 @@ abstract class Testable {
 
   get _dottedId {
     final me = this as Entity;
+
     /// Note if it is not a lib, it will already be in a lib folder so exclude
     final isLib = this is Lib;
     if (isLib) {
@@ -217,7 +221,6 @@ Catch Test: ${runtimeType}:${(this as Entity).id}:${br(testScenarios)}
 }
 
 abstract class TestProvider {
-
   // custom <class TestProvider>
 
   generateTests(Installation installation);
@@ -227,7 +230,6 @@ abstract class TestProvider {
 }
 
 class CatchTestProvider extends TestProvider {
-
   // custom <class CatchTestProvider>
 
   generateTests(Installation installation) {
@@ -252,8 +254,8 @@ class CatchTestProvider extends TestProvider {
         ///////////////////////////////////////////////////////////////////
         Header owningHeader = testableEntity is Header
             ? testableEntity
-            : testableEntity.ancestry.firstWhere((a) => a is Header,
-                orElse: () => null);
+            : testableEntity.ancestry
+                .firstWhere((a) => a is Header, orElse: () => null);
 
         if (owningHeader != null) {
           test._includes.add(owningHeader.includeFilePath);
@@ -262,7 +264,9 @@ class CatchTestProvider extends TestProvider {
         testable.testScenarios.forEach((TestScenario testScenario) {
           _logger.info(scenarioTestText(testScenario));
 
-          test.getCodeBlock(fcbBeginNamespace).snippets
+          test
+              .getCodeBlock(fcbBeginNamespace)
+              .snippets
               .add(scenarioTestText(testScenario));
         });
 
@@ -327,9 +331,11 @@ When when([String clause, thens]) => new When(
     idFromWords(clause), thens == null ? [] : thens is Then ? [thens] : thens);
 
 /// Create a Given sans new, for more declarative construction
-Given given([String clause, whens, thens]) => new Given(idFromWords(clause),
+Given given([String clause, whens, thens]) => new Given(
+    idFromWords(clause),
     whens == null ? [] : whens is When ? [whens] : whens,
     thens is Then ? [thens] : thens);
+
 /// Create a TestScenario sans new, for more declarative construction
 TestScenario testScenario(id, [givens]) => new TestScenario(
     idFromWords(id), givens == null ? [] : givens is Given ? [givens] : givens);

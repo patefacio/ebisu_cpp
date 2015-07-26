@@ -1,7 +1,6 @@
 part of ebisu_cpp.ebisu_cpp;
 
 class CmakeInstallationBuilder extends InstallationBuilder {
-
   // custom <class CmakeInstallationBuilder>
 
   /// Construct a [CmakeInstallationBuilder] from an [Installation]
@@ -69,7 +68,8 @@ add_test(
   $testBaseName)''';
     }
 
-    scriptMergeWithFile('''
+    scriptMergeWithFile(
+        '''
 cmake_minimum_required (VERSION 2.8)
 
 include(CheckCXXCompilerFlag)
@@ -118,14 +118,17 @@ ${chomp(br(apps.map((app) => appCmake(app))))}
 # Test directives
 ######################################################################
 ${chomp(br(testables.map((testable) => testCmake(testable))))}
-''', cmakeRoot);
+''',
+        cmakeRoot);
 
     final cmakeGenerator = path.join(path.dirname(cmakeRoot), '.cmake.gen.sh');
-    scriptMergeWithFile('''
+    scriptMergeWithFile(
+        '''
 ${scriptCustomBlock('additional exports')}
 cmake -DCMAKE_BUILD_TYPE=Release -B../cmake_build/release -H.
 cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
-''', cmakeGenerator);
+''',
+        cmakeGenerator);
   }
 
   // end <class CmakeInstallationBuilder>

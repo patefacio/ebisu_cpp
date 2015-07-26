@@ -38,7 +38,6 @@ abstract class InstallationBuilder implements CodeGenerator {
 ///
 ///  - Should support for logging api initialization be generated
 class Installation extends CppEntity implements CodeGenerator {
-
   /// Fully qualified file path to installation
   String get rootFilePath => _rootFilePath;
   Map<String, String> get paths => _paths;
@@ -46,13 +45,17 @@ class Installation extends CppEntity implements CodeGenerator {
   List<Lib> libs = [];
   List<App> apps = [];
   List<Script> scripts = [];
+
   /// Provider for generating tests
   TestProvider testProvider = new CatchTestProvider();
+
   /// Provider for generating tests
   LogProvider logProvider = new SpdlogProvider(new EbisuCppNamer());
+
   /// The builder for this installation
   InstallationBuilder installationBuilder;
   DoxyConfig doxyConfig = new DoxyConfig();
+
   /// If true logs initialization of libraries - useful for tracking
   /// down order of initialization issues.
   bool logsApiInitializations = false;
@@ -112,9 +115,11 @@ Installation($rootFilePath)
   //
   // generateDoxyFile:        If true generates config file for doxygen
   //
-  generate({generateBuildScripts: false, generateHeaderSmokeTest: false,
-      generateDoxyFile: false, generateEmacs: false}) {
-
+  generate(
+      {generateBuildScripts: false,
+      generateHeaderSmokeTest: false,
+      generateDoxyFile: false,
+      generateEmacs: false}) {
     /// This assignment triggers the linkup of all children
     owner = null;
 
@@ -159,10 +164,10 @@ Installation($rootFilePath)
     if (generateDoxyFile) {
       final docPath = path.join(rootFilePath, 'doc');
       mergeWithFile((doxyConfig
-        ..projectName = id.snake
-        ..projectBrief = doc
-        ..input = cppPath
-        ..outputDirectory = path.join(docPath, 'doxydoc')).config,
+            ..projectName = id.snake
+            ..projectBrief = doc
+            ..input = cppPath
+            ..outputDirectory = path.join(docPath, 'doxydoc')).config,
           path.join(docPath, '${id.snake}.doxy'));
     }
 
@@ -177,11 +182,13 @@ Installation($rootFilePath)
       libs.forEach((Lib lib) => lib._addStandardizedHeaders());
 
   _patchHeaderNamespaces() => libs.forEach((Lib lib) {
-    assert(lib.namespace != null);
-    lib.headers.where((Header h) => h.namespace == null).forEach((Header h) {
-      h.namespace = lib.namespace;
-    });
-  });
+        assert(lib.namespace != null);
+        lib.headers
+            .where((Header h) => h.namespace == null)
+            .forEach((Header h) {
+          h.namespace = lib.namespace;
+        });
+      });
 
   String _pathLookup(String key) {
     var result = getPath(key);
@@ -202,6 +209,7 @@ Installation($rootFilePath)
 
   String _rootFilePath;
   Map<String, String> _paths = {};
+
   /// Namer to be used when generating names during generation. There is a
   /// default namer, [EbisuCppNamer] that is used if one is not provide. To
   /// create your own naming conventions, provide an implementation of
@@ -212,9 +220,9 @@ Installation($rootFilePath)
 }
 
 class PathLocator {
-
   /// Environment variable specifying location of path, if set this path is used
   final String envVar;
+
   /// Default path for the item in question
   final String defaultPath;
   String get path => _path;
@@ -264,8 +272,9 @@ var _locatorPaths = {
   'boost_build': new PathLocator(
       'BOOST_BUILD_PATH', path.join(_home, 'install', 'boost-build')).path,
   'boost_install': new PathLocator('BOOST_INSTALL_PATH', null).path,
-  'cpp_install': new PathLocator(
-      'CPP_INSTALL_PATH', path.join(_home, 'install', 'cpp')).path,
+  'cpp_install':
+      new PathLocator('CPP_INSTALL_PATH', path.join(_home, 'install', 'cpp'))
+          .path,
 };
 
 var _functorPaths = {

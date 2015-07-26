@@ -95,11 +95,11 @@ Try something familiar like these:
 ///
 /// }
 class MethodDecl extends CppEntity {
-
   /// The template by which the method is parameterized
   Template template;
   List<ParmDecl> parmDecls = [];
   String returnType;
+
   /// True if this [MethodDecl] is *const*
   bool isConst = false;
 
@@ -243,20 +243,21 @@ class Interface extends CppEntity {
   get name => namer.nameClass(id);
 
   set methodDecls(Iterable decls) {
-    _methodDecls = decls.map((var decl) => decl is String
-        ? methodDecl(decl)
-        : decl is MethodDecl
-            ? decl
-            : throw new ArgumentError('''
+    _methodDecls = decls
+        .map((var decl) => decl is String
+            ? methodDecl(decl)
+            : decl is MethodDecl ? decl : throw new ArgumentError('''
 MethodDecls must be initialized with String or MethodDecl
-''')).toList();
+'''))
+        .toList();
   }
 
   /// The interface is empty if there are no methods
   bool get isEmpty => methodDecls.isEmpty;
 
   String get definition => (class_(id)
-    ..getCodeBlock(clsPublic).snippets
+    ..getCodeBlock(clsPublic)
+        .snippets
         .addAll([chomp(br(_methodDecls.map((m) => m.asVirtual)))])).definition;
 
   String get description => '''
@@ -272,6 +273,7 @@ ${_methodDecls.map((md) => md.asVirtual).join('\n')}
 class InterfaceImplementation {
   Interface interface;
   CppAccess cppAccess = public;
+
   /// If true the interface is virtual
   bool isVirtual = false;
 
@@ -287,12 +289,12 @@ class InterfaceImplementation {
   String get definition => interface.definition;
   List<MethodDecl> get methodDecls => interface.methodDecls;
 
-  Iterable<String> get methodImpls => methodDecls.map(
-      (MethodDecl md) => brCompact([
-    blockComment(
-        chomp(brCompact([md.descr, "[Inherited from ${interface.name}]",]))),
-    md._declaration
-  ]));
+  Iterable<String> get methodImpls =>
+      methodDecls.map((MethodDecl md) => brCompact([
+            blockComment(chomp(
+                brCompact([md.descr, "[Inherited from ${interface.name}]",]))),
+            md._declaration
+          ]));
 
   toString() => '${ev(cppAccess)}: ${interface.id.snake}';
 

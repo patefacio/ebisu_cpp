@@ -241,7 +241,8 @@ $tricky
                       ..type = 'Letters'
                       ..init = 'C_1::B_e',
                   ]
-                  ..getCodeBlock(clsProtected).snippets
+                  ..getCodeBlock(clsProtected)
+                      .snippets
                       .addAll(['//Sample code block stuff...'])
                   ..opEqual
                   ..opLess
@@ -269,19 +270,16 @@ $tricky
     final definition = darkMatter(c1.definition);
     test('makes member const',
         () => expect(definition.contains(darkMatter('int const a_')), true));
-    test('provides member init all members', () => expect(
-        definition.contains(darkMatter('C_1(int a) : a_ ( a ) {}')), true));
+    test(
+        'provides member init all members',
+        () => expect(
+            definition.contains(darkMatter('C_1(int a) : a_ ( a ) {}')), true));
   });
 
   group('access code blocks', () {
     /// Accessing code blocks does not autocreate
-    [
-      clsPublic,
-      clsPrivate,
-      clsProtected,
-      clsPreDecl,
-      clsPostDecl
-    ].forEach((ClassCodeBlock ccb) {
+    [clsPublic, clsPrivate, clsProtected, clsPreDecl, clsPostDecl]
+        .forEach((ClassCodeBlock ccb) {
       test('getting $ccb', () {
         final c1 = class_('c_1');
         // Initially there should be no code blocks
@@ -379,7 +377,6 @@ private:
   });
 
   group('auto-create methods', () {
-
     /// Here is an example showing how the defaultCtor is auto-initialized and
     /// when initialized provides access to mutation of access
     test('defaultCtor auto create', () {
@@ -548,8 +545,10 @@ private:
   });
 
   test('class constexprs are static', () {
-    expect(darkSame((class_('a')..constExprs = [constExpr('f', 42)]).definition,
-        'class A { public: static constexpr int F { 42 }; };'), true);
+    expect(
+        darkSame((class_('a')..constExprs = [constExpr('f', 42)]).definition,
+            'class A { public: static constexpr int F { 42 }; };'),
+        true);
   });
 
   test('const expr asHex', () {
@@ -559,14 +558,17 @@ private:
   });
 
   test('class with members with custom code', () {
-    expect(darkSame((class_('a')
-      ..members = [
-        member('goo')
-          ..init = 42
-          ..customBlock.snippets.add('''
+    expect(
+        darkSame(
+            (class_('a')
+              ..members = [
+                member('goo')
+                  ..init = 42
+                  ..customBlock.snippets.add('''
 int extraCounter { 43 };
 ''')
-      ]).definition, '''
+              ]).definition,
+            '''
 class A
 {
 
@@ -577,12 +579,16 @@ private:
   int goo_ { 42 };
 
 };
-'''), true);
+'''),
+        true);
 
-    expect(darkSame((class_('a')
-      ..members = [
-        member('x')..withCustomBlock((member, cb) => cb.tag = 'gimme')
-      ]).definition, '''
+    expect(
+        darkSame(
+            (class_('a')
+              ..members = [
+                member('x')..withCustomBlock((member, cb) => cb.tag = 'gimme')
+              ]).definition,
+            '''
 class A
 {
 
@@ -594,19 +600,23 @@ private:
   null x_ {};
 
 };
-'''), true);
+'''),
+        true);
   });
 
   test('streamable class with standard getter streams variable', () {
-    expect(darkSame((class_('a')
-      ..isStreamable = true
-      ..members = [
-        member('x')
-          ..access = ro
-          ..type = 'int'
-          ..getterReturnModifier =
-          ((member, oldValue) => 'endian_convert($oldValue)')
-      ]).definition, r'''
+    expect(
+        darkSame(
+            (class_('a')
+              ..isStreamable = true
+              ..members = [
+                member('x')
+                  ..access = ro
+                  ..type = 'int'
+                  ..getterReturnModifier = ((member, oldValue) =>
+                      'endian_convert($oldValue)')
+              ]).definition,
+            r'''
 class A {
 
 public:
@@ -628,17 +638,21 @@ private:
   int x_ {};
 
 };
-'''), true);
+'''),
+        true);
   });
 
   test('streamable class with custom getter streams function call', () {
-    expect(darkSame((class_('a')
-      ..isStreamable = true
-      ..members = [
-        member('x')
-          ..access = ro
-          ..type = 'int'
-      ]).definition, r'''
+    expect(
+        darkSame(
+            (class_('a')
+              ..isStreamable = true
+              ..members = [
+                member('x')
+                  ..access = ro
+                  ..type = 'int'
+              ]).definition,
+            r'''
 class A {
 
 public:
@@ -660,14 +674,18 @@ private:
   int x_ {};
 
 };
-'''), true);
+'''),
+        true);
   });
 
   test('immutable class', () {
-    expect(darkSame((class_('point')
-      ..isImmutable = true
-      ..members = [member('x')..init = 0, member('y')..init = 0,]).definition,
-        '''
+    expect(
+        darkSame(
+            (class_('point')
+                  ..isImmutable = true
+                  ..members = [member('x')..init = 0, member('y')..init = 0,])
+                .definition,
+            '''
 class Point {
  public:
   Point(int x, int y) : x_(x), y_(y) {}
@@ -682,7 +700,8 @@ class Point {
   int const x_;
   int const y_;
 };
-'''), true);
+'''),
+        true);
   });
 
   test('forward declarations class', () {
@@ -696,14 +715,19 @@ class Point {
           ..members = [member('b')..type = 'Nested_class_b*'],
         class_('nested_class_b'),
       ]
-      ..memberCtors = [memberCtor(['out'])]
+      ..memberCtors = [
+        memberCtor(['out'])
+      ]
       ..members = [
         member('out')
           ..refType = ref
           ..type = 'decode::streamers::text_stream',
       ];
 
-    expect(darkSame(cls.definition, '''
+    expect(
+        darkSame(
+            cls.definition,
+            '''
 namespace decode {
 namespace streamers {
 class text_stream;
@@ -726,12 +750,15 @@ class Transformer {
  private:
   decode::streamers::text_stream& out_;
 };
-'''), true);
+'''),
+        true);
   });
 
   test('class method are customizable by injection', () {
     final cls = class_('goo')
-      ..memberCtors = [memberCtor(['a'])..customCodeBlock.snippets.add('//goo')]
+      ..memberCtors = [
+        memberCtor(['a'])..customCodeBlock.snippets.add('//goo')
+      ]
       ..members = [member('a')..init = 5,];
 
     expect(darkMatter(cls.definition), darkMatter('''
@@ -760,6 +787,7 @@ private:
         ..defaultCppAccess = public
         ..defaultMemberAccess = ia
         ..members = [member('a')..init = 5,];
+
       /// Required to establish relationships
       cls.owner = null;
       expect(cls.definition.contains('public:'), true);
@@ -793,7 +821,9 @@ private:
 
   test('class method customizable by tagging for handcoding', () {
     final cls = class_('goo')
-      ..memberCtors = [memberCtor(['a'])..tag = 'special ctor']
+      ..memberCtors = [
+        memberCtor(['a'])..tag = 'special ctor'
+      ]
       ..members = [member('a')..init = 5,];
 
     expect(darkMatter(cls.definition), darkMatter('''
@@ -876,5 +906,4 @@ class Blocks {
 '''));
   });
 // end <main>
-
 }

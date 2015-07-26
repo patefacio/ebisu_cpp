@@ -21,7 +21,12 @@ main([List<String> args]) {
 // custom <main>
 
   newInstallation() => installation('sample')
-    ..libs = [lib('l')..headers = [header('h')..classes = [class_('c')]]];
+    ..libs = [
+      lib('l')
+        ..headers = [
+          header('h')..classes = [class_('c')]
+        ]
+    ];
 
   group('class augmentation', () {
     final installation = newInstallation();
@@ -36,5 +41,4 @@ main([List<String> args]) {
   });
 
 // end <main>
-
 }

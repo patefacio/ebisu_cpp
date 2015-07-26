@@ -5,15 +5,20 @@ part of ebisu_cpp.ebisu_cpp;
 enum RefType {
   /// Indicates a reference to type: *T &*
   ref,
+
   /// Indicates a const reference to type: *T const&*
   cref,
+
   /// Indicates a volatile reference to type: *T volatile&*
   vref,
+
   /// Indicates a const volatile reference to type: *T const volatile&*
   cvref,
+
   /// Indicates not a reference
   value
 }
+
 /// Convenient access to RefType.ref with *ref* see [RefType].
 ///
 /// Indicates a reference to type: *T &*
@@ -48,17 +53,23 @@ const RefType value = RefType.value;
 enum PtrType {
   /// Indicates a *naked* or *dumb* pointer - T*
   ptr,
+
   /// Indicates a *naked* or *dumb* pointer - T const *
   cptr,
+
   /// Indicates *std::shared_ptr< T >*
   sptr,
+
   /// Indicates *std::unique_ptr< T >*
   uptr,
+
   /// Indicates *std::shared_ptr< const T >*
   scptr,
+
   /// Indicates *std::unique_ptr< const T >*
   ucptr
 }
+
 /// Convenient access to PtrType.ptr with *ptr* see [PtrType].
 ///
 /// Indicates a *naked* or *dumb* pointer - T*

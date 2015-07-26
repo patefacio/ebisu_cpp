@@ -19,13 +19,16 @@ class Switch {
   /// Text repesenting the value to be switched on
   String switchValue;
   List<int> cases = [];
+
   /// Function for providing a block for *case*
   CaseFunctor onCase;
+
   /// Block of text for the default case.
   ///
   /// Break will be provided. If default case is a one or more statements
   /// client must provide semicolons.
   String onDefault;
+
   /// If cases should be interpreted as char
   bool isChar;
 
@@ -43,16 +46,16 @@ class Switch {
     return brCompact([
       'switch($switchValue) {',
       cases.map((c) => brCompact([
-        isChar
-            ? '// Following is for character (\'$c\'=${_caseValue(c)})'
-            : null,
-        '''
+            isChar
+                ? '// Following is for character (\'$c\'=${_caseValue(c)})'
+                : null,
+            '''
 case ${_wrapChar(c)}: {
 ${indentBlock(onCase(c))}
   break;
 }
 '''
-      ])),
+          ])),
       '''
 default: {
   $defaultCaseText

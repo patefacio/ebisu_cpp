@@ -12,13 +12,15 @@ part of ebisu_cpp.ebisu_cpp;
 ///     constexpr char const* Voo_doo { "foo" };
 ///     constexpr double Pi { 3.14 };
 class ConstExpr extends CppEntity {
-
   /// The c++ type of the constexpr
   String type;
+
   /// Any namespace to wrap the constexpr in
   Namespace namespace;
+
   /// If class scoped the expr should be static
   bool isClassScoped = false;
+
   /// If true and literal is numeric it is assigned as hex.
   /// The idea is to make C++ more readable when large constants are used.
   bool isHex = false;
@@ -77,6 +79,7 @@ class ForwardDecl {
 
   /// The c++ type being forward declared
   String type;
+
   /// The namespace to which the class being forward declared belongs
   Namespace namespace;
 
@@ -84,8 +87,8 @@ class ForwardDecl {
 
   toString() => namespace == null || namespace.length == 0
       ? 'class $type;'
-      : namespace.names.reversed.fold(
-          'class $type;', (prev, n) => 'namespace $n { $prev }');
+      : namespace.names.reversed
+          .fold('class $type;', (prev, n) => 'namespace $n { $prev }');
 
   // end <class ForwardDecl>
 
@@ -97,7 +100,6 @@ ForwardDecl forwardDecl(String type, [Namespace namespace]) =>
 
 /// Establishes an interface for generating code
 abstract class CodeGenerator {
-
   // custom <class CodeGenerator>
 
   void generate();
@@ -126,7 +128,6 @@ FriendClassDecl friendClassDecl([String decl]) => new FriendClassDecl(decl);
 
 /// Represents a c++ namespace which is essentially a list of names
 class Namespace {
-
   /// The individual names in the namespace
   List<String> names = [];
 
@@ -162,7 +163,6 @@ ${_helper(it, txt)}
 
 /// A using namespace statement
 class UsingNamespace {
-
   /// May be constructed with a [Namespace] instance or string representing
   /// the namespace as appears in code:
   ///
@@ -172,6 +172,7 @@ class UsingNamespace {
   ///       usingNamespace('foo::bar::goo', 'fbg'),
   ///     ]
   Namespace namespace;
+
   /// Optional alias for the namespace
   String alias;
 
@@ -191,7 +192,6 @@ class UsingNamespace {
 
 /// Collection of header includes
 class Includes {
-
   /// Set of strings representing the includes
   Set<String> get included => _included;
 
@@ -242,13 +242,14 @@ class Includes {
 
 /// Provides support for consistent naming of C++ entities
 abstract class Namer {
-
   // custom <class Namer>
 
   /// Name an [App] from its [Id]
   String nameApp(Id id);
+
   /// Name a [Script] from its [Id]
   String nameScript(Id id);
+
   /// Name a [Class] from its namespace and [Id].
   ///
   /// Namespaces are encouraged/required and the namespace name should be
@@ -261,31 +262,42 @@ abstract class Namer {
   /// nameLib(new Namespace(['foo', 'bar']), idFromString('goo')) => 'foo_bar_goo'
   ///
   String nameLib(Namespace namespace, Id id);
+
   /// Name a [Class] from its [Id]
   String nameClass(Id id);
+
   /// Name of member in a generic sense
   /// Essentially this is used to determine case of the member in general
   /// but the actual declared variable may use a different convention based
   /// on [CppAccess]
   String nameMember(Id id);
+
   /// Name a [Member] from its [Id] and whether it is public.  If the name is
   /// *public* the default namer, [EbisuCppNamer] uses just the snake case of
   /// the id. Otherwise it adds a '_' suffix
   String nameMemberVar(Id id, bool isPublic);
+
   /// Name a [Method] from its [Id]
   String nameMethod(Id id);
+
   /// Name an [Enum] from its [Id]
   String nameEnum(Id id);
+
   /// Name a static const variable from its [Id]
   String nameStaticConst(Id id);
+
   /// Name a template parameter that is non-type template parameter
   String nameTemplateDeclParm(Id id) => id.shout;
+
   /// Name an [Enum] value from its [Id]
   String nameEnumConst(Id id);
+
   /// Name a [Header] from its [Id]
   String nameHeader(Id id);
+
   /// Name an [Impl] from its [Id]
   String nameImpl(Id id);
+
   /// Name using type identifier introduced by using statement
   String nameUsingType(Id id);
 
@@ -296,7 +308,6 @@ abstract class Namer {
 /// Default namer establishing reasonable conventions, that are fairly
 /// *snake* case heavy like the STL.
 class EbisuCppNamer implements Namer {
-
   // custom <class EbisuCppNamer>
 
   const EbisuCppNamer();
@@ -310,6 +321,7 @@ class EbisuCppNamer implements Namer {
       return namespace.snake + '_' + id.snake;
     }
   }
+
   String nameClass(Id id) => id.capSnake;
   String nameMember(Id id) => id.snake;
   String nameMemberVar(Id id, bool isPublic) =>
@@ -329,7 +341,6 @@ class EbisuCppNamer implements Namer {
 
 /// Namer based on google coding conventions
 class GoogleNamer implements Namer {
-
   // custom <class GoogleNamer>
 
   const GoogleNamer();
@@ -343,6 +354,7 @@ class GoogleNamer implements Namer {
       return namespace.snake + '_' + id.snake;
     }
   }
+
   String nameClass(Id id) => id.capCamel;
   String nameMember(Id id) => id.snake;
   String nameMemberVar(Id id, bool isPublic) =>
@@ -395,12 +407,16 @@ class Base {
 
   /// The name of the class being derived from
   String className;
+
   /// Is base class public, protected, or private
   CppAccess access = public;
+
   /// How to initiailize the base class in ctor initializer
   String init;
+
   /// If true inheritance is virtual
   bool isVirtual = false;
+
   /// If true and streamers are being provided, base is streamed first
   bool isStreamable = false;
 

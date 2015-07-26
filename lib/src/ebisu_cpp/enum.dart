@@ -18,10 +18,10 @@ class EnumValue extends CppEntity {
   get _declImpl => value == null ? _name : '$_name = $value';
 
   String _declAsHex(int padWidth) => chomp(brCompact([
-    briefComment,
-    detailedComment,
-    '$name = ${_asHexString(value, padWidth)}'
-  ]));
+        briefComment,
+        detailedComment,
+        '$name = ${_asHexString(value, padWidth)}'
+      ]));
 
   // end <class EnumValue>
 
@@ -157,21 +157,26 @@ class EnumValue extends CppEntity {
 ///       throw std::runtime_error(msg + str);
 ///     }
 class Enum extends CppEntity {
-
   /// Value entries of the enum.
   ///
   /// Support for assignment from string, or id implies default values.
   List<EnumValue> get values => _values;
+
   /// If true the enum is a class enum as opposed to "plain" enum
   bool isClass = false;
+
   /// Base of enum - if set must be an integral type
   String enumBase;
+
   /// If true adds from_c_str method
   bool hasFromCStr = false;
+
   /// If true adds to_c_str method
   bool hasToCStr = false;
+
   /// If true adds streaming support
   bool isStreamable = false;
+
   /// If true the values are powers of two for bit masking.
   ///
   /// When specifying values for a mask specify the *bit* associated with
@@ -190,10 +195,13 @@ class Enum extends CppEntity {
   ///       Blue_e = 1 << 2
   ///     };
   bool isMask = false;
+
   /// If set provides test, set and clear methods.
   bool hasBitmaskFunctions = false;
+
   /// If true is nested in class and requires *friend* stream support
   bool isNested = false;
+
   /// If the map has values assigned by user, this can be used to display
   /// them in the enum as hex
   bool isDisplayedHex = false;
@@ -226,16 +234,16 @@ class Enum extends CppEntity {
   }
 
   get _streamSupport => br([
-    (isStreamable || hasToCStr) ? toCString : null,
-    isStreamable ? outStreamer : null,
-    hasFromCStr ? fromCString : null,
-  ]);
+        (isStreamable || hasToCStr) ? toCString : null,
+        isStreamable ? outStreamer : null,
+        hasFromCStr ? fromCString : null,
+      ]);
 
   _enumValueName(EnumValue ev) => '$name::${ev.name}';
 
   get _bitmaskFunctions => isMask && hasBitmaskFunctions
       ? br([
-    '''
+          '''
 /// Test if the $name *bit* is set in *value* mask
 inline bool test_bit(int value, $name bit) {
   return (bit & value) == bit;
@@ -251,7 +259,7 @@ inline void clear_bit(int &value, $name bit) {
   value &= ~bit;
 }
 '''
-  ])
+        ])
       : null;
 
   /// The enum declaration string
@@ -265,7 +273,7 @@ inline void clear_bit(int &value, $name bit) {
 
   get _classDecl => isClass ? 'class $name' : name;
   get _intType => enumBase != null ? enumBase : 'int';
-  _streamPatch(String s) => _intType.contains('int8')? 'int($s)' : s;
+  _streamPatch(String s) => _intType.contains('int8') ? 'int($s)' : s;
 
   /// Masks are printed as a list of entries that are set
   ///
@@ -298,12 +306,12 @@ ${
   }
 }''';
 
-  String get outStreamer => isMask?
-    '''
+  String get outStreamer => isMask
+      ? '''
 ${_friend}inline std::ostream& operator<<(std::ostream &out, $name e) {
   return out << ${name}_mask_to_str($_intType(e));
-}''' :
-    '''
+}'''
+      : '''
 ${_friend}inline std::ostream& operator<<(std::ostream &out, $name e) {
   return out << to_c_str(e);
 }''';
@@ -357,8 +365,10 @@ ${indentBlock(enumerate(_values).map((IndexedValue iv) => _bitShifted(iv)).join(
   // end <class Enum>
 
   List<EnumValue> _values;
+
   /// Ids for the values of the enum
   List<Id> _ids;
+
   /// Names for values as they appear
   List<String> _valueNames;
 }

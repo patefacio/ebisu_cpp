@@ -4,7 +4,6 @@ part of ebisu_cpp.ebisu_cpp;
 /// Establishes an interface to allow decoration of classes and updates
 /// (primarily additions) to an [Installation].
 abstract class InstallationDecorator {
-
   // custom <class InstallationDecorator>
 
   void decorate(Installation);

@@ -54,15 +54,19 @@ part of ebisu_cpp.ebisu_cpp;
 enum Access {
   /// **Inaccessible**. Designates a member that is *private* by default and no accessors
   ia,
+
   /// **Read-Only**. Designates a member tht is *private* by default and a read accessor
   ro,
+
   /// **Read-Write**. Designates a member tht is *private* by default and both read and write accessors
   rw,
+
   /// **Write-Only**. Designates a member tht is *private* by default and
   /// write accessor only.  Useful if you want the standard write accessor
   /// but a custom reader.
   wo
 }
+
 /// Convenient access to Access.ia with *ia* see [Access].
 ///
 /// **Inaccessible**. Designates a member that is *private* by default and no accessors
@@ -104,11 +108,14 @@ const Access wo = Access.wo;
 enum CppAccess {
   /// C++ public designation
   public,
+
   /// C++ protected designation
   protected,
+
   /// C++ private designation
   private
 }
+
 /// Convenient access to CppAccess.public with *public* see [CppAccess].
 ///
 /// C++ public designation

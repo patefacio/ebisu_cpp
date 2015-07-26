@@ -1,4 +1,5 @@
 #!/usr/bin/env dart
+
 /// Creates an ebisu_cpp setup
 import 'dart:io';
 import 'package:args/args.dart';
@@ -17,6 +18,7 @@ Creates an ebisu_cpp setup
 ''');
   print(_parser.getUsage());
 }
+
 //! Method to parse command line options.
 //! The result is a map containing all options, including positional options
 Map _parseArgs(List<String> args) {
@@ -27,28 +29,56 @@ Map _parseArgs(List<String> args) {
   _parser = new ArgParser();
   try {
     /// Fill in expectations of the parser
-    _parser.addFlag('help', help: r'''
+    _parser.addFlag('help',
+        help: r'''
 Display this help screen
-''', abbr: 'h', defaultsTo: false);
+''',
+        abbr: 'h',
+        defaultsTo: false);
 
-    _parser.addOption('project-path', help: r'''
+    _parser.addOption('project-path',
+        help: r'''
 Path to top level of desired ebisu project
-''', defaultsTo: null, allowMultiple: false, abbr: 'p', allowed: null);
-    _parser.addOption('add-app', help: r'''
+''',
+        defaultsTo: null,
+        allowMultiple: false,
+        abbr: 'p',
+        allowed: null);
+    _parser.addOption('add-app',
+        help: r'''
 Add library to project
-''', defaultsTo: null, allowMultiple: false, abbr: 'a', allowed: null);
-    _parser.addOption('add-lib', help: r'''
+''',
+        defaultsTo: null,
+        allowMultiple: false,
+        abbr: 'a',
+        allowed: null);
+    _parser.addOption('add-lib',
+        help: r'''
 Add library to project
-''', defaultsTo: null, allowMultiple: false, abbr: 'l', allowed: null);
-    _parser.addOption('add-script', help: r'''
+''',
+        defaultsTo: null,
+        allowMultiple: false,
+        abbr: 'l',
+        allowed: null);
+    _parser.addOption('add-script',
+        help: r'''
 Add script to project
-''', defaultsTo: null, allowMultiple: false, abbr: 's', allowed: null);
-    _parser.addOption('log-level', help: r'''
+''',
+        defaultsTo: null,
+        allowMultiple: false,
+        abbr: 's',
+        allowed: null);
+    _parser.addOption('log-level',
+        help: r'''
 Select log level from:
 [ all, config, fine, finer, finest, info, levels,
   off, severe, shout, warning ]
 
-''', defaultsTo: null, allowMultiple: false, abbr: null, allowed: null);
+''',
+        defaultsTo: null,
+        allowMultiple: false,
+        abbr: null,
+        allowed: null);
 
     /// Parse the command line options (excluding the script)
     argResults = _parser.parse(args);
@@ -87,7 +117,9 @@ Select log level from:
     throw e;
   }
 }
+
 final _logger = new Logger('bootstrapEbisuCpp');
+
 class Project {
   Project._default();
 
@@ -104,13 +136,13 @@ class Project {
   toString() => '(${runtimeType}) => ${ebisu.prettyJsonMap(toJson())}';
 
   Map toJson() => {
-    "id": ebisu.toJson(id),
-    "rootPath": ebisu.toJson(rootPath),
-    "codegenPath": ebisu.toJson(codegenPath),
-    "scriptName": ebisu.toJson(scriptName),
-    "ebisuFilePath": ebisu.toJson(ebisuFilePath),
-    "cppFilePath": ebisu.toJson(cppFilePath),
-  };
+        "id": ebisu.toJson(id),
+        "rootPath": ebisu.toJson(rootPath),
+        "codegenPath": ebisu.toJson(codegenPath),
+        "scriptName": ebisu.toJson(scriptName),
+        "ebisuFilePath": ebisu.toJson(ebisuFilePath),
+        "cppFilePath": ebisu.toJson(cppFilePath),
+      };
 
   static Project fromJson(Object json) {
     if (json == null) return null;
@@ -130,6 +162,7 @@ class Project {
     cppFilePath = jsonMap["cppFilePath"];
   }
 }
+
 main(List<String> args) {
   Logger.root.onRecord.listen(
       (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
@@ -139,7 +172,6 @@ main(List<String> args) {
   List positionals = argResults['rest'];
   // custom <bootstrapEbisuCpp main>
   // end <bootstrapEbisuCpp main>
-
 }
 
 // custom <bootstrapEbisuCpp global>
