@@ -475,8 +475,18 @@ void $name($argType $name) {''';
   String get _setterImpl => '$vname = $name;';
   String get _setterCloser => '}';
 
+  String get _setterByAccess => member._isByRef? '''
+//! updater for ${vname} (access is $access)
+$argType $name() {
+  return $vname;
+}
+''' : null;
+
   String get setter => (access == rw || access == wo)
-      ? brCompact([_setterOpener, _setterImpl, _setterCloser])
+      ? br([
+        brCompact([_setterOpener, _setterImpl, _setterCloser]),
+        _setterByAccess,
+      ])
       : null;
 
   // end <class StandardSetterCreator>

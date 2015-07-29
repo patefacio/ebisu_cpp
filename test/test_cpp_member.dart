@@ -228,6 +228,30 @@ private:
 };
 '''),
         true);
+
+  });
+
+  test('setter by ref via update', () {
+    final cls = class_('c')
+      ..members = [
+        member('x')..type = 'X'..isByRef = true..access = rw
+      ];
+
+    expect(darkMatter(cls.definition), darkMatter('''
+class C {
+ public:
+  //! getter for x_ (access is Rw)
+  X const& x() const { return x_; }
+
+  //! setter for x_ (access is Access.rw)
+  void x(X& x) { x_ = x; }
+  //! updater for x_ (access is Access.rw)
+  X& x() { return x_; }
+
+ private:
+  X x_{};
+};
+'''));
   });
 
 // end <main>
