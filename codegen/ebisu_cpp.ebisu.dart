@@ -820,6 +820,8 @@ constructed. This member is used to track the request to include a protection
 block and tagging is deferred until needed.
 '''
                     ..classInit = false,
+                  member('doc')
+                  ..doc = 'Method documentation',
                 ],
               class_('default_method')
                 ..doc = '''

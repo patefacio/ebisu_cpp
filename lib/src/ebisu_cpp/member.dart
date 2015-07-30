@@ -340,6 +340,7 @@ class Member extends CppEntity {
 
   String get name =>
       isStaticConst ? namer.nameStaticConst(id) : namer.nameMember(id);
+
   String get vname => isStaticConst ? name : namer.nameMemberVar(id, isPublic);
 
   String get getter {
@@ -475,18 +476,20 @@ void $name($argType $name) {''';
   String get _setterImpl => '$vname = $name;';
   String get _setterCloser => '}';
 
-  String get _setterByAccess => member._isByRef? '''
+  String get _setterByAccess => member._isByRef
+      ? '''
 //! updater for ${vname} (access is $access)
 $argType $name() {
   return $vname;
 }
-''' : null;
+'''
+      : null;
 
   String get setter => (access == rw || access == wo)
       ? br([
-        brCompact([_setterOpener, _setterImpl, _setterCloser]),
-        _setterByAccess,
-      ])
+          brCompact([_setterOpener, _setterImpl, _setterCloser]),
+          _setterByAccess,
+        ])
       : null;
 
   // end <class StandardSetterCreator>

@@ -197,6 +197,9 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
   /// block and tagging is deferred until needed.
   bool includesProtectBlock = false;
 
+  /// Method documentation
+  String doc;
+
   // custom <class ClassMethod>
 
   String get definition;
@@ -213,7 +216,11 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
     if (includesProtectBlock || super.includesProtectBlock) {
       customCodeBlock..tag = blockTag;
     }
-    return brCompact(['$signature {', topInject, blockText, bottomInject, '}']);
+    return brCompact(
+        [doc != null? blockComment(doc, ' ') : doc,
+          '$signature {',
+          topInject, blockText, bottomInject,
+          '}']);
   }
 
   // end <class ClassMethod>

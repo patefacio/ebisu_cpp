@@ -228,13 +228,15 @@ private:
 };
 '''),
         true);
-
   });
 
   test('setter by ref via update', () {
     final cls = class_('c')
       ..members = [
-        member('x')..type = 'X'..isByRef = true..access = rw
+        member('x')
+          ..type = 'X'
+          ..isByRef = true
+          ..access = rw
       ];
 
     expect(darkMatter(cls.definition), darkMatter('''
