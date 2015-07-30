@@ -216,11 +216,14 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
     if (includesProtectBlock || super.includesProtectBlock) {
       customCodeBlock..tag = blockTag;
     }
-    return brCompact(
-        [doc != null? blockComment(doc, ' ') : doc,
-          '$signature {',
-          topInject, blockText, bottomInject,
-          '}']);
+    return brCompact([
+      doc != null ? blockComment(doc, ' ') : doc,
+      '$signature {',
+      topInject,
+      blockText,
+      bottomInject,
+      '}'
+    ]);
   }
 
   // end <class ClassMethod>
@@ -676,7 +679,8 @@ char const* indent(indenter.current_indentation_text());
   get _streamBases =>
       parent.bases.where((b) => b.isStreamable).map((b) => _streamBase(b));
 
-  String get definition => '''
+  String get definition => brCompact([
+        '''
 friend inline
 std::ostream& operator<<(std::ostream &out,
                          $className const& item) {
@@ -687,8 +691,12 @@ ${indentBlock(chomp(brCompact([
   brCompact(members.map((m) => _streamMember(m))),
   _outputText('}\\n'),
 ])))}
+''',
+        blockText,
+        '''
   return out;
-}''';
+}'''
+      ]);
 
   // end <class OpOut>
 

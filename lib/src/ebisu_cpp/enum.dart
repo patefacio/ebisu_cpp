@@ -263,10 +263,7 @@ inline void clear_bit(int &value, $name bit) {
       : null;
 
   /// The enum declaration string
-  get decl => brCompact([
-    docComment,
-    isMask ? _makeMaskEnum() : _makeEnum()
-  ]);
+  get decl => brCompact([docComment, isMask ? _makeMaskEnum() : _makeEnum()]);
 
   /// The C++ name as provided by the namer
   get name => namer.nameEnum(id);

@@ -60,6 +60,9 @@ private:
   test('basic opOut with indentation', () {
     final c = class_('cls')
       ..usesNestedIndent = true
+      ..opOut.customCodeBlock.snippets.add('''
+// Custom code can be added like so
+''')
       ..members = [
         member('a')..init = 1,
         member('b')..init = 3.14,
@@ -82,6 +85,7 @@ public:
     out << '\n' << indent << "  b:" << item.b_;
     out << '\n' << indent << "  c:" << item.c_;
     out << '\n' << indent << "}\n";
+    // Custom code can be added like so
     return out;
   }
 

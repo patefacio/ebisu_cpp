@@ -192,8 +192,10 @@ abstract class EnumeratedDispatcher {
 class SwitchDispatcher extends EnumeratedDispatcher {
   // custom <class SwitchDispatcher>
 
-  SwitchDispatcher(enumeration, dispatcher, {enumerator: 'discriminator'})
-      : super(enumeration, dispatcher, enumerator: enumerator);
+  SwitchDispatcher(enumeration, dispatcher,
+      {errorDispatcher: null, enumerator: 'discriminator'})
+      : super(enumeration, dispatcher,
+            errorDispatcher: errorDispatcher, enumerator: enumerator);
 
   String get dispatchBlock {
     if (discriminatorType != dctInteger) {
