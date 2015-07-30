@@ -102,6 +102,7 @@ inline void from_c_str(char const* str, Color_${isClass}_mapper &e) {
 '''));
 
       final sample_mask = enum_('${id}_mask')
+        ..doc = 'Sample doc string for mask enum'
         ..isClass = isClass
         ..values = ['red', 'green', 'blue']
         ..hasBitmaskFunctions = true
@@ -109,6 +110,7 @@ inline void from_c_str(char const* str, Color_${isClass}_mapper &e) {
 
       if (false) print(sample_mask.toString());
       expect(darkMatter(sample_mask.toString()), darkMatter('''
+/** Sample doc string for mask enum */
 enum ${isClass? "class ":""}Color_${isClass}_mask {
   Red_e = 1 << 0,
   Green_e = 1 << 1,
