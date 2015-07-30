@@ -44,9 +44,7 @@ inline char const* to_c_str(Color_$isClass e) {
     case Color_$isClass::Green_e: return "Green_e";
     case Color_$isClass::Blue_e: return "Blue_e";
     default: {
-      std::ostringstream msg;
-      msg << "to_c_str(Color_$isClass) encountered invalid value:" << int(e);
-      throw std::logic_error(msg.str());
+      return "Invalid Color_$isClass";
     }
   }
 }
@@ -88,9 +86,7 @@ inline char const* to_c_str(Color_${isClass}_mapper e) {
     case Color_${isClass}_mapper::Green_e: return "Green_e";
     case Color_${isClass}_mapper::Blue_e: return "Blue_e";
     default: {
-      std::ostringstream msg;
-      msg << "to_c_str(Color_${isClass}_mapper) encountered invalid value:" << int(e);
-      throw std::logic_error(msg.str());
+      return "Invalid Color_${isClass}_mapper";
     }
   }
 }
@@ -198,9 +194,7 @@ inline char const* to_c_str(With_values e) {
     case With_values::Foo_e: return "Foo_e";
     case With_values::Bar_e: return "Bar_e";
     default: {
-      std::ostringstream msg;
-      msg << "to_c_str(With_values) encountered invalid value:" << std::int8_t(e);
-      throw std::logic_error(msg.str());
+      return "Invalid With_values";
     }
   }
 }

@@ -263,7 +263,10 @@ inline void clear_bit(int &value, $name bit) {
       : null;
 
   /// The enum declaration string
-  get decl => isMask ? _makeMaskEnum() : _makeEnum();
+  get decl => brCompact([
+    docComment,
+    isMask ? _makeMaskEnum() : _makeEnum()
+  ]);
 
   /// The C++ name as provided by the namer
   get name => namer.nameEnum(id);
@@ -299,9 +302,7 @@ ${
   indentBlock(_valueNames.map((n) => 'case $name::$n: return ${doubleQuote(n)}').join(';\n'), '    ')
 };
     default: {
-      std::ostringstream msg;
-      msg << "to_c_str($name) encountered invalid value:" << $_intType(e);
-      throw std::logic_error(msg.str());
+      return "Invalid $name";
     }
   }
 }''';
