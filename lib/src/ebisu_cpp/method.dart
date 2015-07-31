@@ -145,10 +145,19 @@ Try something familiar like: "void add(int a, int b)"
 
   String get _commentedDeclaration => '${this.docComment}$_declaration';
 
-  String get _declaration => '''
+  String get _declaration {
+    if (owner == null) throw '''
+MethodDecls has no *owner* : ${id}:
+
+Ensure the Interface containing this MethodDecl has been assigned to a Header or
+Impl
+''';
+
+    return '''
 $signature {
-${chomp(indentBlock(customBlock(id.snake)))}
+${chomp(indentBlock(customBlock('${owner.name}::${id.snake}')))}
 }''';
+  }
 
   String get asVirtual => 'virtual $signature;';
   String get _templateDecl => template == null ? '' : '${template.decl}\n';
@@ -226,7 +235,7 @@ class Interface extends CppEntity {
 
   // custom <class Interface>
 
-  Interface(id) : super(_forceInterfacePrefix(id));
+  Interface(id) : super(id);
 
   static _hasPrefix(String s) => s.startsWith('i_');
 
@@ -238,7 +247,7 @@ class Interface extends CppEntity {
               : idFromString('i_${idFromString(id).snake}'))
           : throw 'Interface *id* must be an Id or String';
 
-  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+  Iterable<Entity> get children => methodDecls;
 
   get name => namer.nameClass(id);
 
@@ -264,13 +273,18 @@ MethodDecls must be initialized with String or MethodDecl
 ${_methodDecls.map((md) => md.asVirtual).join('\n')}
 ''';
 
+  InterfaceImplementation createImplementation(
+          {CppAccess cppAccess: public, bool isVirtual: false}) =>
+      new InterfaceImplementation(this,
+          cppAccess: cppAccess, isVirtual: isVirtual);
+
   // end <class Interface>
 
   List<MethodDecl> _methodDecls = [];
 }
 
 /// An [interface] with a [CppAccess] to be implemented by a [Class]
-class InterfaceImplementation {
+class InterfaceImplementation extends CppEntity {
   Interface interface;
   CppAccess cppAccess = public;
 
@@ -279,8 +293,10 @@ class InterfaceImplementation {
 
   // custom <class InterfaceImplementation>
 
-  InterfaceImplementation(this.interface,
-      [CppAccess cppAccess = public, bool isVirtual = false]) {
+  InterfaceImplementation(interface,
+      {CppAccess cppAccess: public, bool isVirtual: false})
+      : super(interface.id) {
+    this.interface = interface;
     this.cppAccess = cppAccess;
     this.isVirtual = isVirtual;
   }
@@ -288,6 +304,9 @@ class InterfaceImplementation {
   String get name => interface.name;
   String get definition => interface.definition;
   List<MethodDecl> get methodDecls => interface.methodDecls;
+
+  /// InterfaceImplementation has no children - returns empty [Iterable]
+  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
   Iterable<String> get methodImpls =>
       methodDecls.map((MethodDecl md) => brCompact([

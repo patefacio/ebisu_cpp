@@ -174,7 +174,8 @@ ${indentBlock(definition, '    ')}
     final c1 = class_('c_1')
       ..defaultMemberAccess = ro
       ..members.add(member('xy')..type = 'std::string')
-      ..owner = null;
+      ..setAsRoot();
+
     expect(c1.members.first.access, ro);
   });
 

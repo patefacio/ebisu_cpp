@@ -67,7 +67,8 @@ abstract class CppFile extends CppEntity with Testable {
         enums,
         usings,
         _test == null ? [] : [test],
-        testScenarios
+        testScenarios,
+        interfaces
       ]);
 
   set __basename(String name) => _basename = name;

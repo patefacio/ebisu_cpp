@@ -60,7 +60,7 @@ abstract class CppEntity extends Object with Entity {
             : id is Id
                 ? id
                 : throw '''
-CPpEntities must be created with id of String or Id: ${id.runtimeType}=$id''';
+CppEntities must be created with id of String or Id: ${id.runtimeType}=$id''';
 
   String get briefComment => brief != null ? '//! $brief' : null;
 

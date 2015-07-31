@@ -789,7 +789,7 @@ private:
         ..members = [member('a')..init = 5,];
 
       /// Required to establish relationships
-      cls.owner = null;
+      cls.setAsRoot();
       expect(cls.definition.contains('public:'), true);
     }
   });

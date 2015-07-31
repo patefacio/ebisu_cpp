@@ -898,7 +898,8 @@ class Class extends CppEntity with Testable {
         usingsPostDecl,
         [template],
         testScenarios,
-        nestedClasses
+        nestedClasses,
+        interfaceImplementations
       ]).where((child) => child != null);
 
   /// If set, the [OpOut] streamer will use nested indenting

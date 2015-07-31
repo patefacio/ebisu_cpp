@@ -233,7 +233,7 @@ enum class Mask_with_green_bit_specified {
           ..isStreamable = true
       ]
       ..members = [member('n')..type = 'Mask_with_green_bit_specified']
-      ..owner = null;
+      ..setAsRoot();
 
     expect(darkMatter(cls.definition), darkMatter(r'''
 class Nesting

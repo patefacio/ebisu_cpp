@@ -2,6 +2,7 @@ import 'package:logging/logging.dart';
 import 'test_cpp_enum.dart' as test_cpp_enum;
 import 'test_cpp_member.dart' as test_cpp_member;
 import 'test_cpp_class.dart' as test_cpp_class;
+import 'test_cpp_interface.dart' as test_cpp_interface;
 import 'test_cpp_opout.dart' as test_cpp_opout;
 import 'test_cpp_method.dart' as test_cpp_method;
 import 'test_cpp_utils.dart' as test_cpp_utils;
@@ -23,6 +24,7 @@ main() {
   test_cpp_enum.main();
   test_cpp_member.main();
   test_cpp_class.main();
+  test_cpp_interface.main();
   test_cpp_opout.main();
   test_cpp_method.main();
   test_cpp_utils.main();

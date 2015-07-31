@@ -28,15 +28,13 @@ main() {
     ..classes = [
       class_('dog')
       ..interfaceImplementations = [
-        new InterfaceImplementation(scareTactics, public)
+        scareTactics.createImplementation(cppAccess: public)
         ..isVirtual = true,
-        new InterfaceImplementation(eatingHabbits, protected)
-        ..isVirtual = false
-
+        eatingHabbits.createImplementation(cppAccess: protected, isVirtual: false)
       ]
     ];
 
-  h.owner = null;
+  h.setAsRoot();
 
   print(clangFormat(h.contents));
 }

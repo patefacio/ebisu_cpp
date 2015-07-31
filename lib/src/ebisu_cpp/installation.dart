@@ -121,7 +121,7 @@ Installation($rootFilePath)
       generateDoxyFile: false,
       generateEmacs: false}) {
     /// This assignment triggers the linkup of all children
-    owner = null;
+    setAsRoot();
 
     _addStandardizedHeaders();
 

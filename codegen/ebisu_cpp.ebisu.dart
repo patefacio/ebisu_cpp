@@ -36,6 +36,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_enum'),
       library('test_cpp_member'),
       library('test_cpp_class'),
+      library('test_cpp_interface'),
       library('test_cpp_opout'),
       library('test_cpp_method'),
       library('test_cpp_utils'),
@@ -1258,6 +1259,7 @@ the [getMethod] function.
               class_('interface_implementation')
                 ..doc =
                 'An [interface] with a [CppAccess] to be implemented by a [Class]'
+                ..extend = 'CppEntity'
                 ..members = [
                   member('interface')..type = 'Interface',
                   member('cpp_access')

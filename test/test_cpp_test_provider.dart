@@ -34,7 +34,7 @@ main([List<String> args]) {
 
   test('test_scenario', () {
     final sampleTestScenario = vectorSample();
-    sampleTestScenario.owner = null;
+    sampleTestScenario.setAsRoot();
     expect(
         darkSame(
             br(scenarioTestText(sampleTestScenario)),
