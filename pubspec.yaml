@@ -41,9 +41,9 @@ environment:
 dependency_overrides:
 # custom <ebisu_cpp dependency overrides>
 
-#  ebisu:
+  ebisu:
 #    path: /home/dbdavidson/dev/open_source/ebisu
-#    git: git://github.com/patefacio/ebisu
+    git: git://github.com/patefacio/ebisu
 
 # end <ebisu_cpp dependency overrides>
 
