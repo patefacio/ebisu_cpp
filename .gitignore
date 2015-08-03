@@ -12,5 +12,6 @@ build/
 *.js.deps
 *.js.map
 # custom <additional>
+*~
 # end <additional>
 

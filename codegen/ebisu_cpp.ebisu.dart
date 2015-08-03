@@ -46,6 +46,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_exception'),
       library('test_cpp_versioning'),
       library('test_cpp_switch'),
+      library('test_cpp_benchmark'),
       library('test_hdf5_support'),
       library('test_enumerated_dispatcher'),
     ]
@@ -76,7 +77,7 @@ files, build scripts, test files, etc.)
                 ],
               class_('traits_requirements')
                 ..doc =
-                'Collection of requirements for a [Traits] entry in a [TraitsFamily]'
+                    'Collection of requirements for a [Traits] entry in a [TraitsFamily]'
                 ..members = [
                   member('usings')
                     ..type = 'List<Id>'
@@ -176,10 +177,10 @@ The right hand side of using (ie the type decl being named)'''
                     ..doc = 'Indicates a const reference to type: *T const&*',
                   enumValue(id('vref'))
                     ..doc =
-                    'Indicates a volatile reference to type: *T volatile&*',
+                        'Indicates a volatile reference to type: *T volatile&*',
                   enumValue(id('cvref'))
                     ..doc =
-                    'Indicates a const volatile reference to type: *T const volatile&*',
+                        'Indicates a const volatile reference to type: *T const volatile&*',
                   enumValue(id('value'))..doc = 'Indicates not a reference'
                 ],
               enum_('ptr_type')
@@ -209,13 +210,13 @@ The right hand side of using (ie the type decl being named)'''
                 ..values = [
                   enumValue(id('ia'))
                     ..doc =
-                    '**Inaccessible**. Designates a member that is *private* by default and no accessors',
+                        '**Inaccessible**. Designates a member that is *private* by default and no accessors',
                   enumValue(id('ro'))
                     ..doc =
-                    '**Read-Only**. Designates a member tht is *private* by default and a read accessor',
+                        '**Read-Only**. Designates a member tht is *private* by default and a read accessor',
                   enumValue(id('rw'))
                     ..doc =
-                    '**Read-Write**. Designates a member tht is *private* by default and both read and write accessors',
+                        '**Read-Write**. Designates a member tht is *private* by default and both read and write accessors',
                   enumValue(id('wo'))
                     ..doc = '''
 **Write-Only**. Designates a member tht is *private* by default and
@@ -288,7 +289,7 @@ The idea is to make C++ more readable when large constants are used.
                     ..ctors = [''],
                   member('namespace')
                     ..doc =
-                    'The namespace to which the class being forward declared belongs'
+                        'The namespace to which the class being forward declared belongs'
                     ..type = 'Namespace'
                     ..ctorsOpt = [''],
                 ],
@@ -302,11 +303,11 @@ The idea is to make C++ more readable when large constants are used.
                 ..members = [
                   member('decl')
                     ..doc =
-                    'Declaration text without the *friend* and *class* keywords'
+                        'Declaration text without the *friend* and *class* keywords'
                 ],
               class_('namespace')
                 ..doc =
-                'Represents a c++ namespace which is essentially a list of names'
+                    'Represents a c++ namespace which is essentially a list of names'
                 ..members = [
                   member('names')
                     ..doc = 'The individual names in the namespace'
@@ -363,13 +364,13 @@ Default namer establishing reasonable conventions, that are fairly
                     ..classInit = 'public',
                   member('init')
                     ..doc =
-                    'How to initiailize the base class in ctor initializer',
+                        'How to initiailize the base class in ctor initializer',
                   member('is_virtual')
                     ..doc = 'If true inheritance is virtual'
                     ..classInit = false,
                   member('is_streamable')
                     ..doc =
-                    'If true and streamers are being provided, base is streamed first'
+                        'If true and streamers are being provided, base is streamed first'
                     ..classInit = false,
                 ]
             ],
@@ -403,7 +404,7 @@ Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
                     ..classInit = {},
                   member('classes')
                     ..doc =
-                    'List of classes whose definitions are included in this file'
+                        'List of classes whose definitions are included in this file'
                     ..type = 'List<Class>'
                     ..classInit = [],
                   member('includes')
@@ -413,23 +414,23 @@ Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
                     ..classInit = 'new Includes()',
                   member('const_exprs')
                     ..doc =
-                    'List of c++ *constexprs* that will appear near the top of the file'
+                        'List of c++ *constexprs* that will appear near the top of the file'
                     ..type = 'List<ConstExpr>'
                     ..classInit = [],
                   member('forward_decls')
                     ..doc =
-                    'List of forward declarations that will appear near the top of the file'
+                        'List of forward declarations that will appear near the top of the file'
                     ..type = 'List<ForwardDecl>'
                     ..classInit = [],
                   member('usings')
                     ..doc =
-                    'List of using statements that will appear near the top of the file'
+                        'List of using statements that will appear near the top of the file'
                     ..type = 'List<Using>'
                     ..access = RO
                     ..classInit = [],
                   member('enums')
                     ..doc =
-                    'List of enumerations that will appear near the top of the file'
+                        'List of enumerations that will appear near the top of the file'
                     ..type = 'List<Enum>'
                     ..classInit = [],
                   member('interfaces')
@@ -464,7 +465,7 @@ Classes to facilitate generating C++ template code
                     ..doc = 'Indicates the template parameter names a type',
                   enumValue('non_type')
                     ..doc =
-                    '''Indicates the template parameter indicates a non-type
+                        '''Indicates the template parameter indicates a non-type
 (e.g. *MAX_SIZE = 10* - a constant literal)''',
                 ],
             ]
@@ -492,15 +493,16 @@ Represents a template declaration comprized of a list of [decls]
             ],
           part('enum')
             ..classes = [
-
               class_('enum_value')
-              ..extend = 'CppEntity'
-              ..doc = 'Name value pairs for entries in a enum - when default values will not cut it'
-              ..members = [
-                member('value')..type = 'dynamic'..access = RO,
-                member('name')..access = RO,
-              ],
-
+                ..extend = 'CppEntity'
+                ..doc =
+                    'Name value pairs for entries in a enum - when default values will not cut it'
+                ..members = [
+                  member('value')
+                    ..type = 'dynamic'
+                    ..access = RO,
+                  member('name')..access = RO,
+                ],
               class_('enum')
                 ..doc = enumDoc
                 ..extend = 'CppEntity'
@@ -524,7 +526,7 @@ Support for assignment from string, or id implies default values.
                     ..access = IA,
                   member('is_class')
                     ..doc =
-                    'If true the enum is a class enum as opposed to "plain" enum'
+                        'If true the enum is a class enum as opposed to "plain" enum'
                     ..classInit = false,
                   member('enum_base')
                     ..doc = 'Base of enum - if set must be an integral type',
@@ -538,8 +540,7 @@ Support for assignment from string, or id implies default values.
                     ..doc = 'If true adds streaming support'
                     ..classInit = false,
                   member('is_mask')
-                    ..doc =
-                  '''
+                    ..doc = '''
 If true the values are powers of two for bit masking.
 
 When specifying values for a mask specify the *bit* associated with
@@ -560,13 +561,13 @@ And *print(sample_mask)* gives:
 '''
                     ..classInit = false,
                   member('has_bitmask_functions')
-                  ..doc = '''
+                    ..doc = '''
 If set provides test, set and clear methods.
 '''
-                  ..classInit = false,
+                    ..classInit = false,
                   member('is_nested')
                     ..doc =
-                    'If true is nested in class and requires *friend* stream support'
+                        'If true is nested in class and requires *friend* stream support'
                     ..classInit = false,
                   member('is_displayed_hex')
                     ..doc = '''
@@ -622,15 +623,15 @@ initialize it''',
                     ..classInit = false,
                   member('has_no_init')
                     ..doc =
-                    'If set will not initialize variable - use sparingly'
+                        'If set will not initialize variable - use sparingly'
                     ..classInit = false,
                   member('is_serialized_as_int')
                     ..doc =
-                    'Indicates this member is an enum and if serialized should be serialized as int'
+                        'Indicates this member is an enum and if serialized should be serialized as int'
                     ..classInit = false,
                   member('is_cereal_transient')
                     ..doc =
-                    'Indicates this member should not be serialized via cereal'
+                        'Indicates this member should not be serialized via cereal'
                     ..classInit = false,
                   member('getter_return_modifier')
                     ..doc = getterReturnModifierDoc
@@ -672,7 +673,7 @@ generate a streamable entry in the containing [Class].
                 ],
               class_('getter_creator')
                 ..doc =
-                'Responsible for creating the getter (i.e. reader) for member'
+                    'Responsible for creating the getter (i.e. reader) for member'
                 ..isAbstract = true
                 ..members = [
                   member('member')
@@ -683,7 +684,7 @@ generate a streamable entry in the containing [Class].
               class_('standard_getter_creator')..extend = 'GetterCreator',
               class_('setter_creator')
                 ..doc =
-                'Responsible for creating the setter (i.e. writer) for member'
+                    'Responsible for creating the setter (i.e. writer) for member'
                 ..isAbstract = true
                 ..members = [
                   member('member')
@@ -693,38 +694,36 @@ generate a streamable entry in the containing [Class].
                 ],
               class_('standard_setter_creator')..extend = 'SetterCreator',
             ],
-
           part('control_flow')
-          ..classes = [
-            class_('switch')
-            ..ctorCustoms = ['']
-            ..members = [
-              member('switch_value')
-              ..doc = 'Text repesenting the value to be switched on'
-              ..ctors = [''],
-              member('cases')
-              ..type = 'List<int>'
-              ..classInit = []
-              ..ctors = [''],
-              member('on_case')
-              ..doc = 'Function for providing a block for *case*'
-              ..type = 'CaseFunctor'
-              ..ctors = [''],
-              member('on_default')
-              ..doc = '''
+            ..classes = [
+              class_('switch')
+                ..ctorCustoms = ['']
+                ..members = [
+                  member('switch_value')
+                    ..doc = 'Text repesenting the value to be switched on'
+                    ..ctors = [''],
+                  member('cases')
+                    ..type = 'List<int>'
+                    ..classInit = []
+                    ..ctors = [''],
+                  member('on_case')
+                    ..doc = 'Function for providing a block for *case*'
+                    ..type = 'CaseFunctor'
+                    ..ctors = [''],
+                  member('on_default')
+                    ..doc = '''
 Block of text for the default case.
 
 Break will be provided. If default case is a one or more statements
 client must provide semicolons.
 '''
-              ..ctorsOpt = [''],
-              member('is_char')
-              ..doc = 'If cases should be interpreted as char'
-              ..type = 'bool'
-              ..ctorsOpt = [''],
+                    ..ctorsOpt = [''],
+                  member('is_char')
+                    ..doc = 'If cases should be interpreted as char'
+                    ..type = 'bool'
+                    ..ctorsOpt = [''],
+                ],
             ],
-          ],
-
           part('class')
             ..enums = [
               enum_('class_code_block')
@@ -733,43 +732,43 @@ client must provide semicolons.
                 ..values = [
                   enumValue(id('cls_open'))
                     ..doc =
-                    'The custom block appearing just after class is opened',
+                        'The custom block appearing just after class is opened',
                   enumValue(id('cls_public_begin'))
                     ..doc =
-                    'The custom block appearing at start *public* section',
+                        'The custom block appearing at start *public* section',
                   enumValue(id('cls_public'))
                     ..doc =
-                    'The custom block appearing in the standard *public* section',
+                        'The custom block appearing in the standard *public* section',
                   enumValue(id('cls_public_end'))
                     ..doc =
-                    'The custom block appearing at end *public* section',
+                        'The custom block appearing at end *public* section',
                   enumValue(id('cls_protected_begin'))
                     ..doc =
-                    'The custom block appearing at start *protected* section',
+                        'The custom block appearing at start *protected* section',
                   enumValue(id('cls_protected'))
                     ..doc =
-                    'The custom block appearing in the standard *protected* section',
+                        'The custom block appearing in the standard *protected* section',
                   enumValue(id('cls_protected_end'))
                     ..doc =
-                    'The custom block appearing at end *protected* section',
+                        'The custom block appearing at end *protected* section',
                   enumValue(id('cls_private_begin'))
                     ..doc =
-                    'The custom block appearing at start *private* section',
+                        'The custom block appearing at start *private* section',
                   enumValue(id('cls_private'))
                     ..doc =
-                    'The custom block appearing in the standard *private* section',
+                        'The custom block appearing in the standard *private* section',
                   enumValue(id('cls_private_end'))
                     ..doc =
-                    'The custom block appearing at end *private* section',
+                        'The custom block appearing at end *private* section',
                   enumValue(id('cls_close'))
                     ..doc =
-                    'The custom block appearing just before class is closed',
+                        'The custom block appearing just before class is closed',
                   enumValue(id('cls_pre_decl'))
                     ..doc =
-                    'The custom block appearing just before the class definition',
+                        'The custom block appearing just before the class definition',
                   enumValue(id('cls_post_decl'))
                     ..doc =
-                    'The custom block appearing just after the class definition',
+                        'The custom block appearing just after the class definition',
                 ],
             ]
             ..classes = [
@@ -821,8 +820,7 @@ constructed. This member is used to track the request to include a protection
 block and tagging is deferred until needed.
 '''
                     ..classInit = false,
-                  member('doc')
-                  ..doc = 'Method documentation',
+                  member('doc')..doc = 'Method documentation',
                 ],
               class_('default_method')
                 ..doc = '''
@@ -858,7 +856,7 @@ Also provides for *delete*d methods.
                 ..members = [
                   member('name')
                     ..doc =
-                    'Name of member initialized by argument to member ctor'
+                        'Name of member initialized by argument to member ctor'
                     ..isFinal = true
                     ..ctors = [''],
                   member('member')
@@ -920,7 +918,7 @@ custom block. In that case the class might look like:
                 ..members = [
                   member('member_parms')
                     ..doc =
-                    'List of members that are passed as arguments for initialization'
+                        'List of members that are passed as arguments for initialization'
                     ..type = 'List<MemberCtorParm>'
                     ..classInit = [],
                   member('decls')
@@ -969,12 +967,12 @@ on the same class and results lazy-inited here'''
                     ..access = RO,
                   member('forward_decls')
                     ..doc =
-                    'Forward declarations near top of file, before the class definition'
+                        'Forward declarations near top of file, before the class definition'
                     ..type = 'List<ForwardDecl>'
                     ..classInit = [],
                   member('class_forward_decls')
                     ..doc =
-                    'Forward declarations within class, ideal for forward declaring nested classes'
+                        'Forward declarations within class, ideal for forward declaring nested classes'
                     ..type = 'List<ForwardDecl>'
                     ..classInit = [],
                   member('const_exprs')
@@ -1065,8 +1063,8 @@ Base classes this class derives form.
                     ..classInit = [],
                   member('is_singleton')..classInit = false,
                   member('is_noncopyable')
-                  ..doc = 'If true deletes copy ctor and assignment operator'
-                  ..classInit = false,
+                    ..doc = 'If true deletes copy ctor and assignment operator'
+                    ..classInit = false,
                   member('code_blocks')
                     ..access = RO
                     ..type = 'Map<ClassCodeBlock, CodeBlock>'
@@ -1096,7 +1094,7 @@ stronger guarantee of immutability.'''
                     ..classInit = false,
                   member('serializers')
                     ..doc =
-                    'List of processors supporting flavors of serialization'
+                        'List of processors supporting flavors of serialization'
                     ..type = 'List<Serializer>'
                     ..classInit = [],
                   member('interface_implementations')
@@ -1120,7 +1118,7 @@ Lookup is done by pattern match.
                     ..classInit = {},
                   member('cpp_access')
                     ..doc =
-                    'A [CppAccess] specifier - only pertinent if class is nested'
+                        'A [CppAccess] specifier - only pertinent if class is nested'
                     ..type = 'CppAccess'
                     ..classInit = 'public',
                   member('nested_classes')
@@ -1135,11 +1133,11 @@ and *#pragma pack(pop)* after.
                     ..type = 'int',
                   member('default_member_access')
                     ..doc =
-                    'If set and member has no [access] set, this is used'
+                        'If set and member has no [access] set, this is used'
                     ..type = 'Access',
                   member('default_cpp_access')
                     ..doc =
-                    'If set and member has no [cppAccess] set, this is used'
+                        'If set and member has no [cppAccess] set, this is used'
                     ..type = 'CppAccess',
                 ],
             ],
@@ -1258,7 +1256,7 @@ the [getMethod] function.
                 ],
               class_('interface_implementation')
                 ..doc =
-                'An [interface] with a [CppAccess] to be implemented by a [Class]'
+                    'An [interface] with a [CppAccess] to be implemented by a [Class]'
                 ..extend = 'CppEntity'
                 ..members = [
                   member('interface')..type = 'Interface',
@@ -1287,7 +1285,7 @@ Creates a new *exception* class derived from std::exception.
             ..enums = [
               enum_('serialization_style')
                 ..doc =
-                'Serialization using *cereal* supports these types of serialization'
+                    'Serialization using *cereal* supports these types of serialization'
                 ..hasLibraryScopedValues = true
                 ..values = [
                   id('json_serialization'),
@@ -1301,7 +1299,7 @@ Creates a new *exception* class derived from std::exception.
                 ..isAbstract = true,
               class_('dsv_serializer')
                 ..doc =
-                'Provides support for serialization as *delimited separated values*'
+                    'Provides support for serialization as *delimited separated values*'
                 ..implement = ['Serializer']
                 ..members = [member('delimiter')..classInit = ':',],
               class_('cereal')
@@ -1338,10 +1336,10 @@ The *TestClauses* are modeled after the *Catch* library *BDD* approach.
                 ..values = [
                   enumValue(id('tc_open'))
                     ..doc =
-                    'The custom block appearing at the start of the clause',
+                        'The custom block appearing at the start of the clause',
                   enumValue(id('tc_close'))
                     ..doc =
-                    'The custom block appearing at the end of the clause',
+                        'The custom block appearing at the end of the clause',
                 ],
             ]
             ..classes = [
@@ -1377,7 +1375,7 @@ and [CodeBlock]s to augment/initialize/teardown.
                 ..extend = 'CppEntity'
                 ..members = [member('givens')..type = 'List<Given>',],
               class_('testable')
-              ..isAbstract = true
+                ..isAbstract = true
                 ..members = [
                   member('test_scenarios')
                     ..type = 'List<TestScenario>'
@@ -1419,19 +1417,19 @@ Useful for putting definitions just prior to includes, e.g.
 ''',
                   enumValue(id('fcb_custom_includes'))
                     ..doc =
-                    'Custom block for any additional includes appearing just after generated includes',
+                        'Custom block for any additional includes appearing just after generated includes',
                   enumValue(id('fcb_pre_namespace'))
                     ..doc =
-                    'Custom block appearing just before the namespace declaration in the code',
+                        'Custom block appearing just before the namespace declaration in the code',
                   enumValue(id('fcb_begin_namespace'))
                     ..doc =
-                    'Custom block appearing at the begining of and inside the namespace',
+                        'Custom block appearing at the begining of and inside the namespace',
                   enumValue(id('fcb_end_namespace'))
                     ..doc =
-                    'Custom block appearing at the end of and inside the namespace',
+                        'Custom block appearing at the end of and inside the namespace',
                   enumValue(id('fcb_post_namespace'))
                     ..doc =
-                    'Custom block appearing just after the namespace declaration in the code',
+                        'Custom block appearing just after the namespace declaration in the code',
                 ]
             ]
             ..classes = [
@@ -1487,7 +1485,7 @@ be a good place for the API decl definitions.
                     ..access = IA,
                   member('logging_header')
                     ..doc =
-                    'A header for initializing a single logger for the [Lib] if required'
+                        'A header for initializing a single logger for the [Lib] if required'
                     ..type = 'Header'
                     ..access = IA,
                   member('initialization_header')
@@ -1558,7 +1556,7 @@ Set of argument types supported by command line option processing.
                 ..members = [
                   member('args')
                     ..doc =
-                    'Command line arguments specific to this application'
+                        'Command line arguments specific to this application'
                     ..type = 'List<AppArg>'
                     ..classInit = [],
                   member('headers')
@@ -1594,29 +1592,30 @@ injecting code in main
                     ..type = 'CodeBlock'
                     ..classInit = "new CodeBlock('main')",
                   member('has_log_level')
-                  ..doc = '''
+                    ..doc = '''
 If true adds --log-level to the set of options for the app. This app
 argument will default the app to having no logging, but allow user
 control.
 '''
-                  ..classInit = false,
+                    ..classInit = false,
                   member('has_signal_handler')
-                  ..doc = 'If true support for handling signals included in app'
-                  ..classInit = false,
+                    ..doc =
+                        'If true support for handling signals included in app'
+                    ..classInit = false,
                   member('has_quit_loop')
-                  ..doc = '''
+                    ..doc = '''
 If true adds quit loop at end of main.
 
 The quit loop loops as:
 
     do {
-      std::cout << "Enter 'q' or 'Q' to quit'" << std::endl;
+      std::cout << "Enter 'q' or 'Q' to quit" << std::endl;
       if(c == 'q' || c == 'Q') {
         break;
       }
     } while(std::cin >> c);
 '''
-                  ..classInit = false,
+                    ..classInit = false,
                 ],
               class_('app_builder')
                 ..doc = '''
@@ -1639,18 +1638,62 @@ libraries, apps, and tests'''
                 ..members = [],
             ],
           part('benchmark')
+            ..enums = []
             ..classes = [
               class_('benchmark')
-                ..extend = 'Impl'
-                ..members = []
+                ..doc = 'A benchmark.'
+                ..extend = 'CppEntity'
+                ..members = [
+                  member('benchmark_app')
+                    ..doc = 'App for the benchmark'
+                    ..type = 'App'
+                    ..access = RO,
+                  member('benchmark_lib')
+                    ..doc = 'Library for the benchmark'
+                    ..type = 'Lib'
+                    ..access = RO,
+                  member('benchmark_header')
+                    ..doc = 'The primary header for this benchmark'
+                    ..type = 'Header'
+                    ..access = RO,
+                  member('benchmark_class')
+                    ..doc =
+                        'Class object that is responsible for doing the work to be timed'
+                    ..type = 'Class'
+                    ..access = RO,
+                ],
+              class_('benchmark_harness')
+                ..doc = '''
+Represents a single benchmark concept containing one or more actual
+benchmarks to run timings for.
+
+The concept of having a single [Benchmark] in a [BenchmarkHarness]
+might useful to have timings on a piece of code that, over time, should
+remain stable or improve.
+
+The concept of having mutliple [Benchmark]s in a [BenchmarkHarness] is
+to enable comparison. History analysis is still an option as well.'''
+                ..extend = 'CppEntity'
+                ..members = [
+                  member('benchmarks')
+                    ..doc = 'Collection of all bookmarks owned by the harness'
+                    ..type = 'List<Benchmark>'
+                    ..classInit = []
+                    ..access = RO,
+                  member('harness_class')
+                    ..doc =
+                        'Class responsible for running the various benchmarks through their paces'
+                    ..type = 'Class'
+                    ..access = RO,
+                ],
             ],
           part('emacs_support')
             ..doc =
-            'Support for generating emacs functions for accessing generated code'
+                'Support for generating emacs functions for accessing generated code'
             ..classes = [
               class_('installation_walker')
                 ..doc =
-                'Walks installation and creates single emacs file with utility functions'
+                    'Walks installation and creates single emacs file with utility functions'
                 ..implement = ['CodeGenerator']
                 ..isImmutable = true
                 ..members = [member('installation')..type = 'Installation']
@@ -1742,12 +1785,16 @@ If true logs initialization of libraries - useful for tracking
 down order of initialization issues.
 '''
                     ..classInit = false,
+                  member('benchmarks')
+                    ..doc = 'All modeled benchmarks in the installation'
+                    ..type = 'List<Benchmark>'
+                    ..classInit = [],
                 ],
               class_('path_locator')
                 ..members = [
                   member('env_var')
                     ..doc =
-                    'Environment variable specifying location of path, if set this path is used'
+                        'Environment variable specifying location of path, if set this path is used'
                     ..isFinal = true,
                   member('default_path')
                     ..doc = 'Default path for the item in question'
@@ -1885,7 +1932,7 @@ enumerator. *Note* client must supply trailing semicolon if needed.
 '''
                     ..type = 'ErrorDispatcher',
                   member('uses_enumerator_directly')
-                ..doc = r'''
+                    ..doc = r'''
 For [dctStdString] type enumerations.
 
 If true does not declare separate *descriminator_* local variable, but
@@ -1897,7 +1944,7 @@ is to assign to local:
 
 Setting this to true bypasses that and uses $enumerator directly.
 '''
-                ..classInit = false,
+                    ..classInit = false,
                 ],
               class_('switch_dispatcher')
                 ..doc = 'Dispatcher implemented with *switch* statement'
@@ -1905,8 +1952,9 @@ Setting this to true bypasses that and uses $enumerator directly.
               class_('if_else_if_dispatcher')
                 ..doc = 'Dipatcher implemented with *if-else-if* statements'
                 ..extend = 'EnumeratedDispatcher'
-                ..members =
-                [member('compare_expression')..type = 'CompareExpression'],
+                ..members = [
+                  member('compare_expression')..type = 'CompareExpression'
+                ],
               class_('char_node')
                 ..doc = '''
 A node in a tree-structure.
@@ -1968,24 +2016,21 @@ The tree shrunk by calling flatten:
                     ..type = 'List<CharNode>'
                     ..classInit = [],
                 ],
-
               class_('char_binary_dispatcher')
                 ..doc = '''
 Dipatcher implemented with *if-else-if* statements visiting character by
 character - *only* valid for strings as discriminators.
 '''
                 ..extend = 'EnumeratedDispatcher'
-              ..members = [
-
-                member('has_no_length_checks')
-                ..doc = '''
+                ..members = [
+                  member('has_no_length_checks')
+                    ..doc = '''
 Bypasses normal length checks.
 
 Applicable when caller all enumerants of same length and caller
 ensures dispatch is as large as that length'''
-                ..classInit = false
-              ],
-
+                    ..classInit = false
+                ],
               class_('strlen_binary_dispatcher')
                 ..doc = '''
 Dipatcher that first partitions the discriminator by length then implemented
@@ -1993,18 +2038,19 @@ with *if-else-if* statements visiting character by character - *only* valid for
 strings as discriminators.
 '''
                 ..extend = 'EnumeratedDispatcher'
-              ..members = [
-                member('length_map')
-                ..doc = 'Map the length of the enumerant to the set of enumerants of same length'
-                ..access = RO
-                ..classInit = {}
-              ],
+                ..members = [
+                  member('length_map')
+                    ..doc =
+                        'Map the length of the enumerant to the set of enumerants of same length'
+                    ..access = RO
+                    ..classInit = {}
+                ],
             ]
         ],
       library('hdf5_support')
         ..imports = ['package:ebisu_cpp/ebisu_cpp.dart', 'package:id/id.dart',]
         ..doc =
-        'Provide C++ classes support for reading/writing to hdf5 packet table'
+            'Provide C++ classes support for reading/writing to hdf5 packet table'
         ..parts = [
           part('packet_table')
             ..classes = [
@@ -2025,7 +2071,7 @@ hdf5 packet table support
                 ..members = [
                   member('class_name')
                     ..doc =
-                    'Name of class, *snake case*, to add a packet table log group'
+                        'Name of class, *snake case*, to add a packet table log group'
                     ..ctors = ['']
                     ..isFinal = true,
                   member('member_names')

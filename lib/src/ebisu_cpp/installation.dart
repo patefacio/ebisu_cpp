@@ -60,6 +60,9 @@ class Installation extends CppEntity implements CodeGenerator {
   /// down order of initialization issues.
   bool logsApiInitializations = false;
 
+  /// All modeled benchmarks in the installation
+  List<Benchmark> benchmarks = [];
+
   // custom <class Installation>
 
   Installation(Id id) : super(id) {
@@ -102,7 +105,8 @@ Installation($rootFilePath)
   addLibs(Iterable<Lib> libs) => libs.forEach((l) => addLib(l));
   addApp(App app) => apps.add(app);
 
-  Iterable<CppEntity> get children => concat([apps, libs, scripts, cppLoggers]);
+  Iterable<CppEntity> get children =>
+    concat([benchmarks, apps, libs, scripts, cppLoggers ]);
 
   // Generate the installation
   //
@@ -120,6 +124,7 @@ Installation($rootFilePath)
       generateHeaderSmokeTest: false,
       generateDoxyFile: false,
       generateEmacs: false}) {
+
     /// This assignment triggers the linkup of all children
     setAsRoot();
 
@@ -129,7 +134,8 @@ Installation($rootFilePath)
 
     progeny.forEach((Entity child) => (child as CppEntity)._namer = _namer);
 
-    concat([libs]).forEach((CodeGenerator cg) => cg.generate());
+    concat([libs])
+      .forEach((Lib lib) => (lib as CodeGenerator).generate());
 
     if (generateHeaderSmokeTest) {
       final smokeLib = lib('smoke')
@@ -149,7 +155,8 @@ Installation($rootFilePath)
       smokeLib.generate();
     }
 
-    concat([apps]).forEach((CodeGenerator cg) => cg.generate());
+    concat([apps])
+        .forEach((App app) => (app as CodeGenerator).generate());
 
     testProvider.generateTests(this);
 
@@ -176,6 +183,13 @@ Installation($rootFilePath)
     }
 
     _logger.info(brCompact(progeny.map((e) => e.detailedPath)));
+  }
+
+  onOwnershipEstablished() {
+    for(Benchmark benchmark in benchmarks) {
+      libs.add(benchmark.benchmarkLib);
+      apps.add(benchmark.benchmarkApp);
+    }
   }
 
   _addStandardizedHeaders() =>

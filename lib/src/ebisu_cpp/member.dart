@@ -476,7 +476,7 @@ void $name($argType $name) {''';
   String get _setterImpl => '$vname = $name;';
   String get _setterCloser => '}';
 
-  String get _setterByAccess => member._isByRef
+  String get _setterByAccess => member.isByRef
       ? '''
 //! updater for ${vname} (access is $access)
 $argType $name() {

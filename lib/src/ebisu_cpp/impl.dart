@@ -25,6 +25,12 @@ class Impl extends CppFile {
     return _filePath = path.join(rootFilePath, 'app', id.snake, _basename);
   }
 
+  setBenchmarkFilePathFromRoot(String rootFilePath, [name]) {
+    _basename = name == null ? namer.nameImpl(id) : name;
+    return _filePath =
+        path.join(rootFilePath, 'benchmarks', id.snake, _basename);
+  }
+
   // end <class Impl>
 
 }

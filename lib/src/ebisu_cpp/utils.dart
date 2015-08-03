@@ -133,8 +133,17 @@ class Namespace {
 
   // custom <class Namespace>
 
-  Namespace([Iterable<String> n])
-      : this.names = n == null ? [] : new List.from(n);
+  Namespace([Iterable n]) {
+    if (n == null) {
+      this.names = [];
+    } else {
+      this.names = new List.from(n.map((n) => n is Id
+          ? n.snake
+          : n is String
+              ? n
+              : throw 'Namespace needs Ids or Strings not ${n.runtimeType}'));
+    }
+  }
 
   String wrap(String txt) => _helper(names.iterator, txt);
 
@@ -435,7 +444,7 @@ Base base([String className]) => new Base(className);
 
 // custom <part utils>
 
-Namespace _makeNamespace(ns) => ns is List<String>
+Namespace _makeNamespace(ns) => ns is List
     ? new Namespace(ns)
     : ns is String
         ? new Namespace(ns.split('::'))
