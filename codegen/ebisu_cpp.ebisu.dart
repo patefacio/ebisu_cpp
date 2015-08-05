@@ -1644,6 +1644,9 @@ libraries, apps, and tests'''
                 ..doc = 'A benchmark.'
                 ..extend = 'CppEntity'
                 ..members = [
+                  member('namespace')
+                    ..doc = 'Names for C++ entities'
+                    ..type = 'Namespace',
                   member('benchmark_app')
                     ..doc = 'App for the benchmark'
                     ..type = 'App'

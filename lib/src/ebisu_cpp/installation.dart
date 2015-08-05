@@ -106,7 +106,7 @@ Installation($rootFilePath)
   addApp(App app) => apps.add(app);
 
   Iterable<CppEntity> get children =>
-    concat([benchmarks, apps, libs, scripts, cppLoggers ]);
+      concat([benchmarks, apps, libs, scripts, cppLoggers]);
 
   // Generate the installation
   //
@@ -124,7 +124,6 @@ Installation($rootFilePath)
       generateHeaderSmokeTest: false,
       generateDoxyFile: false,
       generateEmacs: false}) {
-
     /// This assignment triggers the linkup of all children
     setAsRoot();
 
@@ -134,8 +133,7 @@ Installation($rootFilePath)
 
     progeny.forEach((Entity child) => (child as CppEntity)._namer = _namer);
 
-    concat([libs])
-      .forEach((Lib lib) => (lib as CodeGenerator).generate());
+    concat([libs]).forEach((Lib lib) => (lib as CodeGenerator).generate());
 
     if (generateHeaderSmokeTest) {
       final smokeLib = lib('smoke')
@@ -155,8 +153,7 @@ Installation($rootFilePath)
       smokeLib.generate();
     }
 
-    concat([apps])
-        .forEach((App app) => (app as CodeGenerator).generate());
+    concat([apps]).forEach((App app) => (app as CodeGenerator).generate());
 
     testProvider.generateTests(this);
 
@@ -186,7 +183,7 @@ Installation($rootFilePath)
   }
 
   onOwnershipEstablished() {
-    for(Benchmark benchmark in benchmarks) {
+    for (Benchmark benchmark in benchmarks) {
       libs.add(benchmark.benchmarkLib);
       apps.add(benchmark.benchmarkApp);
     }

@@ -2,6 +2,9 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// A benchmark.
 class Benchmark extends CppEntity {
+  /// Names for C++ entities
+  Namespace namespace;
+
   /// App for the benchmark
   App get benchmarkApp => _benchmarkApp;
 
@@ -16,14 +19,12 @@ class Benchmark extends CppEntity {
 
   // custom <class Benchmark>
 
-  Benchmark(id)
-      : super(id),
-        _benchmarkClass = class_(addPrefixToId('bm', id))
-          ..bases = [base('Benchmark')] {
-    _benchmarkHeader = header(id)
-      ..classes = [_benchmarkClass];
-    _benchmarkLib = lib(id)
-      ..headers = [_benchmarkHeader];
+  Benchmark(id, this.namespace)
+      : super(id) {
+    _benchmarkClass = class_('${this.id.snake}_benchmark')
+      ..bases = [base('Benchmark')]    ;
+    _benchmarkHeader = header(id)..classes = [_benchmarkClass];
+    _benchmarkLib = lib(id)..headers = [_benchmarkHeader];
     _benchmarkApp = app(id);
   }
 
@@ -33,11 +34,11 @@ class Benchmark extends CppEntity {
 
   onOwnershipEstablished() {
     final cppPath = this.installation.cppPath;
-    final ns = namespace(['benchmarks', owner.id, id]);
-    _logger.info('Created namespace $ns with owner ${owner.id} ${owner.runtimeType}');
-    _benchmarkHeader.namespace = ns;
-    _benchmarkLib.namespace = ns;
-    _benchmarkApp.namespace = ns;
+    _logger.info(
+        'Created namespace $namespace with owner ${owner.id} ${owner.runtimeType}');
+    _benchmarkHeader.namespace = this.namespace;
+    _benchmarkLib.namespace = this.namespace;
+    _benchmarkApp.namespace = this.namespace;
     _benchmarkApp
       ..setBenchmarkFilePathFromRoot(cppPath)
       ..includes.add(_benchmarkHeader.includeFilePath);
@@ -69,8 +70,8 @@ class BenchmarkHarness extends CppEntity {
 
   // custom <class BenchmarkHarness>
 
-  BenchmarkHarness(id) : super(addPrefixToId('bhm', id)) {
-    _harnessClass = class_(this.id);
+  BenchmarkHarness(id) : super(id) {
+    _harnessClass = class_('${this.id.snake}_benchmark_harness');
   }
 
   Iterable<Entity> get children => concat([benchmarks]);
@@ -80,7 +81,7 @@ class BenchmarkHarness extends CppEntity {
     Benchmark bm =
         _benchmarks.firstWhere((bm) => bm.id == bmId, orElse: () => null);
     if (bm == null) {
-      bm = new Benchmark(id);
+      bm = new Benchmark(id, namespace(['benchmarks', this.id, id]));
       _benchmarks.add(bm);
     }
     updater(bm);
@@ -102,7 +103,6 @@ class BenchmarkHarness extends CppEntity {
 
 // custom <part benchmark>
 
-Benchmark benchmark(id) => new Benchmark(id);
 BenchmarkHarness benchmarkHarness(id) => new BenchmarkHarness(id);
 
 // end <part benchmark>
