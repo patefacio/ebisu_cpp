@@ -59,7 +59,12 @@ abstract class CppFile extends CppEntity with Testable {
 
   set includes(Object h) => _includes = _makeIncludes(h);
 
-  set usings(Iterable items) => _usings = items.map((u) => using(u)).toList();
+  /// Set the [Using] statements for the [CppFile].
+  ///
+  /// Each file has one or more usings appearing within the namespace, near the
+  /// beginning before any file classes
+  set usings(Iterable<Using> items) =>
+      _usings = items.map((u) => using(u)).toList();
 
   Iterable<Entity> get children => concat([
         classes,
@@ -71,27 +76,41 @@ abstract class CppFile extends CppEntity with Testable {
         interfaces
       ]);
 
-  set __basename(String name) => _basename = name;
-
-  _makeIncludes(Object h) => h is Iterable
-      ? new Includes(h)
-      : h is String
-          ? new Includes([h])
-          : h is Includes
-              ? h
-              : throw 'Includes must be String, List<String> or Includes';
-
   generate() =>
       (Platform.environment['EBISU_CLANG_FORMAT'] != null || useClangFormatter)
           ? mergeWithFile(contents, filePath, customBegin, customEnd,
               (String txt) => clangFormat(txt, '${id.snake}.cpp'))
           : mergeWithFile(contents, filePath);
 
+  /// Returns the codeblock specified by [fcb]
+  ///
+  /// Provides a mechanism for accessing and thus modifying a [CodeBlock]
+  /// specified by [fcb]. For example, the following will get the codeblock at
+  /// the beginning of the header's namespace and add some text.
+  ///
+  ///        someHeader
+  ///          ..getCodeBlock(fcbBeginNamespace)
+  ///              .snippets
+  ///              .add(createLoggerInstance(owner))
+  ///          ....
+  ///
+  /// See also: [withCodeBlock]
   CodeBlock getCodeBlock(FileCodeBlock fcb) {
     final result = _codeBlocks[fcb];
     return result == null ? (_codeBlocks[fcb] = codeBlock()) : result;
   }
 
+  /// Invoke the function [f] on code block specifed by [fcb]
+  ///
+  /// Provides a mechanism for adding code to a file at a particular location
+  /// indicated by [fcb]. For example, if *test* is a CppFile, the
+  /// [withCodeBlock] call below updates the [fcbPreIncludes] section by adding
+  /// a define.
+  ///
+  ///      test
+  ///        ..withCodeBlock(fcbPreIncludes,
+  ///            (cb) => cb.snippets.add('#define CATCH_CONFIG_MAIN'))
+  ///
   withCodeBlock(FileCodeBlock fcb, f(CodeBlock)) => f(getCodeBlock(fcb));
 
   String get _contentsWithBlocks {
@@ -126,6 +145,16 @@ abstract class CppFile extends CppEntity with Testable {
       _codeBlockText(fcbPostNamespace),
     ]);
   }
+
+  set __basename(String name) => _basename = name;
+
+  _makeIncludes(Object h) => h is Iterable
+      ? new Includes(h)
+      : h is String
+          ? new Includes([h])
+          : h is Includes
+              ? h
+              : throw 'Includes must be String, List<String> or Includes';
 
   _codeBlockText(FileCodeBlock cb) {
     final codeBlock = _codeBlocks[cb];

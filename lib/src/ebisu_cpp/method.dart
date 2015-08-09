@@ -143,30 +143,27 @@ Try something familiar like: "void add(int a, int b)"
   String get signature =>
       '$returnType ${id.snake}(${parmDecls.join(',')})$_const';
 
-  String get _commentedDeclaration => '${this.docComment}$_declaration';
-
-  String get _declaration {
-    if (owner == null) throw '''
-MethodDecls has no *owner* : ${id}:
-
-Ensure the Interface containing this MethodDecl has been assigned to a Header or
-Impl
-''';
-
-    return '''
-$signature {
-${chomp(indentBlock(customBlock('${owner.name}::${id.snake}')))}
-}''';
-  }
-
-  String get asVirtual => 'virtual $signature;';
+  String get asVirtual => 'virtual $signature';
   String get _templateDecl => template == null ? '' : '${template.decl}\n';
-  String get asNonVirtual => '$_templateDecl$signature;';
-  String get asPureVirtual => 'virtual $signature = 0;';
+  String get asNonVirtual => '$_templateDecl$signature';
+  String get asPureVirtual => 'virtual $signature = 0';
 
-  String declaration(bool isVirtual) => isVirtual ? asVirtual : asNonVirtual;
+  String qualifiedSignature(bool isVirtual) =>
+      isVirtual ? asVirtual : asNonVirtual;
 
-  toString() => _declaration;
+  String declaration(bool isVirtual) => '${qualifiedSignature(isVirtual)};';
+
+  String definition(bool isVirtual, [String methodPrefix = '']) => brCompact([
+        qualifiedSignature(isVirtual),
+        '{',
+        chomp(customBlock('$methodPrefix::${id.snake}')),
+        '}',
+      ]);
+
+  String commentedDeclaration(bool isVirtual) =>
+      brCompact([docComment, declaration(true)]);
+
+  toString() => declaration(true);
 
   // end <class MethodDecl>
 
@@ -265,9 +262,10 @@ MethodDecls must be initialized with String or MethodDecl
   bool get isEmpty => methodDecls.isEmpty;
 
   String get definition => (class_(id)
-    ..getCodeBlock(clsPublic)
-        .snippets
-        .addAll([chomp(br(_methodDecls.map((m) => m.asVirtual)))])).definition;
+        ..doc = doc
+        ..getCodeBlock(clsPublic).snippets.addAll(
+            [chomp(br(_methodDecls.map((m) => m.commentedDeclaration(true))))]))
+      .definition;
 
   String get description => '''
 ${_methodDecls.map((md) => md.asVirtual).join('\n')}
@@ -308,11 +306,14 @@ class InterfaceImplementation extends CppEntity {
   /// InterfaceImplementation has no children - returns empty [Iterable]
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
+  get _methodPrefix =>
+      owner is Class ? owner.className : owner is CppFile ? onwer.baseName : '';
+
   Iterable<String> get methodImpls =>
       methodDecls.map((MethodDecl md) => brCompact([
             blockComment(chomp(
                 brCompact([md.descr, "[Inherited from ${interface.name}]",]))),
-            md._declaration
+            md.definition(isVirtual, _methodPrefix)
           ]));
 
   toString() => '${ev(cppAccess)}: ${interface.id.snake}';

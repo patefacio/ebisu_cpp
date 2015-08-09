@@ -19,18 +19,24 @@ class Benchmark extends CppEntity {
 
   // custom <class Benchmark>
 
-  Benchmark(id, this.namespace)
-      : super(id) {
+  Benchmark(id, this.namespace) : super(id) {
     _benchmarkClass = class_('${this.id.snake}_benchmark')
-      ..bases = [base('Benchmark')]    ;
-    _benchmarkHeader = header(id)..classes = [_benchmarkClass];
-    _benchmarkLib = lib(id)..headers = [_benchmarkHeader];
-    _benchmarkApp = app(id);
+      ..bases = [base('Benchmark')];
+    _benchmarkHeader = header(id)
+      ..namespace = namespace
+      ..classes = [_benchmarkClass];
+    _benchmarkLib = lib(id)
+      ..namespace = namespace
+      ..headers = [_benchmarkHeader];
+    _benchmarkApp = app(id)..namespace = namespace;
   }
 
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
-  generate() {}
+  String get contents => brCompact([
+        '<<<< BENCHMARK($id) >>>>',
+        indentBlock(brCompact([_benchmarkApp.contents, _benchmarkLib.contents]))
+      ]);
 
   onOwnershipEstablished() {
     final cppPath = this.installation.cppPath;

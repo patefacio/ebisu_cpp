@@ -30,7 +30,7 @@ main([List<String> args]) {
 
     bmInstallation.rootFilePath = '/tmp';
     bmInstallation.benchmarks.addAll(bm.benchmarks);
-    //    bmInstallation.generate();
+    //print(bmInstallation.contents);
   });
 
 // end <main>

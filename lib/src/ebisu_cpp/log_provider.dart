@@ -82,8 +82,8 @@ if(desired_log_level == "off") {
     final loggerClassName_ = loggerClassName(entity);
     final loggerName_ = loggerName(entity);
 
-    _logger.severe(
-        'creating logger for ${entity.id} ${chomp(entity.detailedPath)}');
+    _logger
+        .info('creating logger for ${entity.id} ${chomp(entity.detailedPath)}');
     final detailedName = chomp(entity.detailedPath);
 
     return '''

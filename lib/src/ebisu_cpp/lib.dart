@@ -203,10 +203,16 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
     _preserveStandardizedHeaders();
   }
 
+  String get contents => indentBlock(br([
+        '<<<< LIB($id) >>>>',
+        concat([headers, impls]).map((CppFile f) =>
+            indentBlock('<<<< FILE(${f.runtimeType}:${f.id}) >>>>', f.contents))
+      ]));
+
   _preserveStandardizedHeaders() =>
       _standardizedHeaders.forEach((Header header) {
         if (header != null) {
-          _logger.severe('Preserved standardized header ${header.id}');
+          _logger.info('Preserved standardized header ${header.id}');
           _headers.add(header);
         }
       });

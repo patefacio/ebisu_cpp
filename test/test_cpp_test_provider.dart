@@ -35,11 +35,14 @@ main([List<String> args]) {
   test('test_scenario', () {
     final sampleTestScenario = vectorSample();
     sampleTestScenario.setAsRoot();
+
     expect(
         darkSame(
             br(scenarioTestText(sampleTestScenario)),
             '''
-SCENARIO("basics") {
+ SCENARIO("basics") {
+// custom <(928956824)>
+// end <(928956824)>
   GIVEN("a vector with some items") {
   // custom <(862084306)>
   // end <(862084306)>

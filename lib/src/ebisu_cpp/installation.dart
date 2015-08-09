@@ -79,6 +79,15 @@ class Installation extends CppEntity implements CodeGenerator {
     };
   }
 
+  String get contents {
+    return br([
+      '<<<< INSTALLATION($id) >>>>',
+      indentBlock(br(concat([libs, apps, benchmarks,]).map((f) {
+        return f.contents;
+      })))
+    ]);
+  }
+
   String get name => id.snake;
   String get nameShout => id.shout;
 

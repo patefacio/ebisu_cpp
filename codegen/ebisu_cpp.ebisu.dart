@@ -1352,10 +1352,16 @@ Each *TestClause* has its own [clause] text associated with it
 and [CodeBlock]s to augment/initialize/teardown.
 '''
                 ..members = [
+                  member('pre_code_block')
+                    ..type = 'CodeBlock'
+                    ..classInit = 'new CodeBlock(null)',
                   member('start_code_block')
                     ..type = 'CodeBlock'
                     ..classInit = 'new CodeBlock(null)',
                   member('end_code_block')
+                    ..type = 'CodeBlock'
+                    ..classInit = 'new CodeBlock(null)',
+                  member('post_code_block')
                     ..type = 'CodeBlock'
                     ..classInit = 'new CodeBlock(null)',
                 ],
@@ -1372,7 +1378,7 @@ and [CodeBlock]s to augment/initialize/teardown.
                   member('thens')..type = 'List<Then>',
                 ],
               class_('test_scenario')
-                ..extend = 'CppEntity'
+                ..extend = 'TestClause'
                 ..members = [member('givens')..type = 'List<Given>',],
               class_('testable')
                 ..isAbstract = true

@@ -27,13 +27,15 @@ const TcCodeBlock tcClose = TcCodeBlock.tcClose;
 /// Each *TestClause* has its own [clause] text associated with it
 /// and [CodeBlock]s to augment/initialize/teardown.
 abstract class TestClause extends CppEntity {
+  CodeBlock preCodeBlock = new CodeBlock(null);
   CodeBlock startCodeBlock = new CodeBlock(null);
   CodeBlock endCodeBlock = new CodeBlock(null);
+  CodeBlock postCodeBlock = new CodeBlock(null);
 
   // custom <class TestClause>
 
   TestClause(testClause) : super(makeId(testClause)) {
-    startCodeBlock = new CodeBlock(id.sentence);
+    startCodeBlock = new CodeBlock(null);
   }
 
   get clause => id;
@@ -44,9 +46,15 @@ abstract class TestClause extends CppEntity {
   /// reproducibly determinnistic by virtue of its plath in the entity tree
   get _uniqueTag => '(${uniqueId})';
 
-  get startBlockText => startCodeBlock.hasContent
-      ? (startCodeBlock..tag = _uniqueTag).toString()
-      : '';
+  _setUniqueTag() {
+    if (!startCodeBlock.hasContent &&
+        !endCodeBlock.hasContent) startCodeBlock.tag = _uniqueTag;
+  }
+
+  get startBlockText {
+    _setUniqueTag();
+    return startCodeBlock.toString();
+  }
 
   get endBlockText => endCodeBlock.hasContent ? endCodeBlock.toString() : '';
 
@@ -118,7 +126,7 @@ ${indentBlock(br(thens))}
 
 }
 
-class TestScenario extends CppEntity {
+class TestScenario extends TestClause {
   List<Given> givens;
 
   // custom <class TestScenario>
@@ -246,6 +254,8 @@ class CatchTestProvider extends TestProvider {
               (cb) => cb.snippets.add('#define CATCH_CONFIG_MAIN'))
           ..includes.add('catch.hpp')
           ..getCodeBlock(fcbCustomIncludes).tag = 'custom includes'
+          ..getCodeBlock(fcbBeginNamespace).tag =
+              '${testable.id.snake} begin namespace'
           ..namespace = testableEntity.owningLib.namespace;
 
         ///////////////////////////////////////////////////////////////////
@@ -313,10 +323,15 @@ brCompact([
 }
 
 scenarioTestText(TestScenario ts) {
-  return '''
-SCENARIO("${ts.id.sentence}") {
-${indentBlock(chomp(brCompact(ts.givens.map((g) => _givenTestText(g)))))}
-}''';
+  return brCompact([
+    ts.preCodeBlock,
+    'SCENARIO("${ts.id.sentence}") {',
+    ts.startBlockText,
+    indentBlock(chomp(brCompact(ts.givens.map((g) => _givenTestText(g))))),
+    ts.endBlockText,
+    '}',
+    ts.postCodeBlock
+  ]);
 }
 
 /// Create a Then sans new, for more declarative construction

@@ -48,7 +48,7 @@ main([List<String> args]) {
 
     h.setAsRoot();
 
-    print(h.contents);
+    //print(h.contents);
   });
 
 // end <main>
