@@ -2,113 +2,109 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// A benchmark.
 class Benchmark extends CppEntity {
-  /// Names for C++ entities
-  Namespace namespace;
-
-  /// App for the benchmark
-  App get benchmarkApp => _benchmarkApp;
+  /// The primary header for this benchmark
+  Header get benchmarkHeader => _benchmarkHeader;
 
   /// Library for the benchmark
   Lib get benchmarkLib => _benchmarkLib;
 
-  /// The primary header for this benchmark
-  Header get benchmarkHeader => _benchmarkHeader;
-
-  /// Class object that is responsible for doing the work to be timed
-  Class get benchmarkClass => _benchmarkClass;
-
   // custom <class Benchmark>
 
-  Benchmark(id, this.namespace) : super(id) {
-    _benchmarkClass = class_('${this.id.snake}_benchmark')
-      ..bases = [base('Benchmark')];
+  Benchmark(id, [this._namespace]) : super(id) {
+    if (_namespace == null) {
+      _namespace = new Namespace(['benchmarks', 'bench', this.id]);
+    }
     _benchmarkHeader = header(id)
-      ..namespace = namespace
-      ..classes = [_benchmarkClass];
+      ..namespace = _namespace
+      ..includes = ['benchmark/benchmark.h']
+      ..classes = [];
     _benchmarkLib = lib(id)
-      ..namespace = namespace
+      ..namespace = _namespace
       ..headers = [_benchmarkHeader];
-    _benchmarkApp = app(id)..namespace = namespace;
   }
 
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
   String get contents => brCompact([
         '<<<< BENCHMARK($id) >>>>',
-        indentBlock(brCompact([_benchmarkApp.contents, _benchmarkLib.contents]))
+        indentBlock(brCompact(_benchmarkLib.contents))
       ]);
 
   onOwnershipEstablished() {
     final cppPath = this.installation.cppPath;
     _logger.info(
         'Created namespace $namespace with owner ${owner.id} ${owner.runtimeType}');
-    _benchmarkHeader.namespace = this.namespace;
-    _benchmarkLib.namespace = this.namespace;
-    _benchmarkApp.namespace = this.namespace;
-    _benchmarkApp
-      ..setBenchmarkFilePathFromRoot(cppPath)
-      ..includes.add(_benchmarkHeader.includeFilePath);
   }
+
+  makeStandAloneApp() => app(id.snake)
+    ..namespace = namespace(['benchmark'])
+    ..includes.add(benchmarkHeader.includeFilePath)
+    ..getCodeBlock(fcbBeginNamespace).snippets.add(_benchmarkCode);
+
+  get _benchmarkCode => '''
+
+static void ${id.snake}(benchmark::State& state) {
+  while(state.KeepRunning()) {}
+}
+
+BENCHMARK(${id.snake});
+''';
 
   // end <class Benchmark>
 
-  App _benchmarkApp;
-  Lib _benchmarkLib;
+  /// Names for C++ entities
+  Namespace _namespace;
   Header _benchmarkHeader;
-  Class _benchmarkClass;
+  Lib _benchmarkLib;
 }
 
-/// Represents a single benchmark concept containing one or more actual
-/// benchmarks to run timings for.
-///
-/// The concept of having a single [Benchmark] in a [BenchmarkHarness]
-/// might useful to have timings on a piece of code that, over time, should
-/// remain stable or improve.
-///
-/// The concept of having mutliple [Benchmark]s in a [BenchmarkHarness] is
-/// to enable comparison. History analysis is still an option as well.
-class BenchmarkHarness extends CppEntity {
-  /// Collection of all bookmarks owned by the harness
+/// Collection of one or benchmarks generated into one executable.
+class BenchmarkGroup extends CppEntity {
+  /// Collection of benchmarks
   List<Benchmark> get benchmarks => _benchmarks;
 
-  /// Class responsible for running the various benchmarks through their paces
-  Class get harnessClass => _harnessClass;
+  /// The application containing hooks into benchmark suite
+  App get benchmarkApp => _benchmarkApp;
 
-  // custom <class BenchmarkHarness>
+  // custom <class BenchmarkGroup>
 
-  BenchmarkHarness(id) : super(id) {
-    _harnessClass = class_('${this.id.snake}_benchmark_harness');
+  BenchmarkGroup(id)
+      : super(id),
+        _benchmarkApp = new App(makeId(id).snake) {
+    _benchmarkApp.namespace = new Namespace(['benchmarks', 'apps', this.id]);
   }
 
   Iterable<Entity> get children => concat([benchmarks]);
+
+  withBenchmarkApp(updater(App app)) => updater(_benchmarkApp);
 
   withBenchmark(id, updater(Benchmark benchmark)) {
     final bmId = addPrefixToId('bm', id);
     Benchmark bm =
         _benchmarks.firstWhere((bm) => bm.id == bmId, orElse: () => null);
     if (bm == null) {
-      bm = new Benchmark(id, namespace(['benchmarks', this.id, id]));
+      bm = new Benchmark(id, namespace(['benchmarks', 'bench', this.id, id]));
       _benchmarks.add(bm);
     }
     updater(bm);
   }
 
   onOwnershipEstablished() {
-    for (Benchmark benchmark in _benchmarks) {
-      this.installation
-        ..apps.add(benchmark.benchmarkApp)
-        ..libs.add(benchmark.benchmarkLib);
-    }
+    _benchmarkApp.includes
+        .addAll(_benchmarks.map((bm) => bm.benchmarkHeader.includeFilePath));
   }
 
-  // end <class BenchmarkHarness>
+  // end <class BenchmarkGroup>
 
   List<Benchmark> _benchmarks = [];
-  Class _harnessClass;
+  App _benchmarkApp;
 }
 
 // custom <part benchmark>
 
-BenchmarkHarness benchmarkHarness(id) => new BenchmarkHarness(id);
+Benchmark benchmark(id) => new Benchmark(id);
+BenchmarkGroup benchmarkGroup(id) => new BenchmarkGroup(id);
+
+addBenchmarkCode(App benchmarkApp) {}
 
 // end <part benchmark>

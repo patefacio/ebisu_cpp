@@ -11,8 +11,9 @@ abstract class InstallationBuilder implements CodeGenerator {
   get docPath => path.join(rootFilePath, 'doc');
   get cppPath => path.join(rootFilePath, 'cpp');
   get testables => installation.testables;
-  get apps => installation.apps;
   get libs => installation.libs;
+  get apps => installation.apps;
+  get benchmarkApps => installation.benchmarkApps;
 
   InstallationBuilder.fromInstallation(this.installation);
   generateBuildScripts() => this.generate();
@@ -42,8 +43,19 @@ class Installation extends CppEntity implements CodeGenerator {
   String get rootFilePath => _rootFilePath;
   Map<String, String> get paths => _paths;
   List<CppLogger> cppLoggers = [];
+
+  /// Libs in this [Installation].
   List<Lib> libs = [];
+
+  /// Apps in this [Installation].
   List<App> apps = [];
+
+  /// Benchmark Apps in this [Installation].
+  ///
+  /// Benchmark apps are just [App] instances with some generated benchmark code
+  /// (i.e. using [benchmark](https://github.com/google/benchmark)) kept separate from
+  /// [apps], but tied into the build scripts.
+  List<App> benchmarkApps = [];
   List<Script> scripts = [];
 
   /// Provider for generating tests
@@ -60,8 +72,11 @@ class Installation extends CppEntity implements CodeGenerator {
   /// down order of initialization issues.
   bool logsApiInitializations = false;
 
-  /// All modeled benchmarks in the installation
+  /// All *stand-alone* modeled benchmarks in the installation
   List<Benchmark> benchmarks = [];
+
+  /// All [BenchmarkGroup]s in this [Installation]
+  List<BenchmarkGroup> benchmarkGroups = [];
 
   // custom <class Installation>
 
@@ -115,7 +130,7 @@ Installation($rootFilePath)
   addApp(App app) => apps.add(app);
 
   Iterable<CppEntity> get children =>
-      concat([benchmarks, apps, libs, scripts, cppLoggers]);
+      concat([benchmarks, benchmarkGroups, apps, libs, scripts, cppLoggers]);
 
   // Generate the installation
   //
@@ -164,6 +179,8 @@ Installation($rootFilePath)
 
     concat([apps]).forEach((App app) => (app as CodeGenerator).generate());
 
+    _generateBenchmarkApps();
+
     testProvider.generateTests(this);
 
     if (generateBuildScripts) {
@@ -191,11 +208,21 @@ Installation($rootFilePath)
     _logger.info(brCompact(progeny.map((e) => e.detailedPath)));
   }
 
+  _generateBenchmarkApps() {
+    concat([
+      benchmarkGroups.map((bg) => bg.benchmarkApp),
+      benchmarks.map((bm) => bm.makeStandAloneApp())
+    ]).forEach((App app) => app
+      ..setBenchmarkFilePathFromRoot(cppPath)
+      ..generate());
+  }
+
   onOwnershipEstablished() {
-    for (Benchmark benchmark in benchmarks) {
-      libs.add(benchmark.benchmarkLib);
-      apps.add(benchmark.benchmarkApp);
-    }
+    final allBenchmarks = concat(
+        [benchmarks, concat(benchmarkGroups.map((bg) => bg.benchmarks))]);
+
+    // All benchmarks at [Installation] or within [BenchmarkGroup] get a lib
+    libs.addAll(allBenchmarks.map((Benchmark bm) => bm.benchmarkLib));
   }
 
   _addStandardizedHeaders() =>

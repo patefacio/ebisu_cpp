@@ -1646,54 +1646,40 @@ libraries, apps, and tests'''
           part('benchmark')
             ..enums = []
             ..classes = [
+
               class_('benchmark')
                 ..doc = 'A benchmark.'
                 ..extend = 'CppEntity'
                 ..members = [
                   member('namespace')
                     ..doc = 'Names for C++ entities'
-                    ..type = 'Namespace',
-                  member('benchmark_app')
-                    ..doc = 'App for the benchmark'
-                    ..type = 'App'
+                    ..type = 'Namespace'
+                    ..access = IA,
+                  member('benchmark_header')
+                    ..doc = 'The primary header for this benchmark'
+                    ..type = 'Header'
                     ..access = RO,
                   member('benchmark_lib')
                     ..doc = 'Library for the benchmark'
                     ..type = 'Lib'
                     ..access = RO,
-                  member('benchmark_header')
-                    ..doc = 'The primary header for this benchmark'
-                    ..type = 'Header'
-                    ..access = RO,
-                  member('benchmark_class')
-                    ..doc =
-                        'Class object that is responsible for doing the work to be timed'
-                    ..type = 'Class'
-                    ..access = RO,
                 ],
-              class_('benchmark_harness')
+
+              class_('benchmark_group')
                 ..doc = '''
-Represents a single benchmark concept containing one or more actual
-benchmarks to run timings for.
-
-The concept of having a single [Benchmark] in a [BenchmarkHarness]
-might useful to have timings on a piece of code that, over time, should
-remain stable or improve.
-
-The concept of having mutliple [Benchmark]s in a [BenchmarkHarness] is
-to enable comparison. History analysis is still an option as well.'''
+Collection of one or benchmarks generated into one executable.
+'''
                 ..extend = 'CppEntity'
                 ..members = [
                   member('benchmarks')
-                    ..doc = 'Collection of all bookmarks owned by the harness'
+                    ..doc = 'Collection of benchmarks'
                     ..type = 'List<Benchmark>'
                     ..classInit = []
                     ..access = RO,
-                  member('harness_class')
-                    ..doc =
-                        'Class responsible for running the various benchmarks through their paces'
-                    ..type = 'Class'
-                    ..access = RO,
+                  member('benchmark_app')
+                  ..doc = 'The application containing hooks into benchmark suite'
+                  ..type = 'App'
+                  ..access = RO,
                 ],
             ],
           part('emacs_support')
@@ -1754,9 +1740,21 @@ Creates builder for an installation (ie ties together all build artifacts)
                     ..type = 'List<CppLogger>'
                     ..classInit = [],
                   member('libs')
+                    ..doc = 'Libs in this [Installation].'
                     ..type = 'List<Lib>'
                     ..classInit = [],
                   member('apps')
+                    ..doc = 'Apps in this [Installation].'
+                    ..type = 'List<App>'
+                    ..classInit = [],
+                  member('benchmark_apps')
+                    ..doc = '''
+Benchmark Apps in this [Installation].
+
+Benchmark apps are just [App] instances with some generated benchmark code
+(i.e. using [benchmark](https://github.com/google/benchmark)) kept separate from
+[apps], but tied into the build scripts.
+'''
                     ..type = 'List<App>'
                     ..classInit = [],
                   member('scripts')
@@ -1795,9 +1793,13 @@ down order of initialization issues.
 '''
                     ..classInit = false,
                   member('benchmarks')
-                    ..doc = 'All modeled benchmarks in the installation'
+                    ..doc = 'All *stand-alone* modeled benchmarks in the installation'
                     ..type = 'List<Benchmark>'
                     ..classInit = [],
+                  member('benchmark_groups')
+                  ..doc = 'All [BenchmarkGroup]s in this [Installation]'
+                  ..type = 'List<BenchmarkGroup>'
+                  ..classInit = [],
                 ],
               class_('path_locator')
                 ..members = [

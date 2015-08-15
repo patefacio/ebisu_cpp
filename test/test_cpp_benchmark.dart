@@ -23,14 +23,21 @@ main([List<String> args]) {
 
   group('simple benchmark', () {
     final bmInstallation = installation('benchmark');
-    final bm = benchmarkHarness('measure_algo')
+    final bmg = benchmarkGroup('measure_algo')
       ..doc = 'Code to benchmark algo using std::map vs google_dense_hashmap'
       ..withBenchmark('std_map', (_) => null)
       ..withBenchmark('google_dense_hashmap', (_) => null);
 
     bmInstallation.rootFilePath = '/tmp';
-    bmInstallation.benchmarks.addAll(bm.benchmarks);
+
+    bmInstallation.benchmarkGroups.add(bmg);
+
+    //bmInstallation.benchmarks.addAll(bmg.benchmarks);
+
+    bmInstallation.benchmarks.add(benchmark('foobar'));
+
     //print(bmInstallation.contents);
+    bmInstallation.generate();
   });
 
 // end <main>

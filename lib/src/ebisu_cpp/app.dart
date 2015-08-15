@@ -289,7 +289,7 @@ class App extends Impl implements CodeGenerator {
 
   // custom <class App>
 
-  App(Id id) : super(id);
+  App(id) : super(id);
 
   Iterable<Entity> get children =>
       concat([super.children, args, headers, impls]);

@@ -4,7 +4,7 @@ part of ebisu_cpp.ebisu_cpp;
 class Impl extends CppFile {
   // custom <class Impl>
 
-  Impl(Id id) : super(id);
+  Impl(id) : super(id);
 
   Namespace get namespace => super.namespace;
 
@@ -28,7 +28,7 @@ class Impl extends CppFile {
   setBenchmarkFilePathFromRoot(String rootFilePath, [name]) {
     _basename = name == null ? namer.nameImpl(id) : name;
     return _filePath =
-        path.join(rootFilePath, 'benchmarks', id.snake, _basename);
+        path.join(rootFilePath, 'benchmarks', 'app', id.snake, _basename);
   }
 
   // end <class Impl>
@@ -37,6 +37,6 @@ class Impl extends CppFile {
 
 // custom <part impl>
 
-Impl impl(Object id) => new Impl(id is Id ? id : new Id(id));
+Impl impl(id) => new Impl(id);
 
 // end <part impl>

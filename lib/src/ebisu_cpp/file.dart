@@ -41,7 +41,7 @@ abstract class CppFile extends CppEntity with Testable {
 
   // custom <class CppFile>
 
-  CppFile(Id id) : super(id);
+  CppFile(id) : super(id);
 
   String get contents;
 

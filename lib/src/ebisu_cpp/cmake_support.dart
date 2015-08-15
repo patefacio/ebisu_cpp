@@ -68,6 +68,18 @@ add_test(
   $testBaseName)''';
     }
 
+    benchmarkCmake(App app) {
+      return '''
+add_executable(${app.id}
+  ${concat([[app.filePath], app.impls.map((i) => i.filePath)]).join('\n  ')}
+)
+
+target_link_libraries(${app.id}
+${chomp(scriptCustomBlock('benchmark ${app.id} link requirements'))}
+)
+''';
+    }
+
     scriptMergeWithFile(
         '''
 cmake_minimum_required (VERSION 2.8)
@@ -118,6 +130,11 @@ ${chomp(br(apps.map((app) => appCmake(app))))}
 # Test directives
 ######################################################################
 ${chomp(br(testables.map((testable) => testCmake(testable))))}
+
+######################################################################
+# Benchmark directives
+######################################################################
+${chomp(br(benchmarkApps.map((bma) => benchmarkCmake(bma))))}
 ''',
         cmakeRoot);
 
