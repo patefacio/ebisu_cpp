@@ -49,8 +49,6 @@ ExceptionClass exceptionClass(id,
 
 ExceptionClass boostExceptionClass(id) => new ExceptionClass(id, 'std::exception')
   ..exceptionIncludes = ['stdexcept', 'boost/exception/exception.hpp']
-  ..bases = [
-    base('boost::exception')..isVirtual = true
-  ];
+  ..bases.add(base('boost::exception')..isVirtual = true);
 
 // end <part exception>
