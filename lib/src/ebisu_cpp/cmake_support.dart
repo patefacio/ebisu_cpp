@@ -1,5 +1,6 @@
 part of ebisu_cpp.ebisu_cpp;
 
+/// Responsible for generating a suitable CMakeLists.txt file
 class CmakeInstallationBuilder extends InstallationBuilder {
   // custom <class CmakeInstallationBuilder>
 
@@ -69,13 +70,17 @@ add_test(
     }
 
     benchmarkCmake(App app) {
+      relPath(String p) => path.relative(p, from: installation.cppPath);
+
       return '''
-add_executable(${app.id}
-  ${concat([[app.filePath], app.impls.map((i) => i.filePath)]).join('\n  ')}
+add_executable(bench_${app.id.snake}
+  ${concat([[relPath(app.filePath)], app.impls.map((i) => relPath(i.filePath))]).join('\n  ')}
 )
 
-target_link_libraries(${app.id}
+target_link_libraries(bench_${app.id.snake}
 ${chomp(scriptCustomBlock('benchmark ${app.id} link requirements'))}
+  benchmark
+  pthread
 )
 ''';
     }

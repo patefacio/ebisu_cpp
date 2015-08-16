@@ -6,11 +6,21 @@ class ExceptionClass extends Class {
   /// Base class for this exception class
   String baseException;
 
+  /// Additional includes required for exception class
+  List<String> exceptionIncludes = [];
+
   // custom <class ExceptionClass>
 
   ExceptionClass(id, [this.baseException = 'std::runtime_error']) : super(id) {
-    bases = [base(baseException)];
-    getCodeBlock(clsPublic).snippets.add('''
+    bases = [base(baseException)..isVirtual = true];
+    if(!baseException.contains('std::')) {
+      throw '*baseException* of ExceptionClass must be an std:: exception';
+    }
+  }
+
+  onOwnershipEstablished() {
+    if(baseException != 'std::exception') {
+      getCodeBlock(clsPublic).snippets.add('''
 
 /// Constructs exception object with explanatory what_arg accessible through what().
 explicit ${className}( const std::string& what_arg ) : $baseException(what_arg) {
@@ -20,9 +30,10 @@ explicit ${className}( const std::string& what_arg ) : $baseException(what_arg) 
 explicit ${className}( const char* what_arg )  : $baseException(what_arg) {
 }
 ''');
+    }
   }
 
-  get includes => new Includes(['stdexcept']);
+  get includes => new Includes(exceptionIncludes)..addAll(super.includes.included);
 
   // end <class ExceptionClass>
 
@@ -32,6 +43,14 @@ explicit ${className}( const char* what_arg )  : $baseException(what_arg) {
 
 ExceptionClass exceptionClass(id,
         [String baseException = 'std::runtime_error']) =>
-    new ExceptionClass(id, baseException);
+    new ExceptionClass(id, baseException)
+  ..bases.add(base('boost::exception')..isVirtual = true)
+  ..exceptionIncludes = ['stdexcept', 'boost/exception/exception.hpp'];
+
+ExceptionClass boostExceptionClass(id) => new ExceptionClass(id, 'std::exception')
+  ..exceptionIncludes = ['stdexcept', 'boost/exception/exception.hpp']
+  ..bases = [
+    base('boost::exception')..isVirtual = true
+  ];
 
 // end <part exception>

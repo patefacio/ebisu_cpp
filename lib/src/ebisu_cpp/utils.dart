@@ -145,7 +145,11 @@ class Namespace {
     }
   }
 
+  /// Returns [txt] wrapped in namespace declaration(s) corresponding to *this*
   String wrap(String txt) => _helper(names.iterator, txt);
+
+  /// Returns [name] qualified by the namespace
+  String qualify(String name) => names.join('::') + '::$name';
 
   String get using => 'using namespace $this';
 

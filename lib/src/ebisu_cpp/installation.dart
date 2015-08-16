@@ -13,7 +13,7 @@ abstract class InstallationBuilder implements CodeGenerator {
   get testables => installation.testables;
   get libs => installation.libs;
   get apps => installation.apps;
-  get benchmarkApps => installation.benchmarkApps;
+  Iterable<App> get benchmarkApps => installation._benchmarkApps;
 
   InstallationBuilder.fromInstallation(this.installation);
   generateBuildScripts() => this.generate();
@@ -49,13 +49,6 @@ class Installation extends CppEntity implements CodeGenerator {
 
   /// Apps in this [Installation].
   List<App> apps = [];
-
-  /// Benchmark Apps in this [Installation].
-  ///
-  /// Benchmark apps are just [App] instances with some generated benchmark code
-  /// (i.e. using [benchmark](https://github.com/google/benchmark)) kept separate from
-  /// [apps], but tied into the build scripts.
-  List<App> benchmarkApps = [];
   List<Script> scripts = [];
 
   /// Provider for generating tests
@@ -211,10 +204,13 @@ Installation($rootFilePath)
   _generateBenchmarkApps() {
     concat([
       benchmarkGroups.map((bg) => bg.benchmarkApp),
-      benchmarks.map((bm) => bm.makeStandAloneApp())
-    ]).forEach((App app) => app
-      ..setBenchmarkFilePathFromRoot(cppPath)
-      ..generate());
+      benchmarks.map((bm) => bm.benchmarkApp)
+    ]).forEach((App app) {
+      app
+        ..setBenchmarkFilePathFromRoot(cppPath)
+        ..generate();
+      _benchmarkApps.add(app);
+    });
   }
 
   onOwnershipEstablished() {
@@ -223,6 +219,8 @@ Installation($rootFilePath)
 
     // All benchmarks at [Installation] or within [BenchmarkGroup] get a lib
     libs.addAll(allBenchmarks.map((Benchmark bm) => bm.benchmarkLib));
+
+    print('THERE ARE ${benchmarkGroups.length} bmgs');
   }
 
   _addStandardizedHeaders() =>
@@ -256,6 +254,13 @@ Installation($rootFilePath)
 
   String _rootFilePath;
   Map<String, String> _paths = {};
+
+  /// Benchmark Apps in this [Installation].
+  ///
+  /// Benchmark apps are just [App] instances with some generated benchmark code
+  /// (i.e. using [benchmark](https://github.com/google/benchmark)) kept separate from
+  /// [apps], but tied into the build scripts.
+  List<App> _benchmarkApps = [];
 
   /// Namer to be used when generating names during generation. There is a
   /// default namer, [EbisuCppNamer] that is used if one is not provide. To

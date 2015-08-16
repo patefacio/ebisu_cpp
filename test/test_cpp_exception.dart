@@ -28,28 +28,44 @@ main([List<String> args]) {
       ..classes = [exceptionClass('bogus_error')];
 
     test('basic exception', () {
-      /// Note inclusion of <stdexcept> and default ctors
       expect(darkMatter(h.contents).contains(darkMatter('''
+#include <boost/exception/exception.hpp>
 #include <stdexcept>
 
 namespace foo {
 class Bogus_error :
-  public std::runtime_error
+  public virtual std::runtime_error,
+  public virtual boost::exception
+{
+
+};
+}
+''')), true);
+    });
+
+    test('exception with what', () {
+      final excpClass = exceptionClass('bad_deal', 'std::runtime_error');
+      excpClass.setAsRoot();
+      expect(darkMatter(excpClass.definition).contains(darkMatter('''
+class Bad_deal :
+  public virtual std::runtime_error,
+  public virtual boost::exception
 {
 
 public:
 
   /// Constructs exception object with explanatory what_arg accessible through what().
-  explicit Bogus_error( const std::string& what_arg ) : std::runtime_error(what_arg) {
+  explicit Bad_deal( const std::string& what_arg ) : std::runtime_error(what_arg) {
   }
 
   /// Constructs exception object with explanatory what_arg accessible through what().
-  explicit Bogus_error( const char* what_arg )  : std::runtime_error(what_arg) {
+  explicit Bad_deal( const char* what_arg )  : std::runtime_error(what_arg) {
   }
 
 };
 ''')), true);
     });
+
   });
 
 // end <main>

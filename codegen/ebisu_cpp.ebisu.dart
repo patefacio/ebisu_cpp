@@ -1278,7 +1278,11 @@ Creates a new *exception* class derived from std::exception.
                 ..extend = 'Class'
                 ..members = [
                   member('base_exception')
-                    ..doc = 'Base class for this exception class'
+                  ..doc = 'Base class for this exception class',
+                  member('exception_includes')
+                  ..doc = 'Additional includes required for exception class'
+                  ..type = 'List<String>'
+                  ..classInit = [],
                 ]
             ],
           part('serializer')
@@ -1634,6 +1638,7 @@ libraries, apps, and tests'''
           part('cmake_support')
             ..classes = [
               class_('cmake_installation_builder')
+              ..doc = 'Responsible for generating a suitable CMakeLists.txt file'
                 ..extend = 'InstallationBuilder',
             ],
           part('script')
@@ -1648,7 +1653,78 @@ libraries, apps, and tests'''
             ..classes = [
 
               class_('benchmark')
-                ..doc = 'A benchmark.'
+                ..doc = '''
+A single benchmark fixture with one or more functions to time.
+
+Benchmark support is provided via
+(benchmark)[https://github.com/google/benchmark].  Each benchmark
+results in a single [benchmarkLib] with a single [benchmarkHeader]
+with a single [benchmarkClass] that derives from
+::benchmark::Fixture. Each of these are generated *bare-bones* and
+ready for custom code. Of course, the [Header], [Lib] and [App]
+meta objects are available for code injection.
+
+The generated class has the *SetUp* and
+*TearDown* functions with protect blocks.
+
+Each benchmark also has an [App] associated with it
+(i.e. [benchmarkApp]). This is where the benchmark timing loops
+and the *BENCHMARK_MAIN()* provided by the
+(benchmark)[https://github.com/google/benchmark] exist.
+
+For a [Benchmark] you may specify 0 or more [functions] that
+correspond to named timing loops (i.e. pieces of code that you want to
+benchmark). If you specify no functions a single function with the
+name of the [Benchmark] will be used.
+
+So, given an [Installation], this code:
+
+    installation
+    ..benchmarks.add(benchmark('simple'))
+
+Will result in the creation of:
+
+ - .../benchmarks/bench/simple/benchmark_simple.hpp: The place to do
+   setup and teardown of your benchmark fixture.
+
+        class Benchmark_simple : public ::benchmark::Fixture {
+         public:
+          // custom <ClsPublic Benchmark_simple>
+          // end <ClsPublic Benchmark_simple>
+
+          void SetUp() {
+            // custom <benchmark_simple setup>
+            // end <benchmark_simple setup>
+          }
+
+          void TearDown() {
+            // custom <benchmark_simple teardown>
+            // end <benchmark_simple teardown>
+          }
+        };
+
+
+ - .../benchmarks/app/simple/simple.cpp: The app containing
+   *BENCHMARK_MAIN()* and the *simple* function being timed:
+
+        BENCHMARK_F(Benchmark_simple, Simple)(benchmark::State& st) {
+          // custom <simple benchmark pre while>
+          // end <simple benchmark pre while>
+
+          while (st.KeepRunning()) {
+            // custom <simple benchmark while>
+            // end <simple benchmark while>
+          }
+          // custom <simple benchmark post while>
+          // end <simple benchmark post while>
+        }
+
+        BENCHMARK_MAIN()
+
+That *BENCHMARK_F* declaration creates a derivative of the fixture
+with the specified method *Simple*. When the [benchmarkApp] is run the
+*Simple* function will be benchmarked.
+'''
                 ..extend = 'CppEntity'
                 ..members = [
                   member('namespace')
@@ -1659,10 +1735,27 @@ libraries, apps, and tests'''
                     ..doc = 'The primary header for this benchmark'
                     ..type = 'Header'
                     ..access = RO,
+                  member('benchmark_class')
+                    ..doc = 'The primary class for this benchmark'
+                    ..type = 'Class'
+                    ..access = RO,
                   member('benchmark_lib')
                     ..doc = 'Library for the benchmark'
                     ..type = 'Lib'
                     ..access = RO,
+                  member('benchmark_app')
+                  ..doc = 'The application associated with this benchmark'
+                  ..type = 'App'
+                  ..access = RO,
+                  member('functions')
+                  ..doc = '''
+The list of functions.
+
+If not set by client will result in list of one function [ id ].
+'''
+                  ..type = 'List<Id>'
+                  ..classInit = []
+                  ..access = RO,
                 ],
 
               class_('benchmark_group')
@@ -1756,6 +1849,7 @@ Benchmark apps are just [App] instances with some generated benchmark code
 [apps], but tied into the build scripts.
 '''
                     ..type = 'List<App>'
+                    ..access = IA
                     ..classInit = [],
                   member('scripts')
                     ..type = 'List<Script>'

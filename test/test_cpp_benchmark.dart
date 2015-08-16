@@ -37,7 +37,7 @@ main([List<String> args]) {
     bmInstallation.benchmarks.add(benchmark('foobar'));
 
     //print(bmInstallation.contents);
-    bmInstallation.generate();
+    //bmInstallation.generate();
   });
 
 // end <main>
