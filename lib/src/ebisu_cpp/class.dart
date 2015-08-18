@@ -1322,7 +1322,7 @@ $classStyle $className$_baseDecl$_finalDecl
 ///
 /// All classes must be named with an [Id]. This method accepts an [Id] or
 /// creates one. Creation of [Id] requires a string in *snake case*
-Class class_(id) => new Class(id is Id ? id : new Id(id));
+Class class_(id) => new Class(id);
 
 /// Create a template from (1) a single string (2) [Iterable] of arguments for
 /// construction
