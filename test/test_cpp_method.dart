@@ -118,5 +118,12 @@ main([List<String> args]) {
     }
   });
 
+  group('method decl with template args', () {
+    final md = methodDecl(
+        'template <typename T = int> T\n\tadd(typename T::Goo_t const& a, int b)');
+    //    print(md.definition(true));
+    //    print(md.parmDecls.map((pm) => pm.type));
+  });
+
 // end <main>
 }
