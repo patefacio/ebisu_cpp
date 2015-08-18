@@ -73,9 +73,12 @@ class ConstExpr extends CppEntity {
   Object _value;
 }
 
-/// A forward declaration
+/// A forward class declaration
 class ForwardDecl {
-  ForwardDecl(this.type, [this.namespace]);
+  ForwardDecl(this.type, [this.namespace, this.template]);
+
+  /// Forward declaration documentation
+  String doc;
 
   /// The c++ type being forward declared
   String type;
@@ -83,20 +86,31 @@ class ForwardDecl {
   /// The namespace to which the class being forward declared belongs
   Namespace namespace;
 
+  /// A template associated with the forward declared class
+  Template template;
+
   // custom <class ForwardDecl>
 
-  toString() => namespace == null || namespace.length == 0
-      ? 'class $type;'
+  toString() => brCompact(
+      [doc == null ? null : blockComment(doc), _uncommentedForwardDecl]);
+
+  get _uncommentedForwardDecl => namespace == null || namespace.length == 0
+      ? _templatedDecl
       : namespace.names.reversed
-          .fold('class $type;', (prev, n) => 'namespace $n { $prev }');
+          .fold(_templatedDecl, (prev, n) => 'namespace $n { $prev }');
+
+  get _templatedDecl => template != null ? '$template$_rootDecl' : _rootDecl;
+
+  get _rootDecl => 'class $type;';
 
   // end <class ForwardDecl>
 
 }
 
 /// Create a ForwardDecl sans new, for more declarative construction
-ForwardDecl forwardDecl(String type, [Namespace namespace]) =>
-    new ForwardDecl(type, namespace);
+ForwardDecl forwardDecl(String type,
+        [Namespace namespace, Template template]) =>
+    new ForwardDecl(type, namespace, template);
 
 /// Establishes an interface for generating code
 abstract class CodeGenerator {

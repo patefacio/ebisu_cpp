@@ -36,6 +36,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_enum'),
       library('test_cpp_member'),
       library('test_cpp_class'),
+      library('test_cpp_forward_decl'),
       library('test_cpp_interface'),
       library('test_cpp_opout'),
       library('test_cpp_method'),
@@ -281,9 +282,10 @@ The idea is to make C++ more readable when large constants are used.
                     ..classInit = false,
                 ],
               class_('forward_decl')
-                ..doc = 'A forward declaration'
+                ..doc = 'A forward class declaration'
                 ..hasCtorSansNew = true
                 ..members = [
+                  member('doc')..doc = 'Forward declaration documentation',
                   member('type')
                     ..doc = 'The c++ type being forward declared'
                     ..ctors = [''],
@@ -291,6 +293,10 @@ The idea is to make C++ more readable when large constants are used.
                     ..doc =
                         'The namespace to which the class being forward declared belongs'
                     ..type = 'Namespace'
+                    ..ctorsOpt = [''],
+                  member('template')
+                    ..doc = 'A template associated with the forward declared class'
+                    ..type = 'Template'
                     ..ctorsOpt = [''],
                 ],
               class_('code_generator')
