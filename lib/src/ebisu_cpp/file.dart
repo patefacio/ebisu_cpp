@@ -134,7 +134,7 @@ abstract class CppFile extends CppEntity with Testable {
       _codeBlockText(fcbPreNamespace),
       namespace.wrap(br([
         _codeBlockText(fcbBeginNamespace),
-        br(interfaces.map((i) => i.definition)),
+        // TODO: determine strategy for interfaces in a file: .... br(interfaces.map((i) => i.definition)),
         br(constExprs),
         forwardDecls,
         brCompact(usings.map((u) => _usingFormatted(u))),

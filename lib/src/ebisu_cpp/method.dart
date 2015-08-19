@@ -161,7 +161,7 @@ Try something familiar like: "void add(int a, int b)"
       ]);
 
   String commentedDeclaration(bool isVirtual) =>
-      brCompact([docComment, declaration(true)]);
+      brCompact([docComment, declaration(isVirtual)]);
 
   toString() => declaration(true);
 
