@@ -59,6 +59,7 @@ files, build scripts, test files, etc.)
           'package:id/id.dart',
           'package:ebisu/ebisu.dart',
           'package:quiver/iterables.dart',
+          'package:petitparser/petitparser.dart',
           "'package:path/path.dart' as path",
           'io',
           'collection',
@@ -476,6 +477,8 @@ Classes to facilitate generating C++ template code
                 ],
             ]
             ..classes = [
+              class_('template_parser'),
+
               class_('template_parm')
                 ..isAbstract = true
                 ..extend = 'CppEntity',

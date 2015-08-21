@@ -22,13 +22,18 @@ main([List<String> args]) {
 // custom <main>
 
   test('forward decl basics', () {
-    expect(darkMatter(forwardDecl('text_stream', namespace(['decode', 'streamers']))),
-        darkMatter('namespace decode { namespace streamers { class text_stream; } }'));
+    expect(
+        darkMatter(
+            forwardDecl('text_stream', namespace(['decode', 'streamers']))),
+        darkMatter(
+            'namespace decode { namespace streamers { class text_stream; } }'));
   });
 
   test('template forward decl basics', () {
-    expect(darkMatter(forwardDecl('text_stream', namespace(['decode', 'streamers']))
-            ..template = template(['typename T'])),
+    expect(
+        darkMatter(
+            forwardDecl('text_stream', namespace(['decode', 'streamers']))
+              ..template = template(['typename T'])),
         darkMatter('''
 namespace decode {
 namespace streamers {
@@ -41,8 +46,7 @@ namespace streamers {
       ..template = template(['typename T'])
       ..doc = 'Here is a comment for this hairy forward decl';
 
-    expect(darkMatter(fd),
-        darkMatter('''
+    expect(darkMatter(fd), darkMatter('''
 /**
    Here is a comment for this hairy forward decl
 */
@@ -52,8 +56,6 @@ namespace streamers {
 }
 }
 '''));
-
-
   });
 
 // end <main>

@@ -10,6 +10,12 @@ enum TemplateParmType {
   nonType
 }
 
+class TemplateParser {
+  // custom <class TemplateParser>
+  // end <class TemplateParser>
+
+}
+
 abstract class TemplateParm extends CppEntity {
   // custom <class TemplateParm>
   TemplateParm(id) : super(id);
