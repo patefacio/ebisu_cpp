@@ -125,7 +125,7 @@ ${codeBlock('${id} teardown')}
   set functions(Iterable functions_) =>
       _functions = functions_.map((f) => makeId(f)).toList();
 
-  Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+  Iterable<Entity> get children => [ _benchmarkApp, ];
 
   String get contents => brCompact([
         '<<<< BENCHMARK($id) >>>>',
@@ -189,7 +189,7 @@ class BenchmarkGroup extends CppEntity {
       ..customBlocks = [fcbBeginNamespace];
   }
 
-  Iterable<Entity> get children => concat([benchmarks]);
+  Iterable<Entity> get children => concat([ [_benchmarkApp],  benchmarks]);
 
   withBenchmarkApp(updater(App app)) => updater(_benchmarkApp);
 

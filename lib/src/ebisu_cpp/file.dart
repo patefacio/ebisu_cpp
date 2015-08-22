@@ -39,6 +39,11 @@ abstract class CppFile extends CppEntity with Testable {
   String get basename => _basename;
   String get filePath => _filePath;
 
+  /// If true includes comment about code being generated as well as a stack
+  /// trace to help find the dart code that generated the source.
+  set includeStackTrace(bool includeStackTrace) =>
+      _includeStackTrace = includeStackTrace;
+
   // custom <class CppFile>
 
   CppFile(id) : super(id);
@@ -76,11 +81,19 @@ abstract class CppFile extends CppEntity with Testable {
         interfaces
       ]);
 
+  get includeStackTrace =>
+    _includeStackTrace != null
+      ? _includeStackTrace
+      : this.installation.includeStackTrace;
+
+  String get _wrappedContents =>
+      includeStackTrace ? tagGeneratedContent(contents) : contents;
+
   generate() =>
       (Platform.environment['EBISU_CLANG_FORMAT'] != null || useClangFormatter)
-          ? mergeWithFile(contents, filePath, customBegin, customEnd,
+          ? mergeWithFile(_wrappedContents, filePath, customBegin, customEnd,
               (String txt) => clangFormat(txt, '${id.snake}.cpp'))
-          : mergeWithFile(contents, filePath);
+          : mergeWithFile(_wrappedContents, filePath);
 
   /// Returns the codeblock specified by [fcb]
   ///
@@ -173,6 +186,7 @@ abstract class CppFile extends CppEntity with Testable {
   /// A list of [StandardizedHeader] indexed bool values indicating desire
   /// to include/exclude given header.
   Map<StandardizedHeader, bool> _standardizedInclusions = {};
+  bool _includeStackTrace;
 }
 
 // custom <part file>

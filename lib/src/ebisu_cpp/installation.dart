@@ -71,6 +71,10 @@ class Installation extends CppEntity implements CodeGenerator {
   /// All [BenchmarkGroup]s in this [Installation]
   List<BenchmarkGroup> benchmarkGroups = [];
 
+  /// If true includes comments about code being generated as well as a
+  /// stack trace to help find the dart code that generated the source.
+  bool includeStackTrace = false;
+
   // custom <class Installation>
 
   Installation(Id id) : super(id) {
@@ -219,8 +223,6 @@ Installation($rootFilePath)
 
     // All benchmarks at [Installation] or within [BenchmarkGroup] get a lib
     libs.addAll(allBenchmarks.map((Benchmark bm) => bm.benchmarkLib));
-
-    print('THERE ARE ${benchmarkGroups.length} bmgs');
   }
 
   _addStandardizedHeaders() =>

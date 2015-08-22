@@ -459,6 +459,13 @@ to include/exclude given header.
                     ..type = 'Map<StandardizedHeader, bool>'
                     ..access = IA
                     ..classInit = {},
+                  member('include_stack_trace')
+                  ..doc = '''
+If true includes comment about code being generated as well as a stack
+trace to help find the dart code that generated the source.
+'''
+                  ..access = WO
+                  ..type = 'bool',
                 ],
             ],
           part('template')
@@ -1903,6 +1910,12 @@ down order of initialization issues.
                   ..doc = 'All [BenchmarkGroup]s in this [Installation]'
                   ..type = 'List<BenchmarkGroup>'
                   ..classInit = [],
+                  member('include_stack_trace')
+                  ..doc = '''
+If true includes comments about code being generated as well as a
+stack trace to help find the dart code that generated the source.
+'''
+                  ..classInit = false,
                 ],
               class_('path_locator')
                 ..members = [
