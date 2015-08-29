@@ -81,8 +81,13 @@ abstract class CppFile extends CppEntity with Testable {
         interfaces
       ]);
 
-  get includeStackTrace => _includeStackTrace??
-    (this.installation?.includeStackTrace)??false;
+
+  get includeStackTrace => _includeStackTrace == null
+      ? ((this.installation != null &&
+              this.installation.includeStackTrace != null)
+          ? this.installation.includeStackTrace
+          : false)
+      : _includeStackTrace;
 
   String get wrappedContents =>
       includeStackTrace ? tagGeneratedContent(contents) : contents;
