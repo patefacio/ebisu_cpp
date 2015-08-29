@@ -276,6 +276,28 @@ ${_methodDecls.map((md) => md.asVirtual).join('\n')}
       new InterfaceImplementation(this,
           cppAccess: cppAccess, isVirtual: isVirtual);
 
+  ///
+  /// Create a [TestScenario] for each method.
+  ///
+  /// [tagMethodName] - If set the custom block uses the method name.
+  ///
+  /// [prefix] - A prefix for the test name. This is useful for test having the
+  /// same interface or overloaded methods. A prefix can be used to prevent
+  /// conflicts.
+  ///
+  Iterable<TestScenario> createMethodTests(
+      {bool tagMethodName : true, String prefix : ''}) =>
+      methodDecls.map((MethodDecl md) {
+        var testName = md.id.snake;
+        if(prefix.isNotEmpty)
+          testName = '$prefix $testName';
+        final result = testScenario(testName);
+        if (tagMethodName) {
+          result.startCodeBlock.tag = testName;
+        }
+        return result;
+      });
+
   // end <class Interface>
 
   List<MethodDecl> _methodDecls = [];

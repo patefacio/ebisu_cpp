@@ -132,21 +132,6 @@ Map _ptrStdTypeMap = {
 /// type suitable for the rhs of a using statement
 ptrType(PtrType ptrType, String t) => _ptrStdTypeMap[ptrType](t);
 
-/* TODO: Add back or remove
-_isStandardTypeStr(String id) => id.endsWith('_ptr') ||
-    id.endsWith('_cptr') ||
-    id.endsWith('_sptr') ||
-    id.endsWith('_uptr') ||
-    id.endsWith('_scptr') ||
-    id.endsWith('_ucptr') ||
-    id.endsWith('_map') ||
-    id.endsWith('_set') ||
-    id.endsWith('_list');
-
-_isStandardType(id) =>
-    id is Id ? _isStandardTypeStr(id.snake) : _isStandardTypeStr(id);
-*/
-
 /// Provide standardized using of dumb pointer to referenced
 ///
 ///    print(usingPtr('an_id', 'SomeType'));

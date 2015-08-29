@@ -118,6 +118,80 @@ main([List<String> args]) {
     }
   });
 
+  group('create method tests', () {
+    test('no prefix, use method name', () {
+      final i = interface('foo_bar')
+        ..methodDecls = [
+          methodDecl('void goo(int a, int b) const'),
+          methodDecl('void foo(int c) const'),
+        ];
+
+      expect(
+          darkMatter(
+              brCompact(i.createMethodTests().map((t) => scenarioTestText(t)))),
+          darkMatter('''
+SCENARIO("goo") {
+// custom <goo>
+// end <goo>
+}
+SCENARIO("foo") {
+// custom <foo>
+// end <foo>
+}
+'''));
+    });
+
+    test('with prefix, use method name', () {
+      final i = interface('foo_bar')
+        ..methodDecls = [
+          methodDecl('void goo(int a, int b) const'),
+          methodDecl('void foo(int c) const'),
+        ];
+
+      expect(
+          darkMatter(brCompact(i
+              .createMethodTests(prefix: 'bam')
+              .map((t) => scenarioTestText(t)))),
+          darkMatter('''
+SCENARIO("bam goo") {
+// custom <bam goo>
+// end <bam goo>
+}
+SCENARIO("bam foo") {
+// custom <bam foo>
+// end <bam foo>
+}
+'''));
+    });
+
+    test('with prefix, and hash', () {
+      final i = interface('foo_bar')
+        ..methodDecls = [
+          methodDecl('void goo(int a, int b) const'),
+          methodDecl('void foo(int c) const'),
+        ];
+
+      expect(
+          darkMatter(brCompact(i
+                  .createMethodTests(prefix: 'bam', tagMethodName: false)
+                  .map((t) => scenarioTestText(t)))),
+          darkMatter('''
+SCENARIO("bam goo") {
+// custom <(928956824)>
+// end <(928956824)>
+}
+SCENARIO("bam foo") {
+// custom <(928956824)>
+// end <(928956824)>
+}
+
+'''));
+
+    });
+
+  });
+
+
   /*
   group('method decl with template args', () {
     final md = methodDecl(
