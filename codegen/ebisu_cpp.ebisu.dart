@@ -37,6 +37,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_member'),
       library('test_cpp_class'),
       library('test_cpp_forward_decl'),
+      library('test_cpp_file'),
       library('test_cpp_interface'),
       library('test_cpp_opout'),
       library('test_cpp_method'),
@@ -48,6 +49,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_versioning'),
       library('test_cpp_switch'),
       library('test_cpp_benchmark'),
+      library('test_cpp_template'),
       library('test_hdf5_support'),
       library('test_enumerated_dispatcher'),
     ]
@@ -484,7 +486,6 @@ Classes to facilitate generating C++ template code
                 ],
             ]
             ..classes = [
-              class_('template_parser'),
 
               class_('template_parm')
                 ..isAbstract = true
@@ -500,6 +501,19 @@ Classes to facilitate generating C++ template code
                     ..doc = 'Index into the terms indicating the id'
                     ..type = 'int',
                 ],
+
+              class_('template_grammar')
+              ..extend = 'GrammarParser',
+
+              class_('template_grammar_definition')
+              ..extend = 'GrammarDefinition',
+
+              class_('template_parser')
+              ..extend = 'GrammarParser',
+
+              class_('template_parser_definition')
+              ..extend = 'TemplateGrammarDefinition',
+
               class_('template')
                 ..extend = 'CppEntity'
                 ..doc = '''

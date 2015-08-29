@@ -10,12 +10,6 @@ enum TemplateParmType {
   nonType
 }
 
-class TemplateParser {
-  // custom <class TemplateParser>
-  // end <class TemplateParser>
-
-}
-
 abstract class TemplateParm extends CppEntity {
   // custom <class TemplateParm>
   TemplateParm(id) : super(id);
@@ -54,6 +48,91 @@ class DeclTemplateParm extends TemplateParm {
     ..[idIndex] = namer.nameTemplateDeclParm(id)).join(' ');
 
   // end <class DeclTemplateParm>
+
+}
+
+class TemplateGrammar extends GrammarParser {
+  // custom <class TemplateGrammar>
+
+  TemplateGrammar() : super(const TemplateGrammarDefinition());
+
+  // end <class TemplateGrammar>
+
+}
+
+class TemplateGrammarDefinition extends GrammarDefinition {
+  // custom <class TemplateGrammarDefinition>
+
+  const TemplateGrammarDefinition();
+
+  get prod => super.ref;
+
+  start() => prod(prodTemplateDecl).end();
+
+  Parser token(input) {
+    if (input is String) {
+      input = input.length == 1 ? char(input) : string(input);
+    } else if (input is Function) {
+      input = prod(input);
+    }
+    if (input is! Parser && input is TrimmingParser) {
+      throw new StateError('Invalid token parser: $input');
+    }
+    return input.token().trim(prod(prodHidden));
+  }
+
+  prodTemplateDecl() => prod(token, 'template') & prod(prodTemplateParmList);
+
+  prodTemplateParm() => prod(token, 'typename') & prod(prodIdentifier);
+
+  prodTemplateParmList() => prod(token, char('<')) &
+      prod(prodTemplateParms).optional() &
+      prod(token, char('>'));
+
+  prodTemplateParms() => prod(prodTemplateParm)
+      .separatedBy(prod(token, char(',')), includeSeparators: false);
+
+  prodNewline() => pattern('\n\r');
+
+  prodHidden() => prod(prodHiddenStuff).plus();
+
+  prodHiddenStuff() => prod(prodWhitespace) |
+      prod(prodSingleLineComment) |
+      prod(prodMultiLineComment);
+
+  prodWhitespace() => whitespace();
+
+  prodSingleLineComment() => string('//') &
+      prod(prodNewline).neg().star() &
+      prod(prodNewline).optional();
+
+  prodMultiLineComment() => string('/*') &
+      (prod(prodMultiLineComment) | string('*/').neg()).star() &
+      string('*/');
+
+  prodIdentifier() => letter() & word().star();
+
+  // end <class TemplateGrammarDefinition>
+
+}
+
+class TemplateParser extends GrammarParser {
+  // custom <class TemplateParser>
+
+  TemplateParser() : super(const TemplateParserDefinition());
+
+  // end <class TemplateParser>
+
+}
+
+class TemplateParserDefinition extends TemplateGrammarDefinition {
+  // custom <class TemplateParserDefinition>
+
+  const TemplateParserDefinition();
+
+  prodTemplateDecl() => super.prodTemplateDecl().map((e) => null);
+
+  // end <class TemplateParserDefinition>
 
 }
 

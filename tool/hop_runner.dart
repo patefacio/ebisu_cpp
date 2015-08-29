@@ -20,6 +20,7 @@ void main(List<String> args) {
         "test/test_cpp_member.dart",
         "test/test_cpp_class.dart",
         "test/test_cpp_forward_decl.dart",
+        "test/test_cpp_file.dart",
         "test/test_cpp_interface.dart",
         "test/test_cpp_opout.dart",
         "test/test_cpp_method.dart",
@@ -31,6 +32,7 @@ void main(List<String> args) {
         "test/test_cpp_versioning.dart",
         "test/test_cpp_switch.dart",
         "test/test_cpp_benchmark.dart",
+        "test/test_cpp_template.dart",
         "test/test_hdf5_support.dart",
         "test/test_enumerated_dispatcher.dart"
       ]));

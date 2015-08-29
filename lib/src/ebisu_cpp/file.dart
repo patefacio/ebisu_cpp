@@ -81,19 +81,17 @@ abstract class CppFile extends CppEntity with Testable {
         interfaces
       ]);
 
-  get includeStackTrace =>
-    _includeStackTrace != null
-      ? _includeStackTrace
-      : this.installation.includeStackTrace;
+  get includeStackTrace => _includeStackTrace??
+    (this.installation?.includeStackTrace)??false;
 
-  String get _wrappedContents =>
+  String get wrappedContents =>
       includeStackTrace ? tagGeneratedContent(contents) : contents;
 
   generate() =>
       (Platform.environment['EBISU_CLANG_FORMAT'] != null || useClangFormatter)
-          ? mergeWithFile(_wrappedContents, filePath, customBegin, customEnd,
+          ? mergeWithFile(wrappedContents, filePath, customBegin, customEnd,
               (String txt) => clangFormat(txt, '${id.snake}.cpp'))
-          : mergeWithFile(_wrappedContents, filePath);
+          : mergeWithFile(wrappedContents, filePath);
 
   /// Returns the codeblock specified by [fcb]
   ///
