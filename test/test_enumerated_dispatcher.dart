@@ -53,8 +53,11 @@ default: assert(!"Enumerator not in {1, 2, 3, 4}");
 '''));
     });
 
-    test('SwitchDispatcher disallows string', () {
+    test('SwitchDispatcher disallows string unless all sized 1', () {
       expect(() => new SwitchDispatcher(['foo', 'bar',], null)..dispatchBlock,
+          throws);
+
+      expect(() => new SwitchDispatcher(['a', 'b', 'C'], null)..dispatchBlock,
           throws);
     });
 

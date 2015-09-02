@@ -198,14 +198,20 @@ class SwitchDispatcher extends EnumeratedDispatcher {
             errorDispatcher: errorDispatcher, enumerator: enumerator);
 
   String get dispatchBlock {
-    if (discriminatorType != dctInteger) {
-      throw 'Switch requires an integer type, not $discriminatorType';
+    if (discriminatorType != dctInteger &&
+        ((discriminatorType != dctStringLiteral &&
+                discriminatorType != dctStringLiteral) ||
+            enumeration.any((e) => e.length != 1))) {
+      throw 'Switch requires an integer type '
+          'or all Strings of length 1, not $discriminatorType';
     }
+
+    eLiteral(e) => e is num ? e : "'$e'";
 
     return brCompact([
       'switch($enumerator) {',
       _enumeration.map((var e) => '''
-case $e: {
+case ${eLiteral(e)}: {
   ${dispatcher(this, e)}
 }
 '''),
