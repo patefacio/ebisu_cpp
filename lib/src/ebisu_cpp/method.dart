@@ -109,8 +109,9 @@ class MethodDecl extends CppEntity {
 
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
-  static RegExp declRe =
-      new RegExp(r'^(.*?)\s+(\w+)\s*\(([^\)]*)\)\s*(const)?\s*$');
+  static RegExp declRe = new RegExp(
+      r'^(.*?)\s+(\w+)\s*\(([^\)]*)\)\s*(const)?\s*$',
+      multiLine: true);
 
   factory MethodDecl.fromDecl(String decl) {
     final declMatch = declRe.firstMatch(decl);
@@ -264,7 +265,7 @@ MethodDecls must be initialized with String or MethodDecl
   String get definition => (class_(id)
         ..doc = doc
         ..getCodeBlock(clsPublic).snippets.addAll(
-            [chomp(br(_methodDecls.map((m) => m.commentedDeclaration(true))))]))
+            [chomp(br(_methodDecls.map((m) => m.commentedDeclaration(false))))]))
       .definition;
 
   String get description => '''
