@@ -316,8 +316,6 @@ class Member extends CppEntity {
   get passDecl => '$passType $name';
 
   set init(Object init_) {
-    if (isRefType) throw '$id can not have an init since it is a reference type ($refType)';
-
     if (type == null) {
       type = inferCppType(init_);
     }
@@ -329,8 +327,9 @@ class Member extends CppEntity {
   }
 
   //  String get _initValue => init is! String? init.toString() : init;
-  String get initializer =>
-      hasNoInit || isRefType ? '' : init == null ? ' {}' : ' { $init }';
+  String get initializer => hasNoInit || (isRefType && _init == null)
+      ? ''
+      : init == null ? ' {}' : ' { $init }';
 
   bool get isConst => _isConst || isConstExpr;
   bool get isStaticConst => isConst && isStatic;
