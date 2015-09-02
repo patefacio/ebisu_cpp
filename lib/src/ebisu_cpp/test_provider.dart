@@ -246,6 +246,7 @@ class CatchTestProvider extends TestProvider {
       testables.forEach((Testable testable) {
         final testableEntity = testable as Entity;
         final test = testable.test;
+        final testOwner = testableEntity.owner;
 
         test
           ..namespace = namespace(['test'])
@@ -256,7 +257,9 @@ class CatchTestProvider extends TestProvider {
           ..getCodeBlock(fcbCustomIncludes).tag = 'custom includes'
           ..getCodeBlock(fcbBeginNamespace).tag =
               '${testable.id.snake} begin namespace'
-          ..namespace = testableEntity.owningLib.namespace;
+          ..namespace = testOwner is Installation
+              ? testOwner.namespace
+              : testableEntity.owningLib.namespace;
 
         ///////////////////////////////////////////////////////////////////
         // If this test is owned by something in a header, that header
@@ -354,5 +357,8 @@ Given given([String clause, whens, thens]) => new Given(
 /// Create a TestScenario sans new, for more declarative construction
 TestScenario testScenario(id, [givens]) => new TestScenario(
     idFromWords(id), givens == null ? [] : givens is Given ? [givens] : givens);
+
+TestScenario taggedTestScenario(id, [givens]) =>
+    testScenario(id, givens)..startCodeBlock.tag = id;
 
 // end <part test_provider>
