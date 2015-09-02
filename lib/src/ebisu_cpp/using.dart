@@ -5,6 +5,9 @@ class Using extends CppEntity {
   /// The right hand side of using (ie the type decl being named)
   String get rhs => _rhs;
 
+  /// Template associated with the using (C++11)
+  Template get template => _template;
+
   // custom <class Using>
 
   Using(lhs_, String this._rhs) : super(addSuffixToId('t', lhs_));
@@ -17,12 +20,19 @@ class Using extends CppEntity {
 
   get type => namer.nameUsingType(id);
 
-  usingStatement(Namer namer) =>
-      brCompact([this.docComment, 'using $type = $rhs;']);
+  set template(Object t) => _template = _makeTemplate(id, t);
+
+  usingStatement(Namer namer) => brCompact([
+        this.docComment,
+        template != null
+            ? '${template.decl} using $type = $rhs;'
+            : 'using $type = $rhs;'
+      ]);
 
   // end <class Using>
 
   String _rhs;
+  Template _template;
 }
 
 // custom <part using>

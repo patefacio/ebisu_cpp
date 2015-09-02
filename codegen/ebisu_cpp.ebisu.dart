@@ -166,6 +166,10 @@ content without being tied to an installation - this can be used.
                     ..doc = '''
 The right hand side of using (ie the type decl being named)'''
                     ..access = RO,
+                  member('template')
+                  ..doc = 'Template associated with the using (C++11)'
+                  ..type = 'Template'
+                  ..access = RO,
                 ],
             ],
           part('pointer')

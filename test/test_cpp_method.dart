@@ -173,8 +173,8 @@ SCENARIO("bam foo") {
 
       expect(
           darkMatter(brCompact(i
-                  .createMethodTests(prefix: 'bam', tagMethodName: false)
-                  .map((t) => scenarioTestText(t)))),
+              .createMethodTests(prefix: 'bam', tagMethodName: false)
+              .map((t) => scenarioTestText(t)))),
           darkMatter('''
 SCENARIO("bam goo") {
 // custom <(928956824)>
@@ -186,11 +186,8 @@ SCENARIO("bam foo") {
 }
 
 '''));
-
     });
-
   });
-
 
   /*
   group('method decl with template args', () {

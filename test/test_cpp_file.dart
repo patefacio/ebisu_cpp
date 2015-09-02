@@ -21,7 +21,8 @@ main([List<String> args]) {
 // custom <main>
 
   test('include stack trace', () {
-    Header h = header('h')..namespace = namespace([])
+    Header h = header('h')
+      ..namespace = namespace([])
       ..includeStackTrace = true;
 
     var generatedText = 'This file was generated';

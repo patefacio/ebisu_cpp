@@ -81,7 +81,6 @@ abstract class CppFile extends CppEntity with Testable {
         interfaces
       ]);
 
-
   get includeStackTrace => _includeStackTrace == null
       ? ((this.installation != null &&
               this.installation.includeStackTrace != null)

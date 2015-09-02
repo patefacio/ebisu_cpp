@@ -130,5 +130,16 @@ namespace c {
         true);
   });
 
+  test('template using', () {
+    final tu = using('foo', 'Foo_bar<T>')..template = [ 'typename T' ]..doc = 'Bam';
+    expect(darkMatter(tu.usingStatement(new EbisuCppNamer())),
+        darkMatter('''
+/**
+ Bam
+*/
+template< typename T > using Foo_t = Foo_bar<T>;
+'''));
+  });
+
 // end <main>
 }

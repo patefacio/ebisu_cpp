@@ -286,11 +286,10 @@ ${_methodDecls.map((md) => md.asVirtual).join('\n')}
   /// conflicts.
   ///
   Iterable<TestScenario> createMethodTests(
-      {bool tagMethodName : true, String prefix : ''}) =>
+          {bool tagMethodName: true, String prefix: ''}) =>
       methodDecls.map((MethodDecl md) {
         var testName = md.id.snake;
-        if(prefix.isNotEmpty)
-          testName = '$prefix $testName';
+        if (prefix.isNotEmpty) testName = '$prefix $testName';
         final result = testScenario(testName);
         if (tagMethodName) {
           result.startCodeBlock.tag = testName;
