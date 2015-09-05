@@ -209,7 +209,7 @@ Installation($rootFilePath)
     concat([
       benchmarkGroups.map((bg) => bg.benchmarkApp),
       benchmarks.map((bm) => bm.benchmarkApp)
-    ]).forEach((App app) {
+    ]).forEach((BenchmarkApp app) {
       app
         ..setBenchmarkFilePathFromRoot(cppPath)
         ..generate();

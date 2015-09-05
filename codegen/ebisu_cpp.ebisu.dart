@@ -494,6 +494,13 @@ Classes to facilitate generating C++ template code
               class_('template_parm')
                 ..isAbstract = true
                 ..extend = 'CppEntity',
+              class_('raw_template_parm')
+                ..doc = 'Unparsed text template parm'
+                ..extend = 'TemplateParm'
+                ..members = [
+                  member('type_id'),
+                  member('text')..doc = 'Text for the template parm'
+                ],
               class_('type_template_parm')
                 ..extend = 'TemplateParm'
                 ..members = [member('type_id'),],
@@ -1686,6 +1693,24 @@ libraries, apps, and tests'''
             ..enums = []
             ..classes = [
 
+              class_('benchmark_app')
+              ..extend = 'Impl'
+              ..implement = ['CodeGenerator']
+              ..members = [
+                member('headers')
+                ..doc = '''
+Additional headers that are associated with the benchmark application
+itself, as opposed to belonging to a reusable library.'''
+                ..type = 'List<Header>'
+                ..classInit = [],
+                member('impls')
+                ..doc = '''
+Additional implementation files associated with the benchmark
+application itself, as opposed to belonging to a reusable library.'''
+                ..type = 'List<Impl>'
+                ..classInit = [],
+              ],
+
               class_('benchmark')
                 ..doc = '''
 A single benchmark fixture with one or more functions to time.
@@ -1779,7 +1804,7 @@ with the specified method *Simple*. When the [benchmarkApp] is run the
                     ..access = RO,
                   member('benchmark_app')
                   ..doc = 'The application associated with this benchmark'
-                  ..type = 'App'
+                  ..type = 'BenchmarkApp'
                   ..access = RO,
                   member('functions')
                   ..doc = '''
@@ -1805,7 +1830,7 @@ Collection of one or benchmarks generated into one executable.
                     ..access = RO,
                   member('benchmark_app')
                   ..doc = 'The application containing hooks into benchmark suite'
-                  ..type = 'App'
+                  ..type = 'BenchmarkApp'
                   ..access = RO,
                 ],
             ],

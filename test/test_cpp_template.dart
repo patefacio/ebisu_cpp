@@ -23,8 +23,8 @@ main([List<String> args]) {
   test('template parser ctor', () {
     var tp = new TemplateParser();
 
-    //parse(s) => print('$s => ${tp.accept(s)}');
-    parse(s) => null;
+    parse(s) => print('$s => ${tp.accept(s)}');
+    //parse(s) => null;
 
     [
       'template<>',

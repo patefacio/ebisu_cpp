@@ -18,6 +18,21 @@ abstract class TemplateParm extends CppEntity {
 
 }
 
+/// Unparsed text template parm
+class RawTemplateParm extends TemplateParm {
+  String typeId;
+
+  /// Text for the template parm
+  String text;
+
+  // custom <class RawTemplateParm>
+
+  RawTemplateParm(id, this.text) : super(id);
+
+  // end <class RawTemplateParm>
+
+}
+
 class TypeTemplateParm extends TemplateParm {
   String typeId;
 
@@ -167,6 +182,8 @@ final _word = new RegExp(r'^\w+$');
 Template template([Iterable<String> decls]) => new Template('id', decls);
 
 _makeTemplatepParm(tparm) {
+  if (tparm is RawTemplateParm) return tparm;
+
   var match = _templateTypeParmRe.firstMatch(tparm);
   if (match != null) {
     var defaultType = match.group(2);
@@ -207,5 +224,7 @@ TemplateParm templateParm(tparm) => tparm is TemplateParm
     : tparm is String
         ? _makeTemplatepParm(tparm)
         : throw 'templateParm(..) takes TemplateParm or String';
+
+TemplateParm rawTemplateParm(id, tparm) => new RawTemplateParm(id, tparm);
 
 // end <part template>

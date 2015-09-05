@@ -69,7 +69,7 @@ add_test(
   $testBaseName)''';
     }
 
-    benchmarkCmake(App app) {
+    benchmarkCmake(BenchmarkApp app) {
       relPath(String p) => path.relative(p, from: installation.cppPath);
 
       return '''
