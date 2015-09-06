@@ -19,6 +19,17 @@ class CmakeInstallationBuilder extends InstallationBuilder {
   void generate() {
     final cmakeRoot = installationCmakeRoot(installation);
 
+    libCmake(lib) {
+      final libName = lib.namespace.names.map((n) => n.toUpperCase()).join('_');
+      final srcMacro = '${libName}_SOURCES';
+      return brCompact([
+        '''
+set ($srcMacro,
+${indentBlock(brCompact(lib.headers.map((h) => h.includeFilePath)))})
+'''
+      ]);
+    }
+
     appCmake(app) {
       final relPath = path.relative(app.appPath, from: installation.cppPath);
       final requiredLibs = app.requiredLibs;
@@ -125,6 +136,11 @@ include_directories(
   \${Boost_INCLUDE_DIRS}
 ${scriptCustomBlock('include directories')}
 )
+
+######################################################################
+# Lib sources
+######################################################################
+${chomp(br(libs.map((lib) => libCmake(lib))))}
 
 ######################################################################
 # Application build directives
