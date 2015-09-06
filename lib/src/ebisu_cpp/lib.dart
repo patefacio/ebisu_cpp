@@ -407,7 +407,7 @@ inline ebisu::raii::Api_initializer<> ${libName}_initializer_() {
     ${libName}_uninit
   };
   return ${libName}_initializer;
-};
+}
 
 /// Internal linkage (i.e. 1 per translation unit) initializer for $libName
 namespace {
