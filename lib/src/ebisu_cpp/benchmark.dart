@@ -11,8 +11,7 @@ class BenchmarkApp extends Impl implements CodeGenerator {
 
   // custom <class BenchmarkApp>
 
-  BenchmarkApp(id) : super(id) {
-  }
+  BenchmarkApp(id) : super(id) {}
 
   Iterable<Entity> get children => concat([super.children]);
 
@@ -25,8 +24,7 @@ class BenchmarkApp extends Impl implements CodeGenerator {
   /// Namespace for application code
   get namespace => super.namespace;
 
-  onOwnershipEstablished() {
-  }
+  onOwnershipEstablished() {}
 
   // end <class BenchmarkApp>
 

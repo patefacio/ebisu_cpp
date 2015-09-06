@@ -503,14 +503,14 @@ Classes to facilitate generating C++ template code
                 ],
               class_('type_template_parm')
                 ..extend = 'TemplateParm'
-                ..members = [member('type_id'),],
-              class_('decl_template_parm')
+                ..members = [
+                  member('default_type'),
+                ],
+              class_('non_type_template_parm')
                 ..extend = 'TemplateParm'
                 ..members = [
-                  member('terms')..type = 'List<String>',
-                  member('id_index')
-                    ..doc = 'Index into the terms indicating the id'
-                    ..type = 'int',
+                  member('type')..doc = 'Type of the parm',
+                  member('default_value'),
                 ],
 
               class_('template_grammar')
