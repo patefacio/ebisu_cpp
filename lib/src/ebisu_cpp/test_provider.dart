@@ -257,9 +257,8 @@ class CatchTestProvider extends TestProvider {
           ..getCodeBlock(fcbCustomIncludes).tag = 'custom includes'
           ..getCodeBlock(fcbBeginNamespace).tag =
               '${testable.id.snake} begin namespace'
-          ..namespace = testOwner is Installation
-              ? testOwner.namespace
-              : testableEntity.owningLib.namespace;
+          ..namespace =
+              testable is Class ? testOwner.namespace : testable.namespace;
 
         ///////////////////////////////////////////////////////////////////
         // If this test is owned by something in a header, that header
