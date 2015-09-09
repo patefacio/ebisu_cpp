@@ -3,14 +3,14 @@ part of ebisu_cpp.ebisu_cpp;
 
 enum TemplateParmType {
   /// Indicates the template parameter names a type
-type,
+  type,
+
   /// Indicates the template parameter indicates a non-type
   /// (e.g. *MAX_SIZE = 10* - a constant literal)
-nonType
+  nonType
 }
 
 abstract class TemplateParm extends CppEntity {
-
   // custom <class TemplateParm>
   TemplateParm(id) : super(id);
   Iterable<Entity> get children => [];
@@ -18,11 +18,10 @@ abstract class TemplateParm extends CppEntity {
 
 }
 
-
 /// Unparsed text template parm
 class RawTemplateParm extends TemplateParm {
-
   String typeId;
+
   /// Text for the template parm
   String text;
 
@@ -36,17 +35,16 @@ class RawTemplateParm extends TemplateParm {
 
 }
 
-
 class TypeTemplateParm extends TemplateParm {
-
   String defaultType;
 
   // custom <class TypeTemplateParm>
 
   TypeTemplateParm(id, this.defaultType) : super(id);
 
-  toString() =>
-      defaultType != null ? 'typename $typename = $defaultType' : 'typename $typename';
+  toString() => defaultType != null
+      ? 'typename $typename = $defaultType'
+      : 'typename $typename';
 
   get typename => id.shout;
 
@@ -54,9 +52,7 @@ class TypeTemplateParm extends TemplateParm {
 
 }
 
-
 class NonTypeTemplateParm extends TemplateParm {
-
   /// Type of the parm
   String type;
   String defaultValue;
@@ -65,8 +61,9 @@ class NonTypeTemplateParm extends TemplateParm {
 
   NonTypeTemplateParm(id, this.type, [this.defaultValue]) : super(id);
 
-  toString() =>
-    defaultValue != null? '$type $valueVariable = $defaultValue' : '$type $valueVariable';
+  toString() => defaultValue != null
+      ? '$type $valueVariable = $defaultValue'
+      : '$type $valueVariable';
 
   get valueVariable => id.shout;
 
@@ -74,9 +71,7 @@ class NonTypeTemplateParm extends TemplateParm {
 
 }
 
-
 class TemplateGrammar extends GrammarParser {
-
   // custom <class TemplateGrammar>
 
   TemplateGrammar() : super(const TemplateGrammarDefinition());
@@ -85,9 +80,7 @@ class TemplateGrammar extends GrammarParser {
 
 }
 
-
 class TemplateGrammarDefinition extends GrammarDefinition {
-
   // custom <class TemplateGrammarDefinition>
 
   const TemplateGrammarDefinition();
@@ -143,9 +136,7 @@ class TemplateGrammarDefinition extends GrammarDefinition {
 
 }
 
-
 class TemplateParser extends GrammarParser {
-
   // custom <class TemplateParser>
 
   TemplateParser() : super(const TemplateParserDefinition());
@@ -154,9 +145,7 @@ class TemplateParser extends GrammarParser {
 
 }
 
-
 class TemplateParserDefinition extends TemplateGrammarDefinition {
-
   // custom <class TemplateParserDefinition>
 
   const TemplateParserDefinition();
@@ -167,10 +156,8 @@ class TemplateParserDefinition extends TemplateGrammarDefinition {
 
 }
 
-
 /// Represents a template declaration comprized of a list of [decls]
 class Template extends CppEntity {
-
   List<TemplateParm> parms;
 
   // custom <class Template>
@@ -192,41 +179,47 @@ template< ${parms.join(',\n          ')} >''';
 
 // custom <part template>
 
-final _namedTemplateTypeRe = new RegExp(r'\s*typename\s+(\w+)\s*$');
-final _assignedNamedTypeParmRe = new RegExp(r'\s*typename\s+(\w+)\s*=\s*([\w:]+)\s*$');
-final _templatizedTypeParmRe = new RegExp(r'\s*template\s+<([^>]+)>\s+class\s+(\w+)\s*$');
-final _namedTemplateValueRe = new RegExp(r'\s*(\w+)\s+(\w+)\s*$');
-final _assignedNamedTemplateValueRe = new RegExp(r'\s*([\w:]+)\s+(\w+)\s*=\s*(\w+)\s*$');
+final _namedTemplateTypeRe = new RegExp(r'^\s*typename\s+(\w+)\s*$');
+final _assignedNamedTypeParmRe =
+    new RegExp(r'^\s*typename\s+(\w+)\s*=\s*([\w:]+)\s*$');
+final _templatizedTypeParmRe =
+    new RegExp(r'^\s*template\s+<([^>]+)>\s+class\s+(\w+)\s*$');
+final _namedTemplateValueRe = new RegExp(r'^\s*(\w+)\s+(\w+)\s*$');
+final _assignedNamedTemplateValueRe =
+    new RegExp(r'^\s*([\w:]+)\s+(\w+)\s*=\s*(\w+)\s*$');
 
 Template template([Iterable<String> decls]) => new Template('id', decls);
 
 _makeTemplatepParm(tparm) {
   if (tparm is RawTemplateParm) return tparm;
   var match;
-  if((match = _assignedNamedTypeParmRe.firstMatch(tparm)) != null) {
+  if ((match = _assignedNamedTypeParmRe.firstMatch(tparm)) != null) {
     final typename = match.group(1);
     final defaultType = match.group(2);
     final id = makeId(typename);
-    _logger.info('making initialized TypeTemplateParm $id from $tparm with $defaultType');
+    _logger.info(
+        'making initialized TypeTemplateParm $id from $tparm with $defaultType');
     return new TypeTemplateParm(id, defaultType);
-  } else if((match = _namedTemplateTypeRe.firstMatch(tparm)) != null) {
+  } else if ((match = _namedTemplateTypeRe.firstMatch(tparm)) != null) {
     final typename = match.group(1);
     final id = makeId(typename);
     _logger.info('making simple TypeTemplateParm $id from $tparm');
     return new TypeTemplateParm(id, null);
-  } else if((match = _templatizedTypeParmRe.firstMatch(tparm)) != null) {
+  } else if ((match = _templatizedTypeParmRe.firstMatch(tparm)) != null) {
     final typename = match.group(2);
     final id = makeId(typename);
     _logger.info('using RawTemplateParm for templatized type parm $tparm');
     return new RawTemplateParm(id, tparm);
-  } else if((match = _assignedNamedTemplateValueRe.firstMatch(tparm)) != null) {
+  } else if ((match = _assignedNamedTemplateValueRe.firstMatch(tparm)) !=
+      null) {
     final typename = match.group(1);
     final varname = match.group(2);
     final defaultValue = match.group(3);
     final id = makeId(varname);
-    _logger.info('making defaulted NonTypeTemplateParm $id from $tparm with $defaultValue');
+    _logger.info(
+        'making defaulted NonTypeTemplateParm $id from $tparm with $defaultValue');
     return new NonTypeTemplateParm(id, typename, defaultValue);
-  } else if((match = _namedTemplateValueRe.firstMatch(tparm)) != null) {
+  } else if ((match = _namedTemplateValueRe.firstMatch(tparm)) != null) {
     final typename = match.group(1);
     final varname = match.group(2);
     final id = makeId(varname);
