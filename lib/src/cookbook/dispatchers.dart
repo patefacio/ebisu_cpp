@@ -200,7 +200,7 @@ class SwitchDispatcher extends EnumeratedDispatcher {
   String get dispatchBlock {
     if (discriminatorType != dctInteger &&
         ((discriminatorType != dctStringLiteral &&
-                discriminatorType != dctStringLiteral) ||
+                discriminatorType != dctStdString) ||
             enumeration.any((e) => e.length != 1))) {
       throw 'Switch requires an integer type '
           'or all Strings of length 1, not $discriminatorType';
