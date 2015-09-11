@@ -561,12 +561,14 @@ member being initialized or a MemberCtorParm instance'''));
     });
 
     final explicitTag = isExplicit ? 'explicit ' : '';
+    final memberInitializerList = initializers.isEmpty
+        ? ''
+        : " : ${indentBlock(initializers.join(',\n'))}";
 
     return functionContents(
         '''
 ${explicitTag}${_templateDecl}${className}(
-${indentBlock(argDecls.join(',\n'))}) :
-${indentBlock(initializers.join(',\n'))}''',
+${indentBlock(argDecls.join(',\n'))})$memberInitializerList''',
         tag != null
             ? '${className}($tag)'
             : '${className}(${argDecls.join(':')})');
@@ -1036,14 +1038,14 @@ default [Interfaceimplementation] is used''')
   /// all members
   ///
   /// Used when class [isImmutable] is set
-  addFullMemberCtor() =>
-      memberCtors.add(memberCtor(members.map((m) => m.name).toList()));
+  addFullMemberCtor() => memberCtors.add(memberCtor(
+      members.where((m) => !m.isStatic).map((m) => m.name).toList()));
 
   /// Returns a string representation of the class definition
   String get definition {
     if (_definition == null) {
       if (isImmutable) {
-        members.forEach((Member m) {
+        members.where((m) => !m.isStatic).forEach((Member m) {
           if (_defaultCtor == null) {
             m.hasNoInit = true;
           }
