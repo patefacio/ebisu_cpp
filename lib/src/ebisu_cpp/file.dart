@@ -16,9 +16,6 @@ abstract class CppFile extends CppEntity with Testable {
   /// List of classes whose definitions are included in this file
   List<Class> classes = [];
 
-  /// List of includes required by this c++ file
-  Includes get includes => _includes;
-
   /// List of c++ *constexprs* that will appear near the top of the file
   List<ConstExpr> constExprs = [];
 
@@ -180,7 +177,6 @@ abstract class CppFile extends CppEntity with Testable {
 
   /// Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.
   Map<FileCodeBlock, CodeBlock> _codeBlocks = {};
-  Includes _includes = new Includes();
   List<Using> _usings = [];
   String _basename;
   String _filePath;

@@ -52,6 +52,9 @@ abstract class CppEntity extends Object with Entity {
   /// Id for the [CppEntity]
   Id id;
 
+  /// List of includes required by this entity
+  Includes get includes => _includes;
+
   // custom <class CppEntity>
 
   CppEntity(Object id)
@@ -67,8 +70,6 @@ CppEntities must be created with id of String or Id: ${id.runtimeType}=$id''';
   String get detailedComment => descr != null ? blockComment(descr, ' ') : null;
 
   String get docComment => combine([briefComment, detailedComment]);
-
-  get includes => null;
 
   get allIncludes => children.fold(new Includes()..mergeIncludes(includes),
       (prev, child) => prev.mergeIncludes(child.allIncludes));
@@ -123,6 +124,7 @@ CppEntities must be created with id of String or Id: ${id.runtimeType}=$id''';
   /// which is not always the case. Use in cases where not - e.g. creating
   /// content without being tied to an installation - this can be used.
   Namer _namer;
+  Includes _includes = new Includes();
 }
 
 // custom <part cpp_entity>

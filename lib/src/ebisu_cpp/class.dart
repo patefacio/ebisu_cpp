@@ -884,14 +884,25 @@ class Class extends CppEntity with Testable {
 
   Class(id) : super(id);
 
+  /// Pass [this] to functor to ease inline/declarative work
+  ///
+  /// For example, to pass [Class] currently being defined to another
+  /// function:
+  ///
+  ///    class_('foo')
+  ///    ..members = [ ... ]
+  ///    ..withClass((cls) => augmentClassWithStuff(cls))
+  ///    ...
+  withClass(func(Class c)) => func(this);
+
   get installation => super.installation;
 
   get requiresLogging => concat([_standardMethods, memberCtors])
       .any((m) => m is Loggable && (m as Loggable).isLogged);
 
   get includes => requiresLogging
-      ? installation.logProvider.includeRequirements
-      : new Includes();
+    ? super.includes.mergeIncludes(installation.logProvider.includeRequirements)
+    : super.includes;
 
   Iterable<Entity> get children => concat([
         enumsForward,
@@ -1059,6 +1070,7 @@ default [Interfaceimplementation] is used''')
 
       if (isSingleton) {
         defaultCtor.cppAccess = private;
+        copyCtor.hasDelete = true;
       }
 
       if (isNoncopyable) {

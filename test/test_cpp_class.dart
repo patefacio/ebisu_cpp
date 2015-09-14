@@ -364,6 +364,8 @@ private:
 class C_1
 {
 public:
+  C_1(C_1 const& other) = delete;
+
   static C_1 & instance() {
     static C_1 instance_s;
     return instance_s;

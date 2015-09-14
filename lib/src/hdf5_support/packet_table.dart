@@ -55,15 +55,7 @@ class PacketTableDecorator implements InstallationDecorator {
           orElse: () =>
               throw new ClassNotFoundException(className, installation));
       assert(targetClass is Class);
-
-      targetClass
-        ..getCodeBlock(clsPublic)
-            .snippets
-            .addAll(['/// hdf5 goodness added here'])
-        ..friendClassDecls = [
-          friendClassDecl(installation.namer.nameClass(
-              idFromString('${targetClass.id.snake}_data_set_specifier'))),
-        ];
+      addH5DataSetSpecifier(targetClass);
     });
   }
 
@@ -76,4 +68,26 @@ PacketTableDecorator packetTableDecorator([List<LogGroup> logGroups]) =>
     new PacketTableDecorator(logGroups);
 
 // custom <part packet_table>
+
+addH5DataSetSpecifier(Class targetClass) => targetClass
+  ..includes.add('hdf5.h')
+  ..getCodeBlock(clsPublic).snippets.addAll(['/// hdf5 goodness added here'])
+  ..nestedClasses.add(class_('h5_data_set_specifier')
+    ..withClass((Class dss) {
+      final className = targetClass.className;
+      dss
+        ..isSingleton = true
+        ..defaultCtor.customCodeBlock.snippets.add(brCompact([
+          'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, sizeof($className));',
+          targetClass.members.map((Member m) =>
+              'H5Tinsert(compound_data_type_id_, "${m.name}", HOFFSET($className, ${m.vname}), TODO_TYPE);')
+        ]))
+        ..members = [
+          member('data_set_name')..init = '/${dss.id.snake}'..isConst = true,
+          member('compound_data_type_id')..type = 'hid_t',
+        ];
+
+      targetClass.friendClassDecls.add(friendClassDecl(dss.className));
+    }));
+
 // end <part packet_table>

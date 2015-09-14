@@ -4,6 +4,7 @@ import 'package:logging/logging.dart';
 import 'package:test/test.dart';
 
 // custom <additional imports>
+import 'package:ebisu/ebisu.dart';
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 import 'package:ebisu_cpp/hdf5_support.dart';
 
@@ -20,11 +21,17 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
+  Logger.root.level = Level.INFO;
   newInstallation() => installation('sample')
     ..libs = [
       lib('l')
         ..headers = [
-          header('h')..classes = [class_('c')]
+          header('h')
+            ..includes.add('foo.h')
+            ..namespace = namespace([])
+            ..classes = [
+              class_('c')..members = [member('a')..init = 1]
+            ]
         ]
     ];
 
@@ -33,11 +40,14 @@ main([List<String> args]) {
 
     test('friends added', () {
       installation..decorateWith(packetTableDecorator([logGroup('c')]));
+      //print(installation.contents);
 
-      _logger.info(installation.progeny
+      _logger.info(clangFormat(brCompact(installation.progeny
           .where((e) => e.id.snake == 'c')
-          .map((e) => e.definition));
+          .map((e) => e.definition))));
     });
+
+
   });
 
 // end <main>

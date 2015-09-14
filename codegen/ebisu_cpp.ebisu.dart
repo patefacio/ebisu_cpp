@@ -154,6 +154,11 @@ content without being tied to an installation - this can be used.
 '''
                     ..access = IA
                     ..type = 'Namer',
+                  member('includes')
+                    ..doc = 'List of includes required by this entity'
+                    ..type = 'Includes'
+                    ..access = RO
+                    ..classInit = 'new Includes()',
                 ],
             ],
           part('using')
@@ -167,9 +172,9 @@ content without being tied to an installation - this can be used.
 The right hand side of using (ie the type decl being named)'''
                     ..access = RO,
                   member('template')
-                  ..doc = 'Template associated with the using (C++11)'
-                  ..type = 'Template'
-                  ..access = RO,
+                    ..doc = 'Template associated with the using (C++11)'
+                    ..type = 'Template'
+                    ..access = RO,
                 ],
             ],
           part('pointer')
@@ -302,7 +307,8 @@ The idea is to make C++ more readable when large constants are used.
                     ..type = 'Namespace'
                     ..ctorsOpt = [''],
                   member('template')
-                    ..doc = 'A template associated with the forward declared class'
+                    ..doc =
+                        'A template associated with the forward declared class'
                     ..type = 'Template'
                     ..ctorsOpt = [''],
                 ],
@@ -420,11 +426,6 @@ Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
                         'List of classes whose definitions are included in this file'
                     ..type = 'List<Class>'
                     ..classInit = [],
-                  member('includes')
-                    ..doc = 'List of includes required by this c++ file'
-                    ..type = 'Includes'
-                    ..access = RO
-                    ..classInit = 'new Includes()',
                   member('const_exprs')
                     ..doc =
                         'List of c++ *constexprs* that will appear near the top of the file'
@@ -466,12 +467,12 @@ to include/exclude given header.
                     ..access = IA
                     ..classInit = {},
                   member('include_stack_trace')
-                  ..doc = '''
+                    ..doc = '''
 If true includes comment about code being generated as well as a stack
 trace to help find the dart code that generated the source.
 '''
-                  ..access = WO
-                  ..type = 'bool',
+                    ..access = WO
+                    ..type = 'bool',
                 ],
             ],
           part('template')
@@ -490,7 +491,6 @@ Classes to facilitate generating C++ template code
                 ],
             ]
             ..classes = [
-
               class_('template_parm')
                 ..isAbstract = true
                 ..extend = 'CppEntity',
@@ -503,28 +503,19 @@ Classes to facilitate generating C++ template code
                 ],
               class_('type_template_parm')
                 ..extend = 'TemplateParm'
-                ..members = [
-                  member('default_type'),
-                ],
+                ..members = [member('default_type'),],
               class_('non_type_template_parm')
                 ..extend = 'TemplateParm'
                 ..members = [
                   member('type')..doc = 'Type of the parm',
                   member('default_value'),
                 ],
-
-              class_('template_grammar')
-              ..extend = 'GrammarParser',
-
+              class_('template_grammar')..extend = 'GrammarParser',
               class_('template_grammar_definition')
-              ..extend = 'GrammarDefinition',
-
-              class_('template_parser')
-              ..extend = 'GrammarParser',
-
+                ..extend = 'GrammarDefinition',
+              class_('template_parser')..extend = 'GrammarParser',
               class_('template_parser_definition')
-              ..extend = 'TemplateGrammarDefinition',
-
+                ..extend = 'TemplateGrammarDefinition',
               class_('template')
                 ..extend = 'CppEntity'
                 ..doc = '''
@@ -1319,11 +1310,11 @@ Creates a new *exception* class derived from std::exception.
                 ..extend = 'Class'
                 ..members = [
                   member('base_exception')
-                  ..doc = 'Base class for this exception class',
+                    ..doc = 'Base class for this exception class',
                   member('exception_includes')
-                  ..doc = 'Additional includes required for exception class'
-                  ..type = 'List<String>'
-                  ..classInit = [],
+                    ..doc = 'Additional includes required for exception class'
+                    ..type = 'List<String>'
+                    ..classInit = [],
                 ]
             ],
           part('serializer')
@@ -1679,7 +1670,8 @@ libraries, apps, and tests'''
           part('cmake_support')
             ..classes = [
               class_('cmake_installation_builder')
-              ..doc = 'Responsible for generating a suitable CMakeLists.txt file'
+                ..doc =
+                    'Responsible for generating a suitable CMakeLists.txt file'
                 ..extend = 'InstallationBuilder',
             ],
           part('script')
@@ -1692,25 +1684,23 @@ libraries, apps, and tests'''
           part('benchmark')
             ..enums = []
             ..classes = [
-
               class_('benchmark_app')
-              ..extend = 'Impl'
-              ..implement = ['CodeGenerator']
-              ..members = [
-                member('headers')
-                ..doc = '''
+                ..extend = 'Impl'
+                ..implement = ['CodeGenerator']
+                ..members = [
+                  member('headers')
+                    ..doc = '''
 Additional headers that are associated with the benchmark application
 itself, as opposed to belonging to a reusable library.'''
-                ..type = 'List<Header>'
-                ..classInit = [],
-                member('impls')
-                ..doc = '''
+                    ..type = 'List<Header>'
+                    ..classInit = [],
+                  member('impls')
+                    ..doc = '''
 Additional implementation files associated with the benchmark
 application itself, as opposed to belonging to a reusable library.'''
-                ..type = 'List<Impl>'
-                ..classInit = [],
-              ],
-
+                    ..type = 'List<Impl>'
+                    ..classInit = [],
+                ],
               class_('benchmark')
                 ..doc = '''
 A single benchmark fixture with one or more functions to time.
@@ -1803,20 +1793,19 @@ with the specified method *Simple*. When the [benchmarkApp] is run the
                     ..type = 'Lib'
                     ..access = RO,
                   member('benchmark_app')
-                  ..doc = 'The application associated with this benchmark'
-                  ..type = 'BenchmarkApp'
-                  ..access = RO,
+                    ..doc = 'The application associated with this benchmark'
+                    ..type = 'BenchmarkApp'
+                    ..access = RO,
                   member('functions')
-                  ..doc = '''
+                    ..doc = '''
 The list of functions.
 
 If not set by client will result in list of one function [ id ].
 '''
-                  ..type = 'List<Id>'
-                  ..classInit = []
-                  ..access = RO,
+                    ..type = 'List<Id>'
+                    ..classInit = []
+                    ..access = RO,
                 ],
-
               class_('benchmark_group')
                 ..doc = '''
 Collection of one or benchmarks generated into one executable.
@@ -1829,9 +1818,10 @@ Collection of one or benchmarks generated into one executable.
                     ..classInit = []
                     ..access = RO,
                   member('benchmark_app')
-                  ..doc = 'The application containing hooks into benchmark suite'
-                  ..type = 'BenchmarkApp'
-                  ..access = RO,
+                    ..doc =
+                        'The application containing hooks into benchmark suite'
+                    ..type = 'BenchmarkApp'
+                    ..access = RO,
                 ],
             ],
           part('emacs_support')
@@ -1946,19 +1936,20 @@ down order of initialization issues.
 '''
                     ..classInit = false,
                   member('benchmarks')
-                    ..doc = 'All *stand-alone* modeled benchmarks in the installation'
+                    ..doc =
+                        'All *stand-alone* modeled benchmarks in the installation'
                     ..type = 'List<Benchmark>'
                     ..classInit = [],
                   member('benchmark_groups')
-                  ..doc = 'All [BenchmarkGroup]s in this [Installation]'
-                  ..type = 'List<BenchmarkGroup>'
-                  ..classInit = [],
+                    ..doc = 'All [BenchmarkGroup]s in this [Installation]'
+                    ..type = 'List<BenchmarkGroup>'
+                    ..classInit = [],
                   member('include_stack_trace')
-                  ..doc = '''
+                    ..doc = '''
 If true includes comments about code being generated as well as a
 stack trace to help find the dart code that generated the source.
 '''
-                  ..classInit = false,
+                    ..classInit = false,
                 ],
               class_('path_locator')
                 ..members = [
@@ -2218,7 +2209,11 @@ strings as discriminators.
             ]
         ],
       library('hdf5_support')
-        ..imports = ['package:ebisu_cpp/ebisu_cpp.dart', 'package:id/id.dart',]
+        ..imports = [
+          'package:ebisu_cpp/ebisu_cpp.dart',
+          'package:ebisu/ebisu.dart',
+          'package:id/id.dart',
+        ]
         ..doc =
             'Provide C++ classes support for reading/writing to hdf5 packet table'
         ..parts = [
