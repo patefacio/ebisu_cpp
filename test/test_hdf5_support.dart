@@ -42,9 +42,9 @@ main([List<String> args]) {
       installation..decorateWith(packetTableDecorator([logGroup('c')]));
       //print(installation.contents);
 
-      _logger.info(clangFormat(brCompact(installation.progeny
+      _logger.info(brCompact(installation.progeny
           .where((e) => e.id.snake == 'c')
-          .map((e) => e.definition))));
+          .map((e) => e.definition)));
     });
 
 
