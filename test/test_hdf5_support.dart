@@ -21,7 +21,7 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
-  Logger.root.level = Level.INFO;
+  //Logger.root.level = Level.INFO;
   newInstallation() => installation('sample')
     ..libs = [
       lib('l')
