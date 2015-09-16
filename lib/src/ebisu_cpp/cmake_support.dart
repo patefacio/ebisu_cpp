@@ -48,6 +48,8 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
   \${Boost_PROGRAM_OPTIONS_LIBRARY}
   \${Boost_SYSTEM_LIBRARY}
   \${Boost_THREAD_LIBRARY}
+
+${chomp(scriptCustomBlock('${app.name} exe additions'))}
 ''',
         requiredLibs
             .map((l) => indentBlock(l.contains(isMacroRe) ? l : '-${l}')),
@@ -75,6 +77,8 @@ ${chomp(scriptCustomBlock('${_isCatchDecl}${test.name} link requirements'))}
   \${Boost_THREAD_LIBRARY}
 )
 
+${chomp(scriptCustomBlock('${test.name} test additions'))}
+
 add_test(
   $testBaseName
   $testBaseName)''';
@@ -87,6 +91,8 @@ add_test(
 add_executable(bench_${app.id.snake}
   ${concat([[relPath(app.filePath)], app.impls.map((i) => relPath(i.filePath))]).join('\n  ')}
 )
+
+${chomp(scriptCustomBlock('${app.id.snake} bench additions'))}
 
 target_link_libraries(bench_${app.id.snake}
 ${chomp(scriptCustomBlock('benchmark ${app.id} link requirements'))}
