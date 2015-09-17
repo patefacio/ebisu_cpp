@@ -120,17 +120,17 @@ enum ${isClass? "class ":""}Color_${isClass}_mask {
 
 /// Test if the Color_${isClass}_mask *bit* is set in *value* mask
 inline bool test_bit(int value, Color_${isClass}_mask bit) {
-  return (bit & value) == bit;
+  return (int(bit) & value) == int(bit);
 }
 
 /// Set the Color_${isClass}_mask *bit* in *value* mask
 inline void set_bit(int &value, Color_${isClass}_mask bit) {
-  value |= bit;
+  value |= int(bit);
 }
 
 /// Cllear the Color_${isClass}_mask *bit* in *value* mask
 inline void clear_bit(int &value, Color_${isClass}_mask bit) {
-  value &= ~bit;
+  value &= ~int(bit);
 }
 '''));
 

@@ -246,17 +246,17 @@ class Enum extends CppEntity {
           '''
 /// Test if the $name *bit* is set in *value* mask
 inline bool test_bit(int value, $name bit) {
-  return (bit & value) == bit;
+  return (int(bit) & value) == int(bit);
 }
 
 /// Set the $name *bit* in *value* mask
 inline void set_bit(int &value, $name bit) {
-  value |= bit;
+  value |= int(bit);
 }
 
 /// Cllear the $name *bit* in *value* mask
 inline void clear_bit(int &value, $name bit) {
-  value &= ~bit;
+  value &= ~int(bit);
 }
 '''
         ])
