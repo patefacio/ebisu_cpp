@@ -83,7 +83,9 @@ addH5DataSetSpecifier(Class targetClass) => targetClass
               'H5Tinsert(compound_data_type_id_, "${m.name}", HOFFSET($className, ${m.vname}), TODO_TYPE);')
         ]))
         ..members = [
-          member('data_set_name')..init = '/${dss.id.snake}'..isConst = true,
+          member('data_set_name')
+            ..init = '/${dss.id.snake}'
+            ..isConst = true,
           member('compound_data_type_id')..type = 'hid_t',
         ];
 

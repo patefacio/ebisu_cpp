@@ -901,8 +901,10 @@ class Class extends CppEntity with Testable {
       .any((m) => m is Loggable && (m as Loggable).isLogged);
 
   get includes => requiresLogging
-    ? super.includes.mergeIncludes(installation.logProvider.includeRequirements)
-    : super.includes;
+      ? super
+          .includes
+          .mergeIncludes(installation.logProvider.includeRequirements)
+      : super.includes;
 
   Iterable<Entity> get children => concat([
         enumsForward,

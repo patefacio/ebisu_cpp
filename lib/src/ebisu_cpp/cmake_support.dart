@@ -43,13 +43,14 @@ add_executable(${app.name}
   ${app.sources.map((src) => '$relPath/$src.cpp').join('\n  ')}
 )
 
+${chomp(scriptCustomBlock('${app.name} exe additions'))}
+
 target_link_libraries(${app.name}
 ${chomp(scriptCustomBlock('${app.name} libs'))}
   \${Boost_PROGRAM_OPTIONS_LIBRARY}
   \${Boost_SYSTEM_LIBRARY}
   \${Boost_THREAD_LIBRARY}
 
-${chomp(scriptCustomBlock('${app.name} exe additions'))}
 ''',
         requiredLibs
             .map((l) => indentBlock(l.contains(isMacroRe) ? l : '-${l}')),
@@ -71,13 +72,14 @@ add_executable($testBaseName
   ${test.sources.map((src) => '$relPath/$src').join('\n  ')}
 )
 
+${chomp(scriptCustomBlock('${test.name} test additions'))}
+
 target_link_libraries($testBaseName
 ${chomp(scriptCustomBlock('${_isCatchDecl}${test.name} link requirements'))}
   \${Boost_SYSTEM_LIBRARY}
   \${Boost_THREAD_LIBRARY}
+  pthread
 )
-
-${chomp(scriptCustomBlock('${test.name} test additions'))}
 
 add_test(
   $testBaseName
@@ -168,6 +170,7 @@ ${chomp(br(benchmarkApps.map((bma) => benchmarkCmake(bma))))}
     final cmakeGenerator = path.join(path.dirname(cmakeRoot), '.cmake.gen.sh');
     scriptMergeWithFile(
         '''
+#!/bin/bash
 ${scriptCustomBlock('additional exports')}
 cmake -DCMAKE_BUILD_TYPE=Release -B../cmake_build/release -H.
 cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.

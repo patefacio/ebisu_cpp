@@ -46,8 +46,6 @@ main([List<String> args]) {
           .where((e) => e.id.snake == 'c')
           .map((e) => e.definition)));
     });
-
-
   });
 
 // end <main>
