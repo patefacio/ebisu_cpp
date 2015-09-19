@@ -80,7 +80,7 @@ addH5DataSetSpecifier(Class targetClass) => targetClass
         ..defaultCtor.customCodeBlock.snippets.add(brCompact([
           'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, sizeof($className));',
           targetClass.members.map((Member m) =>
-              'H5Tinsert(compound_data_type_id_, "${m.name}", HOFFSET($className, ${m.vname}), TODO_TYPE);')
+              'H5Tinsert(compound_data_type_id_, "${m.name}", HOFFSET($className, ${m.vname}), H5T_NATIVE_INT/*TODO*/);')
         ]))
         ..members = [
           member('data_set_name')

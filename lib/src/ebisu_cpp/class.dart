@@ -200,6 +200,9 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
   /// Method documentation
   String doc;
 
+  /// If true the method is noexcept(true)
+  bool isNoExcept = false;
+
   // custom <class ClassMethod>
 
   String get definition;
@@ -218,13 +221,16 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
     }
     return brCompact([
       doc != null ? blockComment(doc, ' ') : doc,
-      '$signature {',
+      '${_decorateNoExcept(signature)} {',
       topInject,
       blockText,
       bottomInject,
       '}'
     ]);
   }
+
+  _decorateNoExcept(s) =>
+      (isNoExcept == null || !isNoExcept) ? s : '$s noexcept(true)';
 
   // end <class ClassMethod>
 
@@ -246,8 +252,10 @@ abstract class DefaultMethod extends ClassMethod {
   String get prototype;
 
   String get definition => _templateWrap(usesDefault
-      ? '$prototype = default;'
-      : hasDelete ? '$prototype = delete;' : customDefinition);
+      ? '${_decorateNoExcept(prototype)} = default;'
+      : hasDelete
+          ? '${_decorateNoExcept(prototype)} = delete;'
+          : customDefinition);
 
   _templateWrap(s) => _template != null ? '$_template\n$s' : s;
 
@@ -262,7 +270,7 @@ class DefaultCtor extends DefaultMethod {
   String get prototype => '${className}()';
 
   String get customDefinition =>
-      functionContents('${className}()', '${className} defaultCtor');
+      functionContents(prototype, '${className} defaultCtor');
 
   // end <class DefaultCtor>
 

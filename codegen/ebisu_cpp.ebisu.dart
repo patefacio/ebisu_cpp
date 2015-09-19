@@ -36,6 +36,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_enum'),
       library('test_cpp_member'),
       library('test_cpp_class'),
+      library('test_cpp_default_methods'),
       library('test_cpp_forward_decl'),
       library('test_cpp_file'),
       library('test_cpp_interface'),
@@ -853,6 +854,9 @@ block and tagging is deferred until needed.
 '''
                     ..classInit = false,
                   member('doc')..doc = 'Method documentation',
+                  member('is_no_except')
+                  ..doc = 'If true the method is noexcept(true)'
+                  ..classInit = false,
                 ],
               class_('default_method')
                 ..doc = '''

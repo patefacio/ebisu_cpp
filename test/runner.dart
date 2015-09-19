@@ -2,6 +2,7 @@ import 'package:logging/logging.dart';
 import 'test_cpp_enum.dart' as test_cpp_enum;
 import 'test_cpp_member.dart' as test_cpp_member;
 import 'test_cpp_class.dart' as test_cpp_class;
+import 'test_cpp_default_methods.dart' as test_cpp_default_methods;
 import 'test_cpp_forward_decl.dart' as test_cpp_forward_decl;
 import 'test_cpp_file.dart' as test_cpp_file;
 import 'test_cpp_interface.dart' as test_cpp_interface;
@@ -28,6 +29,7 @@ main() {
   test_cpp_enum.main();
   test_cpp_member.main();
   test_cpp_class.main();
+  test_cpp_default_methods.main();
   test_cpp_forward_decl.main();
   test_cpp_file.main();
   test_cpp_interface.main();

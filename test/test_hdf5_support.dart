@@ -40,8 +40,7 @@ main([List<String> args]) {
 
     test('friends added', () {
       installation..decorateWith(packetTableDecorator([logGroup('c')]));
-      //print(installation.contents);
-
+      _logger.info(installation.contents);
       _logger.info(brCompact(installation.progeny
           .where((e) => e.id.snake == 'c')
           .map((e) => e.definition)));

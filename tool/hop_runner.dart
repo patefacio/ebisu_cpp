@@ -19,6 +19,7 @@ void main(List<String> args) {
         "test/test_cpp_enum.dart",
         "test/test_cpp_member.dart",
         "test/test_cpp_class.dart",
+        "test/test_cpp_default_methods.dart",
         "test/test_cpp_forward_decl.dart",
         "test/test_cpp_file.dart",
         "test/test_cpp_interface.dart",
