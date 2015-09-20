@@ -80,7 +80,9 @@ addH5DataSetSpecifier(Class targetClass) => targetClass
         ..defaultCtor.customCodeBlock.snippets.add(brCompact([
           'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, sizeof($className));',
           targetClass.members.map((Member m) =>
-              'H5Tinsert(compound_data_type_id_, "${m.name}", HOFFSET($className, ${m.vname}), H5T_NATIVE_INT/*TODO*/);')
+              'H5Tinsert(compound_data_type_id_, "${m.name}", '
+              'HOFFSET($className, ${m.vname}), '
+              '${cppTypeToHdf5Type(m.type)});')
         ]))
         ..members = [
           member('data_set_name')
@@ -91,5 +93,42 @@ addH5DataSetSpecifier(Class targetClass) => targetClass
 
       targetClass.friendClassDecls.add(friendClassDecl(dss.className));
     }));
+
+
+final _intRe = new RegExp(r'(fast_|least_)?(u?)int(\d+)_t');
+
+final _mappings = {
+  'long int' : 'H5T_NATIVE_LONG',
+  'long double' : 'H5T_NATIVE_LDOUBLE',
+  'long long' : 'H5T_NATIVE_LLONG',
+  'unsigned int' : 'H5T_NATIVE_UINT32',
+  'unsigned long' : 'H5T_NATIVE_ULONG',
+  'unsigned long long' : 'H5T_NATIVE_ULLONG',
+  'char' : 'H5T_NATIVE_CHAR',
+  'unsigned char' : 'H5T_NATIVE_UCHAR',
+  'signed char' : 'H5T_NATIVE_SCHAR',
+};
+
+cppTypeToHdf5Type(String cppType) {
+  var match = _intRe.firstMatch(cppType);
+  if(match != null) {
+    final bytes = match[3];
+    final isSigned = match[2] == null || match[2] == '';
+    final signChar = isSigned? '' : 'U';
+    if(bytes == '8') {
+      return isSigned? 'H5T_NATIVE_SCHAR' : 'H5T_NATIVE_UCHAR';
+    } else {
+      switch(bytes) {
+        case '16': return 'H5T_NATIVE_${signChar}INT16';
+        case '32': return 'H5T_NATIVE_${signChar}INT32';
+        case '64': return 'H5T_NATIVE_${signChar}INT64';
+      }
+    }
+  } else {
+    final result = _mappings[cppType];
+    if(result != null) return result;
+    throw 'Could not map $cppType to suitable hdf5 type';
+  }
+}
 
 // end <part packet_table>
