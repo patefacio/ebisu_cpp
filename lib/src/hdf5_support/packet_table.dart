@@ -71,7 +71,6 @@ PacketTableDecorator packetTableDecorator([List<LogGroup> logGroups]) =>
 
 addH5DataSetSpecifier(Class targetClass) => targetClass
   ..includes.add('hdf5.h')
-  ..getCodeBlock(clsPublic).snippets.addAll(['/// hdf5 goodness added here'])
   ..nestedClasses.add(class_('h5_data_set_specifier')
     ..withClass((Class dss) {
       final className = targetClass.className;
@@ -86,24 +85,38 @@ addH5DataSetSpecifier(Class targetClass) => targetClass
         ]))
         ..members = [
           member('data_set_name')
-            ..init = '/${dss.id.snake}'
-            ..isConst = true,
-          member('compound_data_type_id')..type = 'hid_t',
+            ..init = '/${targetClass.id.snake}'
+            ..type = 'char const*'
+            ..cppAccess = public
+            ..isStatic = true
+            ..isConstExpr = true,
+          member('compound_data_type_id')..type = 'hid_t'..access = ro,
         ];
 
       targetClass.friendClassDecls.add(friendClassDecl(dss.className));
-    }));
+    }))
+  ..getCodeBlock(clsPublic).snippets.addAll([
+    '''
+static H5_data_set_specifier const& data_set_specifier() {
+  return H5_data_set_specifier::instance();
+}
+'''
+  ]);
 
 
 final _intRe = new RegExp(r'(fast_|least_)?(u?)int(\d+)_t');
 
 final _mappings = {
+  'int' : 'H5T_NATIVE_INT',
   'long int' : 'H5T_NATIVE_LONG',
-  'long double' : 'H5T_NATIVE_LDOUBLE',
   'long long' : 'H5T_NATIVE_LLONG',
   'unsigned int' : 'H5T_NATIVE_UINT32',
   'unsigned long' : 'H5T_NATIVE_ULONG',
   'unsigned long long' : 'H5T_NATIVE_ULLONG',
+
+  'double' : 'H5T_NATIVE_DOUBLE',
+  'long double' : 'H5T_NATIVE_LDOUBLE',
+
   'char' : 'H5T_NATIVE_CHAR',
   'unsigned char' : 'H5T_NATIVE_UCHAR',
   'signed char' : 'H5T_NATIVE_SCHAR',
