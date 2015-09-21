@@ -107,7 +107,9 @@ static H5_data_set_specifier const& data_set_specifier() {
 final _intRe = new RegExp(r'(fast_|least_)?(u?)int(\d+)_t');
 
 final _mappings = {
+  'short' : 'H5T_NATIVE_SHORT',
   'int' : 'H5T_NATIVE_INT',
+  'long' : 'H5T_NATIVE_LONG',
   'long int' : 'H5T_NATIVE_LONG',
   'long long' : 'H5T_NATIVE_LLONG',
   'unsigned int' : 'H5T_NATIVE_UINT32',
