@@ -280,6 +280,8 @@ class CatchTestProvider extends TestProvider {
               .getCodeBlock(fcbBeginNamespace)
               .snippets
               .add(scenarioTestText(testScenario));
+
+          test.includes.mergeIncludes(testScenario.includes);
         });
 
         test.generate();

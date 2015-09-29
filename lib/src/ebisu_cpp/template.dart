@@ -168,6 +168,8 @@ class Template extends CppEntity {
       : super(id),
         parms = decls_.map((d) => templateParm(d)).toList();
 
+  addAll(Iterable decls) => parms.addAll(decls.map((d) => templateParm(d)));
+
   String get decl => '''
 template< ${parms.join(',\n          ')} >''';
 

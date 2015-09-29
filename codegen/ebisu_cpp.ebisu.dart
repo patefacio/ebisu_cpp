@@ -2212,6 +2212,19 @@ strings as discriminators.
                 ],
             ]
         ],
+      library('mongo_support')
+      ..imports = [
+          'package:ebisu_cpp/ebisu_cpp.dart',
+          'package:ebisu/ebisu.dart',
+          'package:id/id.dart',
+      ]
+      ..parts = [
+        part('mongo_support')
+        ..classes = [
+          class
+        ]
+      ],
+
       library('hdf5_support')
         ..imports = [
           'package:ebisu_cpp/ebisu_cpp.dart',
