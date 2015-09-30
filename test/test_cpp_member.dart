@@ -257,5 +257,38 @@ class C {
 '''));
   });
 
+  test('ifdef member', () {
+    final cls = class_('c')
+      ..isImmutable = true
+      ..members = [
+        member('x')
+          ..type = 'X'
+          ..isByRef = true
+          ..ifdefQualifier = 'DEBUG',
+        member('y')..type = 'Y',
+      ];
+
+    expect(darkMatter(cls.definition), darkMatter('''
+class C {
+ public:
+  C(Y y) : y_(y) {}
+
+#if defined(DEBUG)
+  //! getter for x_ (access is Ro)
+  X const& x() const { return x_; }
+#endif
+
+  //! getter for y_ (access is Ro)
+  Y y() const { return y_; }
+
+ private:
+#if defined(DEBUG)
+  X const x_;
+#endif
+  Y const y_;
+};
+'''));
+  });
+
 // end <main>
 }

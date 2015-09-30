@@ -45,32 +45,45 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 enum ClassCodeBlock {
   /// The custom block appearing just after class is opened
-clsOpen,
+  clsOpen,
+
   /// The custom block appearing at start *public* section
-clsPublicBegin,
+  clsPublicBegin,
+
   /// The custom block appearing in the standard *public* section
-clsPublic,
+  clsPublic,
+
   /// The custom block appearing at end *public* section
-clsPublicEnd,
+  clsPublicEnd,
+
   /// The custom block appearing at start *protected* section
-clsProtectedBegin,
+  clsProtectedBegin,
+
   /// The custom block appearing in the standard *protected* section
-clsProtected,
+  clsProtected,
+
   /// The custom block appearing at end *protected* section
-clsProtectedEnd,
+  clsProtectedEnd,
+
   /// The custom block appearing at start *private* section
-clsPrivateBegin,
+  clsPrivateBegin,
+
   /// The custom block appearing in the standard *private* section
-clsPrivate,
+  clsPrivate,
+
   /// The custom block appearing at end *private* section
-clsPrivateEnd,
+  clsPrivateEnd,
+
   /// The custom block appearing just before class is closed
-clsClose,
+  clsClose,
+
   /// The custom block appearing just before the class definition
-clsPreDecl,
+  clsPreDecl,
+
   /// The custom block appearing just after the class definition
-clsPostDecl
+  clsPostDecl
 }
+
 /// Convenient access to ClassCodeBlock.clsOpen with *clsOpen* see [ClassCodeBlock].
 ///
 /// The custom block appearing just after class is opened
@@ -152,21 +165,25 @@ const ClassCodeBlock clsPostDecl = ClassCodeBlock.clsPostDecl;
 /// Establishes an interface for generated class methods like
 /// consructors, destructors, overloaded operators, etc.
 abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
-
   Class get parent => _parent;
+
   /// If true add logging
   bool isLogged = false;
   Template get template => _template;
+
   /// C++ style access of method
   CppAccess cppAccess = public;
+
   /// Code snippet to inject at beginning of method. The intent is for the
   /// methods to have standard generated implementations, but to also
   /// support programatic injection of implmementation into the
   /// methods. This supports injection near the top of the method.
   String topInject = '';
+
   /// Supports injecting code near the bottom of the method. *See*
   /// *topInject*
   String bottomInject = '';
+
   /// If set will include protection block for hand-coding in method.
   ///
   /// Normally an a class mixing in [CustomCodeBlock] would provide a setter
@@ -179,8 +196,10 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
   /// constructed. This member is used to track the request to include a protection
   /// block and tagging is deferred until needed.
   bool includesProtectBlock = false;
+
   /// Method documentation
   String doc;
+
   /// If true the method is noexcept(true)
   bool isNoExcept = false;
 
@@ -217,16 +236,13 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
 
   Class _parent;
   Template _template;
-
 }
-
 
 /// Unifies the [ClassMethod]s that can be specified as *default*,
 /// like [DefaultCtor], [CopyCtor], etc.
 ///
 /// Also provides for *delete*d methods.
 abstract class DefaultMethod extends ClassMethod {
-
   bool usesDefault = false;
   bool hasDelete = false;
 
@@ -247,10 +263,8 @@ abstract class DefaultMethod extends ClassMethod {
 
 }
 
-
 /// Default ctor, autoinitialized on read
 class DefaultCtor extends DefaultMethod {
-
   // custom <class DefaultCtor>
 
   String get prototype => '${className}()';
@@ -262,10 +276,8 @@ class DefaultCtor extends DefaultMethod {
 
 }
 
-
 /// Copy ctor, autoinitialized on read
 class CopyCtor extends DefaultMethod {
-
   // custom <class CopyCtor>
 
   String get prototype => '${className}(${className} const& other)';
@@ -277,10 +289,8 @@ class CopyCtor extends DefaultMethod {
 
 }
 
-
 /// Move ctor, autoinitialized on read
 class MoveCtor extends DefaultMethod {
-
   // custom <class MoveCtor>
 
   String get prototype => '${className}(${className} && other)';
@@ -291,9 +301,7 @@ class MoveCtor extends DefaultMethod {
 
 }
 
-
 class AssignCopy extends DefaultMethod {
-
   // custom <class AssignCopy>
 
   String get prototype => '${className}& operator=(${className} const&)';
@@ -304,9 +312,7 @@ class AssignCopy extends DefaultMethod {
 
 }
 
-
 class AssignMove extends DefaultMethod {
-
   // custom <class AssignMove>
 
   String get prototype => '${className}& operator=(${className} &&)';
@@ -317,10 +323,8 @@ class AssignMove extends DefaultMethod {
 
 }
 
-
 /// Provides a destructor
 class Dtor extends DefaultMethod {
-
   bool isAbstract = false;
 
   // custom <class Dtor>
@@ -338,7 +342,6 @@ class Dtor extends DefaultMethod {
   // end <class Dtor>
 
 }
-
 
 /// A *Member Constructor Parameter*. Defines a single parameter to be passed to a
 /// MemberCtor in order to initialize a single member variable. MemberCtor will
@@ -386,13 +389,14 @@ class Dtor extends DefaultMethod {
 ///       int y_ { 0 };
 ///     };
 class MemberCtorParm {
-
   MemberCtorParm(this.name);
 
   /// Name of member initialized by argument to member ctor
   final String name;
+
   /// cpp member to be initialized
   Member member;
+
   /// *Override* for arguemnt declaration. This is rarely needed. Suppose
   /// you want to initialize member *Y y* from an input argument *X x* that
   /// requires a special function *f* to do the conversion:
@@ -407,6 +411,7 @@ class MemberCtorParm {
   ///       ..init = "f(x)"
   ///     ])
   String parmDecl;
+
   /// *Override* of initialization text. This is rarely needed since
   /// initialization of members in a member ctor is straightforward:
   ///
@@ -440,6 +445,7 @@ class MemberCtorParm {
   ///       ..init = "umask(new_mode)"
   ///     ])
   set init(String init) => _init = init;
+
   /// If set provides a default value for the parm in the ctor. For example:
   ///
   ///     memberCtorParm('x')..defaultValue = '42'
@@ -489,14 +495,10 @@ class MemberCtorParm {
   // end <class MemberCtorParm>
 
   String _init;
-
 }
 
 /// Create a MemberCtorParm sans new, for more declarative construction
-MemberCtorParm
-memberCtorParm([String name]) =>
-  new MemberCtorParm(name);
-
+MemberCtorParm memberCtorParm([String name]) => new MemberCtorParm(name);
 
 /// Specificication for a member constructor. A member constructor is a constructor
 /// with the intent of initializing one or more members of a class.
@@ -516,13 +518,15 @@ memberCtorParm([String name]) =>
 ///       // end <Class>
 ///     }
 class MemberCtor extends ClassMethod {
-
   /// List of members that are passed as arguments for initialization
   List<MemberCtorParm> memberParms = [];
+
   /// List of additional decls ["Type Argname", ...]
   List<String> decls;
+
   /// If set automatically includes all members as args
   bool hasAllMembers = false;
+
   /// If true makes the ctor explicit
   bool isExplicit = false;
 
@@ -550,6 +554,14 @@ member being initialized or a MemberCtorParm instance'''));
     } else {
       memberParms.forEach((MemberCtorParm mp) =>
           mp.member = parent.members.firstWhere((m) => mp.name == m.name));
+    }
+
+    final bogusMemberParms = memberParms.where((mp) => mp.member.hasIfdef);
+    if (bogusMemberParms.isNotEmpty) {
+      throw '''
+No *ifdef* qualified members in memberCtor
+  {${bogusMemberParms.map((m) => m.member.id).join(", ")}}
+''';
     }
 
     List<String> argDecls = decls == null ? [] : new List<String>.from(decls);
@@ -589,10 +601,8 @@ ${indentBlock(argDecls.join(',\n'))})$memberInitializerList''',
 
 }
 
-
 /// Provides *operator==()*
 class OpEqual extends ClassMethod {
-
   // custom <class OpEqual>
 
   String get definition => '''bool operator==(${className} const& rhs) const {
@@ -610,10 +620,8 @@ bool operator!=($className const& rhs) const {
 
 }
 
-
 /// Provides *operator<()*
 class OpLess extends ClassMethod {
-
   // custom <class OpLess>
 
   String get definition {
@@ -633,10 +641,8 @@ pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
 
 }
 
-
 /// Provides *operator<<()*
 class OpOut extends ClassMethod {
-
   /// If true uses tls indentation tracking to indent nested
   /// components when streaming
   bool usesNestedIndent = false;
@@ -713,7 +719,6 @@ ${indentBlock(chomp(brCompact([
   // end <class OpOut>
 
 }
-
 
 /// A C++ class.
 ///
@@ -806,20 +811,25 @@ ${indentBlock(chomp(brCompact([
 ///   providing *CustomBlocks* and/or for dynamically injecting code - see
 ///   [CodeBlock].
 class Class extends CppEntity with Testable {
-
   /// Is this definition a *struct*
   bool isStruct = false;
+
   /// The template by which the class is parameterized
   Template get template => _template;
+
   /// Forward declarations near top of file, before the class definition
   List<ForwardDecl> forwardDecls = [];
+
   /// Forward declarations within class, ideal for forward declaring nested classes
   List<ForwardDecl> classForwardDecls = [];
+
   /// *constexpr*s associated with the class
   List<ConstExpr> constExprs = [];
+
   /// List of usings that will be scoped to this class near the top of
   /// the class definition.
   List<Using> get usings => _usings;
+
   /// List of usings to occur after the class declaration. Sometimes it is
   /// useful to establish some type definitions directly following the class
   /// so they may be reused among any client of the class. For instance if
@@ -828,8 +838,10 @@ class Class extends CppEntity with Testable {
   ///
   ///     using Foo = std::vector<Foo>;
   List<Using> get usingsPostDecl => _usingsPostDecl;
+
   /// Base classes this class derives form.
   List<Base> bases = [];
+
   /// A list of member constructors
   List<MemberCtor> memberCtors = [];
   List<PtrType> forwardPtrs = [];
@@ -839,15 +851,19 @@ class Class extends CppEntity with Testable {
   List<FriendClassDecl> friendClassDecls = [];
   List<ClassCodeBlock> customBlocks = [];
   bool isSingleton = false;
+
   /// If true deletes copy ctor and assignment operator
   bool isNoncopyable = false;
   Map<ClassCodeBlock, CodeBlock> get codeBlocks => _codeBlocks;
+
   /// If true adds {using fcs::utils::streamers::operator<<} to streamer.
   /// Also, when set assumes streaming required and [isStreamable]
   /// is *set* as well. So not required to set both.
   bool get usesStreamers => _usesStreamers;
+
   /// If true adds final keyword to class
   bool isFinal = false;
+
   /// If true makes all members const provides single member ctor
   /// initializing all.
   ///
@@ -858,18 +874,25 @@ class Class extends CppEntity with Testable {
   /// developer ensuring the members are not modified. This provides a
   /// stronger guarantee of immutability.
   bool isImmutable = false;
+
   /// List of processors supporting flavors of serialization
   List<Serializer> serializers = [];
-  List<InterfaceImplementation> get interfaceImplementations => _interfaceImplementations;
+  List<InterfaceImplementation> get interfaceImplementations =>
+      _interfaceImplementations;
+
   /// A [CppAccess] specifier - only pertinent if class is nested
   CppAccess cppAccess = public;
+
   /// Classes nested within this class
   List<Class> nestedClasses = [];
+
   /// If set, will include *#pragma pack(push, $packAlign)* before the class
   /// and *#pragma pack(pop)* after.
   int packAlign;
+
   /// If set and member has no [access] set, this is used
   Access defaultMemberAccess;
+
   /// If set and member has no [cppAccess] set, this is used
   CppAccess defaultCppAccess;
 
@@ -1044,8 +1067,10 @@ default [Interfaceimplementation] is used''')
   /// all members
   ///
   /// Used when class [isImmutable] is set
-  addFullMemberCtor() => memberCtors.add(memberCtor(
-      members.where((m) => !m.isStatic).map((m) => m.name).toList()));
+  addFullMemberCtor() => memberCtors.add(memberCtor(members
+      .where((m) => !m.isStatic && !m.hasIfdef)
+      .map((m) => m.name)
+      .toList()));
 
   /// Returns a string representation of the class definition
   String get definition {
@@ -1134,7 +1159,7 @@ default [Interfaceimplementation] is used''')
   get _pragmaPackPop => packAlign != null ? '#pragma pack(pop)' : '';
 
   _memberJoinFormat(mems) =>
-      brCompact(mems.map((m) => m.hasComment ? '\n$m' : '$m'));
+      brCompact(mems.map((m) => m._wrapIfDef(m.hasComment ? '\n$m' : '$m')));
 
   get _parts => [
         _forwardPtrs,
@@ -1180,7 +1205,7 @@ default [Interfaceimplementation] is used''')
               _codeBlockText(clsPublic),
               _memberJoinFormat(
                   publicMembers.where((m) => !m.isPublicStaticConst)),
-              br(members.map((m) => br([m.getter, m.setter]))),
+              br(members.map((m) => m._wrapIfDef(br([m.getter, m.setter])))),
               serializers.map((s) => s.serialize(this)),
               _codeBlockText(clsPublicEnd),
             ]))),
@@ -1289,16 +1314,22 @@ $classStyle $className$_baseDecl$_finalDecl
   Template _template;
   List<Using> _usings = [];
   List<Using> _usingsPostDecl = [];
+
   /// The default constructor
   DefaultCtor _defaultCtor;
+
   /// The copy constructor
   CopyCtor _copyCtor;
+
   /// The move constructor
   MoveCtor _moveCtor;
+
   /// The assignment operator
   AssignCopy _assignCopy;
+
   /// The assignment move operator
   AssignMove _assignMove;
+
   /// The destructor
   Dtor _dtor;
   OpEqual _opEqual;
@@ -1307,6 +1338,7 @@ $classStyle $className$_baseDecl$_finalDecl
   Map<ClassCodeBlock, CodeBlock> _codeBlocks = {};
   bool _usesStreamers = false;
   List<InterfaceImplementation> _interfaceImplementations = [];
+
   /// The [Method]s that are implemented by this [Class]. A [Class]
   /// implements the union of methods in its
   /// [interfaceimplementations]. Each [Method] is identified by its
@@ -1316,7 +1348,6 @@ $classStyle $className$_baseDecl$_finalDecl
   ///
   /// Lookup is done by pattern match.
   Map<String, Method> _methods = {};
-
 }
 
 // custom <part class>
@@ -1365,15 +1396,10 @@ MemberCtor memberCtor([List memberParms, List<String> decls]) => new MemberCtor(
     memberParms == null ? [] : memberParms, decls == null ? [] : decls);
 
 /// Standard mutex using statements
-get standardMutexUsings => [
-  using('lock', 'LOCK'),
-  using('guard', 'GUARD')
-];
+get standardMutexUsings => [using('lock', 'LOCK'), using('guard', 'GUARD')];
 
 /// Standard mutex template additions
-get standardMutexTemplateParms => [
-  'typename LOCK = std::mutex',
-  'typename GUARD = std::lock_guard< LOCK >'
-];
+get standardMutexTemplateParms =>
+    ['typename LOCK = std::mutex', 'typename GUARD = std::lock_guard< LOCK >'];
 
 // end <part class>

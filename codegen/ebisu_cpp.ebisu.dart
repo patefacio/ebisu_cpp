@@ -703,6 +703,10 @@ generate a streamable entry in the containing [Class].
 '''
                     ..type = 'CodeBlock'
                     ..access = RO,
+                  member('ifdef_qualifier')
+                  ..doc = '''
+If non null member and accessors will qualified in #if defined block
+'''
                 ],
               class_('getter_creator')
                 ..doc =
@@ -2221,7 +2225,6 @@ strings as discriminators.
       ..parts = [
         part('mongo_support')
         ..classes = [
-          class
         ]
       ],
 

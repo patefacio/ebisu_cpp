@@ -246,6 +246,9 @@ class Member extends CppEntity {
   /// generate a streamable entry in the containing [Class].
   CodeBlock get customStreamable => _customStreamable;
 
+  /// If non null member and accessors will qualified in #if defined block
+  String ifdefQualifier;
+
   // custom <class Member>
 
   Member(id) : super(id);
@@ -387,6 +390,16 @@ class Member extends CppEntity {
   get _decl => isConstExpr
       ? '${_static}constexpr $_mutable$_refType $vname$initializer;'
       : '$_static$_mutable$_refType $_constDecl$vname$initializer;';
+
+  get hasIfdef => ifdefQualifier != null && ifdefQualifier.isNotEmpty;
+
+  _wrapIfDef(txt) => ifdefQualifier == null
+      ? txt
+      : '''
+#if defined($ifdefQualifier)
+${chomp(txt, true)}
+#endif
+''';
 
   // end <class Member>
 
