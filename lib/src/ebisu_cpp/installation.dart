@@ -92,6 +92,7 @@ class Installation extends CppEntity implements CodeGenerator {
   }
 
   String get contents {
+    setAsRoot();
     return br([
       '<<<< INSTALLATION($id) >>>>',
       indentBlock(br(concat([libs, apps, benchmarks,]).map((f) {
@@ -148,10 +149,6 @@ Installation($rootFilePath)
     /// This assignment triggers the linkup of all children
     setAsRoot();
 
-    _addStandardizedHeaders();
-
-    _patchHeaderNamespaces();
-
     progeny.forEach((Entity child) => (child as CppEntity)._namer = _namer);
 
     concat([libs]).forEach((Lib lib) => (lib as CodeGenerator).generate());
@@ -203,6 +200,12 @@ Installation($rootFilePath)
     }
 
     _logger.info(brCompact(progeny.map((e) => e.detailedPath)));
+  }
+
+  override setAsRoot() {
+    super.setAsRoot();
+    _addStandardizedHeaders();
+    _patchHeaderNamespaces();
   }
 
   _generateBenchmarkApps() {
