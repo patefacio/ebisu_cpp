@@ -290,5 +290,40 @@ class C {
 '''));
   });
 
+  test('class member public and read/write access', () {
+    final c = class_('c_1')..members.add(member('x')
+      ..type = 'std::string'
+      ..access = rw
+      ..cppAccess = public);
+
+    // Note special naming of public with read-only or read-write access.  In
+    // this case the user wants the accessors - so ensure the naming is as if it
+    // is private.
+    expect(darkMatter(c.definition), darkMatter('''
+class C_1
+{
+
+public:
+  std::string x_ {};
+
+  //! getter for x_ (access is Rw)
+  std::string const& x() const {
+  return x_;
+  }
+
+  //! setter for x_ (access is Access.rw)
+  void x(std::string & x) {
+  x_ = x;
+  }
+
+  //! updater for x_ (access is Access.rw)
+  std::string & x() {
+    return x_;
+  }
+
+};
+'''));
+  });
+
 // end <main>
 }

@@ -343,7 +343,13 @@ class Member extends CppEntity {
   String get name =>
       isStaticConst ? namer.nameStaticConst(id) : namer.nameMember(id);
 
-  String get vname => isStaticConst ? name : namer.nameMemberVar(id, isPublic);
+  String get vname => isStaticConst
+      ? name
+      // if user wants accessors and public, give it, but name as private
+      // to avoid name collisions
+      : ((access == rw || access == ro) && isPublic)
+          ? namer.nameMemberVar(id, false)
+          : namer.nameMemberVar(id, isPublic);
 
   String get getter {
     if (getterCreator == null) {
