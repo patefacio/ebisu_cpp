@@ -69,41 +69,43 @@ PacketTableDecorator packetTableDecorator([List<LogGroup> logGroups]) =>
 
 // custom <part packet_table>
 
-addH5DataSetSpecifier(Class targetClass) => targetClass
-  ..includes.add('hdf5.h')
-  ..nestedClasses.add(class_('h5_data_set_specifier')
-    ..withClass((Class dss) {
-      final className = targetClass.className;
-      dss
-        ..isSingleton = true
-        ..defaultCtor.customCodeBlock.snippets.add(brCompact([
-          'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, sizeof($className));',
-          targetClass.members.map(
-              (Member m) => 'H5Tinsert(compound_data_type_id_, "${m.name}", '
+addH5DataSetSpecifier(Class targetClass,
+        [String typeMapper(String) = cppTypeToHdf5Type]) =>
+    targetClass
+      ..includes.add('hdf5.h')
+      ..nestedClasses.add(class_('h5_data_set_specifier')
+        ..withClass((Class dss) {
+          final className = targetClass.className;
+          dss
+            ..isSingleton = true
+            ..defaultCtor.customCodeBlock.snippets.add(brCompact([
+              'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, sizeof($className));',
+              targetClass.members.map((Member m) =>
+                  'H5Tinsert(compound_data_type_id_, "${m.name}", '
                   'HOFFSET($className, ${m.vname}), '
-                  '${cppTypeToHdf5Type(m.type)});')
-        ]))
-        ..members = [
-          member('data_set_name')
-            ..init = '/${targetClass.id.snake}'
-            ..type = 'char const*'
-            ..cppAccess = public
-            ..isStatic = true
-            ..isConstExpr = true,
-          member('compound_data_type_id')
-            ..type = 'hid_t'
-            ..access = ro,
-        ];
+                  '${typeMapper(m.type)});')
+            ]))
+            ..members = [
+              member('data_set_name')
+                ..init = '/${targetClass.id.snake}'
+                ..type = 'char const*'
+                ..cppAccess = public
+                ..isStatic = true
+                ..isConstExpr = true,
+              member('compound_data_type_id')
+                ..type = 'hid_t'
+                ..access = ro,
+            ];
 
-      targetClass.friendClassDecls.add(friendClassDecl(dss.className));
-    }))
-  ..getCodeBlock(clsPublic).snippets.addAll([
-    '''
+          targetClass.friendClassDecls.add(friendClassDecl(dss.className));
+        }))
+      ..getCodeBlock(clsPublic).snippets.addAll([
+        '''
 static H5_data_set_specifier const& data_set_specifier() {
   return H5_data_set_specifier::instance();
 }
 '''
-  ]);
+      ]);
 
 final _intRe = new RegExp(r'(fast_|least_)?(u?)int(\d+)_t');
 
