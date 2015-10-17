@@ -1178,13 +1178,13 @@ default [Interfaceimplementation] is used''')
             isStruct ? null : public,
             indentBlock(br([
               brCompact([
+                brCompact(friendClassDecls.map((fcd) => fcd.toString())),
                 _codeBlockText(clsPublicBegin),
                 classForwardDecls,
                 constExprs..forEach((ce) => ce.isClassScoped = true),
                 usings.map((u) => u.usingStatement(namer))
               ]),
               brCompact([_enumDecls, _enumStreamers]),
-              brCompact(friendClassDecls.map((fcd) => fcd.toString())),
               br(nestedClasses
                   .where((c) => c.cppAccess == public)
                   .map((c) => c.definition)),

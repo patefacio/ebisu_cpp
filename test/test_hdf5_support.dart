@@ -86,9 +86,19 @@ main([List<String> args]) {
       });
     });
 
+    test('createH5DataSetSpecifier', () {
+      final c1 = class_('c_1')..members = [member('a')..type = 'int'];
+      final dss = createH5DataSetSpecifier(c1);
+      associateH5DataSetSpecifier(c1, dss);
+      /*
+      print(c1.definition);
+      print('-------------');
+      print(dss.definition);
+      */
+    });
+
     test('addH5DataSetSpecifier', () {
       final c1 = class_('c_1')..members = [member('a')..type = 'int'];
-
       addH5DataSetSpecifier(c1);
       expect(c1.definition.contains('class H5_data_set_specifier'), true);
     });

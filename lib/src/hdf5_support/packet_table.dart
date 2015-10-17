@@ -99,6 +99,10 @@ createH5DataSetSpecifier(Class targetClass,
         targetClass.friendClassDecls.add(friendClassDecl(dss.className));
       });
 
+associateH5DataSetSpecifier(Class targetClass, Class dss) =>
+  targetClass
+  ..usings.add(using('h5_data_set_specifier', dss.className));
+
 addH5DataSetSpecifier(Class targetClass,
         [String typeMapper(String) = cppTypeToHdf5Type]) =>
     targetClass
