@@ -2236,6 +2236,46 @@ strings as discriminators.
         ]
         ..doc =
             'Provide C++ classes support for reading/writing to hdf5 packet table'
+      ..enums = [
+        enum_('h5t_type')
+        ..doc = 'Types defined in h5t api'
+        ..values = [
+          'H5T_NATIVE_CHAR',
+          'H5T_NATIVE_SCHAR',
+          'H5T_NATIVE_UCHAR',
+          'H5T_NATIVE_SHORT',
+          'H5T_NATIVE_USHORT',
+          'H5T_NATIVE_INT',
+          'H5T_NATIVE_UINT',
+          'H5T_NATIVE_LONG',
+          'H5T_NATIVE_ULONG',
+          'H5T_NATIVE_LLONG',
+          'H5T_NATIVE_ULLONG',
+          'H5T_NATIVE_FLOAT',
+          'H5T_NATIVE_DOUBLE',
+
+
+          'H5T_NATIVE_INT16',
+          'H5T_NATIVE_INT32',
+          'H5T_NATIVE_INT64',
+
+          'H5T_NATIVE_UINT16',
+          'H5T_NATIVE_UINT32',
+          'H5T_NATIVE_UINT64',
+
+          'H5T_NATIVE_LDOUBLE',
+          'H5T_NATIVE_B8',
+          'H5T_NATIVE_B16',
+          'H5T_NATIVE_B32',
+          'H5T_NATIVE_B64',
+          'H5T_NATIVE_OPAQUE',
+          'H5T_NATIVE_HADDR',
+          'H5T_NATIVE_HSIZE',
+          'H5T_NATIVE_HSSIZE',
+          'H5T_NATIVE_HERR',
+          'H5T_NATIVE_HBOOL',
+        ]
+      ]
         ..parts = [
           part('packet_table')
             ..classes = [
@@ -2251,6 +2291,7 @@ hdf5 packet table support
                     ..access = RO
                     ..doc = 'Exception details',
                 ],
+
               class_('log_group')
                 ..hasCtorSansNew = true
                 ..members = [
@@ -2269,6 +2310,18 @@ log group. An empty list will include all members in the table.
                     ..ctorsOpt = ['']
                     ..isFinal = true,
                 ],
+
+              class_('hdf5_type')
+              ..members = [
+                member('base_type')..type = 'PredefinedType',
+              ],
+
+              class_('hdf5_string')
+              ..extend = 'Hdf5Type'
+              ..members = [
+                member('size')..type = 'int'
+              ],
+
               class_('packet_table_decorator')
                 ..isImmutable = true
                 ..hasCtorSansNew = true

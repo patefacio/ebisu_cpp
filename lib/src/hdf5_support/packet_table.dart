@@ -40,6 +40,22 @@ class LogGroup {
 LogGroup logGroup(String className, [List<String> memberNames = const []]) =>
     new LogGroup(className, memberNames);
 
+class Hdf5Type {
+  PredefinedType baseType;
+
+  // custom <class Hdf5Type>
+  // end <class Hdf5Type>
+
+}
+
+class Hdf5String extends Hdf5Type {
+  int size;
+
+  // custom <class Hdf5String>
+  // end <class Hdf5String>
+
+}
+
 class PacketTableDecorator implements InstallationDecorator {
   const PacketTableDecorator(this.logGroups);
 
@@ -100,8 +116,7 @@ createH5DataSetSpecifier(Class targetClass,
       });
 
 associateH5DataSetSpecifier(Class targetClass, Class dss) =>
-  targetClass
-  ..usings.add(using('h5_data_set_specifier', dss.className));
+    targetClass..usings.add(using('h5_data_set_specifier', dss.className));
 
 addH5DataSetSpecifier(Class targetClass,
         [String typeMapper(String) = cppTypeToHdf5Type]) =>
@@ -120,22 +135,34 @@ static H5_data_set_specifier const& data_set_specifier() {
 final _intRe = new RegExp(r'(fast_|least_)?(u?)int(\d+)_t');
 
 final _mappings = {
-  'short': 'H5T_NATIVE_SHORT',
-  'int': 'H5T_NATIVE_INT',
-  'long': 'H5T_NATIVE_LONG',
-  'long int': 'H5T_NATIVE_LONG',
-  'long long': 'H5T_NATIVE_LLONG',
-  'unsigned int': 'H5T_NATIVE_UINT32',
-  'unsigned long': 'H5T_NATIVE_ULONG',
-  'unsigned long long': 'H5T_NATIVE_ULLONG',
-  'double': 'H5T_NATIVE_DOUBLE',
-  'long double': 'H5T_NATIVE_LDOUBLE',
-  'char': 'H5T_NATIVE_CHAR',
-  'unsigned char': 'H5T_NATIVE_UCHAR',
-  'signed char': 'H5T_NATIVE_SCHAR',
+  'short': H5tType.h5tNativeShort,
+  'int': H5tType.h5tNativeInt,
+  'long': H5tType.h5tNativeLong,
+  'long int': H5tType.h5tNativeLong,
+  'long long': H5tType.h5tNativeLlong,
+  'unsigned int': H5tType.h5tNativeUint,
+  'unsigned long': H5tType.h5tNativeUlong,
+  'unsigned long long': H5tType.h5tNativeUllong,
+  'double': H5tType.h5tNativeDouble,
+  'long double': H5tType.h5tNativeLdouble,
+  'char': H5tType.h5tNativeChar,
+  'signed char': H5tType.h5tNativeSchar,
+  'unsigned char': H5tType.h5tNativeUchar,
+  'std::int16_t': H5tType.h5tNativeInt16,
+  'std::int32_t': H5tType.h5tNativeInt32,
+  'std::int64_t': H5tType.h5tNativeInt64,
+  'std::uint16_t': H5tType.h5tNativeUint16,
+  'std::uint32_t': H5tType.h5tNativeUint32,
+  'std::uint64_t': H5tType.h5tNativeUint64,
+  'int16_t': H5tType.h5tNativeInt16,
+  'int32_t': H5tType.h5tNativeInt32,
+  'int64_t': H5tType.h5tNativeInt64,
+  'uint16_t': H5tType.h5tNativeUint16,
+  'uint32_t': H5tType.h5tNativeUint32,
+  'uint64_t': H5tType.h5tNativeUint64,
 };
 
-cppTypeToHdf5Type(String cppType) {
+dynamic cppTypeToHdf5Type(String cppType) {
   var match = _intRe.firstMatch(cppType);
   if (match != null) {
     final bytes = match[3];
@@ -143,21 +170,15 @@ cppTypeToHdf5Type(String cppType) {
     final signChar = isSigned ? '' : 'U';
     if (bytes == '8') {
       return isSigned ? 'H5T_NATIVE_SCHAR' : 'H5T_NATIVE_UCHAR';
-    } else {
-      switch (bytes) {
-        case '16':
-          return 'H5T_NATIVE_${signChar}INT16';
-        case '32':
-          return 'H5T_NATIVE_${signChar}INT32';
-        case '64':
-          return 'H5T_NATIVE_${signChar}INT64';
-      }
     }
-  } else {
-    final result = _mappings[cppType];
-    if (result != null) return result;
-    throw 'Could not map $cppType to suitable hdf5 type';
   }
+
+  final result =
+      idFromString(_mappings[cppType].toString().replaceAll('H5tType.', ''))
+          .shout;
+
+  if (result != null) return result;
+  throw 'Could not map $cppType to suitable hdf5 type';
 }
 
 // end <part packet_table>
