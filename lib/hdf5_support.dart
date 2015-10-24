@@ -44,5 +44,38 @@ enum H5tType {
   h5tNativeHbool
 }
 
+Map h5tToCppType = {
+  H5tType.h5tNativeChar: "H5T_NATIVE_CHAR",
+  H5tType.h5tNativeSchar: "H5T_NATIVE_SCHAR",
+  H5tType.h5tNativeUchar: "H5T_NATIVE_UCHAR",
+  H5tType.h5tNativeShort: "H5T_NATIVE_SHORT",
+  H5tType.h5tNativeUshort: "H5T_NATIVE_USHORT",
+  H5tType.h5tNativeInt: "H5T_NATIVE_INT",
+  H5tType.h5tNativeUint: "H5T_NATIVE_UINT",
+  H5tType.h5tNativeLong: "H5T_NATIVE_LONG",
+  H5tType.h5tNativeUlong: "H5T_NATIVE_ULONG",
+  H5tType.h5tNativeLlong: "H5T_NATIVE_LLONG",
+  H5tType.h5tNativeUllong: "H5T_NATIVE_ULLONG",
+  H5tType.h5tNativeFloat: "H5T_NATIVE_FLOAT",
+  H5tType.h5tNativeDouble: "H5T_NATIVE_DOUBLE",
+  H5tType.h5tNativeInt16: "H5T_NATIVE_INT16",
+  H5tType.h5tNativeInt32: "H5T_NATIVE_INT32",
+  H5tType.h5tNativeInt64: "H5T_NATIVE_INT64",
+  H5tType.h5tNativeUint16: "H5T_NATIVE_UINT16",
+  H5tType.h5tNativeUint32: "H5T_NATIVE_UINT32",
+  H5tType.h5tNativeUint64: "H5T_NATIVE_UINT64",
+  H5tType.h5tNativeLdouble: "H5T_NATIVE_LDOUBLE",
+  H5tType.h5tNativeB8: "H5T_NATIVE_B8",
+  H5tType.h5tNativeB16: "H5T_NATIVE_B16",
+  H5tType.h5tNativeB32: "H5T_NATIVE_B32",
+  H5tType.h5tNativeB64: "H5T_NATIVE_B64",
+  H5tType.h5tNativeOpaque: "H5T_NATIVE_OPAQUE",
+  H5tType.h5tNativeHaddr: "H5T_NATIVE_HADDR",
+  H5tType.h5tNativeHsize: "H5T_NATIVE_HSIZE",
+  H5tType.h5tNativeHssize: "H5T_NATIVE_HSSIZE",
+  H5tType.h5tNativeHerr: "H5T_NATIVE_HERR",
+  H5tType.h5tNativeHbool: "H5T_NATIVE_HBOOL"
+};
+
 // custom <library hdf5_support>
 // end <library hdf5_support>

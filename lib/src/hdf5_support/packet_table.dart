@@ -40,19 +40,25 @@ class LogGroup {
 LogGroup logGroup(String className, [List<String> memberNames = const []]) =>
     new LogGroup(className, memberNames);
 
-class Hdf5Type {
-  PredefinedType baseType;
+class PacketMemberType {
+  H5tType baseType;
 
-  // custom <class Hdf5Type>
-  // end <class Hdf5Type>
+  // custom <class PacketMemberType>
+
+  PacketMemberType(this.baseType);
+
+  get h5tType => baseType;
+  get cppType => h5tToCppType[baseType];
+
+  // end <class PacketMemberType>
 
 }
 
-class Hdf5String extends Hdf5Type {
+class PacketMemberString extends PacketMemberType {
   int size;
 
-  // custom <class Hdf5String>
-  // end <class Hdf5String>
+  // custom <class PacketMemberString>
+  // end <class PacketMemberString>
 
 }
 
@@ -86,7 +92,7 @@ PacketTableDecorator packetTableDecorator([List<LogGroup> logGroups]) =>
 // custom <part packet_table>
 
 createH5DataSetSpecifier(Class targetClass,
-        [String typeMapper(String) = cppTypeToHdf5Type,
+        [PacketMemberType typeMapper(String) = cppTypeToHdf5Type,
         String className = 'h5_data_set_specifier']) =>
     class_(className)
       ..withClass((Class dss) {
@@ -98,7 +104,7 @@ createH5DataSetSpecifier(Class targetClass,
             targetClass.members.map(
                 (Member m) => 'H5Tinsert(compound_data_type_id_, "${m.name}", '
                     'HOFFSET($className, ${m.vname}), '
-                    '${typeMapper(m.type)});')
+                    '${typeMapper(m.type).cppType});')
           ]))
           ..members = [
             member('data_set_name')
@@ -119,7 +125,7 @@ associateH5DataSetSpecifier(Class targetClass, Class dss) =>
     targetClass..usings.add(using('h5_data_set_specifier', dss.className));
 
 addH5DataSetSpecifier(Class targetClass,
-        [String typeMapper(String) = cppTypeToHdf5Type]) =>
+        [PacketMemberType typeMapper(String) = cppTypeToHdf5Type]) =>
     targetClass
       ..includes.add('hdf5.h')
       ..nestedClasses
@@ -131,8 +137,6 @@ static H5_data_set_specifier const& data_set_specifier() {
 }
 '''
       ]);
-
-final _intRe = new RegExp(r'(fast_|least_)?(u?)int(\d+)_t');
 
 final _mappings = {
   'short': H5tType.h5tNativeShort,
@@ -162,23 +166,10 @@ final _mappings = {
   'uint64_t': H5tType.h5tNativeUint64,
 };
 
-dynamic cppTypeToHdf5Type(String cppType) {
-  var match = _intRe.firstMatch(cppType);
-  if (match != null) {
-    final bytes = match[3];
-    final isSigned = match[2] == null || match[2] == '';
-    final signChar = isSigned ? '' : 'U';
-    if (bytes == '8') {
-      return isSigned ? 'H5T_NATIVE_SCHAR' : 'H5T_NATIVE_UCHAR';
-    }
-  }
-
-  final result =
-      idFromString(_mappings[cppType].toString().replaceAll('H5tType.', ''))
-          .shout;
-
-  if (result != null) return result;
-  throw 'Could not map $cppType to suitable hdf5 type';
+PacketMemberType cppTypeToHdf5Type(String cppType) {
+  H5tType baseType = _mappings[cppType];
+  if (baseType == null) return null;
+  return new PacketMemberType(baseType);
 }
 
 // end <part packet_table>

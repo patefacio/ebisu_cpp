@@ -3,6 +3,7 @@ import "package:path/path.dart" as path;
 import "package:ebisu/ebisu.dart";
 import "package:ebisu/ebisu_dart_meta.dart";
 import "package:logging/logging.dart";
+import "package:quiver/iterables.dart";
 
 String _topDir;
 
@@ -704,7 +705,7 @@ generate a streamable entry in the containing [Class].
                     ..type = 'CodeBlock'
                     ..access = RO,
                   member('ifdef_qualifier')
-                  ..doc = '''
+                    ..doc = '''
 If non null member and accessors will qualified in #if defined block
 '''
                 ],
@@ -859,8 +860,8 @@ block and tagging is deferred until needed.
                     ..classInit = false,
                   member('doc')..doc = 'Method documentation',
                   member('is_no_except')
-                  ..doc = 'If true the method is noexcept(true)'
-                  ..classInit = false,
+                    ..doc = 'If true the method is noexcept(true)'
+                    ..classInit = false,
                 ],
               class_('default_method')
                 ..doc = '''
@@ -2217,17 +2218,12 @@ strings as discriminators.
             ]
         ],
       library('mongo_support')
-      ..imports = [
+        ..imports = [
           'package:ebisu_cpp/ebisu_cpp.dart',
           'package:ebisu/ebisu.dart',
           'package:id/id.dart',
-      ]
-      ..parts = [
-        part('mongo_support')
-        ..classes = [
         ]
-      ],
-
+        ..parts = [part('mongo_support')..classes = []],
       library('hdf5_support')
         ..imports = [
           'package:ebisu_cpp/ebisu_cpp.dart',
@@ -2236,46 +2232,12 @@ strings as discriminators.
         ]
         ..doc =
             'Provide C++ classes support for reading/writing to hdf5 packet table'
-      ..enums = [
-        enum_('h5t_type')
-        ..doc = 'Types defined in h5t api'
-        ..values = [
-          'H5T_NATIVE_CHAR',
-          'H5T_NATIVE_SCHAR',
-          'H5T_NATIVE_UCHAR',
-          'H5T_NATIVE_SHORT',
-          'H5T_NATIVE_USHORT',
-          'H5T_NATIVE_INT',
-          'H5T_NATIVE_UINT',
-          'H5T_NATIVE_LONG',
-          'H5T_NATIVE_ULONG',
-          'H5T_NATIVE_LLONG',
-          'H5T_NATIVE_ULLONG',
-          'H5T_NATIVE_FLOAT',
-          'H5T_NATIVE_DOUBLE',
-
-
-          'H5T_NATIVE_INT16',
-          'H5T_NATIVE_INT32',
-          'H5T_NATIVE_INT64',
-
-          'H5T_NATIVE_UINT16',
-          'H5T_NATIVE_UINT32',
-          'H5T_NATIVE_UINT64',
-
-          'H5T_NATIVE_LDOUBLE',
-          'H5T_NATIVE_B8',
-          'H5T_NATIVE_B16',
-          'H5T_NATIVE_B32',
-          'H5T_NATIVE_B64',
-          'H5T_NATIVE_OPAQUE',
-          'H5T_NATIVE_HADDR',
-          'H5T_NATIVE_HSIZE',
-          'H5T_NATIVE_HSSIZE',
-          'H5T_NATIVE_HERR',
-          'H5T_NATIVE_HBOOL',
+        ..enums = [_enumH5t]
+        ..variables = [
+          variable('h5t_to_cpp_type')
+            ..type = 'Map'
+            ..init = _enumH5tMap
         ]
-      ]
         ..parts = [
           part('packet_table')
             ..classes = [
@@ -2291,7 +2253,6 @@ hdf5 packet table support
                     ..access = RO
                     ..doc = 'Exception details',
                 ],
-
               class_('log_group')
                 ..hasCtorSansNew = true
                 ..members = [
@@ -2310,18 +2271,11 @@ log group. An empty list will include all members in the table.
                     ..ctorsOpt = ['']
                     ..isFinal = true,
                 ],
-
-              class_('hdf5_type')
-              ..members = [
-                member('base_type')..type = 'PredefinedType',
-              ],
-
-              class_('hdf5_string')
-              ..extend = 'Hdf5Type'
-              ..members = [
-                member('size')..type = 'int'
-              ],
-
+              class_('packet_member_type')
+                ..members = [member('base_type')..type = 'H5tType',],
+              class_('packet_member_string')
+                ..extend = 'PacketMemberType'
+                ..members = [member('size')..type = 'int'],
               class_('packet_table_decorator')
                 ..isImmutable = true
                 ..hasCtorSansNew = true
@@ -3396,3 +3350,46 @@ type features like:
 
  - Should support for logging api initialization be generated
 ''';
+
+final _h5tTypeValues = [
+  'H5T_NATIVE_CHAR',
+  'H5T_NATIVE_SCHAR',
+  'H5T_NATIVE_UCHAR',
+  'H5T_NATIVE_SHORT',
+  'H5T_NATIVE_USHORT',
+  'H5T_NATIVE_INT',
+  'H5T_NATIVE_UINT',
+  'H5T_NATIVE_LONG',
+  'H5T_NATIVE_ULONG',
+  'H5T_NATIVE_LLONG',
+  'H5T_NATIVE_ULLONG',
+  'H5T_NATIVE_FLOAT',
+  'H5T_NATIVE_DOUBLE',
+  'H5T_NATIVE_INT16',
+  'H5T_NATIVE_INT32',
+  'H5T_NATIVE_INT64',
+  'H5T_NATIVE_UINT16',
+  'H5T_NATIVE_UINT32',
+  'H5T_NATIVE_UINT64',
+  'H5T_NATIVE_LDOUBLE',
+  'H5T_NATIVE_B8',
+  'H5T_NATIVE_B16',
+  'H5T_NATIVE_B32',
+  'H5T_NATIVE_B64',
+  'H5T_NATIVE_OPAQUE',
+  'H5T_NATIVE_HADDR',
+  'H5T_NATIVE_HSIZE',
+  'H5T_NATIVE_HSSIZE',
+  'H5T_NATIVE_HERR',
+  'H5T_NATIVE_HBOOL',
+];
+
+final _enumH5t = enum_('h5t_type')
+  ..doc = 'Types defined in h5t api'
+  ..values = _h5tTypeValues;
+
+final _enumH5tMap = enumerate(_h5tTypeValues).fold(
+    {},
+    (prev, elm) => prev
+      ..['H5tType.${_enumH5t.values[elm.index].camel}'] =
+          doubleQuote(_h5tTypeValues[elm.index]));
