@@ -58,6 +58,11 @@ class PacketMemberString extends PacketMemberType {
   int size;
 
   // custom <class PacketMemberString>
+
+  PacketMemberString(this.size) : super(H5tType.h5tNativeChar);
+
+  get cppType => h5tToCppType[H5tType.h5tNativeChar];
+
   // end <class PacketMemberString>
 
 }
@@ -91,8 +96,31 @@ PacketTableDecorator packetTableDecorator([List<LogGroup> logGroups]) =>
 
 // custom <part packet_table>
 
+_defineCompoundStringType(packetMemberType, member, className) => '''
+auto ${member.name}_type = H5Tcopy(H5T_C_S1);
+H5Tset_size(${member.name}_type, ${packetMemberType.size});
+H5Tset_strpad(${member.name}_type, H5T_STR_NULLPAD);
+H5Tinsert(compound_data_type_id_, "${member.name}", HOFFSET($className, ${member.vname}), ${member.name}_type);
+''';
+
+_defineCompoundPredefinedType(packetMemberType, member, className) => '''
+H5Tinsert(compound_data_type_id_, "${member.name}",
+HOFFSET($className, ${member.vname}),
+${packetMemberType.cppType});
+''';
+
+String _memberCompoundTypeEntries(Class targetClass, TypeMapper typeMapper) {
+  String className = targetClass.className;
+  return brCompact(targetClass.members.map((Member member) {
+    final packetMemberType = typeMapper(member.type);
+    return (packetMemberType is PacketMemberString)
+        ? _defineCompoundStringType(packetMemberType, member, className)
+        : _defineCompoundPredefinedType(packetMemberType, member, className);
+  }));
+}
+
 createH5DataSetSpecifier(Class targetClass,
-        [PacketMemberType typeMapper(String) = cppTypeToHdf5Type,
+        [TypeMapper typeMapper = cppTypeToHdf5Type,
         String className = 'h5_data_set_specifier']) =>
     class_(className)
       ..withClass((Class dss) {
@@ -101,10 +129,7 @@ createH5DataSetSpecifier(Class targetClass,
           ..isSingleton = true
           ..defaultCtor.customCodeBlock.snippets.add(brCompact([
             'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, sizeof($className));',
-            targetClass.members.map(
-                (Member m) => 'H5Tinsert(compound_data_type_id_, "${m.name}", '
-                    'HOFFSET($className, ${m.vname}), '
-                    '${typeMapper(m.type).cppType});')
+            _memberCompoundTypeEntries(targetClass, typeMapper)
           ]))
           ..members = [
             member('data_set_name')
@@ -125,11 +150,10 @@ associateH5DataSetSpecifier(Class targetClass, Class dss) =>
     targetClass..usings.add(using('h5_data_set_specifier', dss.className));
 
 addH5DataSetSpecifier(Class targetClass,
-        [PacketMemberType typeMapper(String) = cppTypeToHdf5Type]) =>
+        [TypeMapper typeMapper = cppTypeToHdf5Type]) =>
     targetClass
       ..includes.add('hdf5.h')
-      ..nestedClasses
-          .add(createH5DataSetSpecifier(targetClass, cppTypeToHdf5Type))
+      ..nestedClasses.add(createH5DataSetSpecifier(targetClass, typeMapper))
       ..getCodeBlock(clsPublic).snippets.addAll([
         '''
 static H5_data_set_specifier const& data_set_specifier() {
@@ -137,6 +161,9 @@ static H5_data_set_specifier const& data_set_specifier() {
 }
 '''
       ]);
+
+/// Given the type of a member returns the corresponding PacketMemberType
+typedef PacketMemberType TypeMapper(String);
 
 final _mappings = {
   'short': H5tType.h5tNativeShort,
