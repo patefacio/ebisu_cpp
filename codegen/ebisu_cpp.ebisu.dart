@@ -524,6 +524,12 @@ Classes to facilitate generating C++ template code
 Represents a template declaration comprized of a list of [decls]
 '''
                 ..members = [member('parms')..type = 'List<TemplateParm>',],
+
+              class_('template_specialization')
+              ..doc = 'Specifies a set of specialization template parameters'
+              ..members = [
+                member('parms')..type = 'List<String>',
+              ]
             ],
           part('enum')
             ..classes = [
@@ -1006,6 +1012,13 @@ on the same class and results lazy-inited here'''
                     ..doc = 'The template by which the class is parameterized'
                     ..type = 'Template'
                     ..access = RO,
+                  member('template_specialization')
+                  ..doc = '''
+A template specialization associated with the class.  Use this when
+the class is a template specialization. If class is a partial template
+specialization, use both [template] and [templateSpecialization].
+'''
+                  ..type = 'TemplateSpecialization',
                   member('forward_decls')
                     ..doc =
                         'Forward declarations near top of file, before the class definition'

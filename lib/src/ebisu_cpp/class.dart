@@ -817,6 +817,11 @@ class Class extends CppEntity with Testable {
   /// The template by which the class is parameterized
   Template get template => _template;
 
+  /// A template specialization associated with the class.  Use this when
+  /// the class is a template specialization. If class is a partial template
+  /// specialization, use both [template] and [templateSpecialization].
+  TemplateSpecialization templateSpecialization;
+
   /// Forward declarations near top of file, before the class definition
   List<ForwardDecl> forwardDecls = [];
 

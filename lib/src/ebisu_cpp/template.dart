@@ -179,6 +179,15 @@ template< ${parms.join(',\n          ')} >''';
 
 }
 
+/// Specifies a set of specialization template parameters
+class TemplateSpecialization {
+  List<String> parms;
+
+  // custom <class TemplateSpecialization>
+  // end <class TemplateSpecialization>
+
+}
+
 // custom <part template>
 
 final _namedTemplateTypeRe = new RegExp(r'^\s*typename\s+(\w+)\s*$');

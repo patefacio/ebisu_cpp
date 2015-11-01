@@ -37,7 +37,7 @@ class SpdlogProvider extends LogProvider {
   // custom <class SpdlogProvider>
 
   SpdlogProvider(Namer namer) : super(namer) {
-    includeRequirements = new Includes()..add('spdlog/spdlog.h');
+    includeRequirements = new Includes()..add('ebisu/logger/logger.hpp');
   }
 
   /// Names the singleton logger class by suffixing the entity name with '_logger'
@@ -87,20 +87,45 @@ if(desired_log_level == "off") {
     final detailedName = chomp(entity.detailedPath);
 
     return '''
-/// Provide for single logger for $detailedName
+
+/// Establishes logger for library ${entity.id.snake}
 template <typename T>
-struct $loggerClassName_ {
-  std::shared_ptr<spdlog::logger> & logger() {
-    static std::shared_ptr<spdlog::logger> logger = spdlog::stdout_logger_mt("${entity.id.snake}");
+struct $loggerClassName_ {};
+
+/// Establishes logger using spdlog as implementation
+template <>
+struct $loggerClassName_<spdlog::logger> {
+  using Logger_impl_t = std::shared_ptr<spdlog::logger>;
+  static Logger_impl_t& logger() {
+    static Logger_impl_t logger = spdlog::stdout_logger_mt("${entity.id.snake}");
     return logger;
   }
 };
 
+/// Establishes *null logger* that does no logging but satisfies the requirements
+template <>
+struct $loggerClassName_<ebisu::logger::Null_logger_impl> {
+  using Impl_t = ebisu::logger::Null_logger_impl;
+  using Logger_impl_t = ebisu::logger::Logger< Impl_t >*;
+  static Logger_impl_t logger() {
+    static ebisu::logger::Logger< Impl_t > logger { Impl_t() } ;
+    return &logger;
+  }
+};
+
 namespace {
-  /// Accessor to the logger for $detailedName
-  ///
-  /// Internal linkage providing one shared pointer per translation unit
-  std::shared_ptr<spdlog::logger> ${loggerName_} { $loggerClassName_<int>().logger() };
+
+////////////////////////////////////////////////////////////////////////////////
+// Logging takes place by default in DEBUG mode only
+// If logging is desired for *release* mode, define RELEASE_HAS_LOGGING
+#if defined(DEBUG) || defined(RELEASE_HAS_LOGGING)
+  using ${loggerClassName_}_t = $loggerClassName_<spdlog::logger>;
+#else
+  using ${loggerClassName_}_t = $loggerClassName_< ebisu::logger::Null_logger_impl >;
+  ${loggerClassName_}_t ${entity.id.snake}_logger_impl;
+#endif
+
+${loggerClassName_}_t::Logger_impl_t ${entity.id.snake}_logger = ${loggerClassName_}_t::logger();
 }
 ''';
   }
