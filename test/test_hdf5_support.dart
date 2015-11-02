@@ -63,26 +63,26 @@ main([List<String> args]) {
       _logger.info(installation.contents);
       final contents = installation.contents;
       [
-        '"m_char".*H5T_NATIVE_CHAR',
-        '"m_int8".*H5T_NATIVE_SCHAR',
-        '"m_int16".*H5T_NATIVE_INT16',
-        '"m_int32".*H5T_NATIVE_INT32',
-        '"m_int64".*H5T_NATIVE_INT64',
-        '"m_uint8".*H5T_NATIVE_UCHAR',
-        '"m_uint16".*H5T_NATIVE_UINT16',
-        '"m_uint32".*H5T_NATIVE_UINT32',
-        '"m_uint64".*H5T_NATIVE_UINT64',
-        '"m_long_int".*H5T_NATIVE_LONG',
-        '"m_long_double".*H5T_NATIVE_LDOUBLE',
-        '"m_long_long".*H5T_NATIVE_LLONG',
-        '"m_unsigned_int".*H5T_NATIVE_UINT',
-        '"m_unsigned_long".*H5T_NATIVE_ULONG',
-        '"m_unsigned_long_long".*H5T_NATIVE_ULLONG',
-        '"m_char".*H5T_NATIVE_CHAR',
-        '"m_unsigned_char".*H5T_NATIVE_UCHAR',
-        '"m_signed_char".*H5T_NATIVE_SCHAR',
+        r'"m_char"(?:\n|.)*H5T_NATIVE_CHAR',
+        r'"m_int8"(?:\n|.)*H5T_NATIVE_SCHAR',
+        r'"m_int16"(?:\n|.)*H5T_NATIVE_INT16',
+        r'"m_int32"(?:\n|.)*H5T_NATIVE_INT32',
+        r'"m_int64"(?:\n|.)*H5T_NATIVE_INT64',
+        r'"m_uint8"(?:\n|.)*H5T_NATIVE_UCHAR',
+        r'"m_uint16"(?:\n|.)*H5T_NATIVE_UINT16',
+        r'"m_uint32"(?:\n|.)*H5T_NATIVE_UINT32',
+        r'"m_uint64"(?:\n|.)*H5T_NATIVE_UINT64',
+        r'"m_long_int"(?:\n|.)*H5T_NATIVE_LONG',
+        r'"m_long_double"(?:\n|.)*H5T_NATIVE_LDOUBLE',
+        r'"m_long_long"(?:\n|.)*H5T_NATIVE_LLONG',
+        r'"m_unsigned_int"(?:\n|.)*H5T_NATIVE_UINT',
+        r'"m_unsigned_long"(?:\n|.)*H5T_NATIVE_ULONG',
+        r'"m_unsigned_long_long"(?:\n|.)*H5T_NATIVE_ULLONG',
+        r'"m_char"(?:\n|.)*H5T_NATIVE_CHAR',
+        r'"m_unsigned_char"(?:\n|.)*H5T_NATIVE_UCHAR',
+        r'"m_signed_char"(?:\n|.)*H5T_NATIVE_SCHAR',
       ].forEach((var t) {
-        expect(contents.contains(new RegExp(t)), true);
+        expect(contents.contains(new RegExp(t, multiLine:true)), true);
       });
     });
 

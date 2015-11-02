@@ -113,6 +113,7 @@ String _memberCompoundTypeEntries(Class targetClass, TypeMapper typeMapper) {
   String className = targetClass.className;
   return brCompact(targetClass.members.map((Member member) {
     final packetMemberType = typeMapper(member.type);
+    print('Looking for ${member.type} -> $packetMemberType');
     return (packetMemberType is PacketMemberString)
         ? _defineCompoundStringType(packetMemberType, member, className)
         : _defineCompoundPredefinedType(packetMemberType, member, className);
@@ -185,9 +186,11 @@ final _mappings = {
   'std::uint16_t': H5tType.h5tNativeUint16,
   'std::uint32_t': H5tType.h5tNativeUint32,
   'std::uint64_t': H5tType.h5tNativeUint64,
+  'int8_t' : H5tType.h5tNativeSchar,
   'int16_t': H5tType.h5tNativeInt16,
   'int32_t': H5tType.h5tNativeInt32,
   'int64_t': H5tType.h5tNativeInt64,
+  'uint8_t': H5tType.h5tNativeUchar,
   'uint16_t': H5tType.h5tNativeUint16,
   'uint32_t': H5tType.h5tNativeUint32,
   'uint64_t': H5tType.h5tNativeUint64,
