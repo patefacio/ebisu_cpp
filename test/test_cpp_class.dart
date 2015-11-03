@@ -907,5 +907,19 @@ class Blocks {
 // end <ClsPostDecl Blocks>
 '''));
   });
+
+  test('template class with pragma', () {
+    final c = class_('packed')
+      ..packAlign = 1
+      ..template = [ 'typename T' ];
+
+    expect(darkMatter(c.definition), darkMatter('''
+#pragma pack(push, 1)
+template< typename T >
+class Packed { };
+#pragma pack(pop)
+'''));
+  });
+
 // end <main>
 }

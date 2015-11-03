@@ -1174,8 +1174,8 @@ default [Interfaceimplementation] is used''')
         briefComment,
         brCompact([
           detailedComment,
-          _templateDecl,
           _pragmaPackPush,
+          _templateDecl,
           _classOpener,
           _codeBlockText(clsOpen),
         ]),
