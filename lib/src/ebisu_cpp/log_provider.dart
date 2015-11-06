@@ -80,6 +80,7 @@ if(desired_log_level == "off") {
   /// header
   createLoggerInstance(Entity entity) {
     final loggerClassName_ = loggerClassName(entity);
+    final loggerTraceMacro = '${entity.id.shout}_TRACE';
     final loggerName_ = loggerName(entity);
 
     _logger
@@ -120,9 +121,11 @@ namespace {
 // If logging is desired for *release* mode, define RELEASE_HAS_LOGGING
 #if defined(DEBUG) || defined(RELEASE_HAS_LOGGING)
   using ${loggerClassName_}_t = $loggerClassName_<spdlog::logger>;
+#define $loggerTraceMacro(...) ${entity.id.snake}_logger->trace(__VA_ARGS__)
 #else
   using ${loggerClassName_}_t = $loggerClassName_< ebisu::logger::Null_logger_impl >;
   ${loggerClassName_}_t ${entity.id.snake}_logger_impl;
+#define $loggerTraceMacro(...) (void)0
 #endif
 
 ${loggerClassName_}_t::Logger_impl_t ${entity.id.snake}_logger = ${loggerClassName_}_t::logger();
