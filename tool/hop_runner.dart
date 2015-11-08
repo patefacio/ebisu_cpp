@@ -35,6 +35,7 @@ void main(List<String> args) {
         "test/test_cpp_benchmark.dart",
         "test/test_cpp_template.dart",
         "test/test_hdf5_support.dart",
+        "test/test_mongo_support.dart",
         "test/test_enumerated_dispatcher.dart"
       ]));
 

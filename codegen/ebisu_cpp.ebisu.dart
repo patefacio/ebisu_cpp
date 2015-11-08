@@ -53,6 +53,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_benchmark'),
       library('test_cpp_template'),
       library('test_hdf5_support'),
+      library('test_mongo_support'),
       library('test_enumerated_dispatcher'),
     ]
     ..libraries = [
@@ -2241,7 +2242,8 @@ strings as discriminators.
 
           part('mongo_support')
           ..enums = [
-            enum_('bson_types')
+            enum_('bson_type')
+            ..hasLibraryScopedValues = true
             ..values = [
               'bson_double',
               'bson_string',
@@ -2261,17 +2263,40 @@ strings as discriminators.
           ..classes = [
 
             class_('pod_field')
+            ..isAbstract = true
             ..members = [
-              member('id')..type = 'Id',
+              member('id')..type = 'Id'..access = RO,
+              member('is_index')
+              ..doc = 'If true the field is defined as index'
+              ..classInit = false,
+            ],
+
+            class_('pod_scalar')
+            ..extend = 'PodField'
+            ..members = [
               member('bson_type')
               ..type = 'BsonType',
             ],
 
+            class_('pod_array')
+            ..extend = 'PodField'
+            ..members = [
+              member('pod_field')
+              ..type = 'PodField'
+            ],
+
+            class_('pod_reference')
+            ..extend = 'PodField'
+            ..members = [
+              member('pod')..type= 'Pod',
+            ],
+
             class_('pod')
             ..members = [
-              member('id')..type = 'Id',
+              member('id')..type = 'Id'..access = RO,
               member('pod_fields')..type = 'List<PodField>'..classInit = [],
             ],
+
           ],
 
         ],
