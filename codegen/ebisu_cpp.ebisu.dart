@@ -2230,13 +2230,53 @@ strings as discriminators.
                 ],
             ]
         ],
+
       library('mongo_support')
         ..imports = [
           'package:ebisu_cpp/ebisu_cpp.dart',
           'package:ebisu/ebisu.dart',
           'package:id/id.dart',
         ]
-        ..parts = [part('mongo_support')..classes = []],
+        ..parts = [
+
+          part('mongo_support')
+          ..enums = [
+            enum_('bson_types')
+            ..values = [
+              'bson_double',
+              'bson_string',
+              'bson_object',
+              'bson_array',
+              'bson_binary_data',
+              'bson_object_id',
+              'bson_boolean',
+              'bson_date',
+              'bson_null',
+              'bson_regex',
+              'bson_int32',
+              'bson_int64',
+              'bson_timestamp',
+            ]
+          ]
+          ..classes = [
+
+            class_('pod_field')
+            ..members = [
+              member('id')..type = 'Id',
+              member('bson_type')
+              ..type = 'BsonType',
+            ],
+
+            class_('pod')
+            ..members = [
+              member('id')..type = 'Id',
+              member('pod_fields')..type = 'List<PodField>'..classInit = [],
+            ],
+          ],
+
+        ],
+
+
       library('hdf5_support')
         ..imports = [
           'package:ebisu_cpp/ebisu_cpp.dart',

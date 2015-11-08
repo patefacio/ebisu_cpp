@@ -82,7 +82,7 @@ main([List<String> args]) {
         r'"m_unsigned_char"(?:\n|.)*H5T_NATIVE_UCHAR',
         r'"m_signed_char"(?:\n|.)*H5T_NATIVE_SCHAR',
       ].forEach((var t) {
-        expect(contents.contains(new RegExp(t, multiLine:true)), true);
+        expect(contents.contains(new RegExp(t, multiLine: true)), true);
       });
     });
 

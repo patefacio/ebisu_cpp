@@ -186,7 +186,7 @@ final _mappings = {
   'std::uint16_t': H5tType.h5tNativeUint16,
   'std::uint32_t': H5tType.h5tNativeUint32,
   'std::uint64_t': H5tType.h5tNativeUint64,
-  'int8_t' : H5tType.h5tNativeSchar,
+  'int8_t': H5tType.h5tNativeSchar,
   'int16_t': H5tType.h5tNativeInt16,
   'int32_t': H5tType.h5tNativeInt32,
   'int64_t': H5tType.h5tNativeInt64,
