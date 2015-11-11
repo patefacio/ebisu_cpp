@@ -1,20 +1,21 @@
 part of ebisu_cpp.mongo_support;
 
 enum BsonType {
-bsonDouble,
-bsonString,
-bsonObject,
-bsonArray,
-bsonBinaryData,
-bsonObjectId,
-bsonBoolean,
-bsonDate,
-bsonNull,
-bsonRegex,
-bsonInt32,
-bsonInt64,
-bsonTimestamp
+  bsonDouble,
+  bsonString,
+  bsonObject,
+  bsonArray,
+  bsonBinaryData,
+  bsonObjectId,
+  bsonBoolean,
+  bsonDate,
+  bsonNull,
+  bsonRegex,
+  bsonInt32,
+  bsonInt64,
+  bsonTimestamp
 }
+
 /// Convenient access to BsonType.bsonDouble with *bsonDouble* see [BsonType].
 ///
 const BsonType bsonDouble = BsonType.bsonDouble;
@@ -67,103 +68,117 @@ const BsonType bsonInt64 = BsonType.bsonInt64;
 ///
 const BsonType bsonTimestamp = BsonType.bsonTimestamp;
 
-abstract class PodField {
+class PodType {
+  BsonType bsonType;
 
-  Id get id => _id;
-  /// If true the field is defined as index
-  bool isIndex = false;
+  // custom <class PodType>
 
-  // custom <class PodField>
+  PodType(this.bsonType);
 
-  PodField(this._id);
-
-  String toBson();
-  String fromBson();
-
-  toString() => 'PodField($id:$bsonType)';
-
-  // end <class PodField>
-
-  Id _id;
+  // end <class PodType>
 
 }
 
-
-class PodScalar extends PodField {
-
-  BsonType bsonType;
-
+class PodScalar extends PodType {
   // custom <class PodScalar>
 
-  PodScalar(Id id, [BsonType this.bsonType]) : super(id);
-  toString() => 'PodScalar($id:$bsonType)';
+  PodScalar(BsonType bsonType) : super(bsonType);
+  toString() => 'PodScalar($bsonType)';
 
   // end <class PodScalar>
 
 }
 
-
-class PodArray extends PodField {
-
-  PodField podField;
+class PodArray extends PodType {
+  PodType referredType;
 
   // custom <class PodArray>
 
-  PodArray(Id id, [PodField this.podField]) : super(id);
-  toString() => 'PodArray($id:$podField)';
+  PodArray(this.referredType) : super(BsonType.bsonArray);
+  toString() => 'PodArray($bsonType<$referredType>)';
 
   // end <class PodArray>
 
 }
 
+class PodField {
+  Id get id => _id;
 
-class PodReference extends PodField {
+  /// If true the field is defined as index
+  bool isIndex = false;
+  PodType podType;
 
-  Pod pod;
+  // custom <class PodField>
 
-  // custom <class PodReference>
+  PodField(this._id, [this.podType]);
 
-  PodReference(Id id, [ Pod this.pod ]) : super(id);
+  String toBson();
+  String fromBson();
 
-  toString() => 'PodReference($id = ${pod.id.toString()})';
+  toString() => 'PodField($id:$podType)';
 
-  // end <class PodReference>
+  // end <class PodField>
 
+  Id _id;
 }
 
-
-class Pod {
-
+class PodObject extends PodType {
   Id get id => _id;
   List<PodField> podFields = [];
 
-  // custom <class Pod>
+  // custom <class PodObject>
 
-  Pod(this._id, [List<PodField> this.podFields]);
+  PodObject(this._id, [this.podFields]) : super(BsonType.bsonObject);
 
-  toString() => '''
-Pod($id)
-${indentBlock(brCompact(podFields))}
-''';
+  toString() => brCompact([
+    'PodHeader($id)',
+    indentBlock(brCompact(podFields))
+  ]);
 
-  // end <class Pod>
+  // end <class PodObject>
 
   Id _id;
+}
 
+class PodHeader {
+  Id get id => _id;
+  List<Pod> pods = [];
+  Namespace namespace;
+
+  // custom <class PodHeader>
+
+  PodHeader(this._id, [this.pods, this.namespace]);
+
+  toString() => brCompact([
+        'namespace $namespace {',
+        indentBlock(brCompact(concat([
+          ['PodHeader($id)'],
+          pods
+        ]))),
+        '}'
+      ]);
+
+  // end <class PodHeader>
+
+  Id _id;
 }
 
 // custom <part mongo_support>
 
-PodField podScalar(id, [BsonType bsonType]) =>
-    new PodScalar(makeId(id), bsonType);
+PodField podField(id, [podType]) {
+  id = makeId(id);
+  if (podType == null) {
+    return new PodField(id);
+  } else if (podType is PodType) {
+    return new PodField(id, podType);
+  } else if (podType is BsonType) {
+    return new PodField(id, new PodScalar(podType));
+  }
+}
 
-Pod pod(id, [List<PodField> podFields]) =>
-  new Pod(makeId(id), podFields);
+PodObject podObject(id, [podFields]) => new PodObject(makeId(id), podFields);
 
-PodReference podReference(id, [Pod pod]) =>
-  new PodReference(makeId(id), pod);
-
-PodArray podArray(id, [PodField podField]) =>
-  new PodArray(makeId(id), podField);
+PodHeader podHeader(id, [List<Pod> pods, Namespace namespace]) =>
+    new PodHeader(makeId(id), pods, namespace);
 
 // end <part mongo_support>

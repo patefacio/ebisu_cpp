@@ -2237,6 +2237,7 @@ strings as discriminators.
           'package:ebisu_cpp/ebisu_cpp.dart',
           'package:ebisu/ebisu.dart',
           'package:id/id.dart',
+          'package:quiver/iterables.dart',
         ]
         ..parts = [
 
@@ -2262,41 +2263,44 @@ strings as discriminators.
           ]
           ..classes = [
 
+            class_('pod_type')
+            ..members = [
+              member('bson_type')..type = 'BsonType',
+            ],
+
+            class_('pod_scalar')
+            ..extend = 'PodType'
+            ..members = [
+            ],
+
+            class_('pod_array')
+            ..extend = 'PodType'
+            ..members = [
+              member('referred_type')..type = 'PodType',
+            ],
+
             class_('pod_field')
-            ..isAbstract = true
             ..members = [
               member('id')..type = 'Id'..access = RO,
               member('is_index')
               ..doc = 'If true the field is defined as index'
               ..classInit = false,
+              member('pod_type')..type = 'PodType',
             ],
 
-            class_('pod_scalar')
-            ..extend = 'PodField'
-            ..members = [
-              member('bson_type')
-              ..type = 'BsonType',
-            ],
-
-            class_('pod_array')
-            ..extend = 'PodField'
-            ..members = [
-              member('pod_field')
-              ..type = 'PodField'
-            ],
-
-            class_('pod_reference')
-            ..extend = 'PodField'
-            ..members = [
-              member('pod')..type= 'Pod',
-            ],
-
-            class_('pod')
+            class_('pod_object')
+            ..extend = 'PodType'
             ..members = [
               member('id')..type = 'Id'..access = RO,
               member('pod_fields')..type = 'List<PodField>'..classInit = [],
             ],
 
+            class_('pod_header')
+            ..members = [
+              member('id')..type = 'Id'..access = RO,
+              member('pods')..type = 'List<Pod>'..classInit = [],
+              member('namespace')..type = 'Namespace'
+            ]
           ],
 
         ],
