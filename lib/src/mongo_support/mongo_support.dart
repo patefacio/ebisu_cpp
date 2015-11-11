@@ -95,7 +95,7 @@ class PodArray extends PodType {
   // custom <class PodArray>
 
   PodArray(this.referredType) : super(BsonType.bsonArray);
-  toString() => 'PodArray($bsonType<$referredType>)';
+  toString() => 'PodArray($bsonType<${referredType.id}>)';
 
   // end <class PodArray>
 
@@ -107,6 +107,7 @@ class PodField {
   /// If true the field is defined as index
   bool isIndex = false;
   PodType podType;
+  dynamic defaultValue;
 
   // custom <class PodField>
 
@@ -130,10 +131,8 @@ class PodObject extends PodType {
 
   PodObject(this._id, [this.podFields]) : super(BsonType.bsonObject);
 
-  toString() => brCompact([
-    'PodHeader($id)',
-    indentBlock(brCompact(podFields))
-  ]);
+  toString() =>
+      brCompact(['PodObject($id)', indentBlock(brCompact(podFields))]);
 
   // end <class PodObject>
 
@@ -151,16 +150,50 @@ class PodHeader {
 
   toString() => brCompact([
         'namespace $namespace {',
-        indentBlock(brCompact(concat([
-          ['PodHeader($id)'],
-          pods
-        ]))),
+        indentBlock(
+            brCompact(['PodHeader($id)', indentBlock(brCompact(pods))])),
         '}'
       ]);
+
+  Header get header {
+    if (_header == null) {
+      final allPods = new Set<PodObject>();
+      pods.forEach((pod) => _collectPods(pod, allPods));
+      _header = new Header(id)
+        ..namespace = namespace
+        ..classes =
+            allPods.toList().reversed.map((p) => _makeClass(p)).toList();
+    }
+    return _header;
+  }
+
+  Set _collectPods(PodObject podObject, Set<PodObject> uniquePods) {
+    if (!uniquePods.contains(podObject)) {
+      uniquePods.add(podObject);
+      for (PodField podField in podObject.podFields) {
+        final p = podField.podType;
+        if (p is PodObject) {
+          _collectPods(p, uniquePods);
+        } else if (p is PodArray && p.referredType is PodObject) {
+          _collectPods(p.referredType, uniquePods);
+        }
+      }
+    }
+  }
+
+  Class _makeClass(PodObject pod) => class_(pod.id)
+    ..isStruct = true
+    ..members = pod.podFields.map((pf) => _makeMember(pf)).toList();
+
+  Member _makeMember(PodField podField) => member(podField.id)
+    ..type = getCppType(podField.podType)
+    ..init = podField.defaultValue
+    ..cppAccess = public;
 
   // end <class PodHeader>
 
   Id _id;
+  Header _header;
 }
 
 // custom <part mongo_support>
@@ -180,5 +213,39 @@ PodObject podObject(id, [podFields]) => new PodObject(makeId(id), podFields);
 
 PodHeader podHeader(id, [List<Pod> pods, Namespace namespace]) =>
     new PodHeader(makeId(id), pods, namespace);
+
+PodArray podArray(PodType referredType) => new PodArray(referredType);
+
+PodField podArrayField(id, PodType referredType) =>
+    podField(id, podArray(referredType));
+
+final _bsonToCpp = {
+  bsonDouble: 'double',
+  bsonString: 'std::string',
+  bsonObject: null,
+  bsonArray: null,
+  bsonBinaryData: null,
+  bsonObjectId: 'Object_id_t',
+  bsonBoolean: 'bool',
+  bsonDate: 'Date_t',
+  bsonNull: null,
+  bsonRegex: 'Regexp_t',
+  bsonInt32: 'int32_t',
+  bsonInt64: 'int64_t',
+  bsonTimestamp: 'Timestamp_t',
+};
+
+String getCppType(PodType podType) {
+  final bsonType = podType.bsonType;
+  String result;
+  if (bsonType == bsonObject) {
+    result = podType.id.capCamel;
+  } else if (bsonType == bsonArray) {
+    result = 'std::vector<${getCppType(podType.referredType)}>';
+  } else {
+    result = _bsonToCpp[bsonType];
+  }
+  return result;
+}
 
 // end <part mongo_support>

@@ -2286,6 +2286,7 @@ strings as discriminators.
               ..doc = 'If true the field is defined as index'
               ..classInit = false,
               member('pod_type')..type = 'PodType',
+              member('default_value')..type = 'dynamic',
             ],
 
             class_('pod_object')
@@ -2299,7 +2300,8 @@ strings as discriminators.
             ..members = [
               member('id')..type = 'Id'..access = RO,
               member('pods')..type = 'List<Pod>'..classInit = [],
-              member('namespace')..type = 'Namespace'
+              member('namespace')..type = 'Namespace',
+              member('header')..access = IA..type = 'Header',
             ]
           ],
 
