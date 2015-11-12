@@ -134,6 +134,8 @@ class PodObject extends PodType {
   toString() =>
       brCompact(['PodObject($id)', indentBlock(brCompact(podFields))]);
 
+  bool get hasArray => podFields.any((pf) => pf.podType is PodArray);
+
   // end <class PodObject>
 
   Id _id;
@@ -159,10 +161,18 @@ class PodHeader {
     if (_header == null) {
       final allPods = new Set<PodObject>();
       pods.forEach((pod) => _collectPods(pod, allPods));
+
       _header = new Header(id)
         ..namespace = namespace
         ..classes =
             allPods.toList().reversed.map((p) => _makeClass(p)).toList();
+
+      if(allPods.any((p) => p.hasArray)) {
+        _header.includes.addAll([
+          'vector',
+          'ebisu/utils/streamers/vector.hpp',
+        ]);
+      }
     }
     return _header;
   }
@@ -183,7 +193,12 @@ class PodHeader {
 
   Class _makeClass(PodObject pod) => class_(pod.id)
     ..isStruct = true
-    ..members = pod.podFields.map((pf) => _makeMember(pf)).toList();
+    ..isStreamable = true
+    ..defaultCtor.usesDefault = true
+    ..assignCopy.usesDefault = true
+    ..usesStreamers = pod.hasArray
+    ..members = pod.podFields.map((pf) => _makeMember(pf)).toList()
+    ..addFullMemberCtor();
 
   Member _makeMember(PodField podField) => member(podField.id)
     ..type = getCppType(podField.podType)
