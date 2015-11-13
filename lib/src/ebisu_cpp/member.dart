@@ -319,7 +319,7 @@ class Member extends CppEntity {
   get passDecl => '$passType $name';
 
   set init(Object init_) {
-    if(init_ == null) return;
+    if (init_ == null) return;
 
     if (type == null) {
       type = inferCppType(init_);

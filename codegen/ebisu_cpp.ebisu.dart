@@ -53,7 +53,6 @@ files, build scripts, test files, etc.)
       library('test_cpp_benchmark'),
       library('test_cpp_template'),
       library('test_hdf5_support'),
-      library('test_mongo_support'),
       library('test_enumerated_dispatcher'),
     ]
     ..libraries = [
@@ -2231,82 +2230,6 @@ strings as discriminators.
                 ],
             ]
         ],
-
-      library('mongo_support')
-        ..imports = [
-          'package:ebisu_cpp/ebisu_cpp.dart',
-          'package:ebisu/ebisu.dart',
-          'package:id/id.dart',
-          'package:quiver/iterables.dart',
-        ]
-        ..parts = [
-
-          part('mongo_support')
-          ..enums = [
-            enum_('bson_type')
-            ..hasLibraryScopedValues = true
-            ..values = [
-              'bson_double',
-              'bson_string',
-              'bson_object',
-              'bson_array',
-              'bson_binary_data',
-              'bson_object_id',
-              'bson_boolean',
-              'bson_date',
-              'bson_null',
-              'bson_regex',
-              'bson_int32',
-              'bson_int64',
-              'bson_timestamp',
-            ]
-          ]
-          ..classes = [
-
-            class_('pod_type')
-            ..members = [
-              member('bson_type')..type = 'BsonType',
-            ],
-
-            class_('pod_scalar')
-            ..extend = 'PodType'
-            ..members = [
-            ],
-
-            class_('pod_array')
-            ..extend = 'PodType'
-            ..members = [
-              member('referred_type')..type = 'PodType',
-            ],
-
-            class_('pod_field')
-            ..members = [
-              member('id')..type = 'Id'..access = RO,
-              member('is_index')
-              ..doc = 'If true the field is defined as index'
-              ..classInit = false,
-              member('pod_type')..type = 'PodType',
-              member('default_value')..type = 'dynamic',
-            ],
-
-            class_('pod_object')
-            ..extend = 'PodType'
-            ..members = [
-              member('id')..type = 'Id'..access = RO,
-              member('pod_fields')..type = 'List<PodField>'..classInit = [],
-            ],
-
-            class_('pod_header')
-            ..members = [
-              member('id')..type = 'Id'..access = RO,
-              member('pods')..type = 'List<Pod>'..classInit = [],
-              member('namespace')..type = 'Namespace',
-              member('header')..access = IA..type = 'Header',
-            ]
-          ],
-
-        ],
-
 
       library('hdf5_support')
         ..imports = [
