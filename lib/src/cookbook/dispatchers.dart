@@ -203,7 +203,8 @@ class SwitchDispatcher extends EnumeratedDispatcher {
                 discriminatorType != dctStdString) ||
             enumeration.any((e) => e.length != 1))) {
       throw 'Switch requires an integer type '
-          'or all Strings of length 1, not $discriminatorType';
+          'or Strings length 1, not $discriminatorType '
+          'with enum $enumeration';
     }
 
     eLiteral(e) => e is num ? e : "'$e'";
