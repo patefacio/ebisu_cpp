@@ -521,6 +521,20 @@ String clangFormat(String contents, [String fname = 'ebisu_txt.cpp']) {
   return formatted;
 }
 
+/// Creates a temporary file with [contents] in the directory of [filePath] (so
+/// the appropriate .clang-format file is used) and then formats with
+/// clang-format, returning the formatted text. Deletes the temporary file
+/// before returning.
+String clangFormatFile(String contents, filePath) {
+  _logger.info('Clang-Formatting text of length ${contents.length}');
+  final folder = path.dirname(filePath);
+  final tempFilePath = path.join(folder, '.ebisu_cpp.temp_file.cpp');
+  final tempFile = new File(tempFilePath)..writeAsStringSync(contents);
+  final formatted = Process.runSync('clang-format', [tempFile.path]).stdout;
+  tempFile.deleteSync();
+  return formatted;
+}
+
 /// Assuming *v* is an enum value, returns that value as capitalized string
 ///
 /// if v is CppAccess.private => Private
