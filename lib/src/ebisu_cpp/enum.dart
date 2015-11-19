@@ -23,6 +23,8 @@ class EnumValue extends CppEntity {
         '$name = ${_asHexString(value, padWidth)}'
       ]));
 
+  set value(dynamic value) => _value = value;
+
   // end <class EnumValue>
 
   dynamic _value;

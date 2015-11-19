@@ -251,7 +251,7 @@ class CatchTestProvider extends TestProvider {
         test
           ..namespace = namespace(['test'])
           ..setLibFilePath(testable.testFileName)
-          ..withCodeBlock(fcbPreIncludes,
+          ..withCustomBlock(fcbPreIncludes,
               (cb) => cb.snippets.add('#define CATCH_CONFIG_MAIN'))
           ..includes.add('catch.hpp')
           ..getCodeBlock(fcbCustomIncludes).tag = 'custom includes'

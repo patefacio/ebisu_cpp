@@ -106,7 +106,7 @@ abstract class CppFile extends CppEntity with Testable {
   ///              .add(createLoggerInstance(owner))
   ///          ....
   ///
-  /// See also: [withCodeBlock]
+  /// See also: [withCustomBlock]
   CodeBlock getCodeBlock(FileCodeBlock fcb) {
     final result = _codeBlocks[fcb];
     return result == null ? (_codeBlocks[fcb] = codeBlock()) : result;
@@ -116,14 +116,14 @@ abstract class CppFile extends CppEntity with Testable {
   ///
   /// Provides a mechanism for adding code to a file at a particular location
   /// indicated by [fcb]. For example, if *test* is a CppFile, the
-  /// [withCodeBlock] call below updates the [fcbPreIncludes] section by adding
+  /// [withCustomBlock] call below updates the [fcbPreIncludes] section by adding
   /// a define.
   ///
   ///      test
-  ///        ..withCodeBlock(fcbPreIncludes,
+  ///        ..withCustomBlock(fcbPreIncludes,
   ///            (cb) => cb.snippets.add('#define CATCH_CONFIG_MAIN'))
   ///
-  withCodeBlock(FileCodeBlock fcb, f(CodeBlock)) => f(getCodeBlock(fcb));
+  withCustomBlock(FileCodeBlock fcb, f(CodeBlock)) => f(getCodeBlock(fcb));
 
   String get _contentsWithBlocks {
     if (classes.any((c) => c._opMethods.any((m) => m is OpOut))) {
