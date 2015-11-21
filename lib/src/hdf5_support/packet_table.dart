@@ -129,6 +129,7 @@ createH5DataSetSpecifier(Class targetClass,
   return class_(className)
       ..withClass((Class dss) {
         dss
+          ..usings = [ using('record', targetClass.className)]
           ..isSingleton = true
           ..defaultCtor.customCodeBlock.snippets.add(brCompact([
             'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, '
