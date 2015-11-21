@@ -47,15 +47,17 @@ main() {
           }),
 
           testScenario('basics')
-          .addGiven('a vector with some items')
-          ..addWhen('the size is increased')
-          .addThen('the size and capacity change')
-          ..addWhen('the size is reduced')
-          .addThen('the size channges but not capacity')
-          ..addWhen('more capacity is reserved')
-          .addThen('the capacity changes but not the size')
-          ..addWhen('less capacity is reserved')
-          .addThen('neither size nore capacity is changed')
+          ..withGiven('a vector with some items', (Given given) {
+            given
+              ..addWhen('the size is increased')
+              .addThen('the size and capacity change')
+              ..addWhen('the size is reduced')
+              .addThen('the size channges but not capacity')
+              ..addWhen('more capacity is reserved')
+              .addThen('the capacity changes but not the size')
+              ..addWhen('less capacity is reserved')
+              .addThen('neither size nore capacity is changed');
+          })
         ]
       ]
     ];

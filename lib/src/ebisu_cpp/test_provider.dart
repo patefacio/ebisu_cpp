@@ -295,35 +295,40 @@ class CatchTestProvider extends TestProvider {
 
 // custom <part test_provider>
 
-_thenTestText(Then then) {
-  return '''
-THEN("${then.id.sentence}") {
-${brCompact([ then.startBlockText, then.endBlockText ])}
-}''';
+thenTestText(Then then) {
+  return brCompact([
+    then.preCodeBlock,
+    'THEN("${then.id.sentence}") {',
+    then.startBlockText,
+    then.endBlockText,
+    '}',
+    then.postCodeBlock
+  ]);
 }
 
-_whenTestText(When when) {
-  return '''
-WHEN("${when.id.sentence}") {
-${
-brCompact([
-  when.startBlockText,
-  indentBlock(chomp(brCompact(when.thens.map((t) => _thenTestText(t))))),
-  when.endBlockText ])
-}}''';
+whenTestText(When when) {
+  return brCompact([
+    when.preCodeBlock,
+    'WHEN("${when.id.sentence}") {',
+    when.startBlockText,
+    indentBlock(chomp(brCompact(when.thens.map((t) => thenTestText(t))))),
+    when.endBlockText,
+    '}',
+    when.postCodeBlock
+  ]);
 }
 
-_givenTestText(Given given) {
-  return '''
-GIVEN("${given.id.sentence}") {
-${
-brCompact([
-  given.startBlockText,
-  indentBlock(chomp(brCompact(given.whens.map((w) => _whenTestText(w))))),
-  indentBlock(chomp(brCompact(given.thens.map((t) => _thenTestText(t))))),
-  given.endBlockText ])
-}
-}''';
+givenTestText(Given given) {
+  return brCompact([
+    given.preCodeBlock,
+    'GIVEN("${given.id.sentence}") {',
+    given.startBlockText,
+    indentBlock(chomp(brCompact(given.whens.map((w) => whenTestText(w))))),
+    indentBlock(chomp(brCompact(given.thens.map((t) => thenTestText(t))))),
+    given.endBlockText,
+    '}',
+    given.postCodeBlock
+  ]);
 }
 
 scenarioTestText(TestScenario ts) {
@@ -331,7 +336,7 @@ scenarioTestText(TestScenario ts) {
     ts.preCodeBlock,
     'SCENARIO("${ts.id.sentence}") {',
     ts.startBlockText,
-    indentBlock(chomp(brCompact(ts.givens.map((g) => _givenTestText(g))))),
+    indentBlock(chomp(brCompact(ts.givens.map((g) => givenTestText(g))))),
     ts.endBlockText,
     '}',
     ts.postCodeBlock

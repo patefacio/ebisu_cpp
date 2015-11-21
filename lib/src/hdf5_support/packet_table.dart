@@ -122,14 +122,17 @@ String _memberCompoundTypeEntries(Class targetClass, TypeMapper typeMapper) {
 
 createH5DataSetSpecifier(Class targetClass,
         [TypeMapper typeMapper = cppTypeToHdf5Type,
-        String className = 'h5_data_set_specifier']) =>
-    class_(className)
+          String className]) {
+  if(className == null) {
+    className = '${targetClass.className}_h5_dss';
+  }
+  return class_(className)
       ..withClass((Class dss) {
-        final className = targetClass.className;
         dss
           ..isSingleton = true
           ..defaultCtor.customCodeBlock.snippets.add(brCompact([
-            'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, sizeof($className));',
+            'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, '
+            'sizeof(${targetClass.className}));',
             _memberCompoundTypeEntries(targetClass, typeMapper)
           ]))
           ..members = [
@@ -146,6 +149,7 @@ createH5DataSetSpecifier(Class targetClass,
 
         targetClass.friendClassDecls.add(friendClassDecl(dss.className));
       });
+}
 
 associateH5DataSetSpecifier(Class targetClass, Class dss) =>
     targetClass..usings.add(using('h5_data_set_specifier', dss.className));

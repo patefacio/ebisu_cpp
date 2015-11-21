@@ -89,5 +89,57 @@ main([List<String> args]) {
         true);
   });
 
+  test('given block placement', () {
+    final g = given('given')
+      ..preCodeBlock.snippets.add('// bam: pre code block')
+      ..startCodeBlock.snippets.add('// bam: start code block')
+      ..endCodeBlock.snippets.add('// bam: end code block')
+      ..postCodeBlock.snippets.add('// bam: post code block');
+
+    expect(darkMatter(givenTestText(g)), darkMatter('''
+// bam: pre code block
+GIVEN("given") {
+// bam: start code block
+// bam: end code block
+}
+// bam: post code block
+'''));
+  });
+
+  test('when block placement', () {
+    final w = when('when')
+      ..preCodeBlock.snippets.add('// bam: pre code block')
+      ..startCodeBlock.snippets.add('// bam: start code block')
+      ..endCodeBlock.snippets.add('// bam: end code block')
+      ..postCodeBlock.snippets.add('// bam: post code block');
+
+    expect(darkMatter(whenTestText(w)), darkMatter('''
+// bam: pre code block
+WHEN("when") {
+// bam: start code block
+// bam: end code block
+}
+// bam: post code block
+'''));
+  });
+
+  test('then block placement', () {
+    final t = then('then')
+      ..preCodeBlock.snippets.add('// bam: pre code block')
+      ..startCodeBlock.snippets.add('// bam: start code block')
+      ..endCodeBlock.snippets.add('// bam: end code block')
+      ..postCodeBlock.snippets.add('// bam: post code block');
+
+    expect(darkMatter(thenTestText(t)), darkMatter('''
+// bam: pre code block
+THEN("then") {
+// bam: start code block
+// bam: end code block
+}
+// bam: post code block
+'''));
+  });
+
+
 // end <main>
 }
