@@ -538,7 +538,7 @@ class MemberCtor extends ClassMethod {
 MemberCtor ctor requires list of parms where each parm is a *String* naming the
 member being initialized or a MemberCtorParm instance'''));
 
-  MemberCtor(List parms, [this.decls]) {
+  MemberCtor(Iterable parms, [this.decls]) {
     memberParms = parms.map((parm) => _makeParm(parm)).toList();
     if (decls == null) decls = [];
   }
