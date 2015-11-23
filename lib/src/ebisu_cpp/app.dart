@@ -322,6 +322,8 @@ class App extends Impl implements CodeGenerator {
         .add('ebisu/linux_specific/application_signal_handler.hpp');
     if (args.isNotEmpty) _includes.add('boost/program_options.hpp');
     setAppFilePathFromRoot(cppPath);
+    headers.forEach((header) => header._setHeaderFilePath(appPath));
+    impls.forEach((impl) => impl._setImplFilePath(cppPath));
 
     getCodeBlock(fcbBeginNamespace).snippets.add(brCompact([
       '''
@@ -343,6 +345,13 @@ AllowedOptions)";
 
     if (_hasString) _includes.add('string');
   }
+
+  generate() {
+    super.generate();
+    headers.forEach((header) => header.generate());
+    impls.forEach((impl) => impl.generate());
+  }
+
 
   void _checkAddHelp() {
     if (!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {

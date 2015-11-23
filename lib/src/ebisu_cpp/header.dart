@@ -61,6 +61,11 @@ $text
 #endif // $_includeGuard
 ''';
 
+  _setHeaderFilePath(filePath, [name]) {
+    __basename = name == null ? namer.nameHeader(id) : name;
+    return _filePath = path.join(filePath, _basename);
+  }
+
   // end <class Header>
 
 }
