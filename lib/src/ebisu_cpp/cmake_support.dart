@@ -19,13 +19,23 @@ class CmakeInstallationBuilder extends InstallationBuilder {
   void generate() {
     final cmakeRoot = installationCmakeRoot(installation);
 
+    final installTargets = [];
+
     libCmake(lib) {
       final libName = lib.namespace.names.map((n) => n.toUpperCase()).join('_');
       final srcMacro = '${libName}_SOURCES';
+      final installDirectives = lib.headers.map((Header h) {
+        final relPath = path.relative(h.includeFilePath, from: installation.cppPath);
+        return '''
+install(FILES ${h.includeFilePath}
+  DESTINATION \${DESTDIR}/include/${path.dirname(h.includeFilePath)})''';
+      });
+
       return brCompact([
         '''
-set ($srcMacro,
+set ($srcMacro
 ${indentBlock(brCompact(lib.headers.map((h) => h.includeFilePath)))})
+${brCompact(installDirectives)}
 '''
       ]);
     }
@@ -37,6 +47,7 @@ ${indentBlock(brCompact(lib.headers.map((h) => h.includeFilePath)))})
         requiredLibs.add('pthread');
       }
       final isMacroRe = new RegExp(r'^\s*\$');
+      installTargets.add(app.name);
       return brCompact([
         '''
 add_executable(${app.name}
@@ -50,7 +61,6 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
   \${Boost_PROGRAM_OPTIONS_LIBRARY}
   \${Boost_SYSTEM_LIBRARY}
   \${Boost_THREAD_LIBRARY}
-
 ''',
         requiredLibs
             .map((l) => indentBlock(l.contains(isMacroRe) ? l : '-${l}')),
@@ -62,9 +72,10 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
       final test = testable.test;
       final basename = path.basenameWithoutExtension(testable.testFileName);
       final owningLib = testable.owningLib.id.snake;
-      final testBaseName = '$owningLib.$basename';
+      final testBaseName = 'test.$owningLib.$basename';
       final relPath = path.relative(path.dirname(test.filePath),
           from: installation.cppPath);
+      installTargets.add(testBaseName);
       return '''
 
 ${scriptComment("test for ${test.name}\n${indentBlock(test.detailedPath)}")}
@@ -88,9 +99,10 @@ add_test(
 
     benchmarkCmake(BenchmarkApp app) {
       relPath(String p) => path.relative(p, from: installation.cppPath);
-
+      final benchName = 'bench_${app.id.snake}';
+      installTargets.add(benchName);
       return '''
-add_executable(bench_${app.id.snake}
+add_executable($benchName
   ${concat([[relPath(app.filePath)], app.impls.map((i) => relPath(i.filePath))]).join('\n  ')}
 )
 
@@ -164,6 +176,15 @@ ${chomp(br(testables.map((testable) => testCmake(testable))))}
 # Benchmark directives
 ######################################################################
 ${chomp(br(benchmarkApps.map((bma) => benchmarkCmake(bma))))}
+
+######################################################################
+# Install directives
+######################################################################
+install(TARGETS
+  ${indentBlock(brCompact(installTargets))}
+  RUNTIME DESTINATION \${DESTDIR}/bin
+  LIBRARY DESTINATION \${DESTDIR}/lib
+  ARCHIVE DESTINATION \${DESTDIR}/lib/static)
 ''',
         cmakeRoot);
 
