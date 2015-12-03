@@ -352,7 +352,6 @@ AllowedOptions)";
     impls.forEach((impl) => impl.generate());
   }
 
-
   void _checkAddHelp() {
     if (!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {
       args.insert(0, new AppArg(new Id('help'))

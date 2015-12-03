@@ -36,7 +36,6 @@ class Impl extends CppFile {
     return _filePath = path.join(filePath, _basename);
   }
 
-
   // end <class Impl>
 
 }

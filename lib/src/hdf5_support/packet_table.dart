@@ -121,35 +121,34 @@ String _memberCompoundTypeEntries(Class targetClass, TypeMapper typeMapper) {
 }
 
 createH5DataSetSpecifier(Class targetClass,
-        [TypeMapper typeMapper = cppTypeToHdf5Type,
-          String className]) {
-  if(className == null) {
+    [TypeMapper typeMapper = cppTypeToHdf5Type, String className]) {
+  if (className == null) {
     className = '${targetClass.className}_h5_dss';
   }
   return class_(className)
-      ..withClass((Class dss) {
-        dss
-          ..usings = [ using('record', targetClass.className)]
-          ..isSingleton = true
-          ..defaultCtor.customCodeBlock.snippets.add(brCompact([
-            'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, '
-            'sizeof(${targetClass.className}));',
-            _memberCompoundTypeEntries(targetClass, typeMapper)
-          ]))
-          ..members = [
-            member('data_set_name')
-              ..init = '/${targetClass.id.snake}'
-              ..type = 'char const*'
-              ..cppAccess = public
-              ..isStatic = true
-              ..isConstExpr = true,
-            member('compound_data_type_id')
-              ..type = 'hid_t'
-              ..access = ro,
-          ];
+    ..withClass((Class dss) {
+      dss
+        ..usings = [using('record', targetClass.className)]
+        ..isSingleton = true
+        ..defaultCtor.customCodeBlock.snippets.add(brCompact([
+          'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, '
+              'sizeof(${targetClass.className}));',
+          _memberCompoundTypeEntries(targetClass, typeMapper)
+        ]))
+        ..members = [
+          member('data_set_name')
+            ..init = '/${targetClass.id.snake}'
+            ..type = 'char const*'
+            ..cppAccess = public
+            ..isStatic = true
+            ..isConstExpr = true,
+          member('compound_data_type_id')
+            ..type = 'hid_t'
+            ..access = ro,
+        ];
 
-        targetClass.friendClassDecls.add(friendClassDecl(dss.className));
-      });
+      targetClass.friendClassDecls.add(friendClassDecl(dss.className));
+    });
 }
 
 associateH5DataSetSpecifier(Class targetClass, Class dss) =>
@@ -185,9 +184,11 @@ final _mappings = {
   'char': H5tType.h5tNativeChar,
   'signed char': H5tType.h5tNativeSchar,
   'unsigned char': H5tType.h5tNativeUchar,
+  'std::int8_t': H5tType.h5tNativeSchar,
   'std::int16_t': H5tType.h5tNativeInt16,
   'std::int32_t': H5tType.h5tNativeInt32,
   'std::int64_t': H5tType.h5tNativeInt64,
+  'std::uint8_t': H5tType.h5tNativeUchar,
   'std::uint16_t': H5tType.h5tNativeUint16,
   'std::uint32_t': H5tType.h5tNativeUint32,
   'std::uint64_t': H5tType.h5tNativeUint64,

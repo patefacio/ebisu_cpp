@@ -1397,8 +1397,9 @@ OpLess opLess() => new OpLess();
 OpOut opOut() => new OpOut();
 
 /// Create a MemberCtor sans new, for more declarative construction
-MemberCtor memberCtor([Iterable memberParms, List<String> decls]) => new MemberCtor(
-    memberParms == null ? [] : memberParms, decls == null ? [] : decls);
+MemberCtor memberCtor([Iterable memberParms, List<String> decls]) =>
+    new MemberCtor(
+        memberParms == null ? [] : memberParms, decls == null ? [] : decls);
 
 /// Standard mutex using statements
 get standardMutexUsings => [using('lock', 'LOCK'), using('guard', 'GUARD')];

@@ -101,7 +101,8 @@ main([List<String> args]) {
       final c1 = class_('c_1')..members = [member('a')..type = 'int'];
       final datasetSpecifier = createH5DataSetSpecifier(c1, cppTypeToHdf5Type);
       expect(datasetSpecifier.definition.contains('class C_1_h5_dss'), true);
-      expect(datasetSpecifier.definition.contains('using Record_t = C_1'), true);
+      expect(
+          datasetSpecifier.definition.contains('using Record_t = C_1'), true);
     });
   });
 
