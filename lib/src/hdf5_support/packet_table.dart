@@ -113,7 +113,17 @@ String _memberCompoundTypeEntries(Class targetClass, TypeMapper typeMapper) {
   String className = targetClass.className;
   return brCompact(targetClass.members.map((Member member) {
     final packetMemberType = typeMapper(member.type);
-    print('Looking for ${member.type} -> $packetMemberType');
+    if(packetMemberType == null) {
+      final className = targetClass.className;
+      final memberType = member.type;
+      final memberName = member.name;
+      final vname = member.vname;
+      return '''
+   auto ${vname}_type = H5Tcreate(H5T_OPAQUE, sizeof($className::$vname));
+   H5Tinsert(compound_data_type_id_, "$memberName", HOFFSET($className, $vname),
+     ${vname}_type);
+''';
+    }
     return (packetMemberType is PacketMemberString)
         ? _defineCompoundStringType(packetMemberType, member, className)
         : _defineCompoundPredefinedType(packetMemberType, member, className);
