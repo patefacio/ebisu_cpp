@@ -519,7 +519,7 @@ MemberCtorParm memberCtorParm([String name]) => new MemberCtorParm(name);
 ///     }
 class MemberCtor extends ClassMethod {
   /// List of members that are passed as arguments for initialization
-  List<MemberCtorParm> memberParms = [];
+  List<MemberCtorParm> get memberParms => _memberParms;
 
   /// List of additional decls ["Type Argname", ...]
   List<String> decls;
@@ -543,6 +543,7 @@ member being initialized or a MemberCtorParm instance'''));
     if (decls == null) decls = [];
   }
 
+  set memberParms(memberParms) => _memberParms = new List.from(memberParms);
   String get _templateDecl => _template == null ? '' : br(_template.decl);
 
   /// The [MemberCtor] definition as it appears in the class
@@ -599,6 +600,7 @@ ${indentBlock(argDecls.join(',\n'))})$memberInitializerList''',
 
   // end <class MemberCtor>
 
+  List<MemberCtorParm> _memberParms = [];
 }
 
 /// Provides *operator==()*
@@ -823,13 +825,13 @@ class Class extends CppEntity with Testable {
   TemplateSpecialization templateSpecialization;
 
   /// Forward declarations near top of file, before the class definition
-  List<ForwardDecl> forwardDecls = [];
+  List<ForwardDecl> get forwardDecls => _forwardDecls;
 
   /// Forward declarations within class, ideal for forward declaring nested classes
-  List<ForwardDecl> classForwardDecls = [];
+  List<ForwardDecl> get classForwardDecls => _classForwardDecls;
 
   /// *constexpr*s associated with the class
-  List<ConstExpr> constExprs = [];
+  List<ConstExpr> get constExprs => _constExprs;
 
   /// List of usings that will be scoped to this class near the top of
   /// the class definition.
@@ -848,12 +850,12 @@ class Class extends CppEntity with Testable {
   List<Base> bases = [];
 
   /// A list of member constructors
-  List<MemberCtor> memberCtors = [];
+  List<MemberCtor> get memberCtors => _memberCtors;
   List<PtrType> forwardPtrs = [];
-  List<Enum> enumsForward = [];
-  List<Enum> enums = [];
-  List<Member> members = [];
-  List<FriendClassDecl> friendClassDecls = [];
+  List<Enum> get enumsForward => _enumsForward;
+  List<Enum> get enums => _enums;
+  List<Member> get members => _members;
+  List<FriendClassDecl> get friendClassDecls => _friendClassDecls;
   List<ClassCodeBlock> customBlocks = [];
   bool isSingleton = false;
 
@@ -939,6 +941,13 @@ class Class extends CppEntity with Testable {
         interfaceImplementations
       ]).where((child) => child != null);
 
+  set memberCtors(memberCtors) => _memberCtors = new List.from(memberCtors);
+  set enumsForward(enumsForward) => _enumsForward = new List.from(enumsForward);
+  set enums(enums) => _enums = new List.from(enums);
+  set members(members) => _members = new List.from(members);
+  set friendClassDecls(friendClassDecls) =>
+      _friendClassDecls = new List.from(friendClassDecls);
+
   /// If set, the [OpOut] streamer will use nested indenting
   set usesNestedIndent(value) => opOut.usesNestedIndent = value;
 
@@ -971,6 +980,11 @@ default [Interfaceimplementation] is used''')
     if (s) opOut;
     _usesStreamers = s;
   }
+
+  set forwardDecls(forwardDecls) => _forwardDecls = new List.from(forwardDecls);
+  set classForwardDecls(classForwardDecls) =>
+      _classForwardDecls = new List.from(classForwardDecls);
+  set constExprs(constExprs) => _constExprs = new List.from(constExprs);
 
   /// Auto-initializing accessor for the [DefaultCtor]
   DefaultCtor get defaultCtor =>
@@ -1317,6 +1331,9 @@ $classStyle $className$_baseDecl$_finalDecl
   /// on the same class and results lazy-inited here
   String _definition;
   Template _template;
+  List<ForwardDecl> _forwardDecls = [];
+  List<ForwardDecl> _classForwardDecls = [];
+  List<ConstExpr> _constExprs = [];
   List<Using> _usings = [];
   List<Using> _usingsPostDecl = [];
 
@@ -1337,9 +1354,14 @@ $classStyle $className$_baseDecl$_finalDecl
 
   /// The destructor
   Dtor _dtor;
+  List<MemberCtor> _memberCtors = [];
   OpEqual _opEqual;
   OpLess _opLess;
   OpOut _opOut;
+  List<Enum> _enumsForward = [];
+  List<Enum> _enums = [];
+  List<Member> _members = [];
+  List<FriendClassDecl> _friendClassDecls = [];
   Map<ClassCodeBlock, CodeBlock> _codeBlocks = {};
   bool _usesStreamers = false;
   List<InterfaceImplementation> _interfaceImplementations = [];

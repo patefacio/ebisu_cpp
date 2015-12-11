@@ -14,25 +14,25 @@ abstract class CppFile extends CppEntity with Testable {
   List<FileCodeBlock> customBlocks = [];
 
   /// List of classes whose definitions are included in this file
-  List<Class> classes = [];
+  List<Class> get classes => _classes;
 
   /// List of c++ *constexprs* that will appear near the top of the file
-  List<ConstExpr> constExprs = [];
+  List<ConstExpr> get constExprs => _constExprs;
 
   /// List of forward declarations that will appear near the top of the file
-  List<ForwardDecl> forwardDecls = [];
+  List<ForwardDecl> get forwardDecls => _forwardDecls;
 
   /// List of using statements that will appear near the top of the file
   List<Using> get usings => _usings;
 
   /// List of enumerations that will appear near the top of the file
-  List<Enum> enums = [];
+  List<Enum> get enums => _enums;
 
   /// List of interfaces for this header. Interfaces result in either:
   ///
   /// * abstract base class with pure virtual methods
   /// * static polymorphic base class with inline forwarding methods
-  List<Interface> interfaces = [];
+  List<Interface> get interfaces => _interfaces;
   String get basename => _basename;
   String get filePath => _filePath;
 
@@ -67,6 +67,12 @@ abstract class CppFile extends CppEntity with Testable {
   /// beginning before any file classes
   set usings(Iterable<Using> items) =>
       _usings = items.map((u) => using(u)).toList();
+
+  set constExprs(constExprs) => _constExprs = new List.from(constExprs);
+  set forwardDecls(forwardDecls) => _forwardDecls = new List.from(forwardDecls);
+  set classes(classes) => _classes = new List.from(classes);
+  set enums(enums) => _enums = new List.from(enums);
+  set interfaces(interfaces) => _interfaces = new List.from(interfaces);
 
   Iterable<Entity> get children => concat([
         classes,
@@ -177,7 +183,12 @@ abstract class CppFile extends CppEntity with Testable {
 
   /// Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.
   Map<FileCodeBlock, CodeBlock> _codeBlocks = {};
+  List<Class> _classes = [];
+  List<ConstExpr> _constExprs = [];
+  List<ForwardDecl> _forwardDecls = [];
   List<Using> _usings = [];
+  List<Enum> _enums = [];
+  List<Interface> _interfaces = [];
   String _basename;
   String _filePath;
 

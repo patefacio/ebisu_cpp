@@ -143,7 +143,7 @@ FriendClassDecl friendClassDecl([String decl]) => new FriendClassDecl(decl);
 /// Represents a c++ namespace which is essentially a list of names
 class Namespace {
   /// The individual names in the namespace
-  List<String> names = [];
+  List<String> get names => _names;
 
   // custom <class Namespace>
 
@@ -158,6 +158,8 @@ class Namespace {
               : throw 'Namespace needs Ids or Strings not ${n.runtimeType}'));
     }
   }
+
+  set names(names) => _names = new List.from(names);
 
   /// Returns [txt] wrapped in namespace declaration(s) corresponding to *this*
   String wrap(String txt) => _helper(names.iterator, txt);
@@ -186,6 +188,7 @@ ${_helper(it, txt)}
 
   // end <class Namespace>
 
+  List<String> _names = [];
 }
 
 /// A using namespace statement

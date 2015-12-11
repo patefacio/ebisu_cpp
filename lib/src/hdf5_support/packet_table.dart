@@ -113,7 +113,7 @@ String _memberCompoundTypeEntries(Class targetClass, TypeMapper typeMapper) {
   String className = targetClass.className;
   return brCompact(targetClass.members.map((Member member) {
     final packetMemberType = typeMapper(member.type);
-    if(packetMemberType == null) {
+    if (packetMemberType == null) {
       final className = targetClass.className;
       final memberType = member.type;
       final memberName = member.name;

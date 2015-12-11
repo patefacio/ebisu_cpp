@@ -29,7 +29,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.7'
+    ..pubSpec.version = '0.3.8'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -79,6 +79,7 @@ files, build scripts, test files, etc.)
                     ..classInit = {},
                   member('const_exprs')
                     ..type = 'List<ConstExpr>'
+                    ..access = RO
                     ..classInit = [],
                 ],
               class_('traits_requirements')
@@ -333,6 +334,7 @@ The idea is to make C++ more readable when large constants are used.
                   member('names')
                     ..doc = 'The individual names in the namespace'
                     ..type = 'List<String>'
+                    ..access = RO
                     ..classInit = [],
                 ],
               class_('using_namespace')
@@ -427,16 +429,19 @@ Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
                     ..doc =
                         'List of classes whose definitions are included in this file'
                     ..type = 'List<Class>'
+                    ..access = RO
                     ..classInit = [],
                   member('const_exprs')
                     ..doc =
                         'List of c++ *constexprs* that will appear near the top of the file'
                     ..type = 'List<ConstExpr>'
+                    ..access = RO
                     ..classInit = [],
                   member('forward_decls')
                     ..doc =
                         'List of forward declarations that will appear near the top of the file'
                     ..type = 'List<ForwardDecl>'
+                    ..access = RO
                     ..classInit = [],
                   member('usings')
                     ..doc =
@@ -448,6 +453,7 @@ Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
                     ..doc =
                         'List of enumerations that will appear near the top of the file'
                     ..type = 'List<Enum>'
+                    ..access = RO
                     ..classInit = [],
                   member('interfaces')
                     ..doc = '''
@@ -457,6 +463,7 @@ List of interfaces for this header. Interfaces result in either:
 * static polymorphic base class with inline forwarding methods
 '''
                     ..type = 'List<Interface>'
+                    ..access = RO
                     ..classInit = [],
                   member('basename')..access = RO,
                   member('file_path')..access = RO,
@@ -555,6 +562,7 @@ Support for assignment from string, or id implies default values.
 
 '''
                     ..type = 'List<EnumValue>'
+                    ..classInit = []
                     ..access = RO,
                   member('ids')
                     ..doc = 'Ids for the values of the enum'
@@ -967,6 +975,7 @@ custom block. In that case the class might look like:
                     ..doc =
                         'List of members that are passed as arguments for initialization'
                     ..type = 'List<MemberCtorParm>'
+                    ..access = RO
                     ..classInit = [],
                   member('decls')
                     ..doc = 'List of additional decls ["Type Argname", ...]'
@@ -1023,15 +1032,18 @@ specialization, use both [template] and [templateSpecialization].
                     ..doc =
                         'Forward declarations near top of file, before the class definition'
                     ..type = 'List<ForwardDecl>'
+                    ..access = RO
                     ..classInit = [],
                   member('class_forward_decls')
                     ..doc =
                         'Forward declarations within class, ideal for forward declaring nested classes'
                     ..type = 'List<ForwardDecl>'
+                    ..access = RO
                     ..classInit = [],
                   member('const_exprs')
                     ..doc = '*constexpr*s associated with the class'
                     ..type = 'List<ConstExpr>'
+                    ..access = RO
                     ..classInit = [],
                   member('usings')
                     ..doc = '''
@@ -1087,6 +1099,7 @@ Base classes this class derives form.
                   member('member_ctors')
                     ..doc = 'A list of member constructors'
                     ..type = 'List<MemberCtor>'
+                    ..access = RO
                     ..classInit = [],
                   member('op_equal')
                     ..type = 'OpEqual'
@@ -1102,15 +1115,19 @@ Base classes this class derives form.
                     ..classInit = [],
                   member('enums_forward')
                     ..type = 'List<Enum>'
+                  ..access = RO
                     ..classInit = [],
                   member('enums')
                     ..type = 'List<Enum>'
+                    ..access = RO
                     ..classInit = [],
                   member('members')
                     ..type = 'List<Member>'
+                    ..access = RO
                     ..classInit = [],
                   member('friend_class_decls')
                     ..type = 'List<FriendClassDecl>'
+                    ..access = RO
                     ..classInit = [],
                   member('custom_blocks')
                     ..type = 'List<ClassCodeBlock>'

@@ -364,7 +364,7 @@ ${indentBlock(enumerate(_values).map((IndexedValue iv) => _bitShifted(iv)).join(
 
   // end <class Enum>
 
-  List<EnumValue> _values;
+  List<EnumValue> _values = [];
 
   /// Ids for the values of the enum
   List<Id> _ids;
