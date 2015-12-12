@@ -2799,15 +2799,24 @@ after the class.
 
 So, the following spec:
 
-        (class_('c')
-            ..customBlocks = [
-              clsPreDecl,
-              clsPublic,
-              clsProtected,
-              clsPrivate,
-              clsPostDecl
-            ])
-        .definition
+    final sample = class_('c')
+        ..customBlocks = [
+          clsClose,
+          clsOpen,
+          clsPostDecl,
+          clsPreDecl,
+          clsPrivate,
+          clsPrivateBegin,
+          clsPrivateEnd,
+          clsProtected,
+          clsProtectedBegin,
+          clsProtectedEnd,
+          clsPublic,
+          clsPublicBegin,
+          clsPublicEnd,
+        ];
+
+    print(sample.definition);
 
 
 Gives the following content:
@@ -2815,20 +2824,42 @@ Gives the following content:
     // custom <ClsPreDecl C>
     // end <ClsPreDecl C>
 
-    class C
-    {
-    public:
+    class C {
+      // custom <ClsOpen C>
+      // end <ClsOpen C>
+
+     public:
+      // custom <ClsPublicBegin C>
+      // end <ClsPublicBegin C>
+
       // custom <ClsPublic C>
       // end <ClsPublic C>
 
-    protected:
+      // custom <ClsPublicEnd C>
+      // end <ClsPublicEnd C>
+
+     protected:
+      // custom <ClsProtectedBegin C>
+      // end <ClsProtectedBegin C>
+
       // custom <ClsProtected C>
       // end <ClsProtected C>
 
-    private:
+      // custom <ClsProtectedEnd C>
+      // end <ClsProtectedEnd C>
+
+     private:
+      // custom <ClsPrivateBegin C>
+      // end <ClsPrivateBegin C>
+
       // custom <ClsPrivate C>
       // end <ClsPrivate C>
 
+      // custom <ClsPrivateEnd C>
+      // end <ClsPrivateEnd C>
+
+      // custom <ClsClose C>
+      // end <ClsClose C>
     };
 
     // custom <ClsPostDecl C>

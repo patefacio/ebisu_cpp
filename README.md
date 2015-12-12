@@ -27,6 +27,7 @@ examples:
 For C++, a custom block with a *tag* of *<ClsPublic Change_tracker>*
 designating the class public section of class *Change_tracker*:
 
+```dart
     template <typename T>
     class Change_tracker {
      public:
@@ -44,6 +45,7 @@ designating the class public section of class *Change_tracker*:
       T current_{};
       T previous_{};
     };
+```
 
 All code around the *custom block* is generated. Any code within a
 *Custom Block* is preserved from one run to the next of the code
