@@ -1,20 +1,22 @@
-import "dart:io";
-import "package:path/path.dart" as path;
-import "package:ebisu/ebisu.dart";
-import "package:ebisu/ebisu_dart_meta.dart";
-import "package:logging/logging.dart";
-import "package:quiver/iterables.dart";
+#!/usr/bin/env dart
+import 'dart:io';
+import 'package:args/args.dart';
+import 'package:ebisu/ebisu.dart';
+import 'package:ebisu/ebisu_dart_meta.dart';
+import 'package:logging/logging.dart';
+import 'package:path/path.dart';
+// custom <additional imports>
+import 'package:quiver/iterables.dart';
+// end <additional imports>
+final _logger = new Logger('ebisuCppEbisuCpp');
 
-String _topDir;
-
-final _logger = new Logger('ebisu_cpp');
-
-void main() {
-  Logger.root.onRecord.listen(
-      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
-  String here = path.absolute(Platform.script.toFilePath());
-
+main(List<String> args) {
+  Logger.root.onRecord.listen((LogRecord r) =>
+      print("${r.loggerName} [${r.level}]:\t${r.message}"));
   Logger.root.level = Level.OFF;
+  useDartFormatter = true;
+  String here = absolute(Platform.script.toFilePath());
+  // custom <ebisuCppEbisuDart main>
 
   final purpose = '''
 A library that supports code generation of C++ code and
@@ -23,7 +25,7 @@ enums, functions, ...)  and overall structure (cpp files, hpp
 files, build scripts, test files, etc.)
 ''';
 
-  _topDir = path.dirname(path.dirname(here));
+  _topDir = dirname(dirname(here));
   useDartFormatter = true;
   System ebisu = system('ebisu_cpp')
     ..includesHop = true
@@ -2352,7 +2354,14 @@ log group. An empty list will include all members in the table.
 **** NON GENERATED FILES ****
 ${indentBlock(brCompact(nonGeneratedFiles))}
 ''');
+
+  // end <ebisuCppEbisuDart main>
 }
+
+// custom <ebisuCppEbisuDart global>
+
+
+String _topDir;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Large doc comment for the cpp library
@@ -3448,3 +3457,4 @@ final _enumH5tMap = enumerate(_h5tTypeValues).fold(
     (prev, elm) => prev
       ..['H5tType.${_enumH5t.values[elm.index].camel}'] =
           doubleQuote(_h5tTypeValues[elm.index]));
+// end <ebisuCppEbisuDart global>
