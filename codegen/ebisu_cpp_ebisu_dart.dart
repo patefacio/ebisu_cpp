@@ -8,7 +8,7 @@ import 'package:path/path.dart';
 // custom <additional imports>
 import 'package:quiver/iterables.dart';
 // end <additional imports>
-final _logger = new Logger('ebisuCppEbisuCpp');
+final _logger = new Logger('ebisuCppEbisuDart');
 
 main(List<String> args) {
   Logger.root.onRecord.listen((LogRecord r) =>
@@ -3458,3 +3458,4 @@ final _enumH5tMap = enumerate(_h5tTypeValues).fold(
       ..['H5tType.${_enumH5t.values[elm.index].camel}'] =
           doubleQuote(_h5tTypeValues[elm.index]));
 // end <ebisuCppEbisuDart global>
+
