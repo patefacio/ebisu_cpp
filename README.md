@@ -167,7 +167,7 @@ for covered by *ebisu_cpp*:
 ```dart
             
  final raii = lib('raii')
-   ..namespace = namespace([ 'fcs', 'raii' ])
+   ..namespace = namespace([ 'ebisu', 'raii' ])
    ..headers = [
      header('change_tracker')
      ..includes = [ 'boost/call_traits.hpp' ]
@@ -177,7 +177,7 @@ for covered by *ebisu_cpp*:
      ]
 
 ```
-   Generates File: $TOP/fcs/cpp/fcs/raii/change_tracker.hpp
+   Generates File: $TOP/ebisu/cpp/ebisu/raii/change_tracker.hpp
 
 * [Impl]: A single cpp implementation, typically with a collection of
   C++ type things like includes, enums, classes, forward declarations,
@@ -192,7 +192,7 @@ for covered by *ebisu_cpp*:
 
 ```dart
   final utils = lib('utils')
-    ..namespace = namespace([ 'fcs', 'utils' ])
+    ..namespace = namespace([ 'ebisu', 'utils' ])
     ..headers = [
       header('block_indenter')
       ...,
@@ -210,11 +210,11 @@ for covered by *ebisu_cpp*:
   Generates Files:
 
 ```bash
- No change: $TOP/fcs/cpp/fcs/utils/block_indenter.hpp
- No change: $TOP/fcs/cpp/fcs/utils/fixed_size_char_array.hpp
- No change: $TOP/fcs/cpp/fcs/utils/utils.hpp
- No change: $TOP/fcs/cpp/fcs/utils/version_control_commit.hpp
- No change: $TOP/fcs/cpp/fcs/utils/histogram.hpp
+ No change: $TOP/ebisu/cpp/ebisu/utils/block_indenter.hpp
+ No change: $TOP/ebisu/cpp/ebisu/utils/fixed_size_char_array.hpp
+ No change: $TOP/ebisu/cpp/ebisu/utils/utils.hpp
+ No change: $TOP/ebisu/cpp/ebisu/utils/version_control_commit.hpp
+ No change: $TOP/ebisu/cpp/ebisu/utils/histogram.hpp
 ```
 
 
@@ -222,12 +222,12 @@ for covered by *ebisu_cpp*:
 
 ```dart
  final date_time_converter = app('date_time_converter')
-   ..namespace = namespace(['fcs'])
+   ..namespace = namespace(['ebisu'])
    ..customBlocks = [ fcbEndNamespace ]
    ..includes = [
-     'fcs/timestamp/conversion.hpp',
-     'fcs/utils/streamers/table.hpp',
-     'fcs/timestamp/conversion.hpp',
+     'ebisu/timestamp/conversion.hpp',
+     'ebisu/utils/streamers/table.hpp',
+     'ebisu/timestamp/conversion.hpp',
      'stdexcept',
    ]
    ..args = [
@@ -244,7 +244,7 @@ for covered by *ebisu_cpp*:
    ];
 ```
 
-  Generates: $TOP/fcs/cpp/app/date_time_converter/date_time_converter.cpp
+  Generates: $TOP/ebisu/cpp/app/date_time_converter/date_time_converter.cpp
   If run in context of installation updates build scripts with targets content:
 
 ```makefile
@@ -297,7 +297,7 @@ for covered by *ebisu_cpp*:
  };
  ...
  int main(int argc, char** argv) {
-   using namespace fcs;
+   using namespace ebisu;
    try {
      Program_options options = {argc, argv};
      if (options.help()) {
@@ -333,8 +333,8 @@ scream for code generation. Here are some that are covered by
   ..opLess
   ..isStreamable = true
   ..members = [
-    member('name')..type = 'fcs::utils::Fixed_size_char_array<64>',
-    member('descr')..type = 'fcs::utils::Fixed_size_char_array<256>',
+    member('name')..type = 'ebisu::utils::Fixed_size_char_array<64>',
+    member('descr')..type = 'ebisu::utils::Fixed_size_char_array<256>',
   ];
 ```
 
@@ -386,7 +386,7 @@ following addition will work:
 
 ```dart
  Code_packages_value(
-   fcs::utils::Fixed_size_char_array<64> name) :
+   ebisu::utils::Fixed_size_char_array<64> name) :
    name_ { name } {
  }
 ```
@@ -398,14 +398,14 @@ following addition will work:
 ```dart
  member('name')
  ..isByRef = true
- ..type = 'fcs::utils::Fixed_size_char_array<64>',
+ ..type = 'ebisu::utils::Fixed_size_char_array<64>',
 ```
 
 Now we have pass by reference, much better:
 
 ```C++
  Code_packages_value(
-   fcs::utils::Fixed_size_char_array<64> const & name) :
+   ebisu::utils::Fixed_size_char_array<64> const & name) :
    name_ { name } {
  }
 
@@ -435,7 +435,7 @@ Similarly for any C++ file, *Header*, *Impl*, or *App* which is an
 
 ```dart
  app('date_time_converter')
- ..namespace = namespace(['fcs'])
+ ..namespace = namespace(['ebisu'])
  ..customBlocks = [
    fcbCustomIncludes, fcbPreNamespace, fcbPostNamespace,
    fcbBeginNamespace, fcbEndNamespace ]
@@ -558,6 +558,6 @@ the issues. Both can work.
 Here are some samples illustrating C++ scripts and corresponding
 generated code:
 
-* Dart Source [utils.dart](https://github.com/patefacio/fcs/blob/master/codegen/bin/libs/utils.dart) => C++ Generated [utils C++](https://github.com/patefacio/fcs/tree/master/cpp/fcs/utils)
-* Dart Source [raii.dart](https://github.com/patefacio/fcs/blob/master/codegen/bin/libs/raii.dart) => C++ Generated  [raii C++](https://github.com/patefacio/fcs/tree/master/cpp/fcs/raii)
+* Dart Source [utils.dart](https://github.com/patefacio/ebisu/blob/master/codegen/bin/libs/utils.dart) => C++ Generated [utils C++](https://github.com/patefacio/ebisu/tree/master/cpp/ebisu/utils)
+* Dart Source [raii.dart](https://github.com/patefacio/ebisu/blob/master/codegen/bin/libs/raii.dart) => C++ Generated  [raii C++](https://github.com/patefacio/ebisu/tree/master/cpp/ebisu/raii)
 
