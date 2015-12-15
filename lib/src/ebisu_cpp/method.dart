@@ -328,8 +328,9 @@ class InterfaceImplementation extends CppEntity {
   /// InterfaceImplementation has no children - returns empty [Iterable]
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
-  get _methodPrefix =>
-      owner is Class ? owner.className : owner is CppFile ? onwer.baseName : '';
+  get _methodPrefix => owner is Class
+      ? (owner as Class).className
+      : owner is CppFile ? (owner as CppFile).baseName : '';
 
   Iterable<String> get methodImpls =>
       methodDecls.map((MethodDecl md) => brCompact([

@@ -176,7 +176,7 @@ ${chomp(br(testables.map((testable) => testCmake(testable))))}
 ######################################################################
 # Benchmark directives
 ######################################################################
-${chomp(br(benchmarkApps.map((bma) => benchmarkCmake(bma))))}
+${chomp(br(benchmarkApps.map((bma) => benchmarkCmake(bma as BenchmarkApp))))}
 
 ######################################################################
 # Install directives

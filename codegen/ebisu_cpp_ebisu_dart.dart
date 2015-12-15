@@ -2311,43 +2311,6 @@ log group. An empty list will include all members in the table.
         ],
     ];
 
-  ebisu.scripts = [
-    script('bootstrap_ebisu_cpp')
-      ..imports = [
-        'package:id/id.dart',
-        'package:path/path.dart',
-        "'package:ebisu/ebisu.dart' as ebisu",
-        'package:ebisu/ebisu_dart_meta.dart',
-      ]
-      ..doc = 'Creates an ebisu_cpp setup'
-      ..classes = [
-        class_('project')
-          ..hasJsonToString = true
-          ..members = [
-            member('id')..type = 'Id',
-            member('root_path'),
-            member('codegen_path'),
-            member('script_name'),
-            member('ebisu_file_path'),
-            member('cpp_file_path'),
-          ]
-      ]
-      ..args = [
-        scriptArg('project_path')
-          ..doc = 'Path to top level of desired ebisu project'
-          ..abbr = 'p',
-        scriptArg('add_app')
-          ..doc = 'Add library to project'
-          ..abbr = 'a',
-        scriptArg('add_lib')
-          ..doc = 'Add library to project'
-          ..abbr = 'l',
-        scriptArg('add_script')
-          ..doc = 'Add script to project'
-          ..abbr = 's',
-      ]
-  ];
-
   ebisu.generate();
 
   _logger.warning('''
