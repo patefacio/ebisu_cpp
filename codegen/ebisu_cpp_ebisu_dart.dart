@@ -1715,13 +1715,6 @@ libraries, apps, and tests'''
                     'Responsible for generating a suitable CMakeLists.txt file'
                 ..extend = 'InstallationBuilder',
             ],
-          part('script')
-            ..classes = [
-              class_('script')
-                ..extend = 'CppEntity'
-                ..implement = ['CodeGenerator']
-                ..members = [],
-            ],
           part('benchmark')
             ..enums = []
             ..classes = [
@@ -1940,9 +1933,6 @@ Benchmark apps are just [App] instances with some generated benchmark code
 '''
                     ..type = 'List<App>'
                     ..access = IA
-                    ..classInit = [],
-                  member('scripts')
-                    ..type = 'List<Script>'
                     ..classInit = [],
                   member('test_provider')
                     ..doc = 'Provider for generating tests'
@@ -2313,7 +2303,7 @@ log group. An empty list will include all members in the table.
 
   ebisu.generate();
 
-  _logger.warning('''
+  print('''
 **** NON GENERATED FILES ****
 ${indentBlock(brCompact(nonGeneratedFiles))}
 ''');
@@ -3421,3 +3411,4 @@ final _enumH5tMap = enumerate(_h5tTypeValues).fold(
       ..['H5tType.${_enumH5t.values[elm.index].camel}'] =
           doubleQuote(_h5tTypeValues[elm.index]));
 // end <ebisuCppEbisuDart global>
+

@@ -49,7 +49,6 @@ class Installation extends CppEntity implements CodeGenerator {
 
   /// Apps in this [Installation].
   List<App> apps = [];
-  List<Script> scripts = [];
 
   /// Provider for generating tests
   TestProvider testProvider = new CatchTestProvider();
@@ -128,7 +127,7 @@ Installation($rootFilePath)
   addApp(App app) => apps.add(app);
 
   Iterable<CppEntity> get children =>
-      concat([benchmarks, benchmarkGroups, apps, libs, scripts, cppLoggers]);
+      concat([benchmarks, benchmarkGroups, apps, libs, cppLoggers]);
 
   // Generate the installation
   //
