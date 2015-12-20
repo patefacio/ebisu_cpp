@@ -18,6 +18,7 @@ import 'test_cpp_switch.dart' as test_cpp_switch;
 import 'test_cpp_benchmark.dart' as test_cpp_benchmark;
 import 'test_cpp_template.dart' as test_cpp_template;
 import 'test_hdf5_support.dart' as test_hdf5_support;
+import 'test_qt_support.dart' as test_qt_support;
 import 'test_enumerated_dispatcher.dart' as test_enumerated_dispatcher;
 
 main() {
@@ -45,5 +46,6 @@ main() {
   test_cpp_benchmark.main();
   test_cpp_template.main();
   test_hdf5_support.main();
+  test_qt_support.main();
   test_enumerated_dispatcher.main();
 }

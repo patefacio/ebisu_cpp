@@ -35,6 +35,13 @@ files, build scripts, test files, etc.)
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
+    ..scripts = [
+      script('qt_class_finder')
+      ..doc = 'Finds includes that look like classes'
+      ..args = [
+        scriptArg('qt_include_path')..doc = 'Where to find includes'..abbr = 'p',
+      ]
+    ]
     ..testLibraries = [
       library('test_cpp_enum'),
       library('test_cpp_member'),
@@ -55,6 +62,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_benchmark'),
       library('test_cpp_template'),
       library('test_hdf5_support'),
+      library('test_qt_support'),
       library('test_enumerated_dispatcher'),
     ]
     ..libraries = [
@@ -2028,6 +2036,23 @@ Establishes an interface to allow decoration of classes and updates
                 ]
             ],
         ],
+
+      library('qt_support')
+      ..imports = [
+        'package:ebisu_cpp/ebisu_cpp.dart',
+        'package:ebisu/ebisu.dart',
+        'package:path/path.dart',
+      ]
+      ..includesLogger = true
+      ..parts = [
+        part('class_basics')
+        ..classes = [
+          class_('qt_class')
+          ..extend = 'Class'
+          ..doc = 'Wrapper for classes requiring Q_OBJECT'
+        ]
+      ],
+
       library('cookbook')
         ..includesLogger = true
         ..imports = [
@@ -3411,4 +3436,3 @@ final _enumH5tMap = enumerate(_h5tTypeValues).fold(
       ..['H5tType.${_enumH5t.values[elm.index].camel}'] =
           doubleQuote(_h5tTypeValues[elm.index]));
 // end <ebisuCppEbisuDart global>
-
