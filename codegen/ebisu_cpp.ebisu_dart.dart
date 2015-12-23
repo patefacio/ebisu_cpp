@@ -2045,11 +2045,14 @@ Establishes an interface to allow decoration of classes and updates
       ]
       ..includesLogger = true
       ..parts = [
-        part('class_basics')
+        part('qt_basics')
         ..classes = [
           class_('qt_class')
           ..extend = 'Class'
-          ..doc = 'Wrapper for classes requiring Q_OBJECT'
+          ..doc = 'Wrapper for classes requiring Q_OBJECT',
+          class_('qt_app')
+          ..extend = 'App'
+          ..doc = 'Wrapper for qt qui app',
         ]
       ],
 
@@ -3436,3 +3439,4 @@ final _enumH5tMap = enumerate(_h5tTypeValues).fold(
       ..['H5tType.${_enumH5t.values[elm.index].camel}'] =
           doubleQuote(_h5tTypeValues[elm.index]));
 // end <ebisuCppEbisuDart global>
+

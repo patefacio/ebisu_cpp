@@ -22,28 +22,7 @@ main([List<String> args]) {
 // custom <main>
 
   test('qt class', () {
-    final env = header('q_environment')
-      ..namespace = namespace(['ebisu', 'gui', 'environment'])
-      ..classes = [
-        qtClass('tree_path_model')
-          ..bases = [base('QAbstractItemModel')]
-          ..members = [
-            member('column_headers')..type = 'Header_array_t',
-            member('column_count')..type = 'size_t',
-          ],
-        qtClass('q_environment')
-          ..bases = [base('QWidget')]
-          ..members = [
-            member('variable_list_table')..type = 'QTableWidget *',
-            member('spitter')..type = 'QSplitter *',
-            member('tree_path_model')..type = 'Tree_path_model *',
-            member('path_splitter')..type = 'QSplitter *',
-            member('problem_table')..type = 'QTableWidget *',
-          ]
-      ]
-      ..setAsRoot();
-
-    print(env.contents);
+    expect(qtClass('tree_path_model').definition.contains('Q_OBJECT'), true);
   });
 
 // end <main>

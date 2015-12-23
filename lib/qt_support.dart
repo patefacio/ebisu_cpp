@@ -4,12 +4,11 @@ import 'package:ebisu/ebisu.dart';
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart';
-import 'package:quiver/iterables.dart';
 
 // custom <additional imports>
 // end <additional imports>
 
-part 'src/qt_support/class_basics.dart';
+part 'src/qt_support/qt_basics.dart';
 
 final _logger = new Logger('qt_support');
 

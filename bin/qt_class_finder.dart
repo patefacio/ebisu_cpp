@@ -130,9 +130,10 @@ main(List<String> args) {
   final literal = brCompact([
     'final qtClassToNamespace = {',
     enumerate(results.keys)
-    .map((iv) => (iv.index % 4) == 3
-        ? '  "${iv.value}" : "${results[iv.value]}",\n'
-        : '  "${iv.value}" : "${results[iv.value]}", ').join(),
+        .map((iv) => (iv.index % 4) == 3
+            ? '  "${iv.value}" : "${results[iv.value]}",\n'
+            : '  "${iv.value}" : "${results[iv.value]}", ')
+        .join(),
     '}'
   ]);
 
