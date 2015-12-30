@@ -318,23 +318,23 @@ class App extends Impl implements CodeGenerator {
     _checkAddLogLevel();
     _checkAddHelp();
     _includes.add('iostream');
-    if (hasSignalHandler) _includes
-        .add('ebisu/linux_specific/application_signal_handler.hpp');
+    if (hasSignalHandler)
+      _includes.add('ebisu/linux_specific/application_signal_handler.hpp');
     if (args.isNotEmpty) _includes.add('boost/program_options.hpp');
     setAppFilePathFromRoot(cppPath);
     headers.forEach((header) => header._setHeaderFilePath(appPath));
     impls.forEach((impl) => impl._setImplFilePath(cppPath));
 
     getCodeBlock(fcbBeginNamespace).snippets.add(brCompact([
-      '''
+          '''
 namespace {
   char const* app_descr = R"(''',
-      br([brief, descr]),
-      '''
+          br([brief, descr]),
+          '''
 
 AllowedOptions)";
 }'''
-    ]));
+        ]));
 
     getCodeBlock(fcbPostNamespace).snippets.add(_cppContents);
     classes.add(_programOptions);
@@ -354,10 +354,12 @@ AllowedOptions)";
 
   void _checkAddHelp() {
     if (!args.any((a) => _isHelpArg(a) || a.shortName == 'h')) {
-      args.insert(0, new AppArg(new Id('help'))
-        ..shortName = 'h'
-        ..defaultValue = false
-        ..descr = 'Display help information');
+      args.insert(
+          0,
+          new AppArg(new Id('help'))
+            ..shortName = 'h'
+            ..defaultValue = false
+            ..descr = 'Display help information');
     }
   }
 
@@ -382,10 +384,12 @@ Specify log level [trace, debug, info, notice, warn, err, critical, alert, emerg
     ..isStruct = true
     ..isStreamable = true
     ..usesStreamers = _hasMultiple
-    ..members = args.map((a) => member(a.id)
-      ..isByRef = a.isMultiple || a.isString
-      ..type = a.cppType
-      ..access = ro).toList()
+    ..members = args
+        .map((a) => member(a.id)
+          ..isByRef = a.isMultiple || a.isString
+          ..type = a.cppType
+          ..access = ro)
+        .toList()
     ..getCodeBlock(clsOpen).snippets.add(_argvCtor);
 
   get _argvCtor => '''

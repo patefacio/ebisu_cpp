@@ -107,8 +107,8 @@ abstract class EnumeratedDispatcher {
       {this.errorDispatcher, this.enumerator: 'discriminator'}) {
     enumeration = enumeration_;
     if (errorDispatcher == null) {
-      errorDispatcher = (_) =>
-          'assert(!"Enumerator not in {${enumeration.join(", ")}}");';
+      errorDispatcher =
+          (_) => 'assert(!"Enumerator not in {${enumeration.join(", ")}}");';
     }
   }
 
@@ -553,9 +553,10 @@ default: ${errorDispatcher(this)}
 
   _innerSwitch(values) {
     return (new CharBinaryDispatcher(values, dispatcher, enumerator: enumerator)
-      ..usesEnumeratorDirectly = true
-      ..hasNoLengthChecks = true
-      ..enumeratorType = dctStringLiteral).dispatchBlock;
+          ..usesEnumeratorDirectly = true
+          ..hasNoLengthChecks = true
+          ..enumeratorType = dctStringLiteral)
+        .dispatchBlock;
   }
 
   _innerCase(length) => '''

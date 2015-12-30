@@ -141,10 +141,10 @@ createH5DataSetSpecifier(Class targetClass,
         ..usings = [using('record', targetClass.className)]
         ..isSingleton = true
         ..defaultCtor.customCodeBlock.snippets.add(brCompact([
-          'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, '
-              'sizeof(${targetClass.className}));',
-          _memberCompoundTypeEntries(targetClass, typeMapper)
-        ]))
+              'compound_data_type_id_ = H5Tcreate(H5T_COMPOUND, '
+                  'sizeof(${targetClass.className}));',
+              _memberCompoundTypeEntries(targetClass, typeMapper)
+            ]))
         ..members = [
           member('data_set_name')
             ..init = '/${targetClass.id.snake}'

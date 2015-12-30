@@ -10,6 +10,8 @@ class Impl extends CppFile {
 
   String get contents => _contentsWithBlocks;
 
+  get requiresLogging => false;
+
   setLibFilePathFromRoot(String rootFilePath, [name]) {
     _basename = name == null ? namer.nameImpl(id) : name;
     _filePath = path.join(rootFilePath, 'lib', namespace.asPath, _basename);

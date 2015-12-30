@@ -205,8 +205,8 @@ if(strncmp("125", &discriminator_[0], 3) == 0) {
           ['125',],
           (dispatcher, enumerator) =>
               'handleValue$enumerator(buffer);\ncontinue;')
-        ..errorDispatcher = ((_) =>
-            'std::cerr << "Bogus tag " << discriminator;')
+        ..errorDispatcher =
+            ((_) => 'std::cerr << "Bogus tag " << discriminator;')
         ..enumeratorType = dctStringLiteral;
 
       if (showCode) print(dispatcher.dispatchBlock);

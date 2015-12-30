@@ -51,9 +51,10 @@ Wee willy winkee went through the town.'''
       'type inference: List of lists',
       () => expect(
           (member('foo')
-            ..init = [
-              [1, 2, 3]
-            ]).type,
+                ..init = [
+                  [1, 2, 3]
+                ])
+              .type,
           'std::vector< std::vector< int > >'));
 
   test('member turns non-snake id to id', () {
@@ -111,11 +112,11 @@ Wee willy winkee went through the town.'''
 
   aContainsB(String a, String b) => darkMatter(a).contains(darkMatter(b));
 
-  memberWithAccess(access, [cppAccess = null]) =>
-      class_('c_1')..members.add(member('x')
-        ..type = 'std::string'
-        ..access = access
-        ..cppAccess = cppAccess);
+  memberWithAccess(access, [cppAccess = null]) => class_('c_1')
+    ..members.add(member('x')
+      ..type = 'std::string'
+      ..access = access
+      ..cppAccess = cppAccess);
 
   final reader = 'std::string const& x() const';
   final writer = 'void x(std::string &x)';
@@ -183,10 +184,11 @@ ${indentBlock(definition, '    ')}
     expect(
         darkSame(
             (member('message_length')
-              ..type = 'int32_t'
-              ..access = ro
-              ..getterReturnModifier = ((member, oldValue) =>
-                  'endian_convert($oldValue)')).getter,
+                  ..type = 'int32_t'
+                  ..access = ro
+                  ..getterReturnModifier =
+                      ((member, oldValue) => 'endian_convert($oldValue)'))
+                .getter,
             '''
 //! getter for message_length_ (access is Ro)
 int32_t message_length() const {
@@ -198,20 +200,21 @@ int32_t message_length() const {
     expect(
         darkSame(
             (class_('class_with_special_accessor')
-              ..members = [
-                member('only_one')
-                  ..type = 'some_struct_t'
-                  ..access = ia
-                  ..withCustomBlock((Member m, CodeBlock cb) {
-                    cb.snippets.add('''
+                  ..members = [
+                    member('only_one')
+                      ..type = 'some_struct_t'
+                      ..access = ia
+                      ..withCustomBlock((Member m, CodeBlock cb) {
+                        cb.snippets.add('''
 /// just to illustrate custom member function
 ${m.type} const& get_${m.type}() {
   _logger.info("badabing accessed my struct");
   return ${m.vname};
 }
 ''');
-                  }),
-              ]).definition,
+                      }),
+                  ])
+                .definition,
             '''
 class Class_with_special_accessor
 {
@@ -291,10 +294,11 @@ class C {
   });
 
   test('class member public and read/write access', () {
-    final c = class_('c_1')..members.add(member('x')
-      ..type = 'std::string'
-      ..access = rw
-      ..cppAccess = public);
+    final c = class_('c_1')
+      ..members.add(member('x')
+        ..type = 'std::string'
+        ..access = rw
+        ..cppAccess = public);
 
     // Note special naming of public with read-only or read-write access.  In
     // this case the user wants the accessors - so ensure the naming is as if it

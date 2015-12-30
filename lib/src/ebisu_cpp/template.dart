@@ -105,7 +105,8 @@ class TemplateGrammarDefinition extends GrammarDefinition {
 
   prodTemplateParm() => prod(token, 'typename') & prod(prodIdentifier);
 
-  prodTemplateParmList() => prod(token, char('<')) &
+  prodTemplateParmList() =>
+      prod(token, char('<')) &
       prod(prodTemplateParms).optional() &
       prod(token, char('>'));
 
@@ -116,17 +117,20 @@ class TemplateGrammarDefinition extends GrammarDefinition {
 
   prodHidden() => prod(prodHiddenStuff).plus();
 
-  prodHiddenStuff() => prod(prodWhitespace) |
+  prodHiddenStuff() =>
+      prod(prodWhitespace) |
       prod(prodSingleLineComment) |
       prod(prodMultiLineComment);
 
   prodWhitespace() => whitespace();
 
-  prodSingleLineComment() => string('//') &
+  prodSingleLineComment() =>
+      string('//') &
       prod(prodNewline).neg().star() &
       prod(prodNewline).optional();
 
-  prodMultiLineComment() => string('/*') &
+  prodMultiLineComment() =>
+      string('/*') &
       (prod(prodMultiLineComment) | string('*/').neg()).star() &
       string('*/');
 

@@ -18,7 +18,7 @@ class QtClass extends Class {
       final cls = match.group(0);
       final ns = qtClassToNamespace[cls];
       if (ns != null) {
-        this.includes.add('$ns/$cls');
+        this.includes.add('$cls');
       }
     });
   }

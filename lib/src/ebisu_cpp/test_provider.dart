@@ -47,8 +47,8 @@ abstract class TestClause extends CppEntity {
   get _uniqueTag => '(${uniqueId})';
 
   _setUniqueTag() {
-    if (!startCodeBlock.hasContent &&
-        !endCodeBlock.hasContent) startCodeBlock.tag = _uniqueTag;
+    if (!startCodeBlock.hasContent && !endCodeBlock.hasContent)
+      startCodeBlock.tag = _uniqueTag;
   }
 
   get startBlockText {

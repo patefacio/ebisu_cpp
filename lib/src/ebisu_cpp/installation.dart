@@ -186,11 +186,13 @@ Installation($rootFilePath)
 
     if (generateDoxyFile) {
       final docPath = path.join(rootFilePath, 'doc');
-      mergeWithFile((doxyConfig
-            ..projectName = id.snake
-            ..projectBrief = doc
-            ..input = cppPath
-            ..outputDirectory = path.join(docPath, 'doxydoc')).config,
+      mergeWithFile(
+          (doxyConfig
+                ..projectName = id.snake
+                ..projectBrief = doc
+                ..input = cppPath
+                ..outputDirectory = path.join(docPath, 'doxydoc'))
+              .config,
           path.join(docPath, '${id.snake}.doxy'));
     }
 
@@ -286,9 +288,8 @@ class PathLocator {
   // custom <class PathLocator>
 
   PathLocator(this.envVar, this.defaultPath) {
-    if (envVar == null &&
-        defaultPath ==
-            null) throw 'Valid PathLocator requires envVar and/or defaultPath';
+    if (envVar == null && defaultPath == null)
+      throw 'Valid PathLocator requires envVar and/or defaultPath';
 
     if (envVar != null) {
       _path = Platform.environment[envVar];
@@ -326,7 +327,8 @@ get _home => Platform.environment["HOME"];
 
 var _locatorPaths = {
   'boost_build': new PathLocator(
-      'BOOST_BUILD_PATH', path.join(_home, 'install', 'boost-build')).path,
+          'BOOST_BUILD_PATH', path.join(_home, 'install', 'boost-build'))
+      .path,
   'boost_install': new PathLocator('BOOST_INSTALL_PATH', null).path,
   'cpp_install':
       new PathLocator('CPP_INSTALL_PATH', path.join(_home, 'install', 'cpp'))

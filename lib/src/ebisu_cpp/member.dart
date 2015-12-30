@@ -293,8 +293,8 @@ class Member extends CppEntity {
   withCustomBlock(void f(Member, CodeBlock)) => f(this, customBlock);
 
   String toString() {
-    if (isStatic &&
-        isMutable) throw "Member $id may not be both static and mutable";
+    if (isStatic && isMutable)
+      throw "Member $id may not be both static and mutable";
     return brCompact(_parts);
   }
 

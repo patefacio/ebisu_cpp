@@ -242,9 +242,9 @@ class BenchmarkGroup extends CppEntity {
       ..includes
           .addAll(_benchmarks.map((bm) => bm.benchmarkHeader.includeFilePath))
       ..getCodeBlock(fcbPostNamespace).snippets.add(brCompact([
-        benchmarks.map((bm) => bm._namespace.wrap(bm._benchmarkCode)),
-        '\nBENCHMARK_MAIN()'
-      ]));
+            benchmarks.map((bm) => bm._namespace.wrap(bm._benchmarkCode)),
+            '\nBENCHMARK_MAIN()'
+          ]));
   }
 
   // end <class BenchmarkGroup>

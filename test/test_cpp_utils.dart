@@ -91,7 +91,8 @@ namespace c {
   test('mergeIncludes', () {
     expect(
         (includes(['iostream', 'sstream'])
-          ..mergeIncludes(includes(['stdexcept', 'iostream']))).includes,
+              ..mergeIncludes(includes(['stdexcept', 'iostream'])))
+            .includes,
         includes(['iostream', 'sstream', 'stdexcept']).includes);
 
     expect((includes(['iostream', 'sstream'])..mergeIncludes(null)).includes,

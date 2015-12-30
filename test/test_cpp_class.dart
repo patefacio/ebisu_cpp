@@ -563,13 +563,14 @@ private:
     expect(
         darkSame(
             (class_('a')
-              ..members = [
-                member('goo')
-                  ..init = 42
-                  ..customBlock.snippets.add('''
+                  ..members = [
+                    member('goo')
+                      ..init = 42
+                      ..customBlock.snippets.add('''
 int extraCounter { 43 };
 ''')
-              ]).definition,
+                  ])
+                .definition,
             '''
 class A
 {
@@ -587,9 +588,11 @@ private:
     expect(
         darkSame(
             (class_('a')
-              ..members = [
-                member('x')..withCustomBlock((member, cb) => cb.tag = 'gimme')
-              ]).definition,
+                  ..members = [
+                    member('x')
+                      ..withCustomBlock((member, cb) => cb.tag = 'gimme')
+                  ])
+                .definition,
             '''
 class A
 {
@@ -610,14 +613,15 @@ private:
     expect(
         darkSame(
             (class_('a')
-              ..isStreamable = true
-              ..members = [
-                member('x')
-                  ..access = ro
-                  ..type = 'int'
-                  ..getterReturnModifier = ((member, oldValue) =>
-                      'endian_convert($oldValue)')
-              ]).definition,
+                  ..isStreamable = true
+                  ..members = [
+                    member('x')
+                      ..access = ro
+                      ..type = 'int'
+                      ..getterReturnModifier =
+                          ((member, oldValue) => 'endian_convert($oldValue)')
+                  ])
+                .definition,
             r'''
 class A {
 
@@ -648,12 +652,13 @@ private:
     expect(
         darkSame(
             (class_('a')
-              ..isStreamable = true
-              ..members = [
-                member('x')
-                  ..access = ro
-                  ..type = 'int'
-              ]).definition,
+                  ..isStreamable = true
+                  ..members = [
+                    member('x')
+                      ..access = ro
+                      ..type = 'int'
+                  ])
+                .definition,
             r'''
 class A {
 

@@ -263,10 +263,11 @@ MethodDecls must be initialized with String or MethodDecl
   bool get isEmpty => methodDecls.isEmpty;
 
   String get definition => (class_(id)
-    ..doc = doc
-    ..getCodeBlock(clsPublic).snippets.addAll([
-      chomp(br(_methodDecls.map((m) => m.commentedDeclaration(false))))
-    ])).definition;
+        ..doc = doc
+        ..getCodeBlock(clsPublic).snippets.addAll([
+          chomp(br(_methodDecls.map((m) => m.commentedDeclaration(false))))
+        ]))
+      .definition;
 
   String get description => '''
 ${_methodDecls.map((md) => md.asVirtual).join('\n')}

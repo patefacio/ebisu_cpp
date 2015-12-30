@@ -175,7 +175,8 @@ const _posixHeaders = const [
 const _linuxHeaders = const ['sys/prctl.h',];
 
 /// Returns true if [h] is system header
-bool isSystemHeader(String h) => _systemHeaders.contains(h) ||
+bool isSystemHeader(String h) =>
+    _systemHeaders.contains(h) ||
     _posixHeaders.contains(h) ||
     _linuxHeaders.contains(h);
 
