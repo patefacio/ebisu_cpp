@@ -7,12 +7,13 @@ import 'package:logging/logging.dart';
 import 'package:path/path.dart';
 // custom <additional imports>
 import 'package:quiver/iterables.dart';
+
 // end <additional imports>
 final _logger = new Logger('ebisuCppEbisuDart');
 
 main(List<String> args) {
-  Logger.root.onRecord.listen((LogRecord r) =>
-      print("${r.loggerName} [${r.level}]:\t${r.message}"));
+  Logger.root.onRecord.listen(
+      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
   Logger.root.level = Level.OFF;
   useDartFormatter = true;
   String here = absolute(Platform.script.toFilePath());
@@ -37,10 +38,12 @@ files, build scripts, test files, etc.)
     ..doc = purpose
     ..scripts = [
       script('qt_class_finder')
-      ..doc = 'Finds includes that look like classes'
-      ..args = [
-        scriptArg('qt_include_path')..doc = 'Where to find includes'..abbr = 'p',
-      ]
+        ..doc = 'Finds includes that look like classes'
+        ..args = [
+          scriptArg('qt_include_path')
+            ..doc = 'Where to find includes'
+            ..abbr = 'p',
+        ]
     ]
     ..testLibraries = [
       library('test_cpp_enum'),
@@ -541,12 +544,9 @@ Classes to facilitate generating C++ template code
 Represents a template declaration comprized of a list of [decls]
 '''
                 ..members = [member('parms')..type = 'List<TemplateParm>',],
-
               class_('template_specialization')
-              ..doc = 'Specifies a set of specialization template parameters'
-              ..members = [
-                member('parms')..type = 'List<String>',
-              ]
+                ..doc = 'Specifies a set of specialization template parameters'
+                ..members = [member('parms')..type = 'List<String>',]
             ],
           part('enum')
             ..classes = [
@@ -1032,12 +1032,12 @@ on the same class and results lazy-inited here'''
                     ..type = 'Template'
                     ..access = RO,
                   member('template_specialization')
-                  ..doc = '''
+                    ..doc = '''
 A template specialization associated with the class.  Use this when
 the class is a template specialization. If class is a partial template
 specialization, use both [template] and [templateSpecialization].
 '''
-                  ..type = 'TemplateSpecialization',
+                    ..type = 'TemplateSpecialization',
                   member('forward_decls')
                     ..doc =
                         'Forward declarations near top of file, before the class definition'
@@ -1125,7 +1125,7 @@ Base classes this class derives form.
                     ..classInit = [],
                   member('enums_forward')
                     ..type = 'List<Enum>'
-                  ..access = RO
+                    ..access = RO
                     ..classInit = [],
                   member('enums')
                     ..type = 'List<Enum>'
@@ -1718,6 +1718,37 @@ libraries, apps, and tests'''
             ],
           part('cmake_support')
             ..classes = [
+              class_('lib_cmake')
+                ..doc = 'Cmake file for a library'
+                ..members = ([
+                  member('lib')..type = 'Lib',
+                  member('lib_source_filenames')..classInit = [],
+                  member('target_include_dirnames')..classInit = [],
+                ]
+                  ..addAll([
+                    'set_statements',
+                    'add_library',
+                    'target_include_directories'
+                  ].map((tag) => member(tag)
+                    ..type = 'CodeBlock'
+                    ..classInit = "new ScriptCodeBlock('$tag')..hasSnippetsFirst = true"))),
+              class_('installation_cmake')
+                ..doc = 'Cmake file for the installation'
+                ..members = ([
+                  member('installation')..type = 'Installation',
+                  member('minimum_required_version')..classInit = '2.8',
+                  member('include_directories')..classInit = [],
+                  member('link_directories')..classInit = [],
+                ]
+                  ..addAll([
+                    'includes',
+                    'set_statements',
+                    'boost_support',
+                    'find_packages',
+                    'lib_public_headers',
+                  ].map((tag) => member('${tag}_code_block')
+                    ..type = 'CodeBlock'
+                    ..classInit = "new ScriptCodeBlock('$tag')..hasSnippetsFirst = true"))),
               class_('cmake_installation_builder')
                 ..doc =
                     'Responsible for generating a suitable CMakeLists.txt file'
@@ -1940,7 +1971,7 @@ Benchmark apps are just [App] instances with some generated benchmark code
 [apps], but tied into the build scripts.
 '''
                     ..type = 'List<App>'
-                    ..access = IA
+                    ..access = RO
                     ..classInit = [],
                   member('test_provider')
                     ..doc = 'Provider for generating tests'
@@ -2036,26 +2067,24 @@ Establishes an interface to allow decoration of classes and updates
                 ]
             ],
         ],
-
       library('qt_support')
-      ..imports = [
-        'package:ebisu_cpp/ebisu_cpp.dart',
-        'package:ebisu/ebisu.dart',
-        'package:path/path.dart',
-      ]
-      ..includesLogger = true
-      ..parts = [
-        part('qt_basics')
-        ..classes = [
-          class_('qt_class')
-          ..extend = 'Class'
-          ..doc = 'Wrapper for classes requiring Q_OBJECT',
-          class_('qt_app')
-          ..extend = 'App'
-          ..doc = 'Wrapper for qt qui app',
+        ..imports = [
+          'package:ebisu_cpp/ebisu_cpp.dart',
+          'package:ebisu/ebisu.dart',
+          'package:path/path.dart',
         ]
-      ],
-
+        ..includesLogger = true
+        ..parts = [
+          part('qt_basics')
+            ..classes = [
+              class_('qt_class')
+                ..extend = 'Class'
+                ..doc = 'Wrapper for classes requiring Q_OBJECT',
+              class_('qt_app')
+                ..extend = 'App'
+                ..doc = 'Wrapper for qt qui app',
+            ]
+        ],
       library('cookbook')
         ..includesLogger = true
         ..imports = [
@@ -2267,7 +2296,6 @@ strings as discriminators.
                 ],
             ]
         ],
-
       library('hdf5_support')
         ..imports = [
           'package:ebisu_cpp/ebisu_cpp.dart',
@@ -2340,7 +2368,6 @@ ${indentBlock(brCompact(nonGeneratedFiles))}
 }
 
 // custom <ebisuCppEbisuDart global>
-
 
 String _topDir;
 
@@ -3439,4 +3466,3 @@ final _enumH5tMap = enumerate(_h5tTypeValues).fold(
       ..['H5tType.${_enumH5t.values[elm.index].camel}'] =
           doubleQuote(_h5tTypeValues[elm.index]));
 // end <ebisuCppEbisuDart global>
-

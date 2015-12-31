@@ -50,6 +50,13 @@ class Installation extends CppEntity implements CodeGenerator {
   /// Apps in this [Installation].
   List<App> apps = [];
 
+  /// Benchmark Apps in this [Installation].
+  ///
+  /// Benchmark apps are just [App] instances with some generated benchmark code
+  /// (i.e. using [benchmark](https://github.com/google/benchmark)) kept separate from
+  /// [apps], but tied into the build scripts.
+  List<App> get benchmarkApps => _benchmarkApps;
+
   /// Provider for generating tests
   TestProvider testProvider = new CatchTestProvider();
 
@@ -260,12 +267,6 @@ Installation($rootFilePath)
 
   String _rootFilePath;
   Map<String, String> _paths = {};
-
-  /// Benchmark Apps in this [Installation].
-  ///
-  /// Benchmark apps are just [App] instances with some generated benchmark code
-  /// (i.e. using [benchmark](https://github.com/google/benchmark)) kept separate from
-  /// [apps], but tied into the build scripts.
   List<App> _benchmarkApps = [];
 
   /// Namer to be used when generating names during generation. There is a

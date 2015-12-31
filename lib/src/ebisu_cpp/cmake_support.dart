@@ -1,5 +1,210 @@
 part of ebisu_cpp.ebisu_cpp;
 
+/// Cmake file for a library
+class LibCmake {
+  Lib lib;
+  List libSourceFilenames = [];
+  List targetIncludeDirnames = [];
+  CodeBlock setStatements = new ScriptCodeBlock('set_statements')
+    ..hasSnippetsFirst = true;
+  CodeBlock addLibrary = new ScriptCodeBlock('add_library')
+    ..hasSnippetsFirst = true;
+  CodeBlock targetIncludeDirectories =
+      new ScriptCodeBlock('target_include_directories')
+        ..hasSnippetsFirst = true;
+
+  // custom <class LibCmake>
+
+  LibCmake(this.lib) {
+    libSourceFilenames =
+        lib.impls.map((var impl) => path.basename(impl.filePath)).toList();
+
+    setStatements.snippets.addAll(['set(CMAKE_VERBOSE_MAKEFILE ON)']);
+
+    addLibrary
+      ..tag = null
+      ..snippets.addAll([
+        brCompact(['add_library(${lib.id.snake}',])
+      ]);
+  }
+
+  get definition => brCompact([
+        setStatements,
+        addLibrary
+          ..snippets = [
+            brCompact([
+              'add_library(${lib.id.snake}',
+              indentBlock(brCompact(libSourceFilenames)),
+              ')'
+            ])
+          ],
+        targetIncludeDirectories
+      ]);
+
+  // end <class LibCmake>
+
+}
+
+/// Cmake file for the installation
+class InstallationCmake {
+  Installation installation;
+  String minimumRequiredVersion = '2.8';
+  List includeDirectories = [];
+  List linkDirectories = [];
+  CodeBlock includesCodeBlock = new ScriptCodeBlock('includes')
+    ..hasSnippetsFirst = true;
+  CodeBlock setStatementsCodeBlock = new ScriptCodeBlock('set_statements')
+    ..hasSnippetsFirst = true;
+  CodeBlock boostSupportCodeBlock = new ScriptCodeBlock('boost_support')
+    ..hasSnippetsFirst = true;
+  CodeBlock findPackagesCodeBlock = new ScriptCodeBlock('find_packages')
+    ..hasSnippetsFirst = true;
+  CodeBlock libPublicHeadersCodeBlock =
+      new ScriptCodeBlock('lib_public_headers')..hasSnippetsFirst = true;
+
+  // custom <class InstallationCmake>
+
+  InstallationCmake(this.installation) {
+    includesCodeBlock.snippets.add('include(CheckCXXCompilerFlag)');
+
+    includeDirectories
+        .addAll([r'${CMAKE_CURRENT_LIST_DIR}', r'${Boost_INCLUDE_DIRS}']);
+
+    setStatementsCodeBlock.snippets.addAll([
+      r'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")',
+      r'set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -DDEBUG")',
+      r'set(CMAKE_INCLUDE_CURRENT_DIR ON)',
+    ]);
+
+    boostSupportCodeBlock.snippets.addAll([
+      'set(Boost_USE_STATIC_LIBS OFF)',
+      'set(Boost_USE_MULTITHREADED ON)',
+      'set(Boost_USE_STATIC_RUNTIME OFF)',
+      '''
+find_package(Boost 1.54.0 COMPONENTS program_options system thread
+${scriptCustomBlock("boost lib components")}
+)
+'''
+    ]);
+
+    libPublicHeadersCodeBlock.snippets.addAll(concat([
+      installation.libs.map((lib) => lib.headers.map(
+          (header) => 'install(FILES ${header.includeFilePath} DESTINATION '
+              '\${DESTDIR}/include/${path.dirname(header.includeFilePath)})'))
+    ]));
+  }
+
+  get definition => brCompact([
+        'cmake_minimum_required (VERSION $minimumRequiredVersion)',
+        includesCodeBlock,
+        setStatementsCodeBlock,
+        boostSupportCodeBlock,
+        '''
+
+include_directories(\n${chomp(indentBlock(brCompact(includeDirectories)))}
+${scriptCustomBlock("include directories")})
+''',
+        '''
+
+link_directories(\n${chomp(indentBlock(brCompact(linkDirectories)))}
+${scriptCustomBlock("link directories")})
+''',
+        scriptCustomBlock('misc section'),
+        'enable_testing()',
+        installation.libs.where((Lib lib) => !lib.isHeaderOnly).map((Lib lib) =>
+            'add_subdirectory(${path.relative(lib.implPath, from: installation.cppPath)})'),
+        libPublicHeadersCodeBlock,
+        installation.apps.map((App app) {
+          final relPath =
+              path.relative(app.appPath, from: installation.cppPath);
+          final requiredLibs = app.requiredLibs;
+          if (app.hasSignalHandler && !requiredLibs.contains('pthread')) {
+            requiredLibs.add('pthread');
+          }
+
+          return brCompact([
+            '''
+add_executable(${app.name}
+  ${app.sources.map((src) => '$relPath/$src.cpp').join('\n  ')}
+)
+
+${chomp(scriptCustomBlock('${app.name} exe additions'))}
+
+target_link_libraries(${app.name}
+${chomp(scriptCustomBlock('${app.name} libs'))}
+  \${Boost_PROGRAM_OPTIONS_LIBRARY}
+  \${Boost_SYSTEM_LIBRARY}
+  \${Boost_THREAD_LIBRARY}
+''',
+            requiredLibs
+                .map((l) => indentBlock(l.contains(isMacroRe) ? l : '-${l}')),
+            ')'
+          ]);
+        }),
+        installation.testables.map(_testCmake),
+        installation.benchmarkApps
+            .map((bma) => _benchmarkCmake(bma as BenchmarkApp)),
+      ]);
+
+  _testCmake(Testable testable) {
+    final test = testable.test;
+    final basename = path.basenameWithoutExtension(testable.testFileName);
+    final owningLib = testable.owningLib.id.snake;
+    final testBaseName = 'test.$owningLib.$basename';
+    final relPath =
+        path.relative(path.dirname(test.filePath), from: installation.cppPath);
+    final isCatchDecl =
+        installation.testProvider is CatchTestProvider ? 'catch ' : '';
+
+    return '''
+
+${scriptComment("test for ${test.name}\n${indentBlock(test.detailedPath)}")}
+add_executable($testBaseName
+  ${test.sources.map((src) => '$relPath/$src').join('\n  ')}
+)
+
+${chomp(scriptCustomBlock('${test.name} test additions'))}
+
+target_link_libraries($testBaseName
+${chomp(scriptCustomBlock('${isCatchDecl}${test.name} link requirements'))}
+  \${Boost_SYSTEM_LIBRARY}
+  \${Boost_THREAD_LIBRARY}
+  pthread
+)
+
+add_test(
+  $testBaseName
+  $testBaseName)
+
+install(TARGETS $testBaseName RUNTIME DESTINATION \${DESTDIR}/bin)
+''';
+  }
+
+  _benchmarkCmake(BenchmarkApp app) {
+    relPath(String p) => path.relative(p, from: installation.cppPath);
+    final benchName = 'bench_${app.id.snake}';
+    return '''
+add_executable($benchName
+  ${concat([[relPath(app.filePath)], app.impls.map((i) => relPath(i.filePath))]).join('\n  ')}
+)
+
+${chomp(scriptCustomBlock('${app.id.snake} bench additions'))}
+
+target_link_libraries(bench_${app.id.snake}
+${chomp(scriptCustomBlock('benchmark ${app.id} link requirements'))}
+  benchmark
+  pthread
+)
+
+install(TARGETS $benchName RUNTIME DESTINATION \${DESTDIR}/bin)
+
+''';
+  }
+
+  // end <class InstallationCmake>
+
+}
+
 /// Responsible for generating a suitable CMakeLists.txt file
 class CmakeInstallationBuilder extends InstallationBuilder {
   // custom <class CmakeInstallationBuilder>
@@ -16,41 +221,36 @@ class CmakeInstallationBuilder extends InstallationBuilder {
 
   get _isCatchDecl => testProvider is CatchTestProvider ? 'catch ' : '';
 
-  void generate() {
-    final cmakeRoot = installationCmakeRoot(installation);
-
-    final installTargets = [];
-
-    libCmake(lib) {
-      final libName = lib.namespace.names.map((n) => n.toUpperCase()).join('_');
-      final srcMacro = '${libName}_SOURCES';
-      final installDirectives = lib.headers.map((Header h) {
-        final relPath =
-            path.relative(h.includeFilePath, from: installation.cppPath);
-        return '''
+  libCmakeHeaders(lib) {
+    final libName = lib.namespace.names.map((n) => n.toUpperCase()).join('_');
+    final srcMacro = '${libName}_SOURCES';
+    final installDirectives = lib.headers.map((Header h) {
+      final relPath =
+          path.relative(h.includeFilePath, from: installation.cppPath);
+      return '''
 install(FILES ${h.includeFilePath}
   DESTINATION \${DESTDIR}/include/${path.dirname(h.includeFilePath)})''';
-      });
+    });
 
-      return brCompact([
-        '''
+    return brCompact([
+      '''
 set ($srcMacro
 ${indentBlock(brCompact(lib.headers.map((h) => h.includeFilePath)))})
 ${brCompact(installDirectives)}
 '''
-      ]);
-    }
+    ]);
+  }
 
-    appCmake(app) {
-      final relPath = path.relative(app.appPath, from: installation.cppPath);
-      final requiredLibs = app.requiredLibs;
-      if (app.hasSignalHandler && !requiredLibs.contains('pthread')) {
-        requiredLibs.add('pthread');
-      }
-      final isMacroRe = new RegExp(r'^\s*\$');
-      installTargets.add(app.name);
-      return brCompact([
-        '''
+  appCmake(app) {
+    final relPath = path.relative(app.appPath, from: installation.cppPath);
+    final requiredLibs = app.requiredLibs;
+    if (app.hasSignalHandler && !requiredLibs.contains('pthread')) {
+      requiredLibs.add('pthread');
+    }
+    final isMacroRe = new RegExp(r'^\s*\$');
+    installTargets.add(app.name);
+    return brCompact([
+      '''
 add_executable(${app.name}
   ${app.sources.map((src) => '$relPath/$src.cpp').join('\n  ')}
 )
@@ -63,21 +263,20 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
   \${Boost_SYSTEM_LIBRARY}
   \${Boost_THREAD_LIBRARY}
 ''',
-        requiredLibs
-            .map((l) => indentBlock(l.contains(isMacroRe) ? l : '-${l}')),
-        ')'
-      ]);
-    }
+      requiredLibs.map((l) => indentBlock(l.contains(isMacroRe) ? l : '-${l}')),
+      ')'
+    ]);
+  }
 
-    testCmake(Testable testable) {
-      final test = testable.test;
-      final basename = path.basenameWithoutExtension(testable.testFileName);
-      final owningLib = testable.owningLib.id.snake;
-      final testBaseName = 'test.$owningLib.$basename';
-      final relPath = path.relative(path.dirname(test.filePath),
-          from: installation.cppPath);
-      installTargets.add(testBaseName);
-      return '''
+  testCmake(Testable testable) {
+    final test = testable.test;
+    final basename = path.basenameWithoutExtension(testable.testFileName);
+    final owningLib = testable.owningLib.id.snake;
+    final testBaseName = 'test.$owningLib.$basename';
+    final relPath =
+        path.relative(path.dirname(test.filePath), from: installation.cppPath);
+    installTargets.add(testBaseName);
+    return '''
 
 ${scriptComment("test for ${test.name}\n${indentBlock(test.detailedPath)}")}
 add_executable($testBaseName
@@ -96,13 +295,13 @@ ${chomp(scriptCustomBlock('${_isCatchDecl}${test.name} link requirements'))}
 add_test(
   $testBaseName
   $testBaseName)''';
-    }
+  }
 
-    benchmarkCmake(BenchmarkApp app) {
-      relPath(String p) => path.relative(p, from: installation.cppPath);
-      final benchName = 'bench_${app.id.snake}';
-      installTargets.add(benchName);
-      return '''
+  benchmarkCmake(BenchmarkApp app) {
+    relPath(String p) => path.relative(p, from: installation.cppPath);
+    final benchName = 'bench_${app.id.snake}';
+    installTargets.add(benchName);
+    return '''
 add_executable($benchName
   ${concat([[relPath(app.filePath)], app.impls.map((i) => relPath(i.filePath))]).join('\n  ')}
 )
@@ -115,87 +314,41 @@ ${chomp(scriptCustomBlock('benchmark ${app.id} link requirements'))}
   pthread
 )
 ''';
-    }
+  }
+
+  final installTargets = [];
+
+  void generate() {
+    final cmakeRoot = installationCmakeRoot(installation);
 
     scriptMergeWithFile(
-        '''
-cmake_minimum_required (VERSION 2.8)
+        new InstallationCmake(installation).definition, cmakeRoot);
 
-include(CheckCXXCompilerFlag)
-set(CMAKE_CXX_FLAGS "\${CMAKE_CXX_FLAGS} -std=c++14")
-set(CMAKE_CXX_FLAGS_DEBUG "\${CMAKE_CXX_FLAGS_DEBUG} -O0 -DDEBUG")
-
-######################################################################
-# Find boost and include desired components
-######################################################################
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.54.0 COMPONENTS program_options system thread
-${chomp(scriptCustomBlock('boost lib components'))}
-)
-
-## TO ENABLE LIB INIT LOGGING MOVE THIS TO custom
-## set(CMAKE_CXX_FLAGS "\${CMAKE_CXX_FLAGS} -DLIB_INIT_LOGGING")
-
-${scriptCustomBlock('misc section')}
-
-######################################################################
-# Add additional link directories
-######################################################################
-link_directories(
-${scriptCustomBlock('link directories')}
-)
-
-enable_testing()
-
-######################################################################
-# Add additional include directories
-######################################################################
-include_directories(
-  \${CMAKE_CURRENT_LIST_DIR}
-  \${Boost_INCLUDE_DIRS}
-${scriptCustomBlock('include directories')}
-)
-
-######################################################################
-# Lib sources
-######################################################################
-${chomp(br(libs.map((lib) => libCmake(lib))))}
-
-######################################################################
-# Application build directives
-######################################################################
-${chomp(br(apps.map((app) => appCmake(app))))}
-
-######################################################################
-# Test directives
-######################################################################
-${chomp(br(testables.map((testable) => testCmake(testable))))}
-
-######################################################################
-# Benchmark directives
-######################################################################
-${chomp(br(benchmarkApps.map((bma) => benchmarkCmake(bma as BenchmarkApp))))}
-
-######################################################################
-# Install directives
-######################################################################
-install(TARGETS
-  ${indentBlock(brCompact(installTargets))}
-  RUNTIME DESTINATION \${DESTDIR}/bin
-  LIBRARY DESTINATION \${DESTDIR}/lib
-  ARCHIVE DESTINATION \${DESTDIR}/lib/static)
-''',
-        cmakeRoot);
+    libs.where((var lib) => lib.impls.isNotEmpty).forEach((Lib lib) {
+      final implPath = lib.implPath;
+      final libCmakePath = path.join(implPath, 'CMakeLists.tmp.txt');
+      final libCmake = new LibCmake(lib);
+      scriptMergeWithFile(libCmake.definition, libCmakePath);
+    });
 
     final cmakeGenerator = path.join(path.dirname(cmakeRoot), '.cmake.gen.sh');
     scriptMergeWithFile(
         '''
 #!/bin/bash
 ${scriptCustomBlock('additional exports')}
-cmake -DCMAKE_BUILD_TYPE=Release -B../cmake_build/release -H.
-cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
+\$CMAKE \\
+  -DCMAKE_BUILD_TYPE=Release \\
+  -DCMAKE_VERBOSE_MAKEFILE=ON \\
+  -DCMAKE_PREFIX_PATH=/usr/include/qt5 \\
+  -B../cmake_build/release \\
+  -H.
+
+\$CMAKE \\
+  -DCMAKE_BUILD_TYPE=Debug \\
+  -DCMAKE_VERBOSE_MAKEFILE=ON \\
+  -DCMAKE_PREFIX_PATH=/usr/include/qt5 \\
+  -B../cmake_build/debug \\
+  -H.
 ''',
         cmakeGenerator);
   }
@@ -205,9 +358,6 @@ cmake -DCMAKE_BUILD_TYPE=Debug -B../cmake_build/debug -H.
 }
 
 // custom <part cmake_support>
-
-installationCmakeCommon(Installation installation) => path.join(
-    installation.rootFilePath, 'cpp', 'cmake.${installation.name}.common');
 
 installationCmakeRoot(Installation installation) =>
     path.join(installation.rootFilePath, 'cpp', 'CMakeLists.txt');
