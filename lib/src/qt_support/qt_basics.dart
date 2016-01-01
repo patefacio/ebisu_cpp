@@ -1625,4 +1625,34 @@ bool looksLikeQtHeader(String header) => _qtHeaderRe.hasMatch(basename(header));
 final _qtLikeNameRe = new RegExp(r'Q[A-Z]\w+\b');
 bool looksLikeHasQtName(String s) => _qtLikeNameRe.hasMatch(s);
 
+addQtSupport(Installation installation) {
+  if (installation.installationBuilder == null) {
+    installation.installationBuilder =
+        new CmakeInstallationBuilder.fromInstallation(installation);
+  }
+
+  installation.installationBuilder
+    ..onLibCmake = (LibCmake libCmake) {
+      if (libCmake.lib.classes.any((cls) => cls is QtClass)) {
+        final lib = libCmake.lib;
+
+        libCmake.addLibrary.snippets.add(br(libCmake.lib.headers.map((header) {
+          final headerMoc = '${header.id.emacs}-moc';
+          libCmake.libSourceFilenames.add('\${$headerMoc}');
+          final relPath = relative(installation.cppPath, from: header.filePath);
+          return 'qt5_wrap_cpp($headerMoc ${join(relPath, header.includeFilePath)})';
+        }), '\n\n'));
+
+        libCmake.targetIncludeDirectories.snippets.add(
+            '\ntarget_include_directories(${lib.id.snake} PUBLIC \${Qt5Widgets_INCLUDE_DIRS})');
+
+        libCmake.targetCompileOptions.snippets
+            .add('\ntarget_compile_options(${lib.id.snake} PRIVATE "-fPIE")');
+      }
+    }
+    ..onInstallationCmake = (InstallationCmake installationCmake) {
+      print('Got installationCmake!');
+    };
+}
+
 // end <part qt_basics>

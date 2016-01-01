@@ -346,6 +346,11 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
     });
   }
 
+  get classes => concat([
+        concat(impls.map((i) => i.classes)),
+        concat(headers.map((h) => h.classes))
+      ]);
+
   get isHeaderOnly => impls.isEmpty;
   get logProvider => installation.logProvider;
   get loggerVariableName => logProvider.loggerName(this);

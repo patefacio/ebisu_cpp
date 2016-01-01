@@ -1724,11 +1724,13 @@ libraries, apps, and tests'''
                   member('lib')..type = 'Lib',
                   member('lib_source_filenames')..classInit = [],
                   member('target_include_dirnames')..classInit = [],
+                  member('definition')..access = IA,
                 ]
                   ..addAll([
                     'set_statements',
                     'add_library',
-                    'target_include_directories'
+                    'target_include_directories',
+                    'target_compile_options',
                   ].map((tag) => member(tag)
                     ..type = 'CodeBlock'
                     ..classInit = "new ScriptCodeBlock('$tag')..hasSnippetsFirst = true"))),
@@ -1739,6 +1741,7 @@ libraries, apps, and tests'''
                   member('minimum_required_version')..classInit = '2.8',
                   member('include_directories')..classInit = [],
                   member('link_directories')..classInit = [],
+                  member('definition')..access = IA,
                 ]
                   ..addAll([
                     'includes',
@@ -1752,7 +1755,15 @@ libraries, apps, and tests'''
               class_('cmake_installation_builder')
                 ..doc =
                     'Responsible for generating a suitable CMakeLists.txt file'
-                ..extend = 'InstallationBuilder',
+                ..extend = 'InstallationBuilder'
+              ..members = [
+                member('on_installation_cmake')
+                ..doc = 'An opportunity to update the [InstallationCmake] prior to its generation'
+                ..type = 'OnInstallationCmake',
+                member('on_lib_cmake')
+                ..doc = 'An opportunity to update the [LibCmake] prior to its generation'
+                ..type = 'OnInstallationCmake',
+              ],
             ],
           part('benchmark')
             ..enums = []
