@@ -21,13 +21,11 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
-
   test('basic using', () {
     final u = using('vec', 'std::vector<int>')
       ..doc = 'it is a simple using statement';
 
-    expect(darkMatter(u.usingStatement),
-        darkMatter('''
+    expect(darkMatter(u.usingStatement), darkMatter('''
 /** it is a simple using statement */
 using Vec_t = std::vector<int>;
 '''));
@@ -40,8 +38,7 @@ using Vec_t = std::vector<int>;
       ..doc = 'it is a templatized using'
       ..template = 'typename T';
 
-    expect(darkMatter(u.usingStatement),
-        darkMatter('''
+    expect(darkMatter(u.usingStatement), darkMatter('''
 /** it is a templatized using */
 template<typename T> using Vec_t = std::vector<T>;
 '''));
@@ -50,11 +47,15 @@ template<typename T> using Vec_t = std::vector<T>;
   });
 
   test('using function', () {
-    expect(darkMatter(using('using int = int')), darkMatter('using Int_t = int;'));
+    expect(
+        darkMatter(using('using int = int')), darkMatter('using Int_t = int;'));
     expect(darkMatter(using('vec_int', 'std::vector< int >')),
         darkMatter('using Vec_int_t = std::vector< int >;'));
-    expect(darkMatter(using('vec_int', 'std::vector< T >')..template = [ 'typename T' ]),
-        darkMatter('template <typename T > using Vec_int_t = std::vector< T >;'));
+    expect(
+        darkMatter(
+            using('vec_int', 'std::vector< T >')..template = ['typename T']),
+        darkMatter(
+            'template <typename T > using Vec_int_t = std::vector< T >;'));
   });
 
 // end <main>
