@@ -143,7 +143,7 @@ abstract class CppFile extends CppEntity with Testable {
           'Yikes! provide a namespace: ${runtimeType} ${id.snake}');
     }
 
-    _usingFormatted(u) => (u.hasComment ? '\n' : '') + u.usingStatement(namer);
+    _usingFormatted(u) => (u.hasComment ? '\n' : '') + u.usingStatement;
 
     return br([
       brCompact([briefComment, _codeBlockText(fcbPreIncludes)]),

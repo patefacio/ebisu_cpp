@@ -1232,7 +1232,7 @@ default [Interfaceimplementation] is used''')
                 _codeBlockText(clsPublicBegin),
                 classForwardDecls,
                 constExprs..forEach((ce) => ce.isClassScoped = true),
-                usings.map((u) => u.usingStatement(namer))
+                usings,
               ]),
               brCompact([_enumDecls, _enumStreamers]),
               br(nestedClasses
@@ -1300,7 +1300,7 @@ default [Interfaceimplementation] is used''')
               _codeBlockText(clsPrivateEnd)
             ]))),
         br([_codeBlockText(clsClose), _classCloser, _pragmaPackPop]),
-        br(usingsPostDecl.map((u) => u.usingStatement(namer))),
+        br(usingsPostDecl),
         _codeBlockText(clsPostDecl),
       ];
 

@@ -13,6 +13,7 @@ import 'test_cpp_namer.dart' as test_cpp_namer;
 import 'test_cpp_generic.dart' as test_cpp_generic;
 import 'test_cpp_test_provider.dart' as test_cpp_test_provider;
 import 'test_cpp_exception.dart' as test_cpp_exception;
+import 'test_cpp_using.dart' as test_cpp_using;
 import 'test_cpp_versioning.dart' as test_cpp_versioning;
 import 'test_cpp_switch.dart' as test_cpp_switch;
 import 'test_cpp_benchmark.dart' as test_cpp_benchmark;
@@ -41,6 +42,7 @@ main() {
   test_cpp_generic.main();
   test_cpp_test_provider.main();
   test_cpp_exception.main();
+  test_cpp_using.main();
   test_cpp_versioning.main();
   test_cpp_switch.main();
   test_cpp_benchmark.main();

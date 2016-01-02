@@ -14,20 +14,25 @@ class Using extends CppEntity {
 
   Iterable<Entity> get children => [];
 
-  toString() => 'using $type = $rhs;';
+  toString() => _template != null
+      ? '${template.decl} using $type = $rhs;'
+      : 'using $type = $rhs;';
 
+  /// Returns the _left hand side_, ie the Id of the using.
   get lhs => id;
 
+  /// Returns the type associated with the using statement.
+  ///
+  /// The type text makes use of the [Namer]
   get type => namer.nameUsingType(id);
 
+  /// Set the [template] associated with the using statement.
+  ///
+  /// Use this to templatized using statements
   set template(Object t) => _template = _makeTemplate(id, t);
 
-  usingStatement(Namer namer) => brCompact([
-        this.docComment,
-        template != null
-            ? '${template.decl} using $type = $rhs;'
-            : 'using $type = $rhs;'
-      ]);
+  //// The using statement with documentation
+  get usingStatement => brCompact([this.docComment, toString()]);
 
   // end <class Using>
 
@@ -39,6 +44,17 @@ class Using extends CppEntity {
 
 final _usingSpecRe = new RegExp(r"(\w+)\s*=\s*((?:.|\n)*)", multiLine: true);
 
+/// Returns a [Using] from [u], which may be a String or [Id]
+///
+/// If [decl] is provided, it is parsed and the [Using] is constructed from that:
+///
+///     using('using int = int') => 'using Int_t = int;'
+///
+///     using('vec_int', 'std::vector< int >') => 'using Vec_int_t = std::vector< int >;'
+///
+///     using('vec_int', 'std::vector< T >')
+///     ..template = [ 'typename T' ]) => 'template <typename T > using Vec_int_t = std::vector< T >;'
+///
 Using using([u, decl]) {
   if (u is Using) {
     return u;

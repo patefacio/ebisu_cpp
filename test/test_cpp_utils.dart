@@ -135,7 +135,7 @@ namespace c {
     final tu = using('foo', 'Foo_bar<T>')
       ..template = ['typename T']
       ..doc = 'Bam';
-    expect(darkMatter(tu.usingStatement(new EbisuCppNamer())), darkMatter('''
+    expect(darkMatter(tu.usingStatement), darkMatter('''
 /**
  Bam
 */

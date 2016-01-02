@@ -60,6 +60,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_generic'),
       library('test_cpp_test_provider'),
       library('test_cpp_exception'),
+      library('test_cpp_using'),
       library('test_cpp_versioning'),
       library('test_cpp_switch'),
       library('test_cpp_benchmark'),
