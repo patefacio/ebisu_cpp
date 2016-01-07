@@ -14,9 +14,7 @@ class Using extends CppEntity {
 
   Iterable<Entity> get children => [];
 
-  toString() => _template != null
-      ? '${template.decl} using $type = $rhs;'
-      : 'using $type = $rhs;';
+  toString() => usingStatement;
 
   /// Returns the _left hand side_, ie the Id of the using.
   get lhs => id;
@@ -32,7 +30,12 @@ class Using extends CppEntity {
   set template(Object t) => _template = _makeTemplate(id, t);
 
   //// The using statement with documentation
-  get usingStatement => brCompact([this.docComment, toString()]);
+  get usingStatement => brCompact([this.docComment, _templateUsing]);
+
+  get _templateUsing => _template != null
+      ? '${template.decl} using $type = $rhs;'
+      : 'using $type = $rhs;';
+
 
   // end <class Using>
 

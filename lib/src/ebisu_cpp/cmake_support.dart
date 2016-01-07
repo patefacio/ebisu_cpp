@@ -141,7 +141,7 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
   \${Boost_THREAD_LIBRARY}
 ''',
               requiredLibs
-                  .map((l) => indentBlock(l.contains(isMacroRe) ? l : '-${l}')),
+                  .map((l) => indentBlock(l.contains(_isMacroRe) ? l : '-${l}')),
               ')'
             ]);
           }),
@@ -307,5 +307,7 @@ typedef OnInstallationCmake(InstallationCmake);
 
 installationCmakeRoot(Installation installation) =>
     path.join(installation.rootFilePath, 'cpp', 'CMakeLists.txt');
+
+final _isMacroRe = new RegExp(r'^\s*\$');
 
 // end <part cmake_support>

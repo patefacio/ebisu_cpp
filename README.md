@@ -1,6 +1,6 @@
 # Ebisu Cpp
 
-[![Build Status](https://travis-ci.org/patefacio/ebisu_cpp.svg)
+![Build Status](https://travis-ci.org/patefacio/ebisu_cpp.svg)
 
 Code generation library/toolkit that focuses on generating the
 structure of c++ code and as much of the boilerplate coding that goes
