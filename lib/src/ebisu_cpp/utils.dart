@@ -548,7 +548,15 @@ String evCap(v) => Id.capitalize(v.toString().split('.')[1]);
 /// if v is CppAccess.private => private
 String ev(v) => v.toString().split('.')[1];
 
-const defaultNamer = const EbisuCppNamer();
+var _defaultCppNamer = new EbisuCppNamer();
+
+/// Returns a default cpp namer
+get defaultCppNamer => _defaultCppNamer;
+
+/// Allow clients to set the default cpp namer
+set defaultCppNamer(Namer namer) => _defaultCppNamer = namer;
+
+get defaultNamer => defaultCppNamer;
 
 /// Given a [datum], as in a value initializing a C++ variable, try to infer the
 /// corresponding C++ type
