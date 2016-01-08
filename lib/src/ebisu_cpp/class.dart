@@ -1082,7 +1082,7 @@ default [Interfaceimplementation] is used''')
       bases.where((b) => b.access == protected);
   Iterable<Base> get basesPrivate => bases.where((b) => b.access == private);
 
-  void withCustomBlock(ClassCodeBlock cb, void f(CodeBlock)) =>
+  withCustomBlock(ClassCodeBlock cb, f(CodeBlock)) =>
       f(getCodeBlock(cb));
 
   set template(Object t) => _template = _makeTemplate(id, t);
