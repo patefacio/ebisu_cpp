@@ -161,7 +161,7 @@ abstract class CppFile extends CppEntity with Testable {
       allIncludes.includes,
       _codeBlockText(fcbCustomIncludes),
       _codeBlockText(fcbPreNamespace),
-      nsContents.trim().isEmpty? null : namespace.wrap(nsContents),
+      nsContents.trim().isEmpty ? null : namespace.wrap(nsContents),
       _codeBlockText(fcbPostNamespace),
     ]);
   }

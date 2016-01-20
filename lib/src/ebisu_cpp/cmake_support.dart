@@ -140,8 +140,8 @@ ${chomp(scriptCustomBlock('${app.name} libs'))}
   \${Boost_SYSTEM_LIBRARY}
   \${Boost_THREAD_LIBRARY}
 ''',
-              requiredLibs
-                  .map((l) => indentBlock(l.contains(_isMacroRe) ? l : '-${l}')),
+              requiredLibs.map(
+                  (l) => indentBlock(l.contains(_isMacroRe) ? l : '-${l}')),
               ')'
             ]);
           }),

@@ -157,7 +157,10 @@ createH5DataSetSpecifier(Class targetClass,
             ..access = ro,
         ];
 
-      targetClass.friendClassDecls.add(friendClassDecl(dss.className));
+      targetClass
+        ..friendClassDecls.add(friendClassDecl(dss.className))
+        ..classForwardDecls.add(forwardDecl(dss.className))
+        ..usings.add(using('h5_dss', dss.className));
     });
 }
 
@@ -165,17 +168,19 @@ associateH5DataSetSpecifier(Class targetClass, Class dss) =>
     targetClass..usings.add(using('h5_data_set_specifier', dss.className));
 
 addH5DataSetSpecifier(Class targetClass,
-        [TypeMapper typeMapper = cppTypeToHdf5Type]) =>
-    targetClass
-      ..includes.add('hdf5.h')
-      ..nestedClasses.add(createH5DataSetSpecifier(targetClass, typeMapper))
-      ..getCodeBlock(clsPublic).snippets.addAll([
-        '''
-static H5_data_set_specifier const& data_set_specifier() {
-  return H5_data_set_specifier::instance();
+    [TypeMapper typeMapper = cppTypeToHdf5Type]) {
+  final dssClass = createH5DataSetSpecifier(targetClass, typeMapper);
+  return targetClass
+    ..includes.add('hdf5.h')
+    ..nestedClasses.add(dssClass)
+    ..getCodeBlock(clsPublic).snippets.addAll([
+      '''
+static auto const& data_set_specifier() {
+  return ${dssClass.className}::instance();
 }
 '''
-      ]);
+    ]);
+}
 
 /// Given the type of a member returns the corresponding PacketMemberType
 typedef PacketMemberType TypeMapper(String);

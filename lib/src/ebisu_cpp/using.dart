@@ -36,7 +36,6 @@ class Using extends CppEntity {
       ? '${template.decl} using $type = $rhs;'
       : 'using $type = $rhs;';
 
-
   // end <class Using>
 
   String _rhs;

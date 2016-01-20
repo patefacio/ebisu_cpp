@@ -210,7 +210,8 @@ Installation($rootFilePath)
     _logger.info(brCompact(progeny.map((e) => e.detailedPath)));
   }
 
-  @override setAsRoot() {
+  @override
+  setAsRoot() {
     super.setAsRoot();
     _addStandardizedHeaders();
     _patchHeaderNamespaces();
