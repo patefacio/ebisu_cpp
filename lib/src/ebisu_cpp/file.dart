@@ -145,21 +145,23 @@ abstract class CppFile extends CppEntity with Testable {
 
     _usingFormatted(u) => (u.hasComment ? '\n' : '') + u.usingStatement;
 
+    final nsContents = br([
+      _codeBlockText(fcbBeginNamespace),
+      // TODO: determine strategy for interfaces in a file: .... br(interfaces.map((i) => i.definition)),
+      br(constExprs),
+      forwardDecls,
+      brCompact(usings.map((u) => _usingFormatted(u))),
+      br(enums),
+      br(classes.map((Class cls) => br(cls.definition))),
+      _codeBlockText(fcbEndNamespace)
+    ]);
+
     return br([
       brCompact([briefComment, _codeBlockText(fcbPreIncludes)]),
       allIncludes.includes,
       _codeBlockText(fcbCustomIncludes),
       _codeBlockText(fcbPreNamespace),
-      namespace.wrap(br([
-        _codeBlockText(fcbBeginNamespace),
-        // TODO: determine strategy for interfaces in a file: .... br(interfaces.map((i) => i.definition)),
-        br(constExprs),
-        forwardDecls,
-        brCompact(usings.map((u) => _usingFormatted(u))),
-        br(enums),
-        br(classes.map((Class cls) => br(cls.definition))),
-        _codeBlockText(fcbEndNamespace)
-      ])),
+      nsContents.trim().isEmpty? null : namespace.wrap(nsContents),
       _codeBlockText(fcbPostNamespace),
     ]);
   }
