@@ -32,7 +32,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.11'
+    ..pubSpec.version = '0.3.12'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -3478,4 +3478,3 @@ final _enumH5tMap = enumerate(_h5tTypeValues).fold(
       ..['H5tType.${_enumH5t.values[elm.index].camel}'] =
           doubleQuote(_h5tTypeValues[elm.index]));
 // end <ebisuCppEbisuDart global>
-
