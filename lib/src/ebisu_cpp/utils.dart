@@ -439,7 +439,7 @@ class Base {
   String className;
 
   /// Is base class public, protected, or private
-  CppAccess access = public;
+  CppAccess cppAccess = public;
 
   /// How to initiailize the base class in ctor initializer
   String init;
@@ -453,7 +453,7 @@ class Base {
   // custom <class Base>
 
   /// Return this [Base] as it would appear in a declaration
-  String get decl => '${ev(access)} $_virtual$className';
+  String get decl => '${ev(cppAccess)} $_virtual$className';
   String get _virtual => isVirtual ? 'virtual ' : '';
 
   // end <class Base>

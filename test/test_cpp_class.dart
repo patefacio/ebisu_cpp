@@ -217,7 +217,7 @@ $tricky
                   ..isStreamable = true
                   ..bases = [
                     base('Foo'),
-                    base('Bar')..access = protected,
+                    base('Bar')..cppAccess = protected,
                     base('Goo')..isVirtual = true
                   ]
                   ..enums = [

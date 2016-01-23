@@ -32,7 +32,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.12'
+    ..pubSpec.version = '0.3.13'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -395,7 +395,7 @@ Default namer establishing reasonable conventions, that are fairly
                   member('class_name')
                     ..doc = 'The name of the class being derived from'
                     ..ctors = [''],
-                  member('access')
+                  member('cpp_access')
                     ..doc = 'Is base class public, protected, or private'
                     ..type = 'CppAccess'
                     ..classInit = 'public',

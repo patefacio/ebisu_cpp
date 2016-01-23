@@ -1077,10 +1077,10 @@ default [Interfaceimplementation] is used''')
   set opLess(OpLess opLess) => _opLess = opLess;
   set opOut(OpOut opOut) => _opOut = opOut;
 
-  Iterable<Base> get basesPublic => bases.where((b) => b.access == public);
+  Iterable<Base> get basesPublic => bases.where((b) => b.cppAccess == public);
   Iterable<Base> get basesProtected =>
-      bases.where((b) => b.access == protected);
-  Iterable<Base> get basesPrivate => bases.where((b) => b.access == private);
+      bases.where((b) => b.cppAccess == protected);
+  Iterable<Base> get basesPrivate => bases.where((b) => b.cppAccess == private);
 
   withCustomBlock(ClassCodeBlock cb, f(CodeBlock)) => f(getCodeBlock(cb));
 
