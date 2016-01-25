@@ -12,8 +12,8 @@ import 'package:quiver/iterables.dart';
 final _logger = new Logger('ebisuCppEbisuDart');
 
 main(List<String> args) {
-  Logger.root.onRecord.listen((LogRecord r) =>
-      print("${r.loggerName} [${r.level}]:\t${r.message}"));
+  Logger.root.onRecord.listen(
+      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
   Logger.root.level = Level.OFF;
   useDartFormatter = true;
   String here = absolute(Platform.script.toFilePath());
@@ -32,7 +32,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.13'
+    ..pubSpec.version = '0.3.14'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -1618,6 +1618,8 @@ Set of argument types supported by command line option processing.
                 ..values = [
                   enumValue(id('int'))
                     ..doc = 'The command line arg is an integer',
+                  enumValue(id('int64'))
+                    ..doc = 'The command line arg is an 64-bit integer',
                   enumValue(id('double'))
                     ..doc = 'The command line arg is a double',
                   enumValue(id('string'))
@@ -1631,9 +1633,7 @@ Set of argument types supported by command line option processing.
                 ..doc = appArgDoc
                 ..extend = 'CppEntity'
                 ..members = [
-                  member('type')
-                    ..type = 'ArgType'
-                    ..classInit = 'ArgType.STRING',
+                  member('type')..type = 'ArgType',
                   member('short_name'),
                   member('is_multiple')..classInit = false,
                   member('is_required')..classInit = false,
@@ -1734,7 +1734,8 @@ libraries, apps, and tests'''
                     'target_compile_options',
                   ].map((tag) => member(tag)
                     ..type = 'CodeBlock'
-                    ..classInit = "new ScriptCodeBlock('$tag')..hasSnippetsFirst = true"))),
+                    ..classInit =
+                        "new ScriptCodeBlock('$tag')..hasSnippetsFirst = true"))),
               class_('installation_cmake')
                 ..doc = 'Cmake file for the installation'
                 ..members = ([
@@ -1752,19 +1753,22 @@ libraries, apps, and tests'''
                     'lib_public_headers',
                   ].map((tag) => member('${tag}_code_block')
                     ..type = 'CodeBlock'
-                    ..classInit = "new ScriptCodeBlock('$tag')..hasSnippetsFirst = true"))),
+                    ..classInit =
+                        "new ScriptCodeBlock('$tag')..hasSnippetsFirst = true"))),
               class_('cmake_installation_builder')
                 ..doc =
                     'Responsible for generating a suitable CMakeLists.txt file'
                 ..extend = 'InstallationBuilder'
-              ..members = [
-                member('on_installation_cmake')
-                ..doc = 'An opportunity to update the [InstallationCmake] prior to its generation'
-                ..type = 'OnInstallationCmake',
-                member('on_lib_cmake')
-                ..doc = 'An opportunity to update the [LibCmake] prior to its generation'
-                ..type = 'OnInstallationCmake',
-              ],
+                ..members = [
+                  member('on_installation_cmake')
+                    ..doc =
+                        'An opportunity to update the [InstallationCmake] prior to its generation'
+                    ..type = 'OnInstallationCmake',
+                  member('on_lib_cmake')
+                    ..doc =
+                        'An opportunity to update the [LibCmake] prior to its generation'
+                    ..type = 'OnInstallationCmake',
+                ],
             ],
           part('benchmark')
             ..enums = []

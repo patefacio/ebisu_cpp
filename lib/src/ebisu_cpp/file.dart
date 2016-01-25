@@ -132,7 +132,8 @@ abstract class CppFile extends CppEntity with Testable {
   withCustomBlock(FileCodeBlock fcb, f(CodeBlock)) => f(getCodeBlock(fcb));
 
   String get _contentsWithBlocks {
-    if (classes.any((c) => c._opMethods.any((m) => m is OpOut && m.usesNestedIndent))) {
+    if (classes.any(
+        (c) => c._opMethods.any((m) => m is OpOut && m.usesNestedIndent))) {
       _includes.add('ebisu/utils/block_indenter.hpp');
     }
     customBlocks

@@ -4,11 +4,12 @@ part of ebisu_cpp.ebisu_cpp;
 ///
 class ArgType implements Comparable<ArgType> {
   static const INT = const ArgType._(0);
-  static const DOUBLE = const ArgType._(1);
-  static const STRING = const ArgType._(2);
-  static const FLAG = const ArgType._(3);
+  static const INT64 = const ArgType._(1);
+  static const DOUBLE = const ArgType._(2);
+  static const STRING = const ArgType._(3);
+  static const FLAG = const ArgType._(4);
 
-  static get values => [INT, DOUBLE, STRING, FLAG];
+  static get values => [INT, INT64, DOUBLE, STRING, FLAG];
 
   final int value;
 
@@ -24,6 +25,8 @@ class ArgType implements Comparable<ArgType> {
     switch (this) {
       case INT:
         return "Int";
+      case INT64:
+        return "Int64";
       case DOUBLE:
         return "Double";
       case STRING:
@@ -39,6 +42,8 @@ class ArgType implements Comparable<ArgType> {
     switch (s) {
       case "Int":
         return INT;
+      case "Int64":
+        return INT64;
       case "Double":
         return DOUBLE;
       case "String":
@@ -141,7 +146,7 @@ class ArgType implements Comparable<ArgType> {
 ///       -t [ --timestamp ] arg Some form of timestamp
 ///       -d [ --date ] arg      Some form of date
 class AppArg extends CppEntity {
-  ArgType type = ArgType.STRING;
+  ArgType type;
   String shortName;
   bool isMultiple = false;
   bool isRequired = false;
@@ -160,13 +165,24 @@ class AppArg extends CppEntity {
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
   set defaultValue(Object defaultValue) {
-    type = defaultValue is String
-        ? ArgType.STRING
-        : defaultValue is int
-            ? ArgType.INT
-            : defaultValue is double
-                ? ArgType.DOUBLE
-                : defaultValue is bool ? ArgType.FLAG : null;
+    if (type == null) {
+      switch (defaultValue) {
+        case String:
+          type = ArgType.STRING;
+          break;
+        case int:
+          type = ArgType.INT;
+          break;
+        case double:
+          type = ArgType.DOUBLE;
+          break;
+        case bool:
+          type = ArgType.FLAG;
+          break;
+        default:
+          throw 'Unexpected type for script arg default value $defaultValue';
+      }
+    }
 
     _defaultValue = defaultValue;
   }
@@ -175,19 +191,51 @@ class AppArg extends CppEntity {
   get isString => type == ArgType.STRING;
   get defaultValueLit => isString ? doubleQuote(defaultValue) : defaultValue;
 
-  get cppType => isMultiple
-      ? (type == ArgType.INT
-          ? 'std::vector< int >'
-          : type == ArgType.DOUBLE
-              ? 'std::vector< double >'
-              : type == ArgType.STRING
-                  ? 'std::vector< std::string >'
-                  : 'std::vector< bool >')
-      : (type == ArgType.INT
-          ? 'int'
-          : type == ArgType.DOUBLE
-              ? 'double'
-              : type == ArgType.STRING ? 'std::string' : 'bool');
+  get cppType {
+    String result;
+    if (isMultiple) {
+      switch (type) {
+        case ArgType.INT:
+          result = 'std::vector<int>';
+          break;
+        case ArgType.INT64:
+          result = 'std::vector<std::int64_t>';
+          break;
+        case ArgType.STRING:
+          result = 'std::vector<std::string>';
+          break;
+        case ArgType.DOUBLE:
+          result = 'std::vector<double>';
+          break;
+        case ArgType.FLAG:
+          throw '*isMultiple* combined with flag does not make sense: $id';
+          break;
+        default:
+          throw 'Uexpected ArgType $type';
+      }
+    } else {
+      switch (type) {
+        case ArgType.INT:
+          result = 'int';
+          break;
+        case ArgType.INT64:
+          result = 'std::int64_t';
+          break;
+        case ArgType.STRING:
+          result = 'std::string';
+          break;
+        case ArgType.DOUBLE:
+          result = 'double';
+          break;
+        case ArgType.FLAG:
+          result = 'bool';
+          break;
+        default:
+          throw 'Uexpected ArgType $type';
+      }
+    }
+    return result;
+  }
 
   get flagDecl =>
       shortName == null ? '"${id.emacs}"' : '"${id.emacs},$shortName"';
@@ -315,6 +363,11 @@ class App extends Impl implements CodeGenerator {
   onOwnershipEstablished() {
     if (namespace == null) throw new Exception('App $id requires a namespace');
 
+    /// Initialize all untyped script args to string as default
+    args.forEach((arg) {
+      if (arg.type == null) arg.type = ArgType.STRING;
+    });
+
     _checkAddLogLevel();
     _checkAddHelp();
     _includes.add('iostream');
@@ -357,6 +410,7 @@ AllowedOptions)";
       args.insert(
           0,
           new AppArg(new Id('help'))
+            ..type = ArgType.FLAG
             ..shortName = 'h'
             ..defaultValue = false
             ..descr = 'Display help information');
