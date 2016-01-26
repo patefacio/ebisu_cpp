@@ -129,6 +129,14 @@ namespace c {
         darkSame(usingUcptr('foo_bar', 'List<Goo>'),
             'using Foo_bar_ucptr_t = std::unique_ptr<List<Goo> const>;'),
         true);
+    expect(
+        darkSame(usingTscptr('foo_bar', 'List<Goo>'),
+            'using Foo_bar_tscptr_t = boost::thread_specific_ptr<List<Goo> const>;'),
+        true);
+    expect(
+        darkSame(usingTsptr('foo_bar', 'List<Goo>'),
+            'using Foo_bar_tsptr_t = boost::thread_specific_ptr<List<Goo>>;'),
+        true);
   });
 
   test('template using', () {

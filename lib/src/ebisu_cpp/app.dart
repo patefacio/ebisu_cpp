@@ -5,11 +5,12 @@ part of ebisu_cpp.ebisu_cpp;
 class ArgType implements Comparable<ArgType> {
   static const INT = const ArgType._(0);
   static const INT64 = const ArgType._(1);
-  static const DOUBLE = const ArgType._(2);
-  static const STRING = const ArgType._(3);
-  static const FLAG = const ArgType._(4);
+  static const UINT64 = const ArgType._(2);
+  static const DOUBLE = const ArgType._(3);
+  static const STRING = const ArgType._(4);
+  static const FLAG = const ArgType._(5);
 
-  static get values => [INT, INT64, DOUBLE, STRING, FLAG];
+  static get values => [INT, INT64, UINT64, DOUBLE, STRING, FLAG];
 
   final int value;
 
@@ -27,6 +28,8 @@ class ArgType implements Comparable<ArgType> {
         return "Int";
       case INT64:
         return "Int64";
+      case UINT64:
+        return "Uint64";
       case DOUBLE:
         return "Double";
       case STRING:
@@ -44,6 +47,8 @@ class ArgType implements Comparable<ArgType> {
         return INT;
       case "Int64":
         return INT64;
+      case "Uint64":
+        return UINT64;
       case "Double":
         return DOUBLE;
       case "String":
@@ -166,7 +171,7 @@ class AppArg extends CppEntity {
 
   set defaultValue(Object defaultValue) {
     if (type == null) {
-      switch (defaultValue) {
+      switch (defaultValue.runtimeType) {
         case String:
           type = ArgType.STRING;
           break;
@@ -201,6 +206,9 @@ class AppArg extends CppEntity {
         case ArgType.INT64:
           result = 'std::vector<std::int64_t>';
           break;
+        case ArgType.UINT64:
+          result = 'std::vector<std::uint64_t>';
+          break;
         case ArgType.STRING:
           result = 'std::vector<std::string>';
           break;
@@ -220,6 +228,9 @@ class AppArg extends CppEntity {
           break;
         case ArgType.INT64:
           result = 'std::int64_t';
+          break;
+        case ArgType.UINT64:
+          result = 'std::uint64_t';
           break;
         case ArgType.STRING:
           result = 'std::string';

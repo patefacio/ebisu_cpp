@@ -192,4 +192,24 @@ usingScptr(name, referenced) =>
 usingUcptr(name, referenced) =>
     using(addSuffixToId('ucptr', name), 'std::unique_ptr<$referenced const>');
 
+/// Provide standardized using of pointer to boost thread specific storage
+///
+///    print(usingTsPtr('an_id', 'SomeType'));
+///
+/// Prints:
+///
+///    using An_id_tscptr_t = boost::thread_specific_ptr<SomeType const>;
+usingTscptr(name, referenced) => using(addSuffixToId('tscptr', name),
+    'boost::thread_specific_ptr<$referenced const>');
+
+/// Provide standardized using of pointer to boost thread specific storage
+///
+///    print(usingTsPtr('an_id', 'SomeType'));
+///
+/// Prints:
+///
+///    using An_id_tsptr_t = boost::thread_specific_ptr<SomeType>;
+usingTsptr(name, referenced) => using(
+    addSuffixToId('tsptr', name), 'boost::thread_specific_ptr<$referenced>');
+
 // end <part pointer>

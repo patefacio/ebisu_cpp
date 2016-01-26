@@ -1620,6 +1620,8 @@ Set of argument types supported by command line option processing.
                     ..doc = 'The command line arg is an integer',
                   enumValue(id('int64'))
                     ..doc = 'The command line arg is an 64-bit integer',
+                  enumValue(id('uint64'))
+                    ..doc = 'The command line arg is an unsigned 64-bit integer',
                   enumValue(id('double'))
                     ..doc = 'The command line arg is a double',
                   enumValue(id('string'))
