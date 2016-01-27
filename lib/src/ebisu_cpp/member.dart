@@ -492,7 +492,7 @@ class StandardSetterCreator extends SetterCreator {
 
   String get _setterOpener => '''
 //! setter for ${vname} (access is $access)
-void $name($argType $name) {''';
+void $name(${member._constAccess} $name) {''';
   String get _setterImpl => '$vname = $name;';
   String get _setterCloser => '}';
 

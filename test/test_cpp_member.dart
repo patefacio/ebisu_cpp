@@ -119,7 +119,7 @@ Wee willy winkee went through the town.'''
       ..cppAccess = cppAccess);
 
   final reader = 'std::string const& x() const';
-  final writer = 'void x(std::string &x)';
+  final writer = 'void x(std::string const& x)';
 
   [null, public, private, protected].forEach((CppAccess cppAccess) {
     group('access designation with $cppAccess', () {
@@ -250,7 +250,7 @@ class C {
   X const& x() const { return x_; }
 
   //! setter for x_ (access is Access.rw)
-  void x(X& x) { x_ = x; }
+  void x(X const& x) { x_ = x; }
   //! updater for x_ (access is Access.rw)
   X& x() { return x_; }
 
@@ -316,7 +316,7 @@ public:
   }
 
   //! setter for x_ (access is Access.rw)
-  void x(std::string & x) {
+  void x(std::string const& x) {
   x_ = x;
   }
 
