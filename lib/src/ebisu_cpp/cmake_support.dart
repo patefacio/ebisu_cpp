@@ -115,9 +115,25 @@ ${scriptCustomBlock("link directories")})
 ''',
           scriptCustomBlock('misc section'),
           'enable_testing()',
+
+          /// traditional libs
           installation.libs.where((Lib lib) => !lib.isHeaderOnly).map((Lib lib) =>
               'add_subdirectory(${path.relative(lib.implPath, from: installation.cppPath)})'),
+
+          /// header-only libs
+          installation.libs
+              .where((Lib lib) => lib.isHeaderOnly)
+              .map((Lib lib) => brCompact([
+                    'add_library(lib_${lib.id.snake} INTERFACE)',
+                    'target_sources(lib_${lib.id.snake} INTERFACE',
+                    lib.headers.map((header) => ' ${header.includeFilePath}'),
+                    ')',
+                  ])),
+
+          /// allow for custom header additions
           libPublicHeadersCodeBlock,
+
+          /// apps
           installation.apps.map((App app) {
             final relPath =
                 path.relative(app.appPath, from: installation.cppPath);
