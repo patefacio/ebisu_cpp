@@ -32,7 +32,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.15'
+    ..pubSpec.version = '0.3.16'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -721,7 +721,14 @@ SetterCreator and assign'''
 Indicates member should be streamed if class is streamable.
 One of the few flags defaulted to *true*, this flag provides
 an opportunity to *not* stream specific members'''
-                    ..classInit = true,
+                    ..classInit = true
+                    ..access = IA,
+                  member('is_streamable_ptr')
+                    ..doc = '''
+Indicates member should be streamed with a pointer null check if class is
+streamable.
+'''
+                    ..classInit = false,
                   member('custom_streamable')
                     ..doc = '''
 If not-null a custom streamable block. Use this to either hand code or

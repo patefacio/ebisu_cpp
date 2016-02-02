@@ -237,10 +237,9 @@ class Member extends CppEntity {
   /// SetterCreator and assign
   SetterCreator setterCreator;
 
-  /// Indicates member should be streamed if class is streamable.
-  /// One of the few flags defaulted to *true*, this flag provides
-  /// an opportunity to *not* stream specific members
-  bool isStreamable = true;
+  /// Indicates member should be streamed with a pointer null check if class is
+  /// streamable.
+  bool isStreamablePtr = false;
 
   /// If not-null a custom streamable block. Use this to either hand code or
   /// generate a streamable entry in the containing [Class].
@@ -257,6 +256,9 @@ class Member extends CppEntity {
 
   /// Member has no children - returns empty [Iterable]
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
+
+  /// Returns true if member is streamble - including streamable pointer variant
+  get isStreamable => _isStreamable || _isStreamablePtr;
 
   /// Returns true if member has customized out streaming
   get hasCustomStreamable => _customStreamable != null;
@@ -416,6 +418,11 @@ ${chomp(txt, true)}
   CppAccess _cppAccess;
   bool _isByRef;
   bool _isConst = false;
+
+  /// Indicates member should be streamed if class is streamable.
+  /// One of the few flags defaulted to *true*, this flag provides
+  /// an opportunity to *not* stream specific members
+  bool _isStreamable = true;
   CodeBlock _customStreamable;
 }
 

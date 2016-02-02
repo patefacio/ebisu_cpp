@@ -695,6 +695,18 @@ class OpOut extends ClassMethod {
   _outputOpener(text) =>
       usesNestedIndent ? 'out << indent << "$text";' : 'out << "$text";';
 
+  _streamMemberPtr(Member m) => brCompact([
+        usesNestedIndent
+            ? 'out  << \'$_nl\' << indent << "  ${m.name}:";'
+            : 'out << "$_nl  ${m.name}:";',
+        '''
+if(item.${m.vname}) {
+  out << *item.${m.vname};
+} else {
+  out << "(null)";
+}'''
+      ]);
+
   _streamMember(Member m) {
     if (m.hasCustomStreamable) {
       final codeBlock = m.customStreamable;
@@ -703,10 +715,12 @@ class OpOut extends ClassMethod {
       }
       return codeBlock;
     } else {
-      return m.isStreamable
-          ? _outputMember(m.name,
-              m.hasCustomGetter ? 'item.${m.name}()' : 'item.${m.vname}')
-          : '';
+      return m.isStreamablePtr
+          ? _streamMemberPtr(m)
+          : m.isStreamable
+              ? _outputMember(m.name,
+                  m.hasCustomGetter ? 'item.${m.name}()' : 'item.${m.vname}')
+              : '';
     }
   }
 
@@ -1004,6 +1018,7 @@ default [Interfaceimplementation] is used''')
   String get classStyle => isStruct ? 'struct' : 'class';
 
   set isStreamable(bool s) => s ? opOut : (_opOut = null);
+
   get isStreamable => _opOut != null;
 
   set usesStreamers(bool s) {

@@ -619,7 +619,7 @@ private:
                       ..access = ro
                       ..type = 'int'
                       ..getterReturnModifier =
-                          ((member, oldValue) => 'endian_convert($oldValue)')
+                          ((member, oldValue) => 'endian_convert($oldValue)'),
                   ])
                 .definition,
             r'''
@@ -656,11 +656,16 @@ private:
                   ..members = [
                     member('x')
                       ..access = ro
-                      ..type = 'int'
+                      ..type = 'int',
+                    member('x_ptr')
+                      ..access = ro
+                      ..isStreamablePtr = true
+                      ..type = 'X_ptr_t',
                   ])
                 .definition,
             r'''
-class A {
+class A
+{
 
 public:
   friend inline
@@ -668,17 +673,29 @@ public:
                            A const& item) {
     out << "A(" << &item << ") {";
     out << "\n  x:" << item.x_;
+    out << "\n  x_ptr:";
+    if(item.x_ptr_) {
+      out << *item.x_ptr_;
+    } else {
+      out << "(null)";
+    }
     out << "\n}\n";
     return out;
   }
 
   //! getter for x_ (access is Ro)
   int x() const {
-    return x_;
+  return x_;
+  }
+
+  //! getter for x_ptr_ (access is Ro)
+  X_ptr_t x_ptr() const {
+  return x_ptr_;
   }
 
 private:
   int x_ {};
+  X_ptr_t x_ptr_ {};
 
 };
 '''),
