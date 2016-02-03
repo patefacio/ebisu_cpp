@@ -9,6 +9,7 @@ import 'test_cpp_interface.dart' as test_cpp_interface;
 import 'test_cpp_opout.dart' as test_cpp_opout;
 import 'test_cpp_method.dart' as test_cpp_method;
 import 'test_cpp_utils.dart' as test_cpp_utils;
+import 'test_cpp_union.dart' as test_cpp_union;
 import 'test_cpp_namer.dart' as test_cpp_namer;
 import 'test_cpp_generic.dart' as test_cpp_generic;
 import 'test_cpp_test_provider.dart' as test_cpp_test_provider;
@@ -38,6 +39,7 @@ main() {
   test_cpp_opout.main();
   test_cpp_method.main();
   test_cpp_utils.main();
+  test_cpp_union.main();
   test_cpp_namer.main();
   test_cpp_generic.main();
   test_cpp_test_provider.main();

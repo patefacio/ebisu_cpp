@@ -252,7 +252,7 @@ class Member extends CppEntity {
 
   Member(id) : super(id);
 
-  Class get ownerClass => owner as Class;
+  get ownerAggregateBase => owner as AggregateBase;
 
   /// Member has no children - returns empty [Iterable]
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
@@ -275,9 +275,10 @@ class Member extends CppEntity {
   get hasCustomGetter => getterReturnModifier != null;
 
   get _ownerDefaultAccess =>
-      owner == null ? null : ownerClass.defaultMemberAccess;
+      owner == null ? null : ownerAggregateBase.defaultMemberAccess;
 
-  get _ownerCppAccess => owner == null ? null : ownerClass.defaultCppAccess;
+  get _ownerCppAccess =>
+      owner == null ? null : ownerAggregateBase.defaultCppAccess;
 
   get access => _access == null
       ? (_ownerDefaultAccess != null ? _ownerDefaultAccess : ia)

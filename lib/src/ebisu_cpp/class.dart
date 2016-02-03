@@ -857,7 +857,7 @@ ${indentBlock(chomp(brCompact([
 /// * A fixed collection of indexed [codeBlocks] that can be used for
 ///   providing *CustomBlocks* and/or for dynamically injecting code - see
 ///   [CodeBlock].
-class Class extends CppEntity with Testable {
+class Class extends CppEntity with Testable, AggregateBase {
   /// Is this definition a *struct*
   bool isStruct = false;
 
@@ -941,12 +941,6 @@ class Class extends CppEntity with Testable {
   /// If set, will include *#pragma pack(push, $packAlign)* before the class
   /// and *#pragma pack(pop)* after.
   int packAlign;
-
-  /// If set and member has no [access] set, this is used
-  Access defaultMemberAccess;
-
-  /// If set and member has no [cppAccess] set, this is used
-  CppAccess defaultCppAccess;
 
   // custom <class Class>
 

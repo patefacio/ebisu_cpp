@@ -124,6 +124,7 @@ part 'src/ebisu_cpp/serializer.dart';
 part 'src/ebisu_cpp/template.dart';
 part 'src/ebisu_cpp/test.dart';
 part 'src/ebisu_cpp/test_provider.dart';
+part 'src/ebisu_cpp/union.dart';
 part 'src/ebisu_cpp/using.dart';
 part 'src/ebisu_cpp/utils.dart';
 part 'src/ebisu_cpp/versioning.dart';

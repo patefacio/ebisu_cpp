@@ -353,6 +353,7 @@ class EbisuCppNamer implements Namer {
   }
 
   String nameClass(Id id) => id.capSnake;
+  String nameUnion(Id id) => id.capSnake;
   String nameMember(Id id) => id.snake;
   String nameMemberVar(Id id, bool isPublic) =>
       isPublic ? id.snake : '${id.snake}_';
@@ -386,6 +387,7 @@ class GoogleNamer implements Namer {
   }
 
   String nameClass(Id id) => id.capCamel;
+  String nameUnion(Id id) => id.capCamel;
   String nameMember(Id id) => id.snake;
   String nameMemberVar(Id id, bool isPublic) =>
       isPublic ? id.snake : '${id.snake}_';
@@ -462,6 +464,19 @@ class Base {
 
 /// Create a Base sans new, for more declarative construction
 Base base([String className]) => new Base(className);
+
+/// Base for class and union to provide abilility to set defaults
+class AggregateBase {
+  /// If set and member has no [access] set, this is used
+  Access defaultMemberAccess;
+
+  /// If set and member has no [cppAccess] set, this is used
+  CppAccess defaultCppAccess;
+
+  // custom <class AggregateBase>
+  // end <class AggregateBase>
+
+}
 
 // custom <part utils>
 

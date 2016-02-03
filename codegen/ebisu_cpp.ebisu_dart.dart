@@ -32,7 +32,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.16'
+    ..pubSpec.version = '0.3.17'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -56,6 +56,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_opout'),
       library('test_cpp_method'),
       library('test_cpp_utils'),
+      library('test_cpp_union'),
       library('test_cpp_namer'),
       library('test_cpp_generic'),
       library('test_cpp_test_provider'),
@@ -409,6 +410,19 @@ Default namer establishing reasonable conventions, that are fairly
                     ..doc =
                         'If true and streamers are being provided, base is streamed first'
                     ..classInit = false,
+                ],
+              class_('aggregate_base')
+                ..doc =
+                    'Base for class and union to provide abilility to set defaults'
+                ..members = [
+                  member('default_member_access')
+                    ..doc =
+                        'If set and member has no [access] set, this is used'
+                    ..type = 'Access',
+                  member('default_cpp_access')
+                    ..doc =
+                        'If set and member has no [cppAccess] set, this is used'
+                    ..type = 'CppAccess',
                 ]
             ],
           part('file')
@@ -794,6 +808,18 @@ client must provide semicolons.
                     ..ctorsOpt = [''],
                 ],
             ],
+          part('union')
+            ..classes = [
+              class_('union')
+                ..extend = 'CppEntity'
+                ..mixins = ['AggregateBase']
+                ..members = [
+                  member('members')
+                    ..type = 'List<Member>'
+                    ..access = RO
+                    ..classInit = [],
+                ]
+            ],
           part('class')
             ..enums = [
               enum_('class_code_block')
@@ -1024,7 +1050,7 @@ components when streaming'''
               class_('class')
                 ..doc = classDoc
                 ..extend = 'CppEntity'
-                ..mixins = ['Testable']
+                ..mixins = ['Testable', 'AggregateBase']
                 ..members = [
                   member('definition')
                     ..doc = '''
@@ -1220,14 +1246,6 @@ If set, will include *#pragma pack(push, $packAlign)* before the class
 and *#pragma pack(pop)* after.
 '''
                     ..type = 'int',
-                  member('default_member_access')
-                    ..doc =
-                        'If set and member has no [access] set, this is used'
-                    ..type = 'Access',
-                  member('default_cpp_access')
-                    ..doc =
-                        'If set and member has no [cppAccess] set, this is used'
-                    ..type = 'CppAccess',
                 ],
             ],
           part('method')
@@ -1628,7 +1646,8 @@ Set of argument types supported by command line option processing.
                   enumValue(id('int64'))
                     ..doc = 'The command line arg is an 64-bit integer',
                   enumValue(id('uint64'))
-                    ..doc = 'The command line arg is an unsigned 64-bit integer',
+                    ..doc =
+                        'The command line arg is an unsigned 64-bit integer',
                   enumValue(id('double'))
                     ..doc = 'The command line arg is a double',
                   enumValue(id('string'))
