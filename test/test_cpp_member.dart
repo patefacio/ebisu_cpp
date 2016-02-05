@@ -329,5 +329,19 @@ public:
 '''));
   });
 
+  test('member streamable', () {
+    var m = member('m')
+      ..type = 'Foo_ptr_t'
+      ..isStreamablePtr = true;
+    expect(m.isStreamablePtr, true);
+    expect(m.isStreamable, true);
+
+    m = member('m')
+      ..type = 'Foo_ptr_t'
+      ..isStreamable = true;
+    expect(m.isStreamablePtr, false);
+    expect(m.isStreamable, true);
+  });
+
 // end <main>
 }

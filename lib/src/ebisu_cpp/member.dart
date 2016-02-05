@@ -258,7 +258,10 @@ class Member extends CppEntity {
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
   /// Returns true if member is streamble - including streamable pointer variant
-  get isStreamable => _isStreamable || _isStreamablePtr;
+  get isStreamable => _isStreamable || isStreamablePtr;
+
+  /// Is the member streamable
+  set isStreamable(bool isStreamable) => _isStreamable = isStreamable;
 
   /// Returns true if member has customized out streaming
   get hasCustomStreamable => _customStreamable != null;
