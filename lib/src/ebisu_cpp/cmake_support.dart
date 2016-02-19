@@ -136,7 +136,7 @@ ${scriptCustomBlock("link directories")})
           /// apps
           installation.apps.map((App app) {
             final relPath =
-                path.relative(app.appPath, from: installation.cppPath);
+              path.relative(path.dirname(app.filePath), from: installation.cppPath);
             final requiredLibs = app.requiredLibs;
             if (app.hasSignalHandler && !requiredLibs.contains('pthread')) {
               requiredLibs.add('pthread');

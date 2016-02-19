@@ -22,6 +22,11 @@ class Impl extends CppFile {
     _filePath = libFilePath;
   }
 
+  setFilePathFromRoot(String rootFilePath, [name]) {
+    _basename = name == null ? namer.nameImpl(id) : name;
+    return _filePath = path.join(rootFilePath, id.snake, _basename);
+  }
+
   setAppFilePathFromRoot(String rootFilePath, [name]) {
     _basename = name == null ? namer.nameImpl(id) : name;
     return _filePath = path.join(rootFilePath, 'app', id.snake, _basename);

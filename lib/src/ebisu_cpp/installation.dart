@@ -81,6 +81,9 @@ class Installation extends CppEntity implements CodeGenerator {
   /// stack trace to help find the dart code that generated the source.
   bool includeStackTrace = false;
 
+  /// Path to applications
+  String get appPath => _appPath;
+
   // custom <class Installation>
 
   Installation(Id id) : super(id) {
@@ -277,6 +280,7 @@ Installation($rootFilePath)
   /// the [Installation]. The assigned namer will be propogated to all
   /// genration utilities.
   Namer _namer = defaultNamer;
+  String _appPath;
 }
 
 class PathLocator {
