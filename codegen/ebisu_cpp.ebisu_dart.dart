@@ -181,9 +181,14 @@ content without being tied to an installation - this can be used.
             ],
           part('using')
             ..classes = [
+
               class_('using')
+              ..isAbstract = true,
+
+              class_('using_directive')
                 ..doc = 'Object corresponding to a using statement'
                 ..extend = 'CppEntity'
+                ..implement = [ 'Using' ]
                 ..members = [
                   member('rhs')
                     ..doc = '''
@@ -193,6 +198,15 @@ The right hand side of using (ie the type decl being named)'''
                     ..doc = 'Template associated with the using (C++11)'
                     ..type = 'Template'
                     ..access = RO,
+                ],
+
+              class_('using_declaration')
+                ..doc = 'Object corresponding to a using statement'
+                ..extend = 'CppEntity'
+                ..implement = [ 'Using' ]
+                ..members = [
+                  member('qualified_name')
+                  ..access = RO,
                 ],
             ],
           part('pointer')

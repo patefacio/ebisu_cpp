@@ -58,5 +58,9 @@ template<typename T> using Vec_t = std::vector<T>;
             'template <typename T > using Vec_int_t = std::vector< T >;'));
   });
 
+  test('using declaration', () {
+    expect(darkMatter(using('foo::goo')), darkMatter('using foo::goo;'));
+  });
+
 // end <main>
 }

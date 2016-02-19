@@ -1,16 +1,25 @@
 part of ebisu_cpp.ebisu_cpp;
 
+abstract class Using {
+  // custom <class Using>
+
+  get usingStatement;
+
+  // end <class Using>
+
+}
+
 /// Object corresponding to a using statement
-class Using extends CppEntity {
+class UsingDirective extends CppEntity implements Using {
   /// The right hand side of using (ie the type decl being named)
   String get rhs => _rhs;
 
   /// Template associated with the using (C++11)
   Template get template => _template;
 
-  // custom <class Using>
+  // custom <class UsingDirective>
 
-  Using(lhs_, String this._rhs) : super(addSuffixToId('t', lhs_));
+  UsingDirective(lhs_, this._rhs) : super(addSuffixToId('t', lhs_));
 
   Iterable<Entity> get children => [];
 
@@ -36,40 +45,83 @@ class Using extends CppEntity {
       ? '${template.decl} using $type = $rhs;'
       : 'using $type = $rhs;';
 
-  // end <class Using>
+  // end <class UsingDirective>
 
   String _rhs;
   Template _template;
+}
+
+/// Object corresponding to a using statement
+class UsingDeclaration extends CppEntity implements Using {
+  String get qualifiedName => _qualifiedName;
+
+  // custom <class UsingDeclaration>
+
+  UsingDeclaration(qualifiedName)
+      : super(qualifiedName.replaceAll('::', '_')),
+        _qualifiedName = qualifiedName;
+
+  Iterable<Entity> get children => [];
+
+  toString() => usingStatement;
+
+  //// The using statement with documentation
+  get usingStatement => brCompact([this.docComment, 'using $qualifiedName;']);
+
+  // end <class UsingDeclaration>
+
+  String _qualifiedName;
 }
 
 // custom <part using>
 
 final _usingSpecRe = new RegExp(r"(\w+)\s*=\s*((?:.|\n)*)", multiLine: true);
 
-/// Returns a [Using] from [u], which may be a String or [Id]
+/// Returns a [UsingDirective] from [u], which may be a String or [Id]
 ///
 /// If [decl] is provided, it is parsed and the [Using] is constructed from that:
 ///
-///     using('using int = int') => 'using Int_t = int;'
+///     usingDirective('using int = int') => 'using Int_t = int;'
 ///
-///     using('vec_int', 'std::vector< int >') => 'using Vec_int_t = std::vector< int >;'
+///     usingDirective('vec_int', 'std::vector< int >') => 'using Vec_int_t = std::vector< int >;'
 ///
-///     using('vec_int', 'std::vector< T >')
+///     usingDirective('vec_int', 'std::vector< T >')
 ///     ..template = [ 'typename T' ]) => 'template <typename T > using Vec_int_t = std::vector< T >;'
 ///
-Using using([u, decl]) {
+UsingDirective usingDirective(u, [decl]) {
   if (u is Using) {
     return u;
   } else if (u is String || u is Id) {
     if (decl == null) {
       final match = _usingSpecRe.firstMatch(u);
-      return new Using(match.group(1), match.group(2));
+      return new UsingDirective(match.group(1), match.group(2));
     } else {
-      return new Using(u, decl);
+      return new UsingDirective(u, decl);
     }
   } else {
     throw 'using($u) requires string like r"\w+\s*=\s(.*)" or Using';
   }
+}
+
+/// Returns a [UsingDeclaration] from [qualifiedName]
+///
+///  using('std::string') => 'using std::string'
+///
+UsingDeclaration usingDeclaration(qualifiedName) =>
+    new UsingDeclaration(qualifiedName);
+
+final _qualifiedNameRe = new RegExp(r'^\w+(?:::\w+)+$');
+
+/// Returns either a [UsingDeclaration] or a [UsingDirective] based on [u] and
+/// [decl]. If only [u] is provided then if it looks like a qualifiedName it
+/// returns a [UsingDeclaration]. Otherwise returns a [UsingDirective].
+/// see [usingDirective].
+///
+Using using(u, [decl]) {
+  if (u is Using || decl != null || !_qualifiedNameRe.hasMatch(u)) {
+    return usingDirective(u, decl);
+  }
+  return usingDeclaration(u);
 }
 
 // end <part using>
