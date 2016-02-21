@@ -81,11 +81,9 @@ if(desired_log_level == "off") {
   createLoggerInstance(Entity entity) {
     final loggerClassName_ = loggerClassName(entity);
     final loggerTraceMacro = '${entity.id.shout}_TRACE';
-    final loggerName_ = loggerName(entity);
 
     _logger
         .info('creating logger for ${entity.id} ${chomp(entity.detailedPath)}');
-    final detailedName = chomp(entity.detailedPath);
 
     return '''
 

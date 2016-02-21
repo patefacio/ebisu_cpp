@@ -235,16 +235,6 @@ class Interface extends CppEntity {
 
   Interface(id) : super(id);
 
-  static _hasPrefix(String s) => s.startsWith('i_');
-
-  static _forceInterfacePrefix(id) => id is Id
-      ? (_hasPrefix(id.snake) ? id : idFromString('i_${id.snake}'))
-      : id is String
-          ? (_hasPrefix(id)
-              ? idFromString(id)
-              : idFromString('i_${idFromString(id).snake}'))
-          : throw 'Interface *id* must be an Id or String';
-
   Iterable<Entity> get children => methodDecls;
 
   get name => namer.nameClass(id);

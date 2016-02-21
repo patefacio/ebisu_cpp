@@ -506,8 +506,7 @@ recursively.
               member('printer_support')
               ..type = 'PrinterSupport',
               member('print_instance_methods')
-              ..type = 'PrintInstanceMethods'
-              ..classInit = 'new PrintInstanceMethods(_classType)'
+              ..type = 'PrintInstanceMethods',
             ],
           ],
 

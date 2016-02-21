@@ -70,12 +70,16 @@ class PrinterSupportProvider {
   PrintInstanceMethods get printInstanceMethods => _printInstanceMethods;
 
   // custom <class PrinterSupportProvider>
+
+  PrinterSupportProvider(this._classType, this._printerSupport) {
+    _printInstanceMethods = new Printinstancemethods(_classType);
+  }
+
   // end <class PrinterSupportProvider>
 
   Class _classType;
   PrinterSupport _printerSupport;
-  PrintInstanceMethods _printInstanceMethods =
-      new PrintInstanceMethods(_classType);
+  PrintInstanceMethods _printInstanceMethods;
 }
 
 // custom <part printer_support>

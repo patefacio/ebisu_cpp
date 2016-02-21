@@ -241,8 +241,6 @@ class Enum extends CppEntity {
         hasFromCStr ? fromCString : null,
       ]);
 
-  _enumValueName(EnumValue ev) => '$name::${ev.name}';
-
   get _bitmaskFunctions => isMask && hasBitmaskFunctions
       ? br([
           '''

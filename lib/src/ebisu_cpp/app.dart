@@ -491,7 +491,6 @@ static void show_help(std::ostream& out) {
       [args.where((a) => _isHelpArg(a)), args.where((a) => !_isHelpArg(a))]);
 
   bool _isHelpArg(AppArg arg) => arg.optName == 'help';
-  get _helpArg => args.where((a) => _isHelpArg(a));
 
   _readFlag(AppArg arg) => 'parsed_options.count("${arg.optName}") > 0';
 

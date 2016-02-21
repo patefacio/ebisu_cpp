@@ -247,14 +247,10 @@ class CmakeInstallationBuilder extends InstallationBuilder {
   get installation => super.installation;
   get testProvider => installation.testProvider;
 
-  get _isCatchDecl => testProvider is CatchTestProvider ? 'catch ' : '';
-
   libCmakeHeaders(lib) {
     final libName = lib.namespace.names.map((n) => n.toUpperCase()).join('_');
     final srcMacro = '${libName}_SOURCES';
     final installDirectives = lib.headers.map((Header h) {
-      final relPath =
-          path.relative(h.includeFilePath, from: installation.cppPath);
       return '''
 install(FILES ${h.includeFilePath}
   DESTINATION \${DESTDIR}/include/${path.dirname(h.includeFilePath)})''';

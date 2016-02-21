@@ -160,7 +160,7 @@ Installation($rootFilePath)
 
     progeny.forEach((Entity child) => (child as CppEntity)._namer = _namer);
 
-    concat([libs]).forEach((Lib lib) => (lib as CodeGenerator).generate());
+    concat([libs]).forEach((Lib lib) => lib.generate());
 
     if (generateHeaderSmokeTest) {
       final smokeLib = lib('smoke')
@@ -327,7 +327,6 @@ class PathLocator {
 _asId(id) => id is Id ? id : new Id(id);
 Installation installation(Object id) => new Installation(_asId(id));
 App app(Object id) => new App(_asId(id));
-Script script(Object id) => new Script(_asId(id));
 
 get _home => Platform.environment["HOME"];
 
