@@ -971,6 +971,11 @@ class Class extends CppEntity with Testable, AggregateBase {
           .mergeIncludes(installation.logProvider.includeRequirements)
       : super.includes;
 
+  /// Updates the class with default printer support
+  giveDefaultPrinterSupport() {
+    this.printerSupport = new PrinterSupport(className, false);
+  }
+
   Iterable<Entity> get children => concat([
         enumsForward,
         enums,

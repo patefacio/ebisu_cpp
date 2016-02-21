@@ -478,47 +478,6 @@ class AggregateBase {
 
 }
 
-/// Describes details of how a class should support [print_instance] method.
-///
-/// The [print_instance] method supports a more flexible approach to streaming
-/// objects than basic `operator<<(...)`. For instance, allowing nested structures
-/// to be streamed as nicely formatted output or as dense one-line output.
-///
-/// The C++ signature for the function is:
-/// ```
-/// void print_instance(st::ostream &out, Printer_descriptor & printer_descriptor);
-/// ```
-///
-/// Most decisions on the format of the printed instance is dictated by the
-/// [Printer_descriptor] passed in. However, sometimes you just want a specific look
-/// to the output of a class, regardless of the desire of the highest frames
-/// original request. For example, if you might want a
-///
-/// ```C++
-/// struct Point {
-///   int x;
-///   int y;
-/// };
-/// ```
-///
-/// to always be printed as `Point(0,0)`.
-///
-/// Instances of [PrinterSupport] decorate a class and are used to modify how the
-/// [print_instance] is generated. The flags in this class are not initialized, so
-/// if they are set either way, the generated [print_instance] will honor these and
-/// not even attempt to support a more generalized formatting.
-class PrinterSupport {
-  /// If present open the output with the name of type being printed
-  String typeDisplayName;
-
-  /// If set requests that the member names be shown along with member values
-  bool printMemberNames;
-
-  // custom <class PrinterSupport>
-  // end <class PrinterSupport>
-
-}
-
 // custom <part utils>
 
 Namespace _makeNamespace(ns) => ns is List

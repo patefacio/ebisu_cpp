@@ -69,6 +69,7 @@ files, build scripts, test files, etc.)
       library('test_hdf5_support'),
       library('test_qt_support'),
       library('test_enumerated_dispatcher'),
+      library('test_print_instance'),
     ]
     ..libraries = [
       library('ebisu_cpp')
@@ -431,6 +432,11 @@ Default namer establishing reasonable conventions, that are fairly
                         'If set and member has no [cppAccess] set, this is used'
                     ..type = 'CppAccess',
                 ],
+            ],
+
+          part('printer_support')
+          ..classes = [
+
               class_('printer_support')
                 ..doc = '''
 Describes details of how a class should support [print_instance] method.
@@ -471,7 +477,40 @@ not even attempt to support a more generalized formatting.
                   ..doc = 'If set requests that the member names be shown along with member values'
                   ..type = 'bool',
                 ],
+
+            class_('print_instance_methods')
+            ..doc = '''
+The C++ instances for the [print_instance] methods of a class.
+'''
+            ..defaultMemberAccess = RO
+            ..members = [
+              member('class_type')
+              ..doc = 'Class for which the [print_instance] applies'
+              ..type = 'Class',
+              member('printer_support')
+              ..type = 'PrinterSupport',
+              member('print_instance')
+              ..doc = 'The print method contents'
             ],
+
+            class_('printer_support_provider')
+            ..doc = '''
+Given a class, provides [print_instance] support for that and its *children*
+recursively.
+'''
+            ..defaultMemberAccess = RO
+            ..members = [
+              member('class_type')
+              ..doc = 'Class for which the [print_instance] applies'
+              ..type = 'Class',
+              member('printer_support')
+              ..type = 'PrinterSupport',
+              member('print_instance_methods')
+              ..type = 'PrintInstanceMethods'
+              ..classInit = 'new PrintInstanceMethods(_classType)'
+            ],
+          ],
+
           part('file')
             ..classes = [
               class_('cpp_file')

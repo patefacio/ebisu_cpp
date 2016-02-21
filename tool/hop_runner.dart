@@ -38,7 +38,8 @@ void main(List<String> args) {
         "test/test_cpp_template.dart",
         "test/test_hdf5_support.dart",
         "test/test_qt_support.dart",
-        "test/test_enumerated_dispatcher.dart"
+        "test/test_enumerated_dispatcher.dart",
+        "test/test_print_instance.dart"
       ]));
 
   runHop(args);
