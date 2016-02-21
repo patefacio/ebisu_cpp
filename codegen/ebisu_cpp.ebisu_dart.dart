@@ -430,7 +430,47 @@ Default namer establishing reasonable conventions, that are fairly
                     ..doc =
                         'If set and member has no [cppAccess] set, this is used'
                     ..type = 'CppAccess',
-                ]
+                ],
+              class_('printer_support')
+                ..doc = '''
+Describes details of how a class should support [print_instance] method.
+
+The [print_instance] method supports a more flexible approach to streaming
+objects than basic `operator<<(...)`. For instance, allowing nested structures
+to be streamed as nicely formatted output or as dense one-line output.
+
+The C++ signature for the function is:
+```
+void print_instance(st::ostream &out, Printer_descriptor & printer_descriptor);
+```
+
+Most decisions on the format of the printed instance is dictated by the
+[Printer_descriptor] passed in. However, sometimes you just want a specific look
+to the output of a class, regardless of the desire of the highest frames
+original request. For example, if you might want a
+
+```C++
+struct Point {
+  int x;
+  int y;
+};
+```
+
+to always be printed as `Point(0,0)`.
+
+Instances of [PrinterSupport] decorate a class and are used to modify how the
+[print_instance] is generated. The flags in this class are not initialized, so
+if they are set either way, the generated [print_instance] will honor these and
+not even attempt to support a more generalized formatting.
+'''
+                ..members = [
+                  member('type_display_name')
+                  ..doc = 'If present open the output with the name of type being printed'
+                  ..type = 'String',
+                  member('print_member_names')
+                  ..doc = 'If set requests that the member names be shown along with member values'
+                  ..type = 'bool',
+                ],
             ],
           part('file')
             ..classes = [
@@ -1199,6 +1239,9 @@ is *set* as well. So not required to set both.
 '''
                     ..access = RO
                     ..classInit = false,
+                  member('printer_support')
+                    ..doc = 'Describes printer support required for class'
+                    ..type = 'PrinterSupport',
                   member('is_final')
                     ..doc = 'If true adds final keyword to class'
                     ..classInit = false,

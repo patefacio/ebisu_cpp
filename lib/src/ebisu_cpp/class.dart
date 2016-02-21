@@ -913,6 +913,9 @@ class Class extends CppEntity with Testable, AggregateBase {
   /// is *set* as well. So not required to set both.
   bool get usesStreamers => _usesStreamers;
 
+  /// Describes printer support required for class
+  PrinterSupport printerSupport;
+
   /// If true adds final keyword to class
   bool isFinal = false;
 
