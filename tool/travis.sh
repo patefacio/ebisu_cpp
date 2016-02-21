@@ -7,6 +7,6 @@ set -e
 # $(dirname -- "$0")/ensure_dartfmt.sh
 
 # Run the tests.
-dart test/analyze.sh
+test/analyze.sh
 
 dart test/runner.dart
