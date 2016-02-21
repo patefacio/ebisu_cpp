@@ -7,8 +7,6 @@ set -e
 # $(dirname -- "$0")/ensure_dartfmt.sh
 
 # Run the tests.
+dart test/analyze.sh
+
 dart test/runner.dart
-
-# Run the build.dart file - just to make sure it works
-dart tool/hop_runner.dart analyze_lib
-
