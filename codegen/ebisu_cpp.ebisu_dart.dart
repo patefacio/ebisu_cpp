@@ -476,22 +476,10 @@ not even attempt to support a more generalized formatting.
                   member('print_member_names')
                   ..doc = 'If set requests that the member names be shown along with member values'
                   ..type = 'bool',
+                  member('supports_max_bytes')
+                  ..doc = 'If set supports the max bytes feature'
+                  ..type = 'bool',
                 ],
-
-            class_('print_instance_methods')
-            ..doc = '''
-The C++ instances for the [print_instance] methods of a class.
-'''
-            ..defaultMemberAccess = RO
-            ..members = [
-              member('class_type')
-              ..doc = 'Class for which the [print_instance] applies'
-              ..type = 'Class',
-              member('printer_support')
-              ..type = 'PrinterSupport',
-              member('print_instance')
-              ..doc = 'The print method contents'
-            ],
 
             class_('printer_support_provider')
             ..doc = '''
@@ -505,8 +493,6 @@ recursively.
               ..type = 'Class',
               member('printer_support')
               ..type = 'PrinterSupport',
-              member('print_instance_methods')
-              ..type = 'PrintInstanceMethods',
             ],
           ],
 

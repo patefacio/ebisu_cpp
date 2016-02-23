@@ -42,7 +42,7 @@ main([List<String> args]) {
       ..classes = [a, b, c]
       ..setAsRoot();
 
-    //print(clangFormat(h.contents));
+    print(clangFormat(h.contents));
   });
 
 // end <main>

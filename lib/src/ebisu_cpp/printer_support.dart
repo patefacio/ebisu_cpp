@@ -36,30 +36,16 @@ class PrinterSupport {
   /// If set requests that the member names be shown along with member values
   bool printMemberNames;
 
+  /// If set supports the max bytes feature
+  bool supportsMaxBytes;
+
   // custom <class PrinterSupport>
 
-  PrinterSupport(this.typeDisplayName, this.printMemberNames);
+  PrinterSupport(
+      this.typeDisplayName, this.printMemberNames, this.supportsMaxBytes);
 
   // end <class PrinterSupport>
 
-}
-
-/// The C++ instances for the [print_instance] methods of a class.
-class PrintInstanceMethods {
-  /// Class for which the [print_instance] applies
-  Class get classType => _classType;
-  PrinterSupport get printerSupport => _printerSupport;
-
-  /// The print method contents
-  String get printInstance => _printInstance;
-
-  // custom <class PrintInstanceMethods>
-
-  // end <class PrintInstanceMethods>
-
-  Class _classType;
-  PrinterSupport _printerSupport;
-  String _printInstance;
 }
 
 /// Given a class, provides [print_instance] support for that and its *children*
@@ -68,12 +54,14 @@ class PrinterSupportProvider {
   /// Class for which the [print_instance] applies
   Class get classType => _classType;
   PrinterSupport get printerSupport => _printerSupport;
-  PrintInstanceMethods get printInstanceMethods => _printInstanceMethods;
 
   // custom <class PrinterSupportProvider>
 
+  get className => classType.className;
+  get members => classType.members;
+
   PrinterSupportProvider(this._classType, this._printerSupport) {
-    print('Adding printer support to ${classType.className}');
+    _logger.info('Adding printer support to ${classType.className}');
 
     bool includeClassName = _printerSupport.typeDisplayName != null;
     bool includeMemberNames = _printerSupport.printMemberNames != false;
@@ -83,7 +71,25 @@ class PrinterSupportProvider {
 
     publicCodeBlock.snippets.add(brCompact([
       '''
-std::ostream& print_instance(std::ostream& out, ebisu::utils::Printer_descriptor & printer_descriptor) {
+std::ostream& print_instance(std::ostream& out, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) {
+  ebisu::utils::streamers::Printer_spec const& spec = printer_descriptor.printer_spec;
+  if(spec.name_types) {
+    out << "<${className}>";
+  }
+
+  printer_descriptor.printer_state.frame++;
+
+  if(spec.name_members) {
+    print_members_named(out, printer_descriptor);
+  } else {
+    print_members_anonymous(out, printer_descriptor);
+  }
+
+  printer_descriptor.printer_state.frame--;
+
+  if(printer_descriptor.printer_state.frame == 0) {
+    out << spec.final_separator;
+  }
 
   return out;
 }
@@ -92,30 +98,41 @@ std::ostream& print_instance(std::ostream& out, ebisu::utils::Printer_descriptor
 
     privateCodeBlock.snippets.add(brCompact([
       '''
-std::ostream& print_members_named(std::ostream& out, ebisu::utils::Printer_descriptor & printer_descriptor) {
-
+std::ostream& print_members_named(std::ostream& out, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) {
+  ebisu::utils::streamers::Printer_spec const& spec = printer_descriptor.printer_spec;
+${indentBlock(brCompact(members.map(_namedMemberOut)))}
   return out;
 }
 
-std::ostream& print_members_anonymous(std::ostream& out, ebisu::utils::Printer_descriptor & printer_descriptor) {
-
+std::ostream& print_members_anonymous(std::ostream& out, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) {
+  ebisu::utils::streamers::Printer_spec const& spec = printer_descriptor.printer_spec;
+${indentBlock(brCompact(members.map(_anonymousMemberOut)))}
   return out;
 }
 '''
     ]));
   }
 
+  _namedMemberOut(Member m) => brCompact([
+        'out << "${m.name}" << spec.name_value_separator;',
+        'out << ${m.vname} << spec.member_separator;'
+      ]);
+
+  _anonymousMemberOut(Member m) =>
+      'out << ${m.vname} << spec.member_separator;';
+
   // end <class PrinterSupportProvider>
 
   Class _classType;
   PrinterSupport _printerSupport;
-  PrintInstanceMethods _printInstanceMethods;
 }
 
 // custom <part printer_support>
 
 PrinterSupport printerSupport(
-        [String typeDisplayName, bool printMemberNames]) =>
-    new PrinterSupport(typeDisplayName, printMemberNames);
+        [String typeDisplayName,
+        bool printMemberNames,
+        bool supportsMaxBytes]) =>
+    new PrinterSupport(typeDisplayName, printMemberNames, supportsMaxBytes);
 
 // end <part printer_support>

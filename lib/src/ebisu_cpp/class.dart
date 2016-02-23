@@ -973,7 +973,7 @@ class Class extends CppEntity with Testable, AggregateBase {
 
   /// Updates the class with default printer support
   giveDefaultPrinterSupport() {
-    this.printerSupport = new PrinterSupport(className, false);
+    this.printerSupport = new PrinterSupport(className, true, false);
   }
 
   Iterable<Entity> get children => concat([
