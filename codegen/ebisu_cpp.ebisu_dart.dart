@@ -2154,7 +2154,10 @@ stack trace to help find the dart code that generated the source.
                     ..classInit = false,
                   member('app_path')
                     ..doc = 'Path to applications'
-                    ..access = RO,
+                    ..access = WO,
+                  member('tests_path')
+                    ..doc = 'Path to applications'
+                    ..access = WO,
                 ],
               class_('path_locator')
                 ..members = [

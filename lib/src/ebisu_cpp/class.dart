@@ -1196,6 +1196,10 @@ default [Interfaceimplementation] is used''')
         .where((i) => i.isVirtual)
         .forEach((i) => bases.add(base(i.name)));
 
+    if (printerSupport != null) {
+      new PrinterSupportProvider(this, printerSupport);
+    }
+
     _logger
         .info('Class ($id) finalized supporting: ${interfaceImplementations}');
   }

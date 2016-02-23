@@ -117,7 +117,7 @@ namespace {
 ////////////////////////////////////////////////////////////////////////////////
 // Logging takes place by default in DEBUG mode only
 // If logging is desired for *release* mode, define RELEASE_HAS_LOGGING
-#if defined(DEBUG) || defined(RELEASE_HAS_LOGGING)
+#if !defined(NDEBUG) || defined(RELEASE_HAS_LOGGING)
   using ${loggerClassName_}_t = $loggerClassName_<spdlog::logger>;
 #define $loggerTraceMacro(...) ${entity.id.snake}_logger->trace(__VA_ARGS__)
 #else

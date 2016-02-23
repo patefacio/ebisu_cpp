@@ -82,9 +82,15 @@ class Installation extends CppEntity implements CodeGenerator {
   bool includeStackTrace = false;
 
   /// Path to applications
-  String get appPath => _appPath;
+  set appPath(String appPath) => _appPath = appPath;
+
+  /// Path to applications
+  set testsPath(String testsPath) => _testsPath = testsPath;
 
   // custom <class Installation>
+
+  get appPath => _appPath ?? path.join(cppPath, 'app');
+  get testsPath => _testsPath ?? path.join(cppPath, 'tests');
 
   Installation(Id id) : super(id) {
     rootFilePath = '/tmp';
@@ -281,6 +287,7 @@ Installation($rootFilePath)
   /// genration utilities.
   Namer _namer = defaultNamer;
   String _appPath;
+  String _testsPath;
 }
 
 class PathLocator {

@@ -27,6 +27,8 @@ dependencies:
 dev_dependencies:
   yaml: "any"
   browser: "any"
+  hop: "any"
+  hop_docgen: "any"
 
 # custom <ebisu_cpp dev dependencies>
 

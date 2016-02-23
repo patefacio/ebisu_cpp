@@ -22,7 +22,9 @@ main([List<String> args]) {
 // custom <main>
 
   test('print_instance', () {
-    final a = class_('a')..members = [member('m')..init = 'a.m'];
+    final a = class_('a')
+      ..members = [member('m')..init = 'a.m']
+      ..giveDefaultPrinterSupport();
 
     final b = class_('b')..members = [member('n')..init = 'b.n'];
 
@@ -37,9 +39,10 @@ main([List<String> args]) {
 
     final h = header('h')
       ..namespace = namespace(['test'])
-      ..classes = [a, b, c];
+      ..classes = [a, b, c]
+      ..setAsRoot();
 
-    print(h.contents);
+    //print(clangFormat(h.contents));
   });
 
 // end <main>

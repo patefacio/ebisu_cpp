@@ -54,6 +54,7 @@ class PrintInstanceMethods {
   String get printInstance => _printInstance;
 
   // custom <class PrintInstanceMethods>
+
   // end <class PrintInstanceMethods>
 
   Class _classType;
@@ -72,7 +73,36 @@ class PrinterSupportProvider {
   // custom <class PrinterSupportProvider>
 
   PrinterSupportProvider(this._classType, this._printerSupport) {
-    _printInstanceMethods = new Printinstancemethods(_classType);
+    print('Adding printer support to ${classType.className}');
+
+    bool includeClassName = _printerSupport.typeDisplayName != null;
+    bool includeMemberNames = _printerSupport.printMemberNames != false;
+
+    final publicCodeBlock = classType.getCodeBlock(clsPublic);
+    final privateCodeBlock = classType.getCodeBlock(clsPrivate);
+
+    publicCodeBlock.snippets.add(brCompact([
+      '''
+std::ostream& print_instance(std::ostream& out, ebisu::utils::Printer_descriptor & printer_descriptor) {
+
+  return out;
+}
+'''
+    ]));
+
+    privateCodeBlock.snippets.add(brCompact([
+      '''
+std::ostream& print_members_named(std::ostream& out, ebisu::utils::Printer_descriptor & printer_descriptor) {
+
+  return out;
+}
+
+std::ostream& print_members_anonymous(std::ostream& out, ebisu::utils::Printer_descriptor & printer_descriptor) {
+
+  return out;
+}
+'''
+    ]));
   }
 
   // end <class PrinterSupportProvider>
