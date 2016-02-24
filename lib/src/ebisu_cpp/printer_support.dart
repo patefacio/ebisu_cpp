@@ -71,8 +71,9 @@ class PrinterSupportProvider {
 
     publicCodeBlock.snippets.add(brCompact([
       '''
-std::ostream& print_instance(std::ostream& out, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) {
-  ebisu::utils::streamers::Printer_spec const& spec = printer_descriptor.printer_spec;
+friend inline std::ostream& print_instance(std::ostream& out, ${className} const& item, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) {
+  using namespace ebisu::utils::streamers;
+  Printer_spec const& spec = printer_descriptor.printer_spec;
   if(spec.name_types) {
     out << "<${className}>";
   }
@@ -80,9 +81,9 @@ std::ostream& print_instance(std::ostream& out, ebisu::utils::streamers::Printer
   printer_descriptor.printer_state.frame++;
 
   if(spec.name_members) {
-    print_members_named(out, printer_descriptor);
+    item.print_members_named(out, printer_descriptor);
   } else {
-    print_members_anonymous(out, printer_descriptor);
+    item.print_members_anonymous(out, printer_descriptor);
   }
 
   printer_descriptor.printer_state.frame--;
@@ -98,14 +99,16 @@ std::ostream& print_instance(std::ostream& out, ebisu::utils::streamers::Printer
 
     privateCodeBlock.snippets.add(brCompact([
       '''
-std::ostream& print_members_named(std::ostream& out, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) {
-  ebisu::utils::streamers::Printer_spec const& spec = printer_descriptor.printer_spec;
+std::ostream& print_members_named(std::ostream& out, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) const {
+  using namespace ebisu::utils::streamers;
+  Printer_spec const& spec = printer_descriptor.printer_spec;
 ${indentBlock(brCompact(members.map(_namedMemberOut)))}
   return out;
 }
 
-std::ostream& print_members_anonymous(std::ostream& out, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) {
-  ebisu::utils::streamers::Printer_spec const& spec = printer_descriptor.printer_spec;
+std::ostream& print_members_anonymous(std::ostream& out, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) const {
+  using namespace ebisu::utils::streamers;
+  Printer_spec const& spec = printer_descriptor.printer_spec;
 ${indentBlock(brCompact(members.map(_anonymousMemberOut)))}
   return out;
 }
@@ -115,11 +118,17 @@ ${indentBlock(brCompact(members.map(_anonymousMemberOut)))}
 
   _namedMemberOut(Member m) => brCompact([
         'out << "${m.name}" << spec.name_value_separator;',
-        'out << ${m.vname} << spec.member_separator;'
+        _memberValueOut(m),
+        'out << spec.member_separator;',
       ]);
 
-  _anonymousMemberOut(Member m) =>
-      'out << ${m.vname} << spec.member_separator;';
+  _anonymousMemberOut(Member m) => brCompact([
+    _memberValueOut(m),
+    'out << spec.member_separator;',
+  ]);
+
+  _memberValueOut(Member m) =>
+    'print_instance(out, ${m.vname}, printer_descriptor);';
 
   // end <class PrinterSupportProvider>
 

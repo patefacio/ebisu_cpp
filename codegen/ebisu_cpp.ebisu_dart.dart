@@ -660,14 +660,6 @@ Support for assignment from string, or id implies default values.
                     ..type = 'List<EnumValue>'
                     ..classInit = []
                     ..access = RO,
-                  member('ids')
-                    ..doc = 'Ids for the values of the enum'
-                    ..type = 'List<Id>'
-                    ..access = IA,
-                  member('value_names')
-                    ..doc = 'Names for values as they appear'
-                    ..type = 'List<String>'
-                    ..access = IA,
                   member('is_class')
                     ..doc =
                         'If true the enum is a class enum as opposed to "plain" enum'

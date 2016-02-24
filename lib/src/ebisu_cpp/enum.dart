@@ -11,6 +11,8 @@ class EnumValue extends CppEntity {
     _name = namer.nameEnumConst(this.id);
   }
 
+  get presentationName => id.title;
+
   Iterable<Entity> get children => new Iterable<Entity>.generate(0);
 
   get decl => chomp(brCompact([briefComment, detailedComment, _declImpl]));
@@ -224,12 +226,8 @@ class Enum extends CppEntity {
           ? new EnumValue(ev)
           : throw 'Enum values must be String|Id|EnumValue';
 
-  set values(Iterable values) {
+  set values(Iterable values) =>
     _values = new List<EnumValue>.from(values.map((v) => _makeEnumValue(v)));
-    _ids = new List<Id>.from(_values.map((v) => v.id));
-    _valueNames =
-        new List<String>.from(_ids.map((id) => namer.nameEnumConst(id)));
-  }
 
   String toString() {
     return br([decl, _streamSupport, _bitmaskFunctions]);
@@ -283,8 +281,8 @@ ${isNested? 'static ':''}inline std::string ${name}_mask_to_str($_intType e) {
   std::ostringstream out__;
   out__ << '(' << std::hex << ${_streamPatch('e')} << std::dec << ")[";
 ${
-  indentBlock(_valueNames.map((n) =>
-    'if(e & $_intType($name::$n)) { out__ << "$name::$n, ";}')
+  indentBlock(_values.map((ev) =>
+    'if(e & $_intType($name::${ev.name})) { out__ << "$name::${ev.presentationName}, ";}')
   .join('\n'))
 }
   out__ << ']';
@@ -296,7 +294,7 @@ ${
 ${_friend}inline char const* to_c_str($name e) {
   switch(e) {
 ${
-  indentBlock(_valueNames.map((n) => 'case $name::$n: return ${doubleQuote(n)}').join(';\n'), '    ')
+  indentBlock(_values.map((ev) => 'case $name::${ev.name}: return ${doubleQuote(ev.presentationName)}').join(';\n'), '    ')
 };
     default: {
       return "Invalid $name";
@@ -322,7 +320,7 @@ ${_friend}inline std::ostream& operator<<(std::ostream &out, $name e) {
 inline void from_c_str(char const* str, $name &e) {
   using namespace std;
 ${
-  indentBlock(_valueNames.map((n) => 'if(0 == strcmp(${doubleQuote(n)}, str)) { e = $name::$n; return; }').join('\n'))
+  indentBlock(_values.map((ev) => 'if(0 == strcmp(${doubleQuote(ev.presentationName)}, str)) { e = $name::${ev.name}; return; }').join('\n'))
 }
   string msg { "No $name matching:" };
   throw std::runtime_error(msg + str);
@@ -351,7 +349,7 @@ ${indentBlock(_values.map((v) => v.decl).join(',\n'))}
     _bitShifted(IndexedValue iv) {
       final ev = iv.value;
       final bit = ev.value == null ? iv.index : ev.value;
-      return '${_valueNames[iv.index]} = 1 << $bit';
+      return '${_values[iv.index].name} = 1 << $bit';
     }
 
     return '''

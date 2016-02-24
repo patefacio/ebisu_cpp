@@ -40,9 +40,9 @@ enum ${isClass? 'class':''} Color_$isClass {
 };
 inline char const* to_c_str(Color_$isClass e) {
   switch(e) {
-    case Color_$isClass::Red_e: return "Red_e";
-    case Color_$isClass::Green_e: return "Green_e";
-    case Color_$isClass::Blue_e: return "Blue_e";
+    case Color_$isClass::Red_e: return "Red";
+    case Color_$isClass::Green_e: return "Green";
+    case Color_$isClass::Blue_e: return "Blue";
     default: {
       return "Invalid Color_$isClass";
     }
@@ -50,9 +50,9 @@ inline char const* to_c_str(Color_$isClass e) {
 }
 inline void from_c_str(char const* str, Color_$isClass &e) {
   using namespace std;
-  if(0 == strcmp("Red_e", str)) { e = Color_$isClass::Red_e; return; }
-  if(0 == strcmp("Green_e", str)) { e = Color_$isClass::Green_e; return; }
-  if(0 == strcmp("Blue_e", str)) { e = Color_$isClass::Blue_e; return; }
+  if(0 == strcmp("Red", str)) { e = Color_$isClass::Red_e; return; }
+  if(0 == strcmp("Green", str)) { e = Color_$isClass::Green_e; return; }
+  if(0 == strcmp("Blue", str)) { e = Color_$isClass::Blue_e; return; }
   string msg { "No Color_$isClass matching:" };
   throw std::runtime_error(msg + str);
 }
@@ -82,9 +82,9 @@ enum ${isClass? 'class':''} Color_${isClass}_mapper {
 
 inline char const* to_c_str(Color_${isClass}_mapper e) {
   switch(e) {
-    case Color_${isClass}_mapper::Red_e: return "Red_e";
-    case Color_${isClass}_mapper::Green_e: return "Green_e";
-    case Color_${isClass}_mapper::Blue_e: return "Blue_e";
+    case Color_${isClass}_mapper::Red_e: return "Red";
+    case Color_${isClass}_mapper::Green_e: return "Green";
+    case Color_${isClass}_mapper::Blue_e: return "Blue";
     default: {
       return "Invalid Color_${isClass}_mapper";
     }
@@ -93,9 +93,9 @@ inline char const* to_c_str(Color_${isClass}_mapper e) {
 
 inline void from_c_str(char const* str, Color_${isClass}_mapper &e) {
   using namespace std;
-  if(0 == strcmp("Red_e", str)) { e = Color_${isClass}_mapper::Red_e; return; }
-  if(0 == strcmp("Green_e", str)) { e = Color_${isClass}_mapper::Green_e; return; }
-  if(0 == strcmp("Blue_e", str)) { e = Color_${isClass}_mapper::Blue_e; return; }
+  if(0 == strcmp("Red", str)) { e = Color_${isClass}_mapper::Red_e; return; }
+  if(0 == strcmp("Green", str)) { e = Color_${isClass}_mapper::Green_e; return; }
+  if(0 == strcmp("Blue", str)) { e = Color_${isClass}_mapper::Blue_e; return; }
   string msg { "No Color_${isClass}_mapper matching:" };
   throw std::runtime_error(msg + str);
 }
@@ -153,9 +153,9 @@ enum ${isClass? "class ":""}Color_${isClass}_mask : std::int8_t {
 inline std::string Color_${isClass}_mask_mask_to_str(std::int8_t e) {
   std::ostringstream out__;
   out__ << '(' << std::hex << int(e) << std::dec << ")[";
-  if(e & std::int8_t(Color_${isClass}_mask::Red_e)) { out__ << "Color_${isClass}_mask::Red_e, ";}
-  if(e & std::int8_t(Color_${isClass}_mask::Green_e)) { out__ << "Color_${isClass}_mask::Green_e, ";}
-  if(e & std::int8_t(Color_${isClass}_mask::Blue_e)) { out__ << "Color_${isClass}_mask::Blue_e, ";}
+  if(e & std::int8_t(Color_${isClass}_mask::Red_e)) { out__ << "Color_${isClass}_mask::Red, ";}
+  if(e & std::int8_t(Color_${isClass}_mask::Green_e)) { out__ << "Color_${isClass}_mask::Green, ";}
+  if(e & std::int8_t(Color_${isClass}_mask::Blue_e)) { out__ << "Color_${isClass}_mask::Blue, ";}
   out__ << ']';
   return out__.str();
 }
@@ -193,8 +193,8 @@ enum class With_values : std::int8_t {
 
 inline char const* to_c_str(With_values e) {
   switch(e) {
-    case With_values::Foo_e: return "Foo_e";
-    case With_values::Bar_e: return "Bar_e";
+    case With_values::Foo_e: return "Foo";
+    case With_values::Bar_e: return "Bar";
     default: {
       return "Invalid With_values";
     }
@@ -248,9 +248,9 @@ public:
   static inline std::string Mask_with_green_bit_specified_mask_to_str(int e) {
     std::ostringstream out__;
     out__ << '(' << std::hex << e << std::dec << ")[";
-    if(e & int(Mask_with_green_bit_specified::Red_e)) { out__ << "Mask_with_green_bit_specified::Red_e, ";}
-    if(e & int(Mask_with_green_bit_specified::Green_e)) { out__ << "Mask_with_green_bit_specified::Green_e, ";}
-    if(e & int(Mask_with_green_bit_specified::Blue_e)) { out__ << "Mask_with_green_bit_specified::Blue_e, ";}
+    if(e & int(Mask_with_green_bit_specified::Red_e)) { out__ << "Mask_with_green_bit_specified::Red, ";}
+    if(e & int(Mask_with_green_bit_specified::Green_e)) { out__ << "Mask_with_green_bit_specified::Green, ";}
+    if(e & int(Mask_with_green_bit_specified::Blue_e)) { out__ << "Mask_with_green_bit_specified::Blue, ";}
     out__ << ']';
     return out__.str();
   }

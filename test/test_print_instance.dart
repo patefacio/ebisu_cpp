@@ -23,14 +23,23 @@ main([List<String> args]) {
 
   test('print_instance', () {
     final a = class_('a')
+      ..isStruct = true
+      ..defaultCppAccess = public
       ..members = [member('m')..init = 'a.m']
       ..giveDefaultPrinterSupport();
 
-    final b = class_('b')..members = [member('n')..init = 'b.n'];
+    final b = class_('b')
+      ..defaultCppAccess = public
+      ..members = [
+        member('a')..type = 'A',
+        member('n')..init = 'b.n'
+      ]
+      ..giveDefaultPrinterSupport();
 
     final c = class_('c')
+      ..defaultCppAccess = public
       ..members = [
-        member('a')..type = a.className,
+        member('b')..type = b.className,
         member('x')..init = "foo",
         member('y')..init = 3,
         member('z')..init = 3.14,
@@ -43,6 +52,9 @@ main([List<String> args]) {
       ..setAsRoot();
 
     print(clangFormat(h.contents));
+
+
+    print((member('a')..type = 'int'..cppAccess = public).vname);
   });
 
 // end <main>
