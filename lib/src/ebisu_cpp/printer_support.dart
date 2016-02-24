@@ -74,16 +74,22 @@ class PrinterSupportProvider {
 friend inline std::ostream& print_instance(std::ostream& out, ${className} const& item, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) {
   using namespace ebisu::utils::streamers;
   Printer_spec const& spec = printer_descriptor.printer_spec;
-  if(spec.name_types) {
-    out << "<${className}>";
-  }
 
   printer_descriptor.printer_state.frame++;
 
+  std::string indent;
+  if(spec.nested_indent) {
+    indent = std::string(2 * printer_descriptor.printer_state.frame, ' ');
+  }
+
+  if(spec.name_types) {
+    out << "<${className}>\\n";
+  }
+
   if(spec.name_members) {
-    item.print_members_named(out, printer_descriptor);
+    item.print_members_named(out, indent, printer_descriptor);
   } else {
-    item.print_members_anonymous(out, printer_descriptor);
+    item.print_members_anonymous(out, indent, printer_descriptor);
   }
 
   printer_descriptor.printer_state.frame--;
@@ -99,17 +105,17 @@ friend inline std::ostream& print_instance(std::ostream& out, ${className} const
 
     privateCodeBlock.snippets.add(brCompact([
       '''
-std::ostream& print_members_named(std::ostream& out, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) const {
+std::ostream& print_members_named(std::ostream& out, std::string const& indent, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) const {
   using namespace ebisu::utils::streamers;
   Printer_spec const& spec = printer_descriptor.printer_spec;
-${indentBlock(brCompact(members.map(_namedMemberOut)))}
+${indentBlock(brCompact(members.map(_namedMemberOut).join('out << spec.member_separator;')))}
   return out;
 }
 
-std::ostream& print_members_anonymous(std::ostream& out, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) const {
+std::ostream& print_members_anonymous(std::ostream& out, std::string const& indent, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) const {
   using namespace ebisu::utils::streamers;
   Printer_spec const& spec = printer_descriptor.printer_spec;
-${indentBlock(brCompact(members.map(_anonymousMemberOut)))}
+${indentBlock(brCompact(members.map(_anonymousMemberOut).join('out << spec.member_separator;')))}
   return out;
 }
 '''
@@ -117,14 +123,12 @@ ${indentBlock(brCompact(members.map(_anonymousMemberOut)))}
   }
 
   _namedMemberOut(Member m) => brCompact([
-        'out << "${m.name}" << spec.name_value_separator;',
+        'out << indent << "${m.name}" << spec.name_value_separator;',
         _memberValueOut(m),
-        'out << spec.member_separator;',
       ]);
 
   _anonymousMemberOut(Member m) => brCompact([
     _memberValueOut(m),
-    'out << spec.member_separator;',
   ]);
 
   _memberValueOut(Member m) =>
