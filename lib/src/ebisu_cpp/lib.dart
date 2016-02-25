@@ -341,7 +341,7 @@ class Lib extends CppEntity with Testable implements CodeGenerator {
       if (impl.namespace == null) {
         impl.namespace = namespace;
       }
-      if(impl.filePath == null) {
+      if (impl.filePath == null) {
         impl.setLibFilePathFromRoot(installation.cppPath);
       }
       impl.generate();

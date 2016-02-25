@@ -52,6 +52,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_default_methods'),
       library('test_cpp_forward_decl'),
       library('test_cpp_file'),
+      library('test_cpp_header'),
       library('test_cpp_interface'),
       library('test_cpp_opout'),
       library('test_cpp_method'),
@@ -433,10 +434,8 @@ Default namer establishing reasonable conventions, that are fairly
                     ..type = 'CppAccess',
                 ],
             ],
-
           part('printer_support')
-          ..classes = [
-
+            ..classes = [
               class_('printer_support')
                 ..doc = '''
 Describes details of how a class should support [print_instance] method.
@@ -471,31 +470,30 @@ not even attempt to support a more generalized formatting.
 '''
                 ..members = [
                   member('type_display_name')
-                  ..doc = 'If present open the output with the name of type being printed'
-                  ..type = 'String',
+                    ..doc =
+                        'If present open the output with the name of type being printed'
+                    ..type = 'String',
                   member('print_member_names')
-                  ..doc = 'If set requests that the member names be shown along with member values'
-                  ..type = 'bool',
+                    ..doc =
+                        'If set requests that the member names be shown along with member values'
+                    ..type = 'bool',
                   member('supports_max_bytes')
-                  ..doc = 'If set supports the max bytes feature'
-                  ..type = 'bool',
+                    ..doc = 'If set supports the max bytes feature'
+                    ..type = 'bool',
                 ],
-
-            class_('printer_support_provider')
-            ..doc = '''
+              class_('printer_support_provider')
+                ..doc = '''
 Given a class, provides [print_instance] support for that and its *children*
 recursively.
 '''
-            ..defaultMemberAccess = RO
-            ..members = [
-              member('class_type')
-              ..doc = 'Class for which the [print_instance] applies'
-              ..type = 'Class',
-              member('printer_support')
-              ..type = 'PrinterSupport',
+                ..defaultMemberAccess = RO
+                ..members = [
+                  member('class_type')
+                    ..doc = 'Class for which the [print_instance] applies'
+                    ..type = 'Class',
+                  member('printer_support')..type = 'PrinterSupport',
+                ],
             ],
-          ],
-
           part('file')
             ..classes = [
               class_('cpp_file')
@@ -709,6 +707,10 @@ If set provides test, set and clear methods.
                     ..doc = '''
 If the map has values assigned by user, this can be used to display
 them in the enum as hex'''
+                    ..classInit = false,
+                  member('printer_support')
+                    ..doc = '''
+If set will provide the required [print_instance] C++ method for enum.'''
                     ..classInit = false,
                 ],
             ],
@@ -1493,7 +1495,13 @@ Creates a new *exception* class derived from std::exception.
               class_('header')
                 ..doc = 'A single c++ header'
                 ..extend = 'CppFile'
-                ..members = [],
+                ..members = [
+                  member('use_pragma_once')
+                    ..doc =
+                        'If set will use `#pragma once` instead of include guards'
+                    ..access = WO
+                    ..classInit = false,
+                ],
             ],
           part('impl')
             ..classes = [
@@ -2136,6 +2144,10 @@ stack trace to help find the dart code that generated the source.
                   member('tests_path')
                     ..doc = 'Path to applications'
                     ..access = WO,
+                  member('use_pragma_once')
+                    ..doc =
+                        'Preference to use `#pragma once` instead of include guards'
+                    ..classInit = false,
                 ],
               class_('path_locator')
                 ..members = [

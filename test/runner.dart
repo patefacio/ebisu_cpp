@@ -5,6 +5,7 @@ import 'test_cpp_class.dart' as test_cpp_class;
 import 'test_cpp_default_methods.dart' as test_cpp_default_methods;
 import 'test_cpp_forward_decl.dart' as test_cpp_forward_decl;
 import 'test_cpp_file.dart' as test_cpp_file;
+import 'test_cpp_header.dart' as test_cpp_header;
 import 'test_cpp_interface.dart' as test_cpp_interface;
 import 'test_cpp_opout.dart' as test_cpp_opout;
 import 'test_cpp_method.dart' as test_cpp_method;
@@ -36,6 +37,7 @@ main() {
   test_cpp_default_methods.main();
   test_cpp_forward_decl.main();
   test_cpp_file.main();
+  test_cpp_header.main();
   test_cpp_interface.main();
   test_cpp_opout.main();
   test_cpp_method.main();

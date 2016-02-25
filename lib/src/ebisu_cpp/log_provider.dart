@@ -122,7 +122,6 @@ namespace {
 #define $loggerTraceMacro(...) ${entity.id.snake}_logger->trace(__VA_ARGS__)
 #else
   using ${loggerClassName_}_t = $loggerClassName_< ebisu::logger::Null_logger_impl >;
-  ${loggerClassName_}_t ${entity.id.snake}_logger_impl;
 #define $loggerTraceMacro(...) (void)0
 #endif
 

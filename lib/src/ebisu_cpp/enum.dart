@@ -210,6 +210,9 @@ class Enum extends CppEntity {
   /// them in the enum as hex
   bool isDisplayedHex = false;
 
+  /// If set will provide the required [print_instance] C++ method for enum.
+  bool printerSupport = false;
+
   // custom <class Enum>
 
   Enum(Id id) : super(id);
@@ -227,11 +230,21 @@ class Enum extends CppEntity {
           : throw 'Enum values must be String|Id|EnumValue';
 
   set values(Iterable values) =>
-    _values = new List<EnumValue>.from(values.map((v) => _makeEnumValue(v)));
+      _values = new List<EnumValue>.from(values.map((v) => _makeEnumValue(v)));
 
   String toString() {
-    return br([decl, _streamSupport, _bitmaskFunctions]);
+    return br([decl, _streamSupport, _bitmaskFunctions, _printInstance]);
   }
+
+  get _printInstance => printerSupport
+      ? '''
+inline
+std::ostream& print_instance(std::ostream& out, $name, ebisu::utils::streamers::Printer_descriptor const& pd) {
+  out << e;
+  return out;
+}
+'''
+      : null;
 
   get _streamSupport => br([
         (isStreamable || hasToCStr) ? toCString : null,
@@ -361,12 +374,6 @@ ${indentBlock(enumerate(_values).map((IndexedValue iv) => _bitShifted(iv)).join(
   // end <class Enum>
 
   List<EnumValue> _values = [];
-
-  /// Ids for the values of the enum
-  List<Id> _ids;
-
-  /// Names for values as they appear
-  List<String> _valueNames;
 }
 
 // custom <part enum>

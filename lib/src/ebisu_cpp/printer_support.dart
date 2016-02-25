@@ -127,12 +127,10 @@ ${indentBlock(brCompact(members.map(_anonymousMemberOut).join('out << spec.membe
         _memberValueOut(m),
       ]);
 
-  _anonymousMemberOut(Member m) => brCompact([
-    _memberValueOut(m),
-  ]);
+  _anonymousMemberOut(Member m) => brCompact([_memberValueOut(m),]);
 
   _memberValueOut(Member m) =>
-    'print_instance(out, ${m.vname}, printer_descriptor);';
+      'print_instance(out, ${m.vname}, printer_descriptor);';
 
   // end <class PrinterSupportProvider>
 

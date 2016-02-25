@@ -87,6 +87,9 @@ class Installation extends CppEntity implements CodeGenerator {
   /// Path to applications
   set testsPath(String testsPath) => _testsPath = testsPath;
 
+  /// Preference to use `#pragma once` instead of include guards
+  bool usePragmaOnce = false;
+
   // custom <class Installation>
 
   get appPath => _appPath ?? path.join(cppPath, 'app');

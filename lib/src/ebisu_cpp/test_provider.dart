@@ -190,13 +190,13 @@ abstract class Testable {
   }
 
   _libTestFile(Lib lib) => path.join(
-      lib.installation.cppPath, 'tests', lib.id.snake, 'lib.${_dottedId}.cpp');
+      lib.installation.testsPath, lib.id.snake, 'lib.${_dottedId}.cpp');
 
-  _classTestFile(Class class_) => path.join(class_.installation.cppPath,
-      'tests', _ownerBasedPathPart(class_, 'class.${_dottedId}.cpp'));
+  _classTestFile(Class class_) => path.join(class_.installation.testsPath,
+      _ownerBasedPathPart(class_, 'class.${_dottedId}.cpp'));
 
-  _headerTestFile(Header header_) => path.join(header_.installation.cppPath,
-      'tests', _ownerBasedPathPart(header_, 'header.${_dottedId}.cpp'));
+  _headerTestFile(Header header_) => path.join(header_.installation.testsPath,
+      _ownerBasedPathPart(header_, 'header.${_dottedId}.cpp'));
 
   _implTestFile(Impl impl_) =>
       path.join('tests', _ownerBasedPathPart(impl_, 'impl.${_dottedId}.cpp'));

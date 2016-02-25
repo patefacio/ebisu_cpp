@@ -2,14 +2,23 @@ part of ebisu_cpp.ebisu_cpp;
 
 /// A single c++ header
 class Header extends CppFile {
+  /// If set will use `#pragma once` instead of include guards
+  set usePragmaOnce(bool usePragmaOnce) => _usePragmaOnce = usePragmaOnce;
+
   // custom <class Header>
 
   Header(Id id) : super(id);
 
   Namespace get namespace => super.namespace;
 
+  /// returns the include path suitable for inclusion in another cpp/hpp file
   get includeFilePath => path.join(namespace.asPath, namer.nameHeader(id));
 
+  /// returns true if will use pragma once to prevent duplicates instead of
+  /// default include guards.
+  get usePragmaOnce => _usePragmaOnce ?? installation.usePragmaOnce;
+
+  /// returns true if any class requires logging
   get requiresLogging => classes.any((cls) => cls.requiresLogging);
 
   setFilePathFromRoot(String rootFilePath, [name]) {
@@ -38,7 +47,7 @@ class Header extends CppFile {
     addIncludesForCommonTypes(
         concat(classes.map((c) => c.typesReferenced)), this.includes);
 
-    return _wrapIncludeGuard(_contentsWithBlocks);
+    return _duplicateProtection(_contentsWithBlocks);
   }
 
   String toString() => '''
@@ -52,6 +61,14 @@ ${indentBlock(br(testScenarios))}
   String get _includeGuard => namespace == null
       ? '__${id.shout}__'
       : '__${namespace.names.map((n) => idFromString(n).shout).join("_")}_${id.shout}_HPP__';
+
+  String _duplicateProtection(text) => usePragmaOnce
+      ? '''
+#pragma once
+
+$text
+'''
+      : _wrapIncludeGuard(text);
 
   String _wrapIncludeGuard(String text) => '''
 #ifndef $_includeGuard
@@ -68,6 +85,7 @@ $text
 
   // end <class Header>
 
+  bool _usePragmaOnce = false;
 }
 
 // custom <part header>

@@ -22,6 +22,7 @@ void main(List<String> args) {
         "test/test_cpp_default_methods.dart",
         "test/test_cpp_forward_decl.dart",
         "test/test_cpp_file.dart",
+        "test/test_cpp_header.dart",
         "test/test_cpp_interface.dart",
         "test/test_cpp_opout.dart",
         "test/test_cpp_method.dart",
