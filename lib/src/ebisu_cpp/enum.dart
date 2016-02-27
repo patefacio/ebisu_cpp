@@ -239,7 +239,7 @@ class Enum extends CppEntity {
   get _printInstance => printerSupport
       ? '''
 inline
-std::ostream& print_instance(std::ostream& out, $name, ebisu::utils::streamers::Printer_descriptor const& pd) {
+std::ostream& print_instance(std::ostream& out, $name e, ebisu::utils::streamers::Printer_descriptor const& pd) {
   out << e;
   return out;
 }

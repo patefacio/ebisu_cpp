@@ -24,6 +24,7 @@ main([List<String> args]) {
   test('duplicate protection', () {
     final ns = namespace(['test']);
     final headerPragmaOnce = header('pragmaonce')
+      ..setAsRoot()
       ..namespace = ns
       ..usePragmaOnce = true;
 

@@ -16,7 +16,8 @@ class Header extends CppFile {
 
   /// returns true if will use pragma once to prevent duplicates instead of
   /// default include guards.
-  get usePragmaOnce => _usePragmaOnce ?? installation.usePragmaOnce;
+  get usePragmaOnce =>
+      _usePragmaOnce ?? (((this.installation)?.usePragmaOnce) ?? false);
 
   /// returns true if any class requires logging
   get requiresLogging => classes.any((cls) => cls.requiresLogging);
@@ -85,7 +86,7 @@ $text
 
   // end <class Header>
 
-  bool _usePragmaOnce = false;
+  bool _usePragmaOnce;
 }
 
 // custom <part header>

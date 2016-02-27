@@ -12,8 +12,8 @@ import 'package:quiver/iterables.dart';
 final _logger = new Logger('ebisuCppEbisuDart');
 
 main(List<String> args) {
-  Logger.root.onRecord.listen((LogRecord r) =>
-      print("${r.loggerName} [${r.level}]:\t${r.message}"));
+  Logger.root.onRecord.listen(
+      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
   Logger.root.level = Level.OFF;
   useDartFormatter = true;
   String here = absolute(Platform.script.toFilePath());
@@ -1499,8 +1499,8 @@ Creates a new *exception* class derived from std::exception.
                   member('use_pragma_once')
                     ..doc =
                         'If set will use `#pragma once` instead of include guards'
-                    ..access = WO
-                    ..classInit = false,
+                    ..type = 'bool'
+                    ..access = WO,
                 ],
             ],
           part('impl')
