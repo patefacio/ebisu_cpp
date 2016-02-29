@@ -22,7 +22,8 @@ ClassNotFoundException: $_message
 }
 
 class LogGroup {
-  LogGroup(this.className, [this.memberNames = const []]);
+  LogGroup(this.className, [memberNames])
+      : memberNames = memberNames ?? const [];
 
   /// Name of class, *snake case*, to add a packet table log group
   final String className;

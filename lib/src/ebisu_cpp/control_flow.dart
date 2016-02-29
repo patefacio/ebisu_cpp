@@ -1,8 +1,8 @@
 part of ebisu_cpp.ebisu_cpp;
 
 class Switch {
-  Switch(this.switchValue, this.cases, this.onCase,
-      [this.onDefault, this.isChar]) {
+  Switch(this.switchValue, cases, this.onCase, [this.onDefault, this.isChar])
+      : cases = cases ?? [] {
     // custom <Switch>
 
     if (isChar == null) isChar = false;
