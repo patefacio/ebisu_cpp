@@ -44,9 +44,14 @@ main([List<String> args]) {
       ]
       ..giveDefaultPrinterSupport();
 
+    final d = class_('d')
+      ..members = [member('z')..init = 3.14,]
+      ..giveDefaultPrinterSupport()
+      ..printerSupport.customPrinters = true;
+
     final h = header('h')
       ..namespace = namespace(['test'])
-      ..classes = [a, b, c]
+      ..classes = [a, b, c, d]
       ..setAsRoot();
 
     expect(darkMatter(h.contents), darkMatter(r'''
@@ -255,6 +260,65 @@ class C {
 
     return out;
   }
+};
+
+class D {
+ public:
+  friend inline std::ostream& print_instance(
+      std::ostream& out, D const& item,
+      ebisu::utils::streamers::Printer_descriptor& printer_descriptor) {
+    using namespace ebisu::utils::streamers;
+    Printer_spec const& spec = printer_descriptor.printer_spec;
+
+    printer_descriptor.printer_state.frame++;
+
+    std::string indent;
+    if (spec.nested_indent) {
+      indent = std::string(2 * printer_descriptor.printer_state.frame, ' ');
+    }
+
+    if (spec.name_types) {
+      out << "<D>\n";
+    }
+
+    if (spec.name_members) {
+      item.print_members_named(out, indent, printer_descriptor);
+    } else {
+      item.print_members_anonymous(out, indent, printer_descriptor);
+    }
+
+    printer_descriptor.printer_state.frame--;
+
+    if (printer_descriptor.printer_state.frame == 0) {
+      out << spec.final_separator;
+    }
+
+    return out;
+  }
+
+ private:
+  std::ostream& print_members_named(
+      std::ostream& out, std::string const& indent,
+      ebisu::utils::streamers::Printer_descriptor& printer_descriptor) const {
+    using namespace ebisu::utils::streamers;
+    Printer_spec const& spec = printer_descriptor.printer_spec;
+    // custom <members named>
+    // end <members named>
+
+    return out;
+  }
+
+  std::ostream& print_members_anonymous(
+      std::ostream& out, std::string const& indent,
+      ebisu::utils::streamers::Printer_descriptor& printer_descriptor) const {
+    using namespace ebisu::utils::streamers;
+    Printer_spec const& spec = printer_descriptor.printer_spec;
+    // custom <members anonymous>
+    // end <members anonymous>
+
+    return out;
+  }
+  double z_{3.14};
 };
 
 }  // namespace test

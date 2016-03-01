@@ -480,6 +480,9 @@ not even attempt to support a more generalized formatting.
                   member('supports_max_bytes')
                     ..doc = 'If set supports the max bytes feature'
                     ..type = 'bool',
+                  member('custom_printers')
+                    ..doc = 'If set the generated print methods will be place holders for custom printing'
+                    ..type = 'bool',
                 ],
               class_('printer_support_provider')
                 ..doc = '''
@@ -3594,4 +3597,3 @@ final _enumH5tMap = enumerate(_h5tTypeValues).fold(
       ..['H5tType.${_enumH5t.values[elm.index].camel}'] =
           doubleQuote(_h5tTypeValues[elm.index]));
 // end <ebisuCppEbisuDart global>
-

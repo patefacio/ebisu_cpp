@@ -39,6 +39,9 @@ class PrinterSupport {
   /// If set supports the max bytes feature
   bool supportsMaxBytes;
 
+  /// If set the generated print methods will be place holders for custom printing
+  bool customPrinters;
+
   // custom <class PrinterSupport>
 
   PrinterSupport(
@@ -103,19 +106,26 @@ friend inline std::ostream& print_instance(std::ostream& out, ${className} const
 '''
     ]));
 
+    final _customPrinters = printerSupport.customPrinters ?? false;
+
+    _customOrGenerated(tag, outputter) => _customPrinters
+        ? customBlock(tag)
+        : indentBlock(brCompact(
+            members.map(outputter).join('out << spec.member_separator;')));
+
     privateCodeBlock.snippets.add(brCompact([
       '''
 std::ostream& print_members_named(std::ostream& out, std::string const& indent, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) const {
   using namespace ebisu::utils::streamers;
   Printer_spec const& spec = printer_descriptor.printer_spec;
-${indentBlock(brCompact(members.map(_namedMemberOut).join('out << spec.member_separator;')))}
+${_customOrGenerated("members named", _namedMemberOut)}
   return out;
 }
 
 std::ostream& print_members_anonymous(std::ostream& out, std::string const& indent, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) const {
   using namespace ebisu::utils::streamers;
   Printer_spec const& spec = printer_descriptor.printer_spec;
-${indentBlock(brCompact(members.map(_anonymousMemberOut).join('out << spec.member_separator;')))}
+${_customOrGenerated("members anonymous", _anonymousMemberOut)}
   return out;
 }
 '''
