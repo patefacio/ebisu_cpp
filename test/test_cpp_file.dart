@@ -20,14 +20,19 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
+  test('include generated prologue', () {
+    Header h = header('h')
+      ..namespace = namespace([])
+      ..includeGeneratedPrologue = true;
+    var generatedText = 'This file was generated';
+    expect(h.wrappedContents.contains(generatedText), true);
+  });
+
   test('include stack trace', () {
     Header h = header('h')
       ..namespace = namespace([])
       ..includeStackTrace = true;
-
-    var generatedText = 'This file was generated';
     var stackTraceText = 'Stack trace associated with generated code';
-    expect(h.wrappedContents.contains(generatedText), true);
     expect(h.wrappedContents.contains(stackTraceText), true);
   });
 

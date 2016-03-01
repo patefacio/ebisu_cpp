@@ -77,8 +77,11 @@ class Installation extends CppEntity implements CodeGenerator {
   /// All [BenchmarkGroup]s in this [Installation]
   List<BenchmarkGroup> benchmarkGroups = [];
 
-  /// If true includes comments about code being generated as well as a
-  /// stack trace to help find the dart code that generated the source.
+  /// If true includes comment about code being generated.
+  bool includeGeneratedPrologue = false;
+
+  /// If true includes a stack trace to help find the dart code that generated the
+  /// source.
   bool includeStackTrace = false;
 
   /// Path to applications

@@ -12,8 +12,8 @@ import 'package:quiver/iterables.dart';
 final _logger = new Logger('ebisuCppEbisuDart');
 
 main(List<String> args) {
-  Logger.root.onRecord.listen((LogRecord r) =>
-      print("${r.loggerName} [${r.level}]:\t${r.message}"));
+  Logger.root.onRecord.listen(
+      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
   Logger.root.level = Level.OFF;
   useDartFormatter = true;
   String here = absolute(Platform.script.toFilePath());
@@ -32,7 +32,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.18'
+    ..pubSpec.version = '0.3.19'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -481,7 +481,8 @@ not even attempt to support a more generalized formatting.
                     ..doc = 'If set supports the max bytes feature'
                     ..type = 'bool',
                   member('custom_printers')
-                    ..doc = 'If set the generated print methods will be place holders for custom printing'
+                    ..doc =
+                        'If set the generated print methods will be place holders for custom printing'
                     ..type = 'bool',
                 ],
               class_('printer_support_provider')
@@ -575,10 +576,16 @@ to include/exclude given header.
                     ..type = 'Map<StandardizedHeader, bool>'
                     ..access = IA
                     ..classInit = {},
+                  member('include_generated_prologue')
+                    ..doc = '''
+If true includes comment about code being generated.
+'''
+                    ..access = WO
+                    ..type = 'bool',
                   member('include_stack_trace')
                     ..doc = '''
-If true includes comment about code being generated as well as a stack
-trace to help find the dart code that generated the source.
+If true includes comment containing stack trace to help find the dart code that
+generated the source.
 '''
                     ..access = WO
                     ..type = 'bool',
@@ -2135,10 +2142,15 @@ down order of initialization issues.
                     ..doc = 'All [BenchmarkGroup]s in this [Installation]'
                     ..type = 'List<BenchmarkGroup>'
                     ..classInit = [],
+                  member('include_generated_prologue')
+                    ..doc = '''
+If true includes comment about code being generated.
+'''
+                    ..classInit = false,
                   member('include_stack_trace')
                     ..doc = '''
-If true includes comments about code being generated as well as a
-stack trace to help find the dart code that generated the source.
+If true includes a stack trace to help find the dart code that generated the
+source.
 '''
                     ..classInit = false,
                   member('app_path')

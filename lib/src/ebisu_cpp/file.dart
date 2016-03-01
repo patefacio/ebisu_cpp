@@ -36,8 +36,12 @@ abstract class CppFile extends CppEntity with Testable {
   String get basename => _basename;
   String get filePath => _filePath;
 
-  /// If true includes comment about code being generated as well as a stack
-  /// trace to help find the dart code that generated the source.
+  /// If true includes comment about code being generated.
+  set includeGeneratedPrologue(bool includeGeneratedPrologue) =>
+      _includeGeneratedPrologue = includeGeneratedPrologue;
+
+  /// If true includes comment containing stack trace to help find the dart code that
+  /// generated the source.
   set includeStackTrace(bool includeStackTrace) =>
       _includeStackTrace = includeStackTrace;
 
@@ -84,15 +88,22 @@ abstract class CppFile extends CppEntity with Testable {
         interfaces
       ]);
 
-  get includeStackTrace => _includeStackTrace == null
-      ? ((this.installation != null &&
-              this.installation.includeStackTrace != null)
-          ? this.installation.includeStackTrace
-          : false)
-      : _includeStackTrace;
+  get includeGeneratedPrologue =>
+      _includeGeneratedPrologue ??
+      (this.installation?.includeGeneratedPrologue) ??
+      false;
+
+  get includeStackTrace =>
+      _includeStackTrace ?? (this.installation?.includeStackTrace) ?? false;
+
+  _taggedContents(contents) =>
+      includeGeneratedPrologue ? tagGeneratedContent(contents) : contents;
+
+  _commentStackTracedContents(contents) =>
+      includeStackTrace ? commentStackTrace(contents) : contents;
 
   String get wrappedContents =>
-      includeStackTrace ? tagGeneratedContent(contents) : contents;
+      _commentStackTracedContents(_taggedContents(contents));
 
   generate() =>
       (Platform.environment['EBISU_CLANG_FORMAT'] != null || useClangFormatter)
@@ -198,6 +209,7 @@ abstract class CppFile extends CppEntity with Testable {
   /// A list of [StandardizedHeader] indexed bool values indicating desire
   /// to include/exclude given header.
   Map<StandardizedHeader, bool> _standardizedInclusions = {};
+  bool _includeGeneratedPrologue;
   bool _includeStackTrace;
 }
 
