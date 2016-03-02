@@ -387,9 +387,8 @@ class App extends Impl implements CodeGenerator {
     if (args.isNotEmpty) _includes.add('boost/program_options.hpp');
     final appPath = this.appPath;
     setFilePathFromRoot(appPath);
-    headers.forEach((header) => header._setHeaderFilePath(appPath));
+    headers.forEach((header) => header.setHeaderFilePath(appPath));
     impls.forEach((impl) => impl.setFilePath(appPath));
-
     getCodeBlock(fcbBeginNamespace).snippets.add(brCompact([
           '''
 namespace {
