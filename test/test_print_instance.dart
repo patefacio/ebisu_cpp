@@ -302,8 +302,8 @@ class D {
       ebisu::utils::streamers::Printer_descriptor& printer_descriptor) const {
     using namespace ebisu::utils::streamers;
     Printer_spec const& spec = printer_descriptor.printer_spec;
-    // custom <members named>
-    // end <members named>
+    // custom <D members named>
+    // end <D members named>
 
     return out;
   }
@@ -313,8 +313,8 @@ class D {
       ebisu::utils::streamers::Printer_descriptor& printer_descriptor) const {
     using namespace ebisu::utils::streamers;
     Printer_spec const& spec = printer_descriptor.printer_spec;
-    // custom <members anonymous>
-    // end <members anonymous>
+    // custom <D members anonymous>
+    // end <D members anonymous>
 
     return out;
   }

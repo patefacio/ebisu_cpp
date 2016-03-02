@@ -118,14 +118,14 @@ friend inline std::ostream& print_instance(std::ostream& out, ${className} const
 std::ostream& print_members_named(std::ostream& out, std::string const& indent, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) const {
   using namespace ebisu::utils::streamers;
   Printer_spec const& spec = printer_descriptor.printer_spec;
-${_customOrGenerated("members named", _namedMemberOut)}
+${_customOrGenerated("$className members named", _namedMemberOut)}
   return out;
 }
 
 std::ostream& print_members_anonymous(std::ostream& out, std::string const& indent, ebisu::utils::streamers::Printer_descriptor & printer_descriptor) const {
   using namespace ebisu::utils::streamers;
   Printer_spec const& spec = printer_descriptor.printer_spec;
-${_customOrGenerated("members anonymous", _anonymousMemberOut)}
+${_customOrGenerated("$className members anonymous", _anonymousMemberOut)}
   return out;
 }
 '''
