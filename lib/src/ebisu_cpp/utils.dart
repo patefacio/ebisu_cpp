@@ -427,10 +427,10 @@ class QtNamer implements Namer {
   String nameUnion(Id id) => id.capCamel;
   String nameMember(Id id) => id.camel;
   String nameMemberVar(Id id, bool isPublic) =>
-      isPublic ? id.snake : '${id.snake}_';
+      isPublic ? id.camel : '${id.camel}_';
   String nameMethod(Id id) => id.camel;
   String nameEnum(Id id) => id.capCamel;
-  String nameEnumConst(Id id) => id.CapCamel;
+  String nameEnumConst(Id id) => id.capCamel;
   String nameStaticConst(Id id) => id.shout;
   String nameTemplateDeclParm(Id id) => id.shout;
   String nameUsingType(Id id) => id.capCamel;

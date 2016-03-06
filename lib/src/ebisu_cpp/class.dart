@@ -590,8 +590,10 @@ member being initialized or a MemberCtorParm instance'''));
       memberParms =
           parent.members.map((m) => _makeParm(m.name)..member = m).toList();
     } else {
-      memberParms.forEach((MemberCtorParm mp) =>
-          mp.member = parent.members.firstWhere((m) => mp.name == m.name));
+      memberParms.forEach((MemberCtorParm mp) => mp.member = parent.members
+          .firstWhere((m) => mp.name == m.name,
+              orElse: () =>
+                  throw 'Could not find matching member for $className::${mp.name}'));
     }
 
     final bogusMemberParms = memberParms.where((mp) => mp.member.hasIfdef);
