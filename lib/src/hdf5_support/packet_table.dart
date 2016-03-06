@@ -37,8 +37,8 @@ class LogGroup {
 
 }
 
-/// Create a LogGroup sans new, for more declarative construction
-LogGroup logGroup(String className, [List<String> memberNames = const []]) =>
+/// Create LogGroup without new, for more declarative construction
+LogGroup logGroup(final String className, [final List<String> memberNames]) =>
     new LogGroup(className, memberNames);
 
 class PacketMemberType {
@@ -91,8 +91,8 @@ class PacketTableDecorator implements InstallationDecorator {
 
 }
 
-/// Create a PacketTableDecorator sans new, for more declarative construction
-PacketTableDecorator packetTableDecorator([List<LogGroup> logGroups]) =>
+/// Create PacketTableDecorator without new, for more declarative construction
+PacketTableDecorator packetTableDecorator(final List<LogGroup> logGroups) =>
     new PacketTableDecorator(logGroups);
 
 // custom <part packet_table>

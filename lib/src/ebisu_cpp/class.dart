@@ -528,8 +528,8 @@ class MemberCtorParm {
   String _init;
 }
 
-/// Create a MemberCtorParm sans new, for more declarative construction
-MemberCtorParm memberCtorParm([String name]) => new MemberCtorParm(name);
+/// Create MemberCtorParm without new, for more declarative construction
+MemberCtorParm memberCtorParm(final String name) => new MemberCtorParm(name);
 
 /// Specificication for a member constructor. A member constructor is a constructor
 /// with the intent of initializing one or more members of a class.
@@ -1127,7 +1127,7 @@ default [Interfaceimplementation] is used''')
   ///
   CodeBlock getCodeBlock(ClassCodeBlock cb) {
     var result = _codeBlocks[cb];
-    return (result == null) ? (_codeBlocks[cb] = codeBlock()) : result;
+    return (result == null) ? (_codeBlocks[cb] = codeBlock(null)) : result;
   }
 
   /// Adds a member constructor that provides for initialization of

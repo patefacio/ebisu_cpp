@@ -126,7 +126,7 @@ abstract class CppFile extends CppEntity with Testable {
   /// See also: [withCustomBlock]
   CodeBlock getCodeBlock(FileCodeBlock fcb) {
     final result = _codeBlocks[fcb];
-    return result == null ? (_codeBlocks[fcb] = codeBlock()) : result;
+    return result == null ? (_codeBlocks[fcb] = codeBlock(null)) : result;
   }
 
   /// Invoke the function [f] on code block specifed by [fcb]

@@ -107,7 +107,7 @@ class ForwardDecl {
 
 }
 
-/// Create a ForwardDecl sans new, for more declarative construction
+/// Create ForwardDecl without new, for more declarative construction
 ForwardDecl forwardDecl(String type,
         [Namespace namespace, Template template]) =>
     new ForwardDecl(type, namespace, template);
@@ -137,8 +137,8 @@ class FriendClassDecl {
 
 }
 
-/// Create a FriendClassDecl sans new, for more declarative construction
-FriendClassDecl friendClassDecl([String decl]) => new FriendClassDecl(decl);
+/// Create FriendClassDecl without new, for more declarative construction
+FriendClassDecl friendClassDecl(final String decl) => new FriendClassDecl(decl);
 
 /// Represents a c++ namespace which is essentially a list of names
 class Namespace {
@@ -462,8 +462,8 @@ class Base {
 
 }
 
-/// Create a Base sans new, for more declarative construction
-Base base([String className]) => new Base(className);
+/// Create Base without new, for more declarative construction
+Base base(String className) => new Base(className);
 
 /// Base for class and union to provide abilility to set defaults
 class AggregateBase {
