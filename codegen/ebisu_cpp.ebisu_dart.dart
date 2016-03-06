@@ -398,6 +398,9 @@ Default namer establishing reasonable conventions, that are fairly
               class_('google_namer')
                 ..implement = ['Namer']
                 ..doc = 'Namer based on google coding conventions',
+              class_('qt_namer')
+                ..implement = ['Namer']
+                ..doc = 'Namer somewhat compatible with Qt coding conventions',
               class_('base')
                 ..doc = baseDoc
                 ..hasCtorSansNew = true
@@ -3609,4 +3612,3 @@ final _enumH5tMap = enumerate(_h5tTypeValues).fold(
       ..['H5tType.${_enumH5t.values[elm.index].camel}'] =
           doubleQuote(_h5tTypeValues[elm.index]));
 // end <ebisuCppEbisuDart global>
-

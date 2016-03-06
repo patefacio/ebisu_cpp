@@ -11,9 +11,9 @@ class Header extends CppFile {
 
   Namespace get namespace => super.namespace;
 
- get includeFilePath => _includeFilePrefix == null ?
-    path.join(namespace.asPath, namer.nameHeader(id))
-    : path.join(_includeFilePrefix, namespace.asPath, namer.nameHeader(id));
+  get includeFilePath => _includeFilePrefix == null
+      ? path.join(namespace.asPath, namer.nameHeader(id))
+      : path.join(_includeFilePrefix, namespace.asPath, namer.nameHeader(id));
 
   /// returns true if will use pragma once to prevent duplicates instead of
   /// default include guards.
@@ -25,9 +25,9 @@ class Header extends CppFile {
 
   setFilePathFromRoot(String rootFilePath, [name]) {
     __basename = name == null ? namer.nameHeader(id) : name;
-    return _filePath == null ?
-      _filePath = path.join(rootFilePath, namespace.asPath, _basename)
-      : _filePath;
+    return _filePath == null
+        ? _filePath = path.join(rootFilePath, namespace.asPath, _basename)
+        : _filePath;
   }
 
   String get contents {

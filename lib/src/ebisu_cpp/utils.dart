@@ -404,6 +404,41 @@ class GoogleNamer implements Namer {
 
 }
 
+/// Namer somewhat compatible with Qt coding conventions
+class QtNamer implements Namer {
+  // custom <class QtNamer>
+
+  const QtNamer();
+
+  String nameApp(Id id) => id.snake;
+  String nameScript(Id id) => id.snake;
+  String nameLib(Namespace namespace, Id id) {
+    if (namespace.names.length > 0 && namespace.names.last == id.snake) {
+      return namespace.snake;
+    } else {
+      return namespace.snake + '_' + id.snake;
+    }
+  }
+
+  String nameHeader(Id id) => '${id.snake}.hpp';
+  String nameImpl(Id id) => '${id.snake}.cc';
+
+  String nameClass(Id id) => id.capCamel;
+  String nameUnion(Id id) => id.capCamel;
+  String nameMember(Id id) => id.camel;
+  String nameMemberVar(Id id, bool isPublic) =>
+      isPublic ? id.snake : '${id.snake}_';
+  String nameMethod(Id id) => id.camel;
+  String nameEnum(Id id) => id.capCamel;
+  String nameEnumConst(Id id) => id.CapCamel;
+  String nameStaticConst(Id id) => id.shout;
+  String nameTemplateDeclParm(Id id) => id.shout;
+  String nameUsingType(Id id) => id.capCamel;
+
+  // end <class QtNamer>
+
+}
+
 /// A base class of another class.
 ///
 /// The style of inheritance is determined by [virtual] and [access]. Examples:
