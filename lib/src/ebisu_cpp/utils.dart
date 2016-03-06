@@ -398,7 +398,7 @@ class GoogleNamer implements Namer {
   String nameTemplateDeclParm(Id id) => id.shout;
   String nameHeader(Id id) => '${id.snake}.hpp';
   String nameImpl(Id id) => '${id.snake}.cc';
-  String nameUsingType(Id id) => addSuffixToId('t', id).capCamel;
+  String nameUsingType(Id id) => id.capCamel;
 
   // end <class GoogleNamer>
 

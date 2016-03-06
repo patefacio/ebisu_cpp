@@ -19,7 +19,7 @@ class UsingDirective extends CppEntity implements Using {
 
   // custom <class UsingDirective>
 
-  UsingDirective(lhs_, this._rhs) : super(addSuffixToId('t', lhs_));
+  UsingDirective(lhs_, this._rhs) : super(makeId(lhs_));
 
   Iterable<Entity> get children => [];
 
