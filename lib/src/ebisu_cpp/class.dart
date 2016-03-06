@@ -239,6 +239,12 @@ abstract class ClassMethod extends Object with Loggable, CustomCodeBlock {
   String get definition;
   String get className => _parent.className;
 
+  /// Returns portion of *blockTag* associated with the class.
+  ///
+  /// NB: Unlike [className] it is not tied to a namer, so moving from one
+  /// [Namer] style to another should not affect custom blocks using this tag.
+  String get classBlockTag => _parent.id.capSnake;
+
   List<Member> get members => _parent.members;
 
   /// Set the [template] for the [ClassMethod]
@@ -301,7 +307,7 @@ class DefaultCtor extends DefaultMethod {
   String get prototype => '${className}()';
 
   String get customDefinition =>
-      functionContents(prototype, '${className} defaultCtor');
+      functionContents(prototype, '$classBlockTag defaultCtor');
 
   // end <class DefaultCtor>
 
@@ -314,7 +320,7 @@ class CopyCtor extends DefaultMethod {
   String get prototype => '${className}(${className} const& other)';
 
   String get customDefinition => functionContents(
-      '${className}(${className} const& other)', '${className} copyCtor');
+      '${className}(${className} const& other)', '$classBlockTag copyCtor');
 
   // end <class CopyCtor>
 
@@ -368,7 +374,7 @@ class Dtor extends DefaultMethod {
 
   String get customDefinition => functionContents(
       isAbstract ? 'virtual ~${className}()' : '~${className}()',
-      '$className dtor');
+      '$classBlockTag dtor');
 
   // end <class Dtor>
 
@@ -618,8 +624,8 @@ No *ifdef* qualified members in memberCtor
 ${explicitTag}${_templateDecl}${className}(
 ${indentBlock(argDecls.join(',\n'))})$memberInitializerList''',
         tag != null
-            ? '${className}($tag)'
-            : '${className}(${argDecls.join(':')})');
+            ? '${classBlockTag}($tag)'
+            : '${classBlockTag}(${argDecls.join(':')})');
   }
 
   /// Set a [label] for the *protect block*.
@@ -1176,7 +1182,7 @@ default [Interfaceimplementation] is used''')
         /// NB: tag does not use namer, so in future namer can be changed and
         /// protect blocks may be unaffected
         final blockTag = id.capSnake;
-        getCodeBlock(cb).tag = '${evCap(cb)} $className';
+        getCodeBlock(cb).tag = '${evCap(cb)} $blockTag';
       });
 
       if (printerSupport != null) {
