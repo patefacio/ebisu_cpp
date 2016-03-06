@@ -1173,6 +1173,9 @@ default [Interfaceimplementation] is used''')
         if (m != null) m._parent = this;
       });
       customBlocks.forEach((ClassCodeBlock cb) {
+        /// NB: tag does not use namer, so in future namer can be changed and
+        /// protect blocks may be unaffected
+        final blockTag = id.capSnake;
         getCodeBlock(cb).tag = '${evCap(cb)} $className';
       });
 
