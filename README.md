@@ -83,7 +83,7 @@ included, [EbisuCppNamer] and [GoogleNamer].
 ### Structural Targets
 
 Specifically, the following are some of the current structural targets
-for covered by *ebisu_cpp*:
+covered by *ebisu_cpp*:
 
 * [Enum]: C++ enums, with some support for serialization and different
   flavors - such as *masks*.
@@ -160,8 +160,8 @@ for covered by *ebisu_cpp*:
 ```
 
 * [Header]: A single header file, typically with a collection of C++
-  type things like [includes], enums, classes, forward declarations,
-  using statements
+  type things like _includes_, _enums_, _classes_, forward
+  declarations, using statements
 
   Example:
 ```dart
@@ -183,10 +183,11 @@ for covered by *ebisu_cpp*:
   C++ type things like includes, enums, classes, forward declarations,
   using statements
 
-* [Lib]: C++ libraries. C++ Libarary sometimes has a newer connotation
-  in that there is a concept of *header only* library which implies no
-  library at all. In *ebisu_cpp* [Lib] does not necessarily mean a C++
-  archive is created. Rather it is a collection of code generated
+* [Lib]: C++ libraries. These days *C++ libarary* has a broader
+  connotation than just the archived collection of object files. Today
+  it is common to have *header only* libraries which implies no
+  library at all. In *ebisu_cpp* [Lib] does not necessarily imply a
+  C++ archive is created. Rather it is a collection of code generated
   within a *namespace* in a consistent directory structure that may or
   may not entail the creation of a C++ archive.
 
@@ -524,12 +525,12 @@ of facilities that make it perfect for this type of work.
 ### Compiled Languages vs Scripting Languages
 
 Scripting languages obviously have an edge in code generation due to
-the ability to rapidly prototype and lack of a build cycle. Compiled
+the ability to rapidly prototype without a build cycle. Compiled
 languages have an advantage that in general due to typing and all else
 equal, if the code compiles it has a better chance of running as
 intended as more errors are taken care of at compile time. With Dart
-you get the best of both approaches. Among the many awsome features of
-Dart, those that most help with code generation include:
+you get the best of both approaches. Among the many awesome features
+of Dart, those that most help with code generation include:
 
 * Quick turnaround time as with other scripting langauges
 
@@ -540,8 +541,8 @@ Dart, those that most help with code generation include:
 
 * Errors caught by the type system during analysis
 
-* Excellent set of support libraries. Need to read json input, to
-  generate code? No problem.
+* Excellent set of support libraries. Need to read json, xml or yaml
+  input, to generate code? No problem.
 
 * For those that like to use an IDE, there is the commercial WebStorm
   as well as open source solutions like Atom. Use of an IDE such as
