@@ -12,8 +12,8 @@ import 'package:quiver/iterables.dart';
 final _logger = new Logger('ebisuCppEbisuDart');
 
 main(List<String> args) {
-  Logger.root.onRecord.listen((LogRecord r) =>
-      print("${r.loggerName} [${r.level}]:\t${r.message}"));
+  Logger.root.onRecord.listen(
+      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
   Logger.root.level = Level.OFF;
   useDartFormatter = true;
   String here = absolute(Platform.script.toFilePath());
@@ -32,7 +32,7 @@ files, build scripts, test files, etc.)
     ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.20'
+    ..pubSpec.version = '0.3.21'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -80,6 +80,7 @@ files, build scripts, test files, etc.)
           'package:id/id.dart',
           'package:ebisu/ebisu.dart',
           'package:quiver/iterables.dart',
+          'mirrors',
           'package:petitparser/petitparser.dart',
           "'package:path/path.dart' as path",
           'io',
@@ -733,7 +734,9 @@ If set will provide the required [print_instance] C++ method for enum.'''
                 ..doc = memberDoc
                 ..extend = 'CppEntity'
                 ..members = [
-                  member('type')..doc = 'Type of member',
+                  member('type')
+                    ..doc = 'Type of member'
+                    ..access = RO,
                   member('init')
                     ..doc = memberInitDoc
                     ..access = RO,

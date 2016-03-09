@@ -65,5 +65,33 @@ main([List<String> args]) {
     });
   });
 
+  test('naming specs', () {
+    //defaultCppNamer = new QtNamer();
+    expect(name('c.this_is_a_class'), 'This_is_a_class');
+    expect(name('m.this_is_a_member'), 'this_is_a_member');
+    expect(name('M.this_is_a_method'), 'this_is_a_method');
+    expect(name('e.this_is_an_enum'), 'This_is_an_enum');
+    expect(name('ec.this_is_an_enum_const'), 'This_is_an_enum_const_e');
+    expect(name('sc.this_is_a_static_const'), 'THIS_IS_A_STATIC_CONST');
+    expect(name('tdp.this_is_a_template_decl_parm'),
+        'THIS_IS_A_TEMPLATE_DECL_PARM');
+    expect(name('u.this_is_a_using_type'), 'This_is_a_using_type_t');
+
+    expect(nameFromSymbol(#c.this_is_a_class), 'This_is_a_class');
+    expect(nameFromSymbol(#m.this_is_a_member), 'this_is_a_member');
+    expect(nameFromSymbol(#M.this_is_a_method), 'this_is_a_method');
+    expect(nameFromSymbol(#e.this_is_an_enum), 'This_is_an_enum');
+    expect(
+        nameFromSymbol(#ec.this_is_an_enum_const), 'This_is_an_enum_const_e');
+    expect(
+        nameFromSymbol(#sc.this_is_a_static_const), 'THIS_IS_A_STATIC_CONST');
+    expect(nameFromSymbol(#tdp.this_is_a_template_decl_parm),
+        'THIS_IS_A_TEMPLATE_DECL_PARM');
+    expect(nameFromSymbol(#u.this_is_a_using_type), 'This_is_a_using_type_t');
+
+    // Without specifier depends on defaults, which if not set names class
+    expect(nameFromSymbol(#this_is_a_class), 'This_is_a_class');
+  });
+
 // end <main>
 }

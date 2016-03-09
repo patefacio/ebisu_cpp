@@ -632,4 +632,90 @@ String inferCppType(Object datum) {
   return inferredType;
 }
 
+/// Provides consistent mechanism for invoking the namer.
+///
+/// It is desirable that client code not be tied to a given namer. Yet, in
+/// certain circumstances type names need to be provided by client code.
+///
+/// For example:
+///
+///     class_("cartesian_point")
+///     ..members = [ member("x")..classInit = 0, member("y").classInit = 0 ];
+///
+///     class_("translation")
+///     ..members = [ member("offset")..type = "Cartesian_point" ]
+///
+/// The problem here is client is required to use knowledge of what the namer is
+/// going to do in order to specify the type. Rather than doing this, either use
+/// this [name] function which invokes the [defaultNamer] or use the special
+/// symbol syntax.
+String name(String namingSpec, [defaultNamingFunction]) {
+  final terms = namingSpec.split('.');
+  if (terms.length == 2) {
+    final switchPart = terms[0];
+    final idPart = terms[1];
+    switch (switchPart) {
+      case 'c':
+        {
+          return defaultNamer.nameClass(makeId(idPart));
+          break;
+        }
+      case 'm':
+        {
+          return defaultNamer.nameMember(makeId(idPart));
+          break;
+        }
+      case 'M':
+        {
+          return defaultNamer.nameMethod(makeId(idPart));
+          break;
+        }
+      case 'e':
+        {
+          return defaultNamer.nameEnum(makeId(idPart));
+          break;
+        }
+      case 'ec':
+        {
+          return defaultNamer.nameEnumConst(makeId(idPart));
+          break;
+        }
+      case 'sc':
+        {
+          return defaultNamer.nameStaticConst(makeId(idPart));
+          break;
+        }
+      case 'tdp':
+        {
+          return defaultNamer.nameTemplateDeclParm(makeId(idPart));
+          break;
+        }
+      case 'u':
+        {
+          return defaultNamer.nameUsingType(makeId(idPart));
+          break;
+        }
+    }
+  } else if (terms.length == 1) {
+    final id = makeId(namingSpec);
+    if (defaultNamingFunction == null) {
+      return defaultNamer.nameClass(id);
+    } else {
+      return defaultNamingFunction(id);
+    }
+  } else {
+    logger_.warning("Naming spec should have at most one colon -> '.'");
+  }
+}
+
+/// Return name(s) so using a symbol indicates desire to use namer
+String nameFromSymbol(Symbol s, [defaultNamingFunction]) =>
+    name(MirrorSystem.getName(s));
+
+String _name(s, [defaultNamingFunction]) => s is Symbol
+    ? nameFromSymbol(s, defaultNamingFunction)
+    : s is String
+        ? s
+        : throw 'Naming requires a Symbol identifying a NamingSpec or a String convertible to Id';
+
 // end <part utils>

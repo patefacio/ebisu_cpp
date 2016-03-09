@@ -87,6 +87,7 @@ library ebisu_cpp.ebisu_cpp;
 import 'dart:collection';
 import 'dart:io';
 import 'dart:math' hide max;
+import 'dart:mirrors';
 import 'package:ebisu/ebisu.dart';
 import 'package:id/id.dart';
 import 'package:logging/logging.dart';

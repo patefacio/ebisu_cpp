@@ -99,6 +99,7 @@ class Installation extends CppEntity implements CodeGenerator {
   get testsPath => _testsPath ?? path.join(cppPath, 'tests');
 
   Installation(Id id) : super(id) {
+    _namer = defaultNamer;
     rootFilePath = '/tmp';
   }
 

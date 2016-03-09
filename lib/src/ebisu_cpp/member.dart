@@ -137,7 +137,7 @@ part of ebisu_cpp.ebisu_cpp;
 ///     };
 class Member extends CppEntity {
   /// Type of member
-  String type;
+  String get type => _type;
 
   /// Initialization of member.
   ///
@@ -251,6 +251,8 @@ class Member extends CppEntity {
   // custom <class Member>
 
   Member(id) : super(id);
+
+  set type(type) => _type = _name(type);
 
   get ownerAggregateBase => owner as AggregateBase;
 
@@ -417,6 +419,7 @@ ${chomp(txt, true)}
 
   // end <class Member>
 
+  String _type;
   String _init;
   Access _access;
   CppAccess _cppAccess;
