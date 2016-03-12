@@ -649,6 +649,17 @@ String inferCppType(Object datum) {
 /// going to do in order to specify the type. Rather than doing this, either use
 /// this [name] function which invokes the [defaultNamer] or use the special
 /// symbol syntax.
+///
+/// The format for a nameSpec is: *nameFunctionDesignator*.id
+///
+/// The *nameFunctionDesignators* are:
+///
+///   - 'c': Name the id as a class - example 'c.my_class'
+///   - 'u': Name the id as the left hand side of a using - exmaple 'u.processor_list'
+///   - 'e': Name the id as an enum - exmaple 'e.primary_color'
+///   - 'm': Name the id as a member - example 'm.my_member'
+///   - 'M': Name the id as a method - example 'M.my_method'
+///
 String name(String namingSpec, [defaultNamingFunction]) {
   final terms = namingSpec.split('.');
   if (terms.length == 2) {
