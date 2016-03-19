@@ -1,5 +1,48 @@
 part of ebisu_cpp.ebisu_cpp;
 
+enum BitsetType {
+  bsInt8,
+  bsInt16,
+  bsInt32,
+  bsInt64,
+  bsUInt8,
+  bsUInt16,
+  bsUInt32,
+  bsUInt64
+}
+
+/// Convenient access to BitsetType.bsInt8 with *bsInt8* see [BitsetType].
+///
+const BitsetType bsInt8 = BitsetType.bsInt8;
+
+/// Convenient access to BitsetType.bsInt16 with *bsInt16* see [BitsetType].
+///
+const BitsetType bsInt16 = BitsetType.bsInt16;
+
+/// Convenient access to BitsetType.bsInt32 with *bsInt32* see [BitsetType].
+///
+const BitsetType bsInt32 = BitsetType.bsInt32;
+
+/// Convenient access to BitsetType.bsInt64 with *bsInt64* see [BitsetType].
+///
+const BitsetType bsInt64 = BitsetType.bsInt64;
+
+/// Convenient access to BitsetType.bsUInt8 with *bsUInt8* see [BitsetType].
+///
+const BitsetType bsUInt8 = BitsetType.bsUInt8;
+
+/// Convenient access to BitsetType.bsUInt16 with *bsUInt16* see [BitsetType].
+///
+const BitsetType bsUInt16 = BitsetType.bsUInt16;
+
+/// Convenient access to BitsetType.bsUInt32 with *bsUInt32* see [BitsetType].
+///
+const BitsetType bsUInt32 = BitsetType.bsUInt32;
+
+/// Convenient access to BitsetType.bsUInt64 with *bsUInt64* see [BitsetType].
+///
+const BitsetType bsUInt64 = BitsetType.bsUInt64;
+
 /// A member or field included in a class.
 ///
 /// ## Basics
@@ -433,6 +476,56 @@ ${chomp(txt, true)}
   CodeBlock _customStreamable;
 }
 
+/// Defines a bitset member.
+///
+/// All bitsets must have an [id], however if [isAnonymous] is set to true the
+/// bitset will be unnamed.
+class Bitset extends Member {
+  /// Number of bits in bitset
+  int get numBits => _numBits;
+
+  /// Underlying type of bitset
+  BitsetType bitsetType;
+
+  /// If set declaration of bitset will be unnamed
+  bool isAnonymous = false;
+
+  // custom <class Bitset>
+
+  Bitset(id, numBits, {BitsetType this.bitsetType, bool isAnonymous}) : super(id) {
+    if (numBits != null) {
+      this.numBits = numBits;
+    }
+  }
+
+  set numBits(numBits) {
+    _numBits = numBits;
+    if (bitsetType == null) {
+      bitsetType = _setTightFitUnderlyingType(numBits);
+    }
+    _type = _bsTypeMap[bitsetType];
+  }
+
+  get _decl => '$type $vname : $numBits;';
+
+  _setTightFitUnderlyingType(int numBits) {
+    if (numBits <= 8) {
+      return bsUInt8;
+    } else if (numBits <= 16) {
+      return bsUInt16;
+    } else if (numBits <= 32) {
+      return bsUInt32;
+    } else {
+      return bsUInt64;
+    }
+    return null;
+  }
+
+  // end <class Bitset>
+
+  int _numBits;
+}
+
 /// Responsible for creating the getter (i.e. reader) for member
 abstract class GetterCreator {
   GetterCreator(this.member);
@@ -533,7 +626,20 @@ $argType $name() {
 // custom <part member>
 
 Member member(id) => new Member(id);
+Bitset bitset(id, numBits, {bitsetType}) =>
+    new Bitset(id, numBits, bitsetType: bitsetType);
 
 typedef String GetterReturnModifier(Member member, String oldValue);
+
+final _bsTypeMap = const {
+  bsInt8: 'std::int8_t',
+  bsInt16: 'std::int16_t',
+  bsInt32: 'std::int32_t',
+  bsInt64: 'std::int64_t',
+  bsUInt8: 'std::uint8_t',
+  bsUInt16: 'std::uint16_t',
+  bsUInt32: 'std::uint32_t',
+  bsUInt64: 'std::uint64_t',
+};
 
 // end <part member>

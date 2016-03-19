@@ -1216,6 +1216,14 @@ default [Interfaceimplementation] is used''')
         .info('Class ($id) finalized supporting: ${interfaceImplementations}');
   }
 
+  /// Find the member named by [memberId]
+  ///
+  /// [memberId] may be a String or an Id identifying the member
+  Member getMember(memberId) {
+    memberId = makeId(memberId);
+    return members.firstWhere((member) => memberId == member.id);
+  }
+
   List<String> get _baseDecls => []
     ..addAll(basesPublic.map((b) => b.decl))
     ..addAll(basesProtected.map((b) => b.decl))

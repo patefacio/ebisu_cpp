@@ -67,6 +67,7 @@ files, build scripts, test files, etc.)
       library('test_cpp_switch'),
       library('test_cpp_benchmark'),
       library('test_cpp_template'),
+      library('test_cpp_bitset'),
       library('test_hdf5_support'),
       library('test_qt_support'),
       library('test_enumerated_dispatcher'),
@@ -729,6 +730,20 @@ If set will provide the required [print_instance] C++ method for enum.'''
                 ],
             ],
           part('member')
+            ..enums = [
+              enum_('bitset_type')
+                ..hasLibraryScopedValues = true
+                ..values = [
+                  'bs_int_8',
+                  'bs_int_16',
+                  'bs_int_32',
+                  'bs_int_64',
+                  'bs_u_int_8',
+                  'bs_u_int_16',
+                  'bs_u_int_32',
+                  'bs_u_int_64',
+                ],
+            ]
             ..classes = [
               class_('member')
                 ..doc = memberDoc
@@ -835,6 +850,26 @@ generate a streamable entry in the containing [Class].
                     ..doc = '''
 If non null member and accessors will qualified in #if defined block
 '''
+                ],
+              class_('bitset')
+                ..doc = '''
+Defines a bitset member.
+
+All bitsets must have an [id], however if [isAnonymous] is set to true the
+bitset will be unnamed.
+'''
+                ..extend = 'Member'
+                ..members = [
+                  member('num_bits')
+                    ..doc = 'Number of bits in bitset'
+                    ..access = RO
+                    ..type = 'int',
+                  member('bitset_type')
+                    ..doc = 'Underlying type of bitset'
+                    ..type = 'BitsetType',
+                  member('is_anonymous')
+                    ..doc = 'If set declaration of bitset will be unnamed'
+                    ..init = false,
                 ],
               class_('getter_creator')
                 ..doc =
