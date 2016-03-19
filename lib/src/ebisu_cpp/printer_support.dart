@@ -139,8 +139,10 @@ ${_customOrGenerated("$className members anonymous", _anonymousMemberOut)}
 
   _anonymousMemberOut(Member m) => brCompact([_memberValueOut(m),]);
 
+  _memberAccessor(Member m) => m.hasCustomGetter ? '${m.name}()' : m.vname;
+
   _memberValueOut(Member m) =>
-      'print_instance(out, ${m.vname}, printer_descriptor);';
+      'print_instance(out, ${_memberAccessor(m)}, printer_descriptor);';
 
   // end <class PrinterSupportProvider>
 
