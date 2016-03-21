@@ -21,29 +21,27 @@ main([List<String> args]) {
   Logger.root.level = Level.OFF;
 // custom <main>
 
-  group('bitset', () {
-    test('bitset basics', () {
+  group('bitSet', () {
+    test('bitSet basics', () {
       var cls = class_('s')
         ..isStruct = true
         ..defaultCppAccess = public
         ..members = [
-          bitset('bs_3_u_int8', 3)
+          bitSet('bs_3_u_int8', 3)
             ..doc =
-                'This is a 3 bit unsigned char bitset where type is inferred as unsigned char',
-          bitset('bs_31_u_int32', 31)
+                'This is a 3 bit unsigned char bitSet where type is inferred as unsigned char',
+          bitSet('bs_31_u_int32', 31)
             ..doc =
-                'This is a 32 bit unsigned char bitset where type is inferred as usigned int',
-          bitset('bs_33_u_int64', 33)
+                'This is a 32 bit unsigned char bitSet where type is inferred as usigned int',
+          bitSet('bs_33_u_int64', 33)
             ..doc =
-                'This is a 33 bit unsigned char bitset where type is inferred as usigned long long',
-          bitset('bs_4_u_int8_specified', 4, bitsetType: bsUInt8),
-          bitset('bs_4_u_int32_specified', 4, bitsetType: bsUInt32),
-          bitset('bs_15_u_int64_specified', 15, bitsetType: bsUInt64),
-
-          bitset('bs_30_int8_specified', 30, bitsetType: bsInt8),
-          bitset('bs_30_int32_specified', 30, bitsetType: bsInt32),
-          bitset('bs_30_int64_specified', 30, bitsetType: bsInt64),
-
+                'This is a 33 bit unsigned char bitSet where type is inferred as usigned long long',
+          bitSet('bs_4_u_int8_specified', 4, bitSetType: bsUInt8),
+          bitSet('bs_4_u_int32_specified', 4, bitSetType: bsUInt32),
+          bitSet('bs_15_u_int64_specified', 15, bitSetType: bsUInt64),
+          bitSet('bs_30_int8_specified', 30, bitSetType: bsInt8),
+          bitSet('bs_30_int32_specified', 30, bitSetType: bsInt32),
+          bitSet('bs_30_int64_specified', 30, bitSetType: bsInt64),
           member('x')..init = 3
         ]
         ..setAsRoot();
@@ -62,18 +60,20 @@ main([List<String> args]) {
       expect(darkMatter(cls.definition), darkMatter('''
 struct S
 {
+
+
   /**
-   This is a 3 bit unsigned char bitset where type is inferred as unsigned char
+   This is a 3 bit unsigned char bitSet where type is inferred as unsigned char
   */
   std::uint8_t bs_3_u_int8 : 3;
 
   /**
-   This is a 32 bit unsigned char bitset where type is inferred as usigned int
+   This is a 32 bit unsigned char bitSet where type is inferred as usigned int
   */
   std::uint32_t bs_31_u_int32 : 31;
 
   /**
-   This is a 33 bit unsigned char bitset where type is inferred as usigned long long
+   This is a 33 bit unsigned char bitSet where type is inferred as usigned long long
   */
   std::uint64_t bs_33_u_int64 : 33;
   std::uint8_t bs_4_u_int8_specified : 4;
@@ -83,6 +83,7 @@ struct S
   std::int32_t bs_30_int32_specified : 30;
   std::int64_t bs_30_int64_specified : 30;
   int x { 3 };
+
 };
 '''));
     });

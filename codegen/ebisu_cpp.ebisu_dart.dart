@@ -731,7 +731,7 @@ If set will provide the required [print_instance] C++ method for enum.'''
             ],
           part('member')
             ..enums = [
-              enum_('bitset_type')
+              enum_('bit_set_type')
                 ..hasLibraryScopedValues = true
                 ..values = [
                   'bs_int_8',
@@ -851,24 +851,24 @@ generate a streamable entry in the containing [Class].
 If non null member and accessors will qualified in #if defined block
 '''
                 ],
-              class_('bitset')
+              class_('bit_set')
                 ..doc = '''
-Defines a bitset member.
+Defines a bit-set member.
 
-All bitsets must have an [id], however if [isAnonymous] is set to true the
-bitset will be unnamed.
+All bit-sets must have an [id], however if [isAnonymous] is set to true the
+bit-set will be unnamed.
 '''
                 ..extend = 'Member'
                 ..members = [
                   member('num_bits')
-                    ..doc = 'Number of bits in bitset'
+                    ..doc = 'Number of bits in [BitSet]'
                     ..access = RO
                     ..type = 'int',
-                  member('bitset_type')
-                    ..doc = 'Underlying type of bitset'
-                    ..type = 'BitsetType',
+                  member('bit_set_type')
+                    ..doc = 'Underlying type of [BitSet]'
+                    ..type = 'BitSetType',
                   member('is_anonymous')
-                    ..doc = 'If set declaration of bitset will be unnamed'
+                    ..doc = 'If set declaration of [BitSet] will be unnamed'
                     ..init = false,
                 ],
               class_('getter_creator')
