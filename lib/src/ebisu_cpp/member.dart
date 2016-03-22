@@ -1,6 +1,6 @@
 part of ebisu_cpp.ebisu_cpp;
 
-enum BitSetType {
+enum BitSetBaseType {
   bsInt8,
   bsInt16,
   bsInt32,
@@ -11,37 +11,37 @@ enum BitSetType {
   bsUInt64
 }
 
-/// Convenient access to BitSetType.bsInt8 with *bsInt8* see [BitSetType].
+/// Convenient access to BitSetBaseType.bsInt8 with *bsInt8* see [BitSetBaseType].
 ///
-const BitSetType bsInt8 = BitSetType.bsInt8;
+const BitSetBaseType bsInt8 = BitSetBaseType.bsInt8;
 
-/// Convenient access to BitSetType.bsInt16 with *bsInt16* see [BitSetType].
+/// Convenient access to BitSetBaseType.bsInt16 with *bsInt16* see [BitSetBaseType].
 ///
-const BitSetType bsInt16 = BitSetType.bsInt16;
+const BitSetBaseType bsInt16 = BitSetBaseType.bsInt16;
 
-/// Convenient access to BitSetType.bsInt32 with *bsInt32* see [BitSetType].
+/// Convenient access to BitSetBaseType.bsInt32 with *bsInt32* see [BitSetBaseType].
 ///
-const BitSetType bsInt32 = BitSetType.bsInt32;
+const BitSetBaseType bsInt32 = BitSetBaseType.bsInt32;
 
-/// Convenient access to BitSetType.bsInt64 with *bsInt64* see [BitSetType].
+/// Convenient access to BitSetBaseType.bsInt64 with *bsInt64* see [BitSetBaseType].
 ///
-const BitSetType bsInt64 = BitSetType.bsInt64;
+const BitSetBaseType bsInt64 = BitSetBaseType.bsInt64;
 
-/// Convenient access to BitSetType.bsUInt8 with *bsUInt8* see [BitSetType].
+/// Convenient access to BitSetBaseType.bsUInt8 with *bsUInt8* see [BitSetBaseType].
 ///
-const BitSetType bsUInt8 = BitSetType.bsUInt8;
+const BitSetBaseType bsUInt8 = BitSetBaseType.bsUInt8;
 
-/// Convenient access to BitSetType.bsUInt16 with *bsUInt16* see [BitSetType].
+/// Convenient access to BitSetBaseType.bsUInt16 with *bsUInt16* see [BitSetBaseType].
 ///
-const BitSetType bsUInt16 = BitSetType.bsUInt16;
+const BitSetBaseType bsUInt16 = BitSetBaseType.bsUInt16;
 
-/// Convenient access to BitSetType.bsUInt32 with *bsUInt32* see [BitSetType].
+/// Convenient access to BitSetBaseType.bsUInt32 with *bsUInt32* see [BitSetBaseType].
 ///
-const BitSetType bsUInt32 = BitSetType.bsUInt32;
+const BitSetBaseType bsUInt32 = BitSetBaseType.bsUInt32;
 
-/// Convenient access to BitSetType.bsUInt64 with *bsUInt64* see [BitSetType].
+/// Convenient access to BitSetBaseType.bsUInt64 with *bsUInt64* see [BitSetBaseType].
 ///
-const BitSetType bsUInt64 = BitSetType.bsUInt64;
+const BitSetBaseType bsUInt64 = BitSetBaseType.bsUInt64;
 
 /// A member or field included in a class.
 ///
@@ -485,14 +485,14 @@ class BitSet extends Member {
   int get numBits => _numBits;
 
   /// Underlying type of [BitSet]
-  BitSetType bitSetType;
+  BitSetBaseType bitSetBaseType;
 
   /// If set declaration of [BitSet] will be unnamed
   bool isAnonymous = false;
 
   // custom <class BitSet>
 
-  BitSet(id, numBits, {BitSetType this.bitSetType, bool isAnonymous})
+  BitSet(id, numBits, {BitSetBaseType this.bitSetBaseType, bool isAnonymous})
       : super(id) {
     if (numBits != null) {
       this.numBits = numBits;
@@ -501,10 +501,10 @@ class BitSet extends Member {
 
   set numBits(numBits) {
     _numBits = numBits;
-    if (bitSetType == null) {
-      bitSetType = _setTightFitUnderlyingType(numBits);
+    if (bitSetBaseType == null) {
+      bitSetBaseType = _setTightFitUnderlyingType(numBits);
     }
-    _type = _bsTypeMap[bitSetType];
+    _type = _bsTypeMap[bitSetBaseType];
   }
 
   get _decl => '$type $vname : $numBits;';
@@ -627,8 +627,8 @@ $argType $name() {
 // custom <part member>
 
 Member member(id) => new Member(id);
-BitSet bitSet(id, numBits, {bitSetType}) =>
-    new BitSet(id, numBits, bitSetType: bitSetType);
+BitSet bitSet(id, numBits, {bitSetBaseType}) =>
+    new BitSet(id, numBits, bitSetBaseType: bitSetBaseType);
 
 typedef String GetterReturnModifier(Member member, String oldValue);
 

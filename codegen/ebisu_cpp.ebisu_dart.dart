@@ -731,7 +731,7 @@ If set will provide the required [print_instance] C++ method for enum.'''
             ],
           part('member')
             ..enums = [
-              enum_('bit_set_type')
+              enum_('bit_set_base_type')
                 ..hasLibraryScopedValues = true
                 ..values = [
                   'bs_int_8',
@@ -864,9 +864,9 @@ bit-set will be unnamed.
                     ..doc = 'Number of bits in [BitSet]'
                     ..access = RO
                     ..type = 'int',
-                  member('bit_set_type')
+                  member('bit_set_base_type')
                     ..doc = 'Underlying type of [BitSet]'
-                    ..type = 'BitSetType',
+                    ..type = 'BitSetBaseType',
                   member('is_anonymous')
                     ..doc = 'If set declaration of [BitSet] will be unnamed'
                     ..init = false,

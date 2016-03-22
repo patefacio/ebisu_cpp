@@ -36,12 +36,12 @@ main([List<String> args]) {
           bitSet('bs_33_u_int64', 33)
             ..doc =
                 'This is a 33 bit unsigned char bitSet where type is inferred as usigned long long',
-          bitSet('bs_4_u_int8_specified', 4, bitSetType: bsUInt8),
-          bitSet('bs_4_u_int32_specified', 4, bitSetType: bsUInt32),
-          bitSet('bs_15_u_int64_specified', 15, bitSetType: bsUInt64),
-          bitSet('bs_30_int8_specified', 30, bitSetType: bsInt8),
-          bitSet('bs_30_int32_specified', 30, bitSetType: bsInt32),
-          bitSet('bs_30_int64_specified', 30, bitSetType: bsInt64),
+          bitSet('bs_4_u_int8_specified', 4, bitSetBaseType: bsUInt8),
+          bitSet('bs_4_u_int32_specified', 4, bitSetBaseType: bsUInt32),
+          bitSet('bs_15_u_int64_specified', 15, bitSetBaseType: bsUInt64),
+          bitSet('bs_30_int8_specified', 30, bitSetBaseType: bsInt8),
+          bitSet('bs_30_int32_specified', 30, bitSetBaseType: bsInt32),
+          bitSet('bs_30_int64_specified', 30, bitSetBaseType: bsInt64),
           member('x')..init = 3
         ]
         ..setAsRoot();
