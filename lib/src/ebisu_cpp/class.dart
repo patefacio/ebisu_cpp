@@ -1168,6 +1168,7 @@ default [Interfaceimplementation] is used''')
         copyCtor.hasDelete = true;
         assignCopy.hasDelete = true;
         assignMove.hasDelete = true;
+        moveCtor.hasDelete = true;
       }
 
       if (isNoncopyable) {
