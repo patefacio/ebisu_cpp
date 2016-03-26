@@ -41,7 +41,8 @@ void main(List<String> args) {
         "test/test_hdf5_support.dart",
         "test/test_qt_support.dart",
         "test/test_enumerated_dispatcher.dart",
-        "test/test_print_instance.dart"
+        "test/test_print_instance.dart",
+        "test/test_build_parser.dart"
       ]));
 
   runHop(args);

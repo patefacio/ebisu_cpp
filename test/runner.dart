@@ -25,6 +25,7 @@ import 'test_hdf5_support.dart' as test_hdf5_support;
 import 'test_qt_support.dart' as test_qt_support;
 import 'test_enumerated_dispatcher.dart' as test_enumerated_dispatcher;
 import 'test_print_instance.dart' as test_print_instance;
+import 'test_build_parser.dart' as test_build_parser;
 
 main() {
   Logger.root.level = Level.OFF;
@@ -58,4 +59,5 @@ main() {
   test_qt_support.main();
   test_enumerated_dispatcher.main();
   test_print_instance.main();
+  test_build_parser.main();
 }
