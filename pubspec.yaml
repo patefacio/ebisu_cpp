@@ -16,7 +16,11 @@ dependencies:
   ini: ">=1.0.0<1.2.0"
   github: ">=2.1.2<2.2.0"
   id: "^1.0.11"  
-  ebisu: "^0.6.19"
+#  ebisu: "^0.6.19"
+
+  ebisu:
+    git: git://github.com/patefacio/ebisu
+    
   path: "^1.3.0"
   petitparser: "^1.4.3"
   stack_trace: "^1.4.1"
