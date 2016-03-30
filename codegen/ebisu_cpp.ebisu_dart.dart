@@ -2543,6 +2543,7 @@ log group. An empty list will include all members in the table.
             ]
         ],
       library('build_parser')
+        ..includesLogger = true
         ..imports = ['io', 'package:args/args.dart']
         ..classes = [
           class_('flag')
@@ -2551,31 +2552,49 @@ log group. An empty list will include all members in the table.
           class_('define')
             ..isImmutable = true
             ..members = [member('id'), member('value'),],
+
+          /// Stores the include directive and whether it was system
           class_('include_path')
             ..isImmutable = true
             ..members = [member('path'), member('is_system')..type = 'bool',],
           class_('library')
             ..isImmutable = true
             ..members = [member('name'),],
+
           class_('compile_command')
             ..defaultCtorStyle = namedParms
             ..defaultMemberAccess = RO
             ..members = [
               member('command'),
-              member('source_path'),
+              member('source_paths')
+                ..type = 'List<String>'
+                ..init = [],
               member('defines')
                 ..type = 'List<Define>'
                 ..init = [],
               member('include_paths')
                 ..type = 'List<IncludePath>'
                 ..init = [],
+              member('compile_warning_flags')
+                ..type = 'List<Flag>'
+                ..init = [],
               member('compile_flags')
                 ..type = 'List<Flag>'
                 ..init = [],
+              member('is_linked')
+                ..doc = '-c is *not* specified'
+                ..init = false,
+              member('output_file')..doc = '-o file flag',
             ],
 
           /// Parses compile commands to create CompileCommand
-          class_('compile_command_parser'),
+          class_('compile_command_parser')
+            ..defaultMemberAccess = RO
+            ..members = [
+              member('compile_command')..ctors = [''],
+              member('command_line_parser')..type = 'CommandLineParser',
+            ]
+            ..tagCtor('', 'parse compile command'),
 
           class_('ar_command')
             ..defaultCtorStyle = namedParms
@@ -2619,7 +2638,7 @@ log group. An empty list will include all members in the table.
               member('compile_matcher')
                 ..type = 'RegExp'
                 ..ctorsOpt = ['']
-                ..init = r'new RegExp(r"^\s*g(\+\+|cc)\s+")',
+                ..init = r'new RegExp(r"^\s*[\w/.]*(?:g(?:\+\+|cc)|clang)-?[\w.]*\s+(.*)")',
               member('log_contents')
                 ..type = 'List<String>'
                 ..init = [],
