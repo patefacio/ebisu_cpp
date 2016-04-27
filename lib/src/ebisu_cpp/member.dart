@@ -492,7 +492,8 @@ class Bitset extends Member {
 
   // custom <class Bitset>
 
-  Bitset(id, numBits, {BitsetType this.bitsetType, bool isAnonymous}) : super(id) {
+  Bitset(id, numBits, {BitsetType this.bitsetType, bool isAnonymous})
+      : super(id) {
     if (numBits != null) {
       this.numBits = numBits;
     }

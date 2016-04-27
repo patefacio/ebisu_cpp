@@ -39,11 +39,9 @@ main([List<String> args]) {
           bitset('bs_4_u_int8_specified', 4, bitsetType: bsUInt8),
           bitset('bs_4_u_int32_specified', 4, bitsetType: bsUInt32),
           bitset('bs_15_u_int64_specified', 15, bitsetType: bsUInt64),
-
           bitset('bs_30_int8_specified', 30, bitsetType: bsInt8),
           bitset('bs_30_int32_specified', 30, bitsetType: bsInt32),
           bitset('bs_30_int64_specified', 30, bitsetType: bsInt64),
-
           member('x')..init = 3
         ]
         ..setAsRoot();
