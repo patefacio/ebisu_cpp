@@ -365,6 +365,9 @@ class C_1
 {
 public:
   C_1(C_1 const& other) = delete;
+  C_1(C_1 && other) = delete;
+  C_1& operator=(C_1 const&) = delete;
+  C_1& operator=(C_1 &&) = delete;
 
   static C_1 & instance() {
     static C_1 instance_s;

@@ -31,7 +31,7 @@ files, build scripts, test files, etc.)
   System ebisu = system('ebisu_cpp')
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.21'
+    ..pubSpec.version = '0.3.23'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -71,6 +71,7 @@ files, build scripts, test files, etc.)
       library('test_qt_support'),
       library('test_enumerated_dispatcher'),
       library('test_print_instance'),
+      library('test_build_parser'),
     ]
     ..libraries = [
       library('ebisu_cpp')
@@ -94,11 +95,11 @@ files, build scripts, test files, etc.)
                 ..members = [
                   member('usings')
                     ..type = 'Map<String, Using>'
-                    ..classInit = {},
+                    ..init = {},
                   member('const_exprs')
                     ..type = 'List<ConstExpr>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                 ],
               class_('traits_requirements')
                 ..doc =
@@ -151,7 +152,7 @@ Examples might be member accessors, member constructors, etc
                 ..members = [
                   member('is_logged')
                     ..doc = 'If true the [Loggable] item is logged'
-                    ..classInit = false,
+                    ..init = false,
                 ],
             ],
           part('cpp_entity')
@@ -179,7 +180,7 @@ content without being tied to an installation - this can be used.
                     ..doc = 'List of includes required by this entity'
                     ..type = 'Includes'
                     ..access = RO
-                    ..classInit = 'new Includes()',
+                    ..init = 'new Includes()',
                 ],
             ],
           part('using')
@@ -313,13 +314,13 @@ prints:
                     ..type = 'Namespace',
                   member('is_class_scoped')
                     ..doc = 'If class scoped the expr should be static'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_hex')
                     ..doc = '''
 If true and literal is numeric it is assigned as hex.
 The idea is to make C++ more readable when large constants are used.
 '''
-                    ..classInit = false,
+                    ..init = false,
                 ],
               class_('forward_decl')
                 ..doc = 'A forward class declaration'
@@ -360,7 +361,7 @@ The idea is to make C++ more readable when large constants are used.
                     ..doc = 'The individual names in the namespace'
                     ..type = 'List<String>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                 ],
               class_('using_namespace')
                 ..doc = 'A using namespace statement'
@@ -412,17 +413,17 @@ Default namer establishing reasonable conventions, that are fairly
                   member('cpp_access')
                     ..doc = 'Is base class public, protected, or private'
                     ..type = 'CppAccess'
-                    ..classInit = 'public',
+                    ..init = 'public',
                   member('init')
                     ..doc =
                         'How to initiailize the base class in ctor initializer',
                   member('is_virtual')
                     ..doc = 'If true inheritance is virtual'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_streamable')
                     ..doc =
                         'If true and streamers are being provided, base is streamed first'
-                    ..classInit = false,
+                    ..init = false,
                 ],
               class_('aggregate_base')
                 ..doc =
@@ -523,43 +524,43 @@ enumeration values. *CodeBlocks* can be used to inject code into
 the location designated by their value. Additionally *CodeBlocks*
 have support for a single custom *Protect Block*'''
                     ..type = 'List<FileCodeBlock>'
-                    ..classInit = [],
+                    ..init = [],
                   member('code_blocks')
                     ..doc = '''
 Mapping of the *FileCodeBlock* to the corresponding *CodeBlock*.'''
                     ..type = 'Map<FileCodeBlock, CodeBlock>'
                     ..access = IA
-                    ..classInit = {},
+                    ..init = {},
                   member('classes')
                     ..doc =
                         'List of classes whose definitions are included in this file'
                     ..type = 'List<Class>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('const_exprs')
                     ..doc =
                         'List of c++ *constexprs* that will appear near the top of the file'
                     ..type = 'List<ConstExpr>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('forward_decls')
                     ..doc =
                         'List of forward declarations that will appear near the top of the file'
                     ..type = 'List<ForwardDecl>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('usings')
                     ..doc =
                         'List of using statements that will appear near the top of the file'
                     ..type = 'List<Using>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('enums')
                     ..doc =
                         'List of enumerations that will appear near the top of the file'
                     ..type = 'List<Enum>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('interfaces')
                     ..doc = '''
 List of interfaces for this header. Interfaces result in either:
@@ -569,7 +570,7 @@ List of interfaces for this header. Interfaces result in either:
 '''
                     ..type = 'List<Interface>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('basename')..access = RO,
                   member('file_path')..access = RO,
                   member('standardized_inclusions')
@@ -579,7 +580,7 @@ to include/exclude given header.
 '''
                     ..type = 'Map<StandardizedHeader, bool>'
                     ..access = IA
-                    ..classInit = {},
+                    ..init = {},
                   member('include_generated_prologue')
                     ..doc = '''
 If true includes comment about code being generated.
@@ -670,23 +671,23 @@ Support for assignment from string, or id implies default values.
 
 '''
                     ..type = 'List<EnumValue>'
-                    ..classInit = []
+                    ..init = []
                     ..access = RO,
                   member('is_class')
                     ..doc =
                         'If true the enum is a class enum as opposed to "plain" enum'
-                    ..classInit = false,
+                    ..init = false,
                   member('enum_base')
                     ..doc = 'Base of enum - if set must be an integral type',
                   member('has_from_c_str')
                     ..doc = 'If true adds from_c_str method'
-                    ..classInit = false,
+                    ..init = false,
                   member('has_to_c_str')
                     ..doc = 'If true adds to_c_str method'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_streamable')
                     ..doc = 'If true adds streaming support'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_mask')
                     ..doc = '''
 If true the values are powers of two for bit masking.
@@ -707,30 +708,30 @@ And *print(sample_mask)* gives:
       Blue_e = 1 << 2
     };
 '''
-                    ..classInit = false,
+                    ..init = false,
                   member('has_bitmask_functions')
                     ..doc = '''
 If set provides test, set and clear methods.
 '''
-                    ..classInit = false,
+                    ..init = false,
                   member('is_nested')
                     ..doc =
                         'If true is nested in class and requires *friend* stream support'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_displayed_hex')
                     ..doc = '''
 If the map has values assigned by user, this can be used to display
 them in the enum as hex'''
-                    ..classInit = false,
+                    ..init = false,
                   member('printer_support')
                     ..doc = '''
 If set will provide the required [print_instance] C++ method for enum.'''
-                    ..classInit = false,
+                    ..init = false,
                 ],
             ],
           part('member')
             ..enums = [
-              enum_('bitset_type')
+              enum_('bit_set_base_type')
                 ..hasLibraryScopedValues = true
                 ..values = [
                   'bs_int_8',
@@ -771,36 +772,36 @@ initialize it''',
                   member('ref_type')
                     ..doc = 'Ref type of member'
                     ..type = 'RefType'
-                    ..classInit = 'value',
+                    ..init = 'value',
                   member('is_by_ref')
                     ..doc = 'Pass member around by reference'
                     ..type = 'bool'
                     ..access = WO,
                   member('is_static')
                     ..doc = 'Is the member static'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_mutable')
                     ..doc = 'Is the member mutable'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_const')
                     ..doc = 'Is the member const'
-                    ..classInit = false
+                    ..init = false
                     ..access = WO,
                   member('is_const_expr')
                     ..doc = 'Is the member a constexprt'
-                    ..classInit = false,
+                    ..init = false,
                   member('has_no_init')
                     ..doc =
                         'If set will not initialize variable - use sparingly'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_serialized_as_int')
                     ..doc =
                         'Indicates this member is an enum and if serialized should be serialized as int'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_cereal_transient')
                     ..doc =
                         'Indicates this member should not be serialized via cereal'
-                    ..classInit = false,
+                    ..init = false,
                   member('getter_return_modifier')
                     ..doc = getterReturnModifierDoc
                     ..type = 'GetterReturnModifier',
@@ -813,7 +814,7 @@ member could be set with *access = ro* and custom accessors may
 be provided.
 '''
                     ..type = 'CodeBlock'
-                    ..classInit = 'new CodeBlock(null)',
+                    ..init = 'new CodeBlock(null)',
                   member('getter_creator')
                     ..doc = '''
 Will create the getter. To provide custom getter implement
@@ -830,14 +831,14 @@ SetterCreator and assign'''
 Indicates member should be streamed if class is streamable.
 One of the few flags defaulted to *true*, this flag provides
 an opportunity to *not* stream specific members'''
-                    ..classInit = true
+                    ..init = true
                     ..access = IA,
                   member('is_streamable_ptr')
                     ..doc = '''
 Indicates member should be streamed with a pointer null check if class is
 streamable.
 '''
-                    ..classInit = false,
+                    ..init = false,
                   member('custom_streamable')
                     ..doc = '''
 If not-null a custom streamable block. Use this to either hand code or
@@ -850,24 +851,24 @@ generate a streamable entry in the containing [Class].
 If non null member and accessors will qualified in #if defined block
 '''
                 ],
-              class_('bitset')
+              class_('bit_set')
                 ..doc = '''
-Defines a bitset member.
+Defines a bit-set member.
 
-All bitsets must have an [id], however if [isAnonymous] is set to true the
-bitset will be unnamed.
+All bit-sets must have an [id], however if [isAnonymous] is set to true the
+bit-set will be unnamed.
 '''
                 ..extend = 'Member'
                 ..members = [
                   member('num_bits')
-                    ..doc = 'Number of bits in bitset'
+                    ..doc = 'Number of bits in [BitSet]'
                     ..access = RO
                     ..type = 'int',
-                  member('bitset_type')
-                    ..doc = 'Underlying type of bitset'
-                    ..type = 'BitsetType',
+                  member('bit_set_base_type')
+                    ..doc = 'Underlying type of [BitSet]'
+                    ..type = 'BitSetBaseType',
                   member('is_anonymous')
-                    ..doc = 'If set declaration of bitset will be unnamed'
+                    ..doc = 'If set declaration of [BitSet] will be unnamed'
                     ..init = false,
                 ],
               class_('getter_creator')
@@ -903,7 +904,7 @@ bitset will be unnamed.
                     ..ctors = [''],
                   member('cases')
                     ..type = 'List<int>'
-                    ..classInit = []
+                    ..init = []
                     ..ctors = [''],
                   member('on_case')
                     ..doc = 'Function for providing a block for *case*'
@@ -932,7 +933,7 @@ client must provide semicolons.
                   member('members')
                     ..type = 'List<Member>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                 ]
             ],
           part('class')
@@ -996,26 +997,26 @@ consructors, destructors, overloaded operators, etc.
                     ..access = RO,
                   member('is_logged')
                     ..doc = 'If true add logging'
-                    ..classInit = false,
+                    ..init = false,
                   member('template')
                     ..type = 'Template'
                     ..access = RO,
                   member('cpp_access')
                     ..doc = 'C++ style access of method'
                     ..type = 'CppAccess'
-                    ..classInit = 'public',
+                    ..init = 'public',
                   member('top_inject')
                     ..doc = '''
 Code snippet to inject at beginning of method. The intent is for the
 methods to have standard generated implementations, but to also
 support programatic injection of implmementation into the
 methods. This supports injection near the top of the method.'''
-                    ..classInit = '',
+                    ..init = '',
                   member('bottom_inject')
                     ..doc = '''
 Supports injecting code near the bottom of the method. *See*
 *topInject*'''
-                    ..classInit = '',
+                    ..init = '',
                   member('includes_protect_block')
                     ..doc = r'''
 If set will include protection block for hand-coding in method.
@@ -1030,11 +1031,11 @@ on so there is no easy way to name the protect block when the [ClassMethod] is
 constructed. This member is used to track the request to include a protection
 block and tagging is deferred until needed.
 '''
-                    ..classInit = false,
+                    ..init = false,
                   member('doc')..doc = 'Method documentation',
                   member('is_no_except')
                     ..doc = 'If true the method is noexcept(true)'
-                    ..classInit = false,
+                    ..init = false,
                 ],
               class_('default_method')
                 ..doc = '''
@@ -1046,8 +1047,8 @@ Also provides for *delete*d methods.
                 ..isAbstract = true
                 ..extend = 'ClassMethod'
                 ..members = [
-                  member('uses_default')..classInit = false,
-                  member('has_delete')..classInit = false,
+                  member('uses_default')..init = false,
+                  member('has_delete')..init = false,
                 ],
               class_('default_ctor')
                 ..doc = 'Default ctor, autoinitialized on read'
@@ -1063,7 +1064,7 @@ Also provides for *delete*d methods.
               class_('dtor')
                 ..doc = 'Provides a destructor'
                 ..extend = 'DefaultMethod'
-                ..members = [member('is_abstract')..classInit = false],
+                ..members = [member('is_abstract')..init = false],
               class_('member_ctor_parm')
                 ..doc = memberCtorParmDoc
                 ..hasCtorSansNew = true
@@ -1135,16 +1136,16 @@ custom block. In that case the class might look like:
                         'List of members that are passed as arguments for initialization'
                     ..type = 'List<MemberCtorParm>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('decls')
                     ..doc = 'List of additional decls ["Type Argname", ...]'
                     ..type = 'List<String>',
                   member('has_all_members')
                     ..doc = 'If set automatically includes all members as args'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_explicit')
                     ..doc = 'If true makes the ctor explicit'
-                    ..classInit = false,
+                    ..init = false,
                 ],
               class_('op_equal')
                 ..doc = 'Provides *operator==()*'
@@ -1160,7 +1161,7 @@ custom block. In that case the class might look like:
                     ..doc = '''
 If true uses tls indentation tracking to indent nested
 components when streaming'''
-                    ..classInit = false
+                    ..init = false
                 ],
               class_('class')
                 ..doc = classDoc
@@ -1175,7 +1176,7 @@ on the same class and results lazy-inited here'''
                     ..access = IA,
                   member('is_struct')
                     ..doc = 'Is this definition a *struct*'
-                    ..classInit = false,
+                    ..init = false,
                   member('template')
                     ..doc = 'The template by which the class is parameterized'
                     ..type = 'Template'
@@ -1192,25 +1193,25 @@ specialization, use both [template] and [templateSpecialization].
                         'Forward declarations near top of file, before the class definition'
                     ..type = 'List<ForwardDecl>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('class_forward_decls')
                     ..doc =
                         'Forward declarations within class, ideal for forward declaring nested classes'
                     ..type = 'List<ForwardDecl>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('const_exprs')
                     ..doc = '*constexpr*s associated with the class'
                     ..type = 'List<ConstExpr>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('usings')
                     ..doc = '''
 List of usings that will be scoped to this class near the top of
 the class definition.'''
                     ..type = 'List<Using>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('usings_post_decl')
                     ..doc = '''
 List of usings to occur after the class declaration. Sometimes it is
@@ -1223,14 +1224,14 @@ just after the class definition will work:
 
 '''
                     ..type = 'List<Using>'
-                    ..classInit = []
+                    ..init = []
                     ..access = RO,
                   member('bases')
                     ..doc = '''
 Base classes this class derives form.
 '''
                     ..type = 'List<Base>'
-                    ..classInit = [],
+                    ..init = [],
                   member('default_ctor')
                     ..doc = 'The default constructor'
                     ..type = 'DefaultCtor'
@@ -1259,7 +1260,7 @@ Base classes this class derives form.
                     ..doc = 'A list of member constructors'
                     ..type = 'List<MemberCtor>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('op_equal')
                     ..type = 'OpEqual'
                     ..access = IA,
@@ -1271,34 +1272,34 @@ Base classes this class derives form.
                     ..access = IA,
                   member('forward_ptrs')
                     ..type = 'List<PtrType>'
-                    ..classInit = [],
+                    ..init = [],
                   member('enums_forward')
                     ..type = 'List<Enum>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('enums')
                     ..type = 'List<Enum>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('members')
                     ..type = 'List<Member>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('friend_class_decls')
                     ..type = 'List<FriendClassDecl>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('custom_blocks')
                     ..type = 'List<ClassCodeBlock>'
-                    ..classInit = [],
-                  member('is_singleton')..classInit = false,
+                    ..init = [],
+                  member('is_singleton')..init = false,
                   member('is_noncopyable')
                     ..doc = 'If true deletes copy ctor and assignment operator'
-                    ..classInit = false,
+                    ..init = false,
                   member('code_blocks')
                     ..access = RO
                     ..type = 'Map<ClassCodeBlock, CodeBlock>'
-                    ..classInit = {},
+                    ..init = {},
                   member('uses_streamers')
                     ..doc = '''
 If true adds {using fcs::utils::streamers::operator<<} to streamer.
@@ -1306,13 +1307,13 @@ Also, when set assumes streaming required and [isStreamable]
 is *set* as well. So not required to set both.
 '''
                     ..access = RO
-                    ..classInit = false,
+                    ..init = false,
                   member('printer_support')
                     ..doc = 'Describes printer support required for class'
                     ..type = 'PrinterSupport',
                   member('is_final')
                     ..doc = 'If true adds final keyword to class'
-                    ..classInit = false,
+                    ..init = false,
                   member('is_immutable')
                     ..doc = '''
 If true makes all members const provides single member ctor
@@ -1324,17 +1325,17 @@ initialized. An alternative concept is immutable from perspective of
 user. This can be achieved with use of [addFullMemberCtor] and the
 developer ensuring the members are not modified. This provides a
 stronger guarantee of immutability.'''
-                    ..classInit = false,
+                    ..init = false,
                   member('serializers')
                     ..doc =
                         'List of processors supporting flavors of serialization'
                     ..type = 'List<Serializer>'
-                    ..classInit = [],
+                    ..init = [],
                   member('interface_implementations')
                     ..doc = ''
                     ..type = 'List<InterfaceImplementation>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('methods')
                     ..doc = '''
 The [Method]s that are implemented by this [Class]. A [Class]
@@ -1348,16 +1349,16 @@ Lookup is done by pattern match.
 '''
                     ..type = 'Map<String, Method>'
                     ..access = IA
-                    ..classInit = {},
+                    ..init = {},
                   member('cpp_access')
                     ..doc =
                         'A [CppAccess] specifier - only pertinent if class is nested'
                     ..type = 'CppAccess'
-                    ..classInit = 'public',
+                    ..init = 'public',
                   member('nested_classes')
                     ..doc = 'Classes nested within this class'
                     ..type = 'List<Class>'
-                    ..classInit = [],
+                    ..init = [],
                   member('pack_align')
                     ..doc = r'''
 If set, will include *#pragma pack(push, $packAlign)* before the class
@@ -1442,11 +1443,11 @@ Row_list_t find_row(std::string s) {
                     ..type = 'Template',
                   member('parm_decls')
                     ..type = 'List<ParmDecl>'
-                    ..classInit = [],
+                    ..init = [],
                   member('return_type'),
                   member('is_const')
                     ..doc = 'True if this [MethodDecl] is *const*'
-                    ..classInit = false
+                    ..init = false
                 ],
               class_('method')
                 ..doc = '''
@@ -1468,7 +1469,7 @@ the [getMethod] function.
                   //// TODO: figure best way to support final methods
                   // member('is_final')
                   // ..doc = 'If true adds final keyword to method'
-                  // ..classInit = false,
+                  // ..init = false,
                 ],
               class_('interface')
                 ..doc = interfaceDoc
@@ -1477,7 +1478,7 @@ the [getMethod] function.
                   member('method_decls')
                     ..type = 'List<MethodDecl>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                 ],
               class_('interface_implementation')
                 ..doc =
@@ -1487,10 +1488,10 @@ the [getMethod] function.
                   member('interface')..type = 'Interface',
                   member('cpp_access')
                     ..type = 'CppAccess'
-                    ..classInit = 'public',
+                    ..init = 'public',
                   member('is_virtual')
                     ..doc = 'If true the interface is virtual'
-                    ..classInit = false
+                    ..init = false
                 ],
             ],
           part('exception')
@@ -1507,7 +1508,7 @@ Creates a new *exception* class derived from std::exception.
                   member('exception_includes')
                     ..doc = 'Additional includes required for exception class'
                     ..type = 'List<String>'
-                    ..classInit = [],
+                    ..init = [],
                 ]
             ],
           part('serializer')
@@ -1530,14 +1531,14 @@ Creates a new *exception* class derived from std::exception.
                 ..doc =
                     'Provides support for serialization as *delimited separated values*'
                 ..implement = ['Serializer']
-                ..members = [member('delimiter')..classInit = ':',],
+                ..members = [member('delimiter')..init = ':',],
               class_('cereal')
                 ..doc = 'Adds support for serialization using *cereal*'
                 ..implement = ['Serializer']
                 ..members = [
                   member('styles')
                     ..type = 'List<SerializationStyle>'
-                    ..classInit = [],
+                    ..init = [],
                 ],
             ],
           part('header')
@@ -1589,20 +1590,20 @@ and [CodeBlock]s to augment/initialize/teardown.
                 ..members = [
                   member('pre_code_block')
                     ..type = 'CodeBlock'
-                    ..classInit = 'new CodeBlock(null)',
+                    ..init = 'new CodeBlock(null)',
                   member('start_code_block')
                     ..type = 'CodeBlock'
-                    ..classInit = 'new CodeBlock(null)',
+                    ..init = 'new CodeBlock(null)',
                   member('end_code_block')
                     ..type = 'CodeBlock'
-                    ..classInit = 'new CodeBlock(null)',
+                    ..init = 'new CodeBlock(null)',
                   member('post_code_block')
                     ..type = 'CodeBlock'
-                    ..classInit = 'new CodeBlock(null)',
+                    ..init = 'new CodeBlock(null)',
                 ],
               class_('then')
                 ..extend = 'TestClause'
-                ..members = [member('is_and')..classInit = false],
+                ..members = [member('is_and')..init = false],
               class_('when')
                 ..extend = 'TestClause'
                 ..members = [member('thens')..type = 'List<Then>'],
@@ -1620,7 +1621,7 @@ and [CodeBlock]s to augment/initialize/teardown.
                 ..members = [
                   member('test_scenarios')
                     ..type = 'List<TestScenario>'
-                    ..classInit = [],
+                    ..init = [],
                   member('test')
                     ..doc = 'The single test for this [Testable]'
                     ..type = 'Test'
@@ -1696,20 +1697,20 @@ Wrap (un)initialization of a Lib in static methods of a class
                     ..doc = 'Semantic Version for this [Lib]'
                     ..type = 'SemanticVersion'
                     ..access = RO
-                    ..classInit = 'new SemanticVersion(0,0,0)',
+                    ..init = 'new SemanticVersion(0,0,0)',
                   member('namespace')
                     ..doc = 'Names for [Lib]'
                     ..type = 'Namespace'
-                    ..classInit = 'new Namespace()',
+                    ..init = 'new Namespace()',
                   member('headers')
                     ..doc = 'List of [Header] objects in this [Lib]'
                     ..type = 'List<Header>'
-                    ..classInit = []
+                    ..init = []
                     ..access = RO,
                   member('impls')
                     ..doc = 'List of [Impl] objects in this [Impl]'
                     ..type = 'List<Impl>'
-                    ..classInit = [],
+                    ..init = [],
                   member('requires_logging')
                     ..type = 'bool'
                     ..access = WO,
@@ -1752,9 +1753,9 @@ convenience mechanism for clients not so worried about compile times.
                 ..doc = 'Provides data required to track a Semantic Version'
                 ..isImmutable = true
                 ..members = [
-                  member('major')..classInit = 0,
-                  member('minor')..classInit = 0,
-                  member('patch')..classInit = 0,
+                  member('major')..init = 0,
+                  member('minor')..init = 0,
+                  member('patch')..init = 0,
                 ]
             ],
           part('app')
@@ -1787,8 +1788,8 @@ Set of argument types supported by command line option processing.
                 ..members = [
                   member('type')..type = 'ArgType',
                   member('short_name'),
-                  member('is_multiple')..classInit = false,
-                  member('is_required')..classInit = false,
+                  member('is_multiple')..init = false,
+                  member('is_required')..init = false,
                   member('default_value')
                     ..type = 'Object'
                     ..access = RO,
@@ -1802,20 +1803,20 @@ Set of argument types supported by command line option processing.
                     ..doc =
                         'Command line arguments specific to this application'
                     ..type = 'List<AppArg>'
-                    ..classInit = [],
+                    ..init = [],
                   member('headers')
                     ..doc = '''
 Additional headers that are associated with the application itself, as
 opposed to belonging to a reusable library.'''
                     ..type = 'List<Header>'
-                    ..classInit = [],
+                    ..init = [],
                   member('impls')
                     ..doc = '''
 Additional implementation files associated with the
 application itself, as opposed to belonging to a reusable
 library.'''
                     ..type = 'List<Impl>'
-                    ..classInit = [],
+                    ..init = [],
                   member('required_libs')
                     ..doc = '''
 Libraries required to build this executable. *Warning* potentially
@@ -1825,7 +1826,7 @@ code generation scripts. With cmake it was simpler to just incorporate
 protect blocks where the required libs could be easily added.
 '''
                     ..type = 'List<String>'
-                    ..classInit = [],
+                    ..init = [],
                   member('main_code_block')
                     ..doc = '''
 An App is an Impl and therefore contains accesors to FileCodeBlock
@@ -1834,18 +1835,18 @@ an application impl file is the main, so this [CodeBlock] supports
 injecting code in main
 '''
                     ..type = 'CodeBlock'
-                    ..classInit = "new CodeBlock('main')",
+                    ..init = "new CodeBlock('main')",
                   member('has_log_level')
                     ..doc = '''
 If true adds --log-level to the set of options for the app. This app
 argument will default the app to having no logging, but allow user
 control.
 '''
-                    ..classInit = false,
+                    ..init = false,
                   member('has_signal_handler')
                     ..doc =
                         'If true support for handling signals included in app'
-                    ..classInit = false,
+                    ..init = false,
                   member('has_quit_loop')
                     ..doc = '''
 If true adds quit loop at end of main.
@@ -1859,7 +1860,7 @@ The quit loop loops as:
       }
     } while(std::cin >> c);
 '''
-                    ..classInit = false,
+                    ..init = false,
                 ],
               class_('app_builder')
                 ..doc = '''
@@ -1875,8 +1876,8 @@ libraries, apps, and tests'''
                 ..doc = 'Cmake file for a library'
                 ..members = ([
                   member('lib')..type = 'Lib',
-                  member('lib_source_filenames')..classInit = [],
-                  member('target_include_dirnames')..classInit = [],
+                  member('lib_source_filenames')..init = [],
+                  member('target_include_dirnames')..init = [],
                   member('definition')..access = IA,
                 ]
                   ..addAll([
@@ -1892,10 +1893,11 @@ libraries, apps, and tests'''
                 ..doc = 'Cmake file for the installation'
                 ..members = ([
                   member('installation')..type = 'Installation',
-                  member('minimum_required_version')..classInit = '2.8',
-                  member('include_directories')..classInit = [],
-                  member('link_directories')..classInit = [],
+                  member('minimum_required_version')..init = '2.8',
+                  member('include_directories')..init = [],
+                  member('link_directories')..init = [],
                   member('definition')..access = IA,
+                  member('auto_include_boost')..init = false,
                 ]
                   ..addAll([
                     'includes',
@@ -1920,6 +1922,7 @@ libraries, apps, and tests'''
                     ..doc =
                         'An opportunity to update the [LibCmake] prior to its generation'
                     ..type = 'OnInstallationCmake',
+                  member('auto_include_boost')..init = false,
                 ],
             ],
           part('benchmark')
@@ -1934,13 +1937,13 @@ libraries, apps, and tests'''
 Additional headers that are associated with the benchmark application
 itself, as opposed to belonging to a reusable library.'''
                     ..type = 'List<Header>'
-                    ..classInit = [],
+                    ..init = [],
                   member('impls')
                     ..doc = '''
 Additional implementation files associated with the benchmark
 application itself, as opposed to belonging to a reusable library.'''
                     ..type = 'List<Impl>'
-                    ..classInit = [],
+                    ..init = [],
                 ],
               class_('benchmark')
                 ..doc = '''
@@ -2044,7 +2047,7 @@ The list of functions.
 If not set by client will result in list of one function [ id ].
 '''
                     ..type = 'List<Id>'
-                    ..classInit = []
+                    ..init = []
                     ..access = RO,
                 ],
               class_('benchmark_group')
@@ -2056,7 +2059,7 @@ Collection of one or benchmarks generated into one executable.
                   member('benchmarks')
                     ..doc = 'Collection of benchmarks'
                     ..type = 'List<Benchmark>'
-                    ..classInit = []
+                    ..init = []
                     ..access = RO,
                   member('benchmark_app')
                     ..doc =
@@ -2085,17 +2088,17 @@ Collection of one or benchmarks generated into one executable.
                   member('testable')..type = 'Testable',
                   member('headers')
                     ..type = 'List<Header>'
-                    ..classInit = [],
+                    ..init = [],
                   member('impls')
                     ..type = 'List<Impl>'
-                    ..classInit = [],
+                    ..init = [],
                   member('test_implementations')
                     ..type = 'Map<String, String>'
-                    ..classInit = {}
+                    ..init = {}
                     ..access = RO,
                   member('required_libs')
                     ..type = 'List<String>'
-                    ..classInit = [],
+                    ..init = [],
                 ],
             ],
           part('installation')
@@ -2117,19 +2120,19 @@ Creates builder for an installation (ie ties together all build artifacts)
                     ..access = RO,
                   member('paths')
                     ..type = 'Map<String, String>'
-                    ..classInit = {}
+                    ..init = {}
                     ..access = RO,
                   member('cpp_loggers')
                     ..type = 'List<CppLogger>'
-                    ..classInit = [],
+                    ..init = [],
                   member('libs')
                     ..doc = 'Libs in this [Installation].'
                     ..type = 'List<Lib>'
-                    ..classInit = [],
+                    ..init = [],
                   member('apps')
                     ..doc = 'Apps in this [Installation].'
                     ..type = 'List<App>'
-                    ..classInit = [],
+                    ..init = [],
                   member('benchmark_apps')
                     ..doc = '''
 Benchmark Apps in this [Installation].
@@ -2140,15 +2143,15 @@ Benchmark apps are just [App] instances with some generated benchmark code
 '''
                     ..type = 'List<App>'
                     ..access = RO
-                    ..classInit = [],
+                    ..init = [],
                   member('test_provider')
                     ..doc = 'Provider for generating tests'
                     ..type = 'TestProvider'
-                    ..classInit = 'new CatchTestProvider()',
+                    ..init = 'new CatchTestProvider()',
                   member('log_provider')
                     ..doc = 'Provider for generating tests'
                     ..type = 'LogProvider'
-                    ..classInit = 'new SpdlogProvider(new EbisuCppNamer())',
+                    ..init = 'new SpdlogProvider(new EbisuCppNamer())',
                   member('installation_builder')
                     ..doc = 'The builder for this installation'
                     ..type = 'InstallationBuilder',
@@ -2163,36 +2166,36 @@ genration utilities.
 '''
                     ..access = IA
                     ..type = 'Namer'
-                    ..classInit = 'defaultNamer',
+                    ..init = 'defaultNamer',
                   member('doxy_config')
                     ..type = 'DoxyConfig'
-                    ..classInit = 'new DoxyConfig()',
+                    ..init = 'new DoxyConfig()',
                   member('logs_api_initializations')
                     ..doc = '''
 If true logs initialization of libraries - useful for tracking
 down order of initialization issues.
 '''
-                    ..classInit = false,
+                    ..init = false,
                   member('benchmarks')
                     ..doc =
                         'All *stand-alone* modeled benchmarks in the installation'
                     ..type = 'List<Benchmark>'
-                    ..classInit = [],
+                    ..init = [],
                   member('benchmark_groups')
                     ..doc = 'All [BenchmarkGroup]s in this [Installation]'
                     ..type = 'List<BenchmarkGroup>'
-                    ..classInit = [],
+                    ..init = [],
                   member('include_generated_prologue')
                     ..doc = '''
 If true includes comment about code being generated.
 '''
-                    ..classInit = false,
+                    ..init = false,
                   member('include_stack_trace')
                     ..doc = '''
 If true includes a stack trace to help find the dart code that generated the
 source.
 '''
-                    ..classInit = false,
+                    ..init = false,
                   member('app_path')
                     ..doc = 'Path to applications'
                     ..access = WO,
@@ -2202,7 +2205,7 @@ source.
                   member('use_pragma_once')
                     ..doc =
                         'Preference to use `#pragma once` instead of include guards'
-                    ..classInit = false,
+                    ..init = false,
                 ],
               class_('path_locator')
                 ..members = [
@@ -2237,16 +2240,16 @@ Establishes an interface to allow decoration of classes and updates
             ..classes = [
               class_('doxy_config')
                 ..members = [
-                  member('project_name')..classInit = '',
-                  member('project_brief')..classInit = '',
-                  member('output_directory')..classInit = '',
-                  member('input')..classInit = '',
-                  member('exclude')..classInit = '',
-                  member('example_path')..classInit = '',
-                  member('image_path')..classInit = '',
-                  member('html_stylesheet')..classInit = '',
-                  member('chm_file')..classInit = '',
-                  member('include_path')..classInit = '',
+                  member('project_name')..init = '',
+                  member('project_brief')..init = '',
+                  member('output_directory')..init = '',
+                  member('input')..init = '',
+                  member('exclude')..init = '',
+                  member('example_path')..init = '',
+                  member('image_path')..init = '',
+                  member('html_stylesheet')..init = '',
+                  member('chm_file')..init = '',
+                  member('include_path')..init = '',
                 ]
             ],
         ],
@@ -2334,7 +2337,7 @@ use:
     ..enumeration = ['typeDeclaration', 'struct', 'member', 'function']
 '''
                     ..type = 'List<dynamic>'
-                    ..classInit = []
+                    ..init = []
                     ..access = RO,
                   member('enumerator')
                     ..doc = '''
@@ -2376,7 +2379,7 @@ is to assign to local:
 
 Setting this to true bypasses that and uses $enumerator directly.
 '''
-                    ..classInit = false,
+                    ..init = false,
                 ],
               class_('switch_dispatcher')
                 ..doc = 'Dispatcher implemented with *switch* statement'
@@ -2446,7 +2449,7 @@ The tree shrunk by calling flatten:
                   member('parent')..type = 'CharNode',
                   member('children')
                     ..type = 'List<CharNode>'
-                    ..classInit = [],
+                    ..init = [],
                 ],
               class_('char_binary_dispatcher')
                 ..doc = '''
@@ -2461,7 +2464,7 @@ Bypasses normal length checks.
 
 Applicable when caller all enumerants of same length and caller
 ensures dispatch is as large as that length'''
-                    ..classInit = false
+                    ..init = false
                 ],
               class_('strlen_binary_dispatcher')
                 ..doc = '''
@@ -2475,7 +2478,7 @@ strings as discriminators.
                     ..doc =
                         'Map the length of the enumerant to the set of enumerants of same length'
                     ..access = RO
-                    ..classInit = {}
+                    ..init = {}
                 ],
             ]
         ],
@@ -2538,6 +2541,108 @@ log group. An empty list will include all members in the table.
                 ..members = [member('log_groups')..type = 'List<LogGroup>']
             ]
         ],
+      library('build_parser')
+        ..includesLogger = true
+        ..imports = ['io', 'package:args/args.dart']
+        ..classes = [
+          class_('flag')
+            ..isImmutable = true
+            ..members = [member('name'), member('value'),],
+          class_('define')
+            ..isImmutable = true
+            ..members = [member('id'), member('value'),],
+
+          /// Stores the include directive and whether it was system
+          class_('include_path')
+            ..isImmutable = true
+            ..members = [member('path'), member('is_system')..type = 'bool',],
+          class_('library')
+            ..isImmutable = true
+            ..members = [member('name'),],
+
+          class_('compile_command')
+            ..defaultCtorStyle = namedParms
+            ..defaultMemberAccess = RO
+            ..members = [
+              member('command'),
+              member('source_paths')
+                ..type = 'List<String>'
+                ..init = [],
+              member('defines')
+                ..type = 'List<Define>'
+                ..init = [],
+              member('include_paths')
+                ..type = 'List<IncludePath>'
+                ..init = [],
+              member('compile_warning_flags')
+                ..type = 'List<Flag>'
+                ..init = [],
+              member('compile_flags')
+                ..type = 'List<Flag>'
+                ..init = [],
+              member('is_linked')
+                ..doc = '-c is *not* specified'
+                ..init = false,
+              member('output_file')..doc = '-o file flag',
+            ],
+
+          /// Parses compile commands to create CompileCommand
+          class_('compile_command_parser')
+            ..defaultMemberAccess = RO
+            ..members = [
+              member('compile_command')..ctors = [''],
+              member('command_line_parser')..type = 'CommandLineParser',
+            ]
+            ..tagCtor('', 'parse compile command'),
+
+          class_('ar_command')
+            ..defaultCtorStyle = namedParms
+            ..defaultMemberAccess = RO
+            ..members = [
+              member('command'),
+              member('source_path'),
+              member('ar_flags')
+                ..type = 'List<Flag>'
+                ..init = [],
+            ],
+
+          /// Parses ar commands to create ArCommand
+          class_('ar_command_parser'),
+
+          class_('link_command')
+            ..defaultCtorStyle = namedParms
+            ..defaultMemberAccess = RO
+            ..members = [
+              member('command'),
+              member('source_path'),
+              member('link_flags')
+                ..type = 'List<Flag>'
+                ..init = [],
+              member('lib_paths')
+                ..type = 'List<String>'
+                ..init = [],
+              member('libraries')
+                ..type = 'List<Library>'
+                ..init = [],
+            ],
+
+          /// Parses compile commands to create CompileCommand
+          class_('link_command_parser'),
+
+          class_('build_parser')
+            ..defaultMemberAccess = RO
+            ..withCtor('', ((ctor) => ctor.tag = 'parse build log'))
+            ..members = [
+              member('input_file')..ctors = [''],
+              member('compile_matcher')
+                ..type = 'RegExp'
+                ..ctorsOpt = ['']
+                ..init = r'new RegExp(r"^\s*[\w/.]*(?:g(?:\+\+|cc)|clang)-?[\w.]*\s+(.*)")',
+              member('log_contents')
+                ..type = 'List<String>'
+                ..init = [],
+            ]
+        ]
     ];
 
   ebisu.generate();

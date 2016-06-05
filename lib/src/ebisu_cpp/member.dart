@@ -1,6 +1,6 @@
 part of ebisu_cpp.ebisu_cpp;
 
-enum BitsetType {
+enum BitSetBaseType {
   bsInt8,
   bsInt16,
   bsInt32,
@@ -11,37 +11,37 @@ enum BitsetType {
   bsUInt64
 }
 
-/// Convenient access to BitsetType.bsInt8 with *bsInt8* see [BitsetType].
+/// Convenient access to BitSetBaseType.bsInt8 with *bsInt8* see [BitSetBaseType].
 ///
-const BitsetType bsInt8 = BitsetType.bsInt8;
+const BitSetBaseType bsInt8 = BitSetBaseType.bsInt8;
 
-/// Convenient access to BitsetType.bsInt16 with *bsInt16* see [BitsetType].
+/// Convenient access to BitSetBaseType.bsInt16 with *bsInt16* see [BitSetBaseType].
 ///
-const BitsetType bsInt16 = BitsetType.bsInt16;
+const BitSetBaseType bsInt16 = BitSetBaseType.bsInt16;
 
-/// Convenient access to BitsetType.bsInt32 with *bsInt32* see [BitsetType].
+/// Convenient access to BitSetBaseType.bsInt32 with *bsInt32* see [BitSetBaseType].
 ///
-const BitsetType bsInt32 = BitsetType.bsInt32;
+const BitSetBaseType bsInt32 = BitSetBaseType.bsInt32;
 
-/// Convenient access to BitsetType.bsInt64 with *bsInt64* see [BitsetType].
+/// Convenient access to BitSetBaseType.bsInt64 with *bsInt64* see [BitSetBaseType].
 ///
-const BitsetType bsInt64 = BitsetType.bsInt64;
+const BitSetBaseType bsInt64 = BitSetBaseType.bsInt64;
 
-/// Convenient access to BitsetType.bsUInt8 with *bsUInt8* see [BitsetType].
+/// Convenient access to BitSetBaseType.bsUInt8 with *bsUInt8* see [BitSetBaseType].
 ///
-const BitsetType bsUInt8 = BitsetType.bsUInt8;
+const BitSetBaseType bsUInt8 = BitSetBaseType.bsUInt8;
 
-/// Convenient access to BitsetType.bsUInt16 with *bsUInt16* see [BitsetType].
+/// Convenient access to BitSetBaseType.bsUInt16 with *bsUInt16* see [BitSetBaseType].
 ///
-const BitsetType bsUInt16 = BitsetType.bsUInt16;
+const BitSetBaseType bsUInt16 = BitSetBaseType.bsUInt16;
 
-/// Convenient access to BitsetType.bsUInt32 with *bsUInt32* see [BitsetType].
+/// Convenient access to BitSetBaseType.bsUInt32 with *bsUInt32* see [BitSetBaseType].
 ///
-const BitsetType bsUInt32 = BitsetType.bsUInt32;
+const BitSetBaseType bsUInt32 = BitSetBaseType.bsUInt32;
 
-/// Convenient access to BitsetType.bsUInt64 with *bsUInt64* see [BitsetType].
+/// Convenient access to BitSetBaseType.bsUInt64 with *bsUInt64* see [BitSetBaseType].
 ///
-const BitsetType bsUInt64 = BitsetType.bsUInt64;
+const BitSetBaseType bsUInt64 = BitSetBaseType.bsUInt64;
 
 /// A member or field included in a class.
 ///
@@ -476,23 +476,23 @@ ${chomp(txt, true)}
   CodeBlock _customStreamable;
 }
 
-/// Defines a bitset member.
+/// Defines a bit-set member.
 ///
-/// All bitsets must have an [id], however if [isAnonymous] is set to true the
-/// bitset will be unnamed.
-class Bitset extends Member {
-  /// Number of bits in bitset
+/// All bit-sets must have an [id], however if [isAnonymous] is set to true the
+/// bit-set will be unnamed.
+class BitSet extends Member {
+  /// Number of bits in [BitSet]
   int get numBits => _numBits;
 
-  /// Underlying type of bitset
-  BitsetType bitsetType;
+  /// Underlying type of [BitSet]
+  BitSetBaseType bitSetBaseType;
 
-  /// If set declaration of bitset will be unnamed
+  /// If set declaration of [BitSet] will be unnamed
   bool isAnonymous = false;
 
-  // custom <class Bitset>
+  // custom <class BitSet>
 
-  Bitset(id, numBits, {BitsetType this.bitsetType, bool isAnonymous})
+  BitSet(id, numBits, {BitSetBaseType this.bitSetBaseType, bool isAnonymous})
       : super(id) {
     if (numBits != null) {
       this.numBits = numBits;
@@ -501,10 +501,10 @@ class Bitset extends Member {
 
   set numBits(numBits) {
     _numBits = numBits;
-    if (bitsetType == null) {
-      bitsetType = _setTightFitUnderlyingType(numBits);
+    if (bitSetBaseType == null) {
+      bitSetBaseType = _setTightFitUnderlyingType(numBits);
     }
-    _type = _bsTypeMap[bitsetType];
+    _type = _bsTypeMap[bitSetBaseType];
   }
 
   get _decl => '$type $vname : $numBits;';
@@ -522,7 +522,7 @@ class Bitset extends Member {
     return null;
   }
 
-  // end <class Bitset>
+  // end <class BitSet>
 
   int _numBits;
 }
@@ -627,8 +627,8 @@ $argType $name() {
 // custom <part member>
 
 Member member(id) => new Member(id);
-Bitset bitset(id, numBits, {bitsetType}) =>
-    new Bitset(id, numBits, bitsetType: bitsetType);
+BitSet bitSet(id, numBits, {bitSetBaseType}) =>
+    new BitSet(id, numBits, bitSetBaseType: bitSetBaseType);
 
 typedef String GetterReturnModifier(Member member, String oldValue);
 

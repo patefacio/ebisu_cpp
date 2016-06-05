@@ -38,7 +38,7 @@ class LibCmake {
               ]),
               targetIncludeDirectories,
               targetCompileOptions,
-              '\ninstall(TARGETS ${lib.id.snake} ARCHIVE DESTINATION \${DESTDIR}/lib/static)',
+              '\ninstall(TARGETS ${lib.id.snake} ARCHIVE DESTINATION \${DESTDIR}lib/static)',
             ]),
         ], '\n\n'))
       : _definition;
@@ -54,6 +54,7 @@ class InstallationCmake {
   String minimumRequiredVersion = '2.8';
   List includeDirectories = [];
   List linkDirectories = [];
+  bool autoIncludeBoost = false;
   CodeBlock includesCodeBlock = new ScriptCodeBlock('includes')
     ..hasSnippetsFirst = true;
   CodeBlock setStatementsCodeBlock = new ScriptCodeBlock('set_statements')
@@ -70,8 +71,10 @@ class InstallationCmake {
   InstallationCmake(this.installation) {
     includesCodeBlock.snippets.add('include(CheckCXXCompilerFlag)');
 
-    includeDirectories
-        .addAll([r'${CMAKE_CURRENT_LIST_DIR}', r'${Boost_INCLUDE_DIRS}']);
+    if (autoIncludeBoost) {
+      includeDirectories
+          .addAll([r'${CMAKE_CURRENT_LIST_DIR}', r'${Boost_INCLUDE_DIRS}']);
+    }
 
     setStatementsCodeBlock.snippets.addAll([
       r'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")',
@@ -93,7 +96,7 @@ ${scriptCustomBlock("boost lib components")}
     libPublicHeadersCodeBlock.snippets.addAll(concat([
       installation.libs.map((lib) => lib.headers.map(
           (header) => 'install(FILES ${header.includeFilePath} DESTINATION '
-              '\${DESTDIR}/include/${path.dirname(header.includeFilePath)})'))
+              '\${DESTDIR}include/${path.dirname(header.includeFilePath)})'))
     ]));
   }
 
@@ -102,7 +105,7 @@ ${scriptCustomBlock("boost lib components")}
           'cmake_minimum_required (VERSION $minimumRequiredVersion)',
           includesCodeBlock,
           setStatementsCodeBlock,
-          boostSupportCodeBlock,
+          autoIncludeBoost ? boostSupportCodeBlock : null,
           '''
 
 include_directories(\n${chomp(indentBlock(brCompact(includeDirectories)))}
@@ -152,9 +155,11 @@ ${chomp(scriptCustomBlock('${app.name} exe additions'))}
 
 target_link_libraries(${app.name}
 ${chomp(scriptCustomBlock('${app.name} libs'))}
-  \${Boost_PROGRAM_OPTIONS_LIBRARY}
-  \${Boost_SYSTEM_LIBRARY}
-  \${Boost_THREAD_LIBRARY}
+  boost_program_options
+  boost_system
+  boost_regex
+  boost_filesystem
+  boost_thread
 ''',
               requiredLibs.map(
                   (l) => indentBlock(l.contains(_isMacroRe) ? l : '-${l}')),
@@ -188,8 +193,10 @@ ${chomp(scriptCustomBlock('${test.name} test additions'))}
 
 target_link_libraries($testBaseName
 ${chomp(scriptCustomBlock('${isCatchDecl}${test.name} link requirements'))}
-  \${Boost_SYSTEM_LIBRARY}
-  \${Boost_THREAD_LIBRARY}
+  boost_system
+  boost_regex
+  boost_filesystem
+  boost_thread
   pthread
 )
 
@@ -197,7 +204,7 @@ add_test(
   $testBaseName
   $testBaseName)
 
-install(TARGETS $testBaseName RUNTIME DESTINATION \${DESTDIR}/bin)
+install(TARGETS $testBaseName RUNTIME DESTINATION \${DESTDIR}bin)
 ''';
   }
 
@@ -217,7 +224,7 @@ ${chomp(scriptCustomBlock('benchmark ${app.id} link requirements'))}
   pthread
 )
 
-install(TARGETS $benchName RUNTIME DESTINATION \${DESTDIR}/bin)
+install(TARGETS $benchName RUNTIME DESTINATION \${DESTDIR}bin)
 
 ''';
   }
@@ -234,6 +241,7 @@ class CmakeInstallationBuilder extends InstallationBuilder {
 
   /// An opportunity to update the [LibCmake] prior to its generation
   OnInstallationCmake onLibCmake;
+  bool autoIncludeBoost = false;
 
   // custom <class CmakeInstallationBuilder>
 
@@ -253,7 +261,7 @@ class CmakeInstallationBuilder extends InstallationBuilder {
     final installDirectives = lib.headers.map((Header h) {
       return '''
 install(FILES ${h.includeFilePath}
-  DESTINATION \${DESTDIR}/include/${path.dirname(h.includeFilePath)})''';
+  DESTINATION \${DESTDIR}include/${path.dirname(h.includeFilePath)})''';
     });
 
     return brCompact([
@@ -265,10 +273,11 @@ ${brCompact(installDirectives)}
     ]);
   }
 
-  void generate() {
+  void generate([bool autoIncludeBoost = false]) {
     final cmakeRoot = installationCmakeRoot(installation);
 
-    final installationCmake = new InstallationCmake(installation);
+    final installationCmake = new InstallationCmake(installation)
+      ..autoIncludeBoost = autoIncludeBoost;
 
     if (onInstallationCmake != null) {
       onInstallationCmake(installationCmake);

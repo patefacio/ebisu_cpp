@@ -1166,6 +1166,9 @@ default [Interfaceimplementation] is used''')
       if (isSingleton) {
         defaultCtor.cppAccess = private;
         copyCtor.hasDelete = true;
+        assignCopy.hasDelete = true;
+        assignMove.hasDelete = true;
+        moveCtor.hasDelete = true;
       }
 
       if (isNoncopyable) {
