@@ -29,7 +29,6 @@ files, build scripts, test files, etc.)
   _topDir = dirname(dirname(here));
   useDartFormatter = true;
   System ebisu = system('ebisu_cpp')
-    ..includesHop = true
     ..license = 'boost'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
     ..pubSpec.version = '0.3.21'
