@@ -7,12 +7,12 @@ import 'package:test/test.dart';
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 // end <additional imports>
 
-final _logger = new Logger('test_cpp_interface');
+final Logger _logger = new Logger('test_cpp_interface');
 
 // custom <library test_cpp_interface>
 // end <library test_cpp_interface>
 
-main([List<String> args]) {
+void main([List<String> args]) {
   Logger.root.onRecord.listen(
       (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
   Logger.root.level = Level.OFF;

@@ -131,7 +131,7 @@ part 'src/ebisu_cpp/using.dart';
 part 'src/ebisu_cpp/utils.dart';
 part 'src/ebisu_cpp/versioning.dart';
 
-final _logger = new Logger('ebisu_cpp');
+final Logger _logger = new Logger('ebisu_cpp');
 
 // custom <library ebisu_cpp>
 // end <library ebisu_cpp>

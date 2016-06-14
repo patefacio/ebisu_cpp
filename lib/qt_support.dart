@@ -10,7 +10,7 @@ import 'package:path/path.dart';
 
 part 'src/qt_support/qt_basics.dart';
 
-final _logger = new Logger('qt_support');
+final Logger _logger = new Logger('qt_support');
 
 // custom <library qt_support>
 // end <library qt_support>

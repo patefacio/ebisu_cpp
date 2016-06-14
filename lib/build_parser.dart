@@ -11,7 +11,7 @@ import 'package:quiver/iterables.dart';
 
 // end <additional imports>
 
-final _logger = new Logger('build_parser');
+final Logger _logger = new Logger('build_parser');
 
 class Flag {
   const Flag(this.name, this.value);

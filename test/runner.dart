@@ -27,7 +27,7 @@ import 'test_enumerated_dispatcher.dart' as test_enumerated_dispatcher;
 import 'test_print_instance.dart' as test_print_instance;
 import 'test_build_parser.dart' as test_build_parser;
 
-main() {
+void main() {
   Logger.root.level = Level.OFF;
   Logger.root.onRecord.listen((LogRecord rec) {
     print('${rec.level.name}: ${rec.time}: ${rec.message}');

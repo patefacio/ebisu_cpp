@@ -10,7 +10,7 @@ import 'package:logging/logging.dart';
 
 part 'src/cookbook/dispatchers.dart';
 
-final _logger = new Logger('cookbook');
+final Logger _logger = new Logger('cookbook');
 
 // custom <library cookbook>
 // end <library cookbook>

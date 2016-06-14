@@ -10,12 +10,12 @@ import 'package:ebisu_cpp/hdf5_support.dart';
 
 // end <additional imports>
 
-final _logger = new Logger('test_hdf5_support');
+final Logger _logger = new Logger('test_hdf5_support');
 
 // custom <library test_hdf5_support>
 // end <library test_hdf5_support>
 
-main([List<String> args]) {
+void main([List<String> args]) {
   Logger.root.onRecord.listen(
       (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
   Logger.root.level = Level.OFF;

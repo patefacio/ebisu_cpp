@@ -11,12 +11,12 @@ import 'package:path/path.dart';
 
 // end <additional imports>
 
-final _logger = new Logger('test_build_parser');
+final Logger _logger = new Logger('test_build_parser');
 
 // custom <library test_build_parser>
 // end <library test_build_parser>
 
-main([List<String> args]) {
+void main([List<String> args]) {
   Logger.root.onRecord.listen(
       (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
   Logger.root.level = Level.OFF;
