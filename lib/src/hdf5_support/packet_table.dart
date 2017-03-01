@@ -148,7 +148,7 @@ createH5DataSetSpecifier(Class targetClass,
             ]))
         ..members = [
           member('data_set_name')
-            ..init = '/${targetClass.id.snake}'
+            ..init = '${targetClass.id.snake}'
             ..type = 'char const*'
             ..cppAccess = public
             ..isStatic = true

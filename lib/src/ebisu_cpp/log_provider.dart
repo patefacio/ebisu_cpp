@@ -56,18 +56,12 @@ if(desired_log_level == "off") {
   spdlog::set_level(spdlog::level::debug);
 } else if(desired_log_level == "info") {
   spdlog::set_level(spdlog::level::info);
-} else if(desired_log_level == "notice") {
-  spdlog::set_level(spdlog::level::notice);
 } else if(desired_log_level == "warn") {
   spdlog::set_level(spdlog::level::warn);
 } else if(desired_log_level == "err") {
   spdlog::set_level(spdlog::level::err);
 } else if(desired_log_level == "critical") {
   spdlog::set_level(spdlog::level::critical);
-} else if(desired_log_level == "alert") {
-  spdlog::set_level(spdlog::level::alert);
-} else if(desired_log_level == "emerg") {
-  spdlog::set_level(spdlog::level::emerg);
 } else if(desired_log_level == "trace") {
   spdlog::set_level(spdlog::level::trace);
 } else {

@@ -58,7 +58,7 @@ class UsingDeclaration extends CppEntity implements Using {
   // custom <class UsingDeclaration>
 
   UsingDeclaration(qualifiedName)
-      : super(qualifiedName.replaceAll('::', '_')),
+      : super(qualifiedName.replaceAll('::', '_').toLowerCase()),
         _qualifiedName = qualifiedName;
 
   Iterable<Entity> get children => [];
@@ -118,7 +118,8 @@ final _qualifiedNameRe = new RegExp(r'^\w+(?:::\w+)+$');
 /// see [usingDirective].
 ///
 Using using(u, [decl]) {
-  if (u is Using || decl != null || !_qualifiedNameRe.hasMatch(u)) {
+  if (u is Using) return u;
+  if (decl != null || !_qualifiedNameRe.hasMatch(u)) {
     return usingDirective(u, decl);
   }
   return usingDeclaration(u);

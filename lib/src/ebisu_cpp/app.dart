@@ -387,7 +387,7 @@ class App extends Impl implements CodeGenerator {
     if (args.isNotEmpty) _includes.add('boost/program_options.hpp');
     final appPath = this.appPath;
     setFilePathFromRoot(appPath);
-    headers.forEach((header) => header.setHeaderFilePath(appPath));
+    headers.forEach((header) => header.setHeaderFilePath(path.join(appPath, id.snake)));
     impls.forEach((impl) => impl.setFilePath(appPath));
     getCodeBlock(fcbBeginNamespace).snippets.add(brCompact([
           '''
@@ -433,7 +433,7 @@ AllowedOptions)";
       args.add(arg('log_level')
         ..type = ArgType.STRING
         ..doc = '''
-Specify log level [trace, debug, info, notice, warn, err, critical, alert, emerg, off]'''
+Specify log level [trace, debug, info, warn, err, critical, off]'''
         ..defaultValue = 'off');
       _includes.addAll(root.logProvider.includeRequirements.included);
     } else {

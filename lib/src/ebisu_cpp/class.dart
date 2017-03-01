@@ -1142,10 +1142,10 @@ default [Interfaceimplementation] is used''')
   /// all members
   ///
   /// Used when class [isImmutable] is set
-  addFullMemberCtor() => memberCtors.add(memberCtor(members
+  addFullMemberCtor() => (memberCtors..add(memberCtor(members
       .where((m) => !m.isStatic && !m.hasIfdef)
-      .map((m) => m.name)
-      .toList()));
+          .map((m) => m.name)
+              .toList()))).last;
 
   /// Returns a string representation of the class definition
   String get definition {
