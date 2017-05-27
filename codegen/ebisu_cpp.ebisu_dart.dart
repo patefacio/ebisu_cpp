@@ -30,8 +30,9 @@ files, build scripts, test files, etc.)
   useDartFormatter = true;
   System ebisu = system('ebisu_cpp')
     ..license = 'boost'
+    ..pubSpec.author = 'Daniel Davidson <dbdavidson@yahoo.com>'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.23'
+    ..pubSpec.version = '0.3.24'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
@@ -71,7 +72,6 @@ files, build scripts, test files, etc.)
       library('test_qt_support'),
       library('test_enumerated_dispatcher'),
       library('test_print_instance'),
-      library('test_build_parser'),
     ]
     ..libraries = [
       library('ebisu_cpp')
@@ -2541,108 +2541,6 @@ log group. An empty list will include all members in the table.
                 ..members = [member('log_groups')..type = 'List<LogGroup>']
             ]
         ],
-      library('build_parser')
-        ..includesLogger = true
-        ..imports = ['io', 'package:args/args.dart']
-        ..classes = [
-          class_('flag')
-            ..isImmutable = true
-            ..members = [member('name'), member('value'),],
-          class_('define')
-            ..isImmutable = true
-            ..members = [member('id'), member('value'),],
-
-          /// Stores the include directive and whether it was system
-          class_('include_path')
-            ..isImmutable = true
-            ..members = [member('path'), member('is_system')..type = 'bool',],
-          class_('library')
-            ..isImmutable = true
-            ..members = [member('name'),],
-
-          class_('compile_command')
-            ..defaultCtorStyle = namedParms
-            ..defaultMemberAccess = RO
-            ..members = [
-              member('command'),
-              member('source_paths')
-                ..type = 'List<String>'
-                ..init = [],
-              member('defines')
-                ..type = 'List<Define>'
-                ..init = [],
-              member('include_paths')
-                ..type = 'List<IncludePath>'
-                ..init = [],
-              member('compile_warning_flags')
-                ..type = 'List<Flag>'
-                ..init = [],
-              member('compile_flags')
-                ..type = 'List<Flag>'
-                ..init = [],
-              member('is_linked')
-                ..doc = '-c is *not* specified'
-                ..init = false,
-              member('output_file')..doc = '-o file flag',
-            ],
-
-          /// Parses compile commands to create CompileCommand
-          class_('compile_command_parser')
-            ..defaultMemberAccess = RO
-            ..members = [
-              member('compile_command')..ctors = [''],
-              member('command_line_parser')..type = 'CommandLineParser',
-            ]
-            ..tagCtor('', 'parse compile command'),
-
-          class_('ar_command')
-            ..defaultCtorStyle = namedParms
-            ..defaultMemberAccess = RO
-            ..members = [
-              member('command'),
-              member('source_path'),
-              member('ar_flags')
-                ..type = 'List<Flag>'
-                ..init = [],
-            ],
-
-          /// Parses ar commands to create ArCommand
-          class_('ar_command_parser'),
-
-          class_('link_command')
-            ..defaultCtorStyle = namedParms
-            ..defaultMemberAccess = RO
-            ..members = [
-              member('command'),
-              member('source_path'),
-              member('link_flags')
-                ..type = 'List<Flag>'
-                ..init = [],
-              member('lib_paths')
-                ..type = 'List<String>'
-                ..init = [],
-              member('libraries')
-                ..type = 'List<Library>'
-                ..init = [],
-            ],
-
-          /// Parses compile commands to create CompileCommand
-          class_('link_command_parser'),
-
-          class_('build_parser')
-            ..defaultMemberAccess = RO
-            ..withCtor('', ((ctor) => ctor.tag = 'parse build log'))
-            ..members = [
-              member('input_file')..ctors = [''],
-              member('compile_matcher')
-                ..type = 'RegExp'
-                ..ctorsOpt = ['']
-                ..init = r'new RegExp(r"^\s*[\w/.]*(?:g(?:\+\+|cc)|clang)-?[\w.]*\s+(.*)")',
-              member('log_contents')
-                ..type = 'List<String>'
-                ..init = [],
-            ]
-        ]
     ];
 
   ebisu.generate();
