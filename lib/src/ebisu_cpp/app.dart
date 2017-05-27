@@ -3,12 +3,23 @@ part of ebisu_cpp.ebisu_cpp;
 /// Set of argument types supported by command line option processing.
 ///
 class ArgType implements Comparable<ArgType> {
-  static const INT = const ArgType._(0);
-  static const INT64 = const ArgType._(1);
-  static const UINT64 = const ArgType._(2);
-  static const DOUBLE = const ArgType._(3);
-  static const STRING = const ArgType._(4);
-  static const FLAG = const ArgType._(5);
+  /// The command line arg is an integer
+  static const ArgType INT = const ArgType._(0);
+
+  /// The command line arg is an 64-bit integer
+  static const ArgType INT64 = const ArgType._(1);
+
+  /// The command line arg is an unsigned 64-bit integer
+  static const ArgType UINT64 = const ArgType._(2);
+
+  /// The command line arg is a double
+  static const ArgType DOUBLE = const ArgType._(3);
+
+  /// The command line arg is a string
+  static const ArgType STRING = const ArgType._(4);
+
+  /// The command line arg is a flag - i.e. a boolean
+  static const ArgType FLAG = const ArgType._(5);
 
   static get values => [INT, INT64, UINT64, DOUBLE, STRING, FLAG];
 
@@ -387,7 +398,8 @@ class App extends Impl implements CodeGenerator {
     if (args.isNotEmpty) _includes.add('boost/program_options.hpp');
     final appPath = this.appPath;
     setFilePathFromRoot(appPath);
-    headers.forEach((header) => header.setHeaderFilePath(path.join(appPath, id.snake)));
+    headers.forEach(
+        (header) => header.setHeaderFilePath(path.join(appPath, id.snake)));
     impls.forEach((impl) => impl.setFilePath(appPath));
     getCodeBlock(fcbBeginNamespace).snippets.add(brCompact([
           '''

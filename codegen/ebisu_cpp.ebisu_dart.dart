@@ -30,8 +30,9 @@ files, build scripts, test files, etc.)
   useDartFormatter = true;
   System ebisu = system('ebisu_cpp')
     ..license = 'boost'
+    ..pubSpec.author = 'Daniel Davidson <dbdavidson@yahoo.com>'
     ..pubSpec.homepage = 'https://github.com/patefacio/ebisu_cpp'
-    ..pubSpec.version = '0.3.23'
+    ..pubSpec.version = '0.3.24'
     ..pubSpec.doc = purpose
     ..rootPath = _topDir
     ..doc = purpose
