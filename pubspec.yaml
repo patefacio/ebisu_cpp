@@ -23,7 +23,7 @@ dependencies:
   path: "^1.3.0"
   petitparser: "^1.5.4"
   stack_trace: "^1.7.3"
-
+  logging: ">=0.9.3<0.12.0"  
 
 # end <ebisu_cpp dependencies>
 
