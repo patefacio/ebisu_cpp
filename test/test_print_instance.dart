@@ -45,7 +45,9 @@ void main([List<String> args]) {
       ..giveDefaultPrinterSupport();
 
     final d = class_('d')
-      ..members = [member('z')..init = 3.14,]
+      ..members = [
+        member('z')..init = 3.14,
+      ]
       ..giveDefaultPrinterSupport()
       ..printerSupport.customPrinters = true;
 

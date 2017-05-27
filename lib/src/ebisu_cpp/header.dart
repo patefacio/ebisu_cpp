@@ -45,7 +45,9 @@ class Header extends CppFile {
     }
 
     if (classes.any((c) => c.serializers.any((s) => s is DsvSerializer))) {
-      this.includes.addAll(['cppformat/format.h',]);
+      this.includes.addAll([
+        'cppformat/format.h',
+      ]);
     }
 
     addIncludesForCommonTypes(

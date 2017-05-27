@@ -117,7 +117,11 @@ class Installation extends CppEntity implements CodeGenerator {
     setAsRoot();
     return br([
       '<<<< INSTALLATION($id) >>>>',
-      indentBlock(br(concat([libs, apps, benchmarks,]).map((f) {
+      indentBlock(br(concat([
+        libs,
+        apps,
+        benchmarks,
+      ]).map((f) {
         return f.contents;
       })))
     ]);

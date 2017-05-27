@@ -710,7 +710,10 @@ private:
         darkSame(
             (class_('point')
                   ..isImmutable = true
-                  ..members = [member('x')..init = 0, member('y')..init = 0,])
+                  ..members = [
+                    member('x')..init = 0,
+                    member('y')..init = 0,
+                  ])
                 .definition,
             '''
 class Point {
@@ -786,7 +789,9 @@ class Transformer {
       ..memberCtors = [
         memberCtor(['a'])..customCodeBlock.snippets.add('//goo')
       ]
-      ..members = [member('a')..init = 5,];
+      ..members = [
+        member('a')..init = 5,
+      ];
 
     expect(darkMatter(cls.definition), darkMatter('''
 class Goo
@@ -806,14 +811,18 @@ private:
     {
       final cls = class_('goo')
         ..defaultCppAccess = private
-        ..members = [member('a')..init = 5,];
+        ..members = [
+          member('a')..init = 5,
+        ];
       expect(cls.definition.contains('private:'), true);
     }
     {
       final cls = class_('goo')
         ..defaultCppAccess = public
         ..defaultMemberAccess = ia
-        ..members = [member('a')..init = 5,];
+        ..members = [
+          member('a')..init = 5,
+        ];
 
       /// Required to establish relationships
       cls.setAsRoot();
@@ -824,7 +833,9 @@ private:
   test('class usesNestedIndent proper streamer', () {
     final cls = class_('goo')
       ..usesNestedIndent = true
-      ..members = [member('a')..init = 5,];
+      ..members = [
+        member('a')..init = 5,
+      ];
     expect(darkMatter(cls.definition), darkMatter(r'''
 class Goo
 {
@@ -851,7 +862,9 @@ private:
       ..memberCtors = [
         memberCtor(['a'])..tag = 'special ctor'
       ]
-      ..members = [member('a')..init = 5,];
+      ..members = [
+        member('a')..init = 5,
+      ];
 
     expect(darkMatter(cls.definition), darkMatter('''
 class Goo

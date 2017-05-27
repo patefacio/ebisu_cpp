@@ -137,7 +137,9 @@ ${_customOrGenerated("$className members anonymous", _anonymousMemberOut)}
         _memberValueOut(m),
       ]);
 
-  _anonymousMemberOut(Member m) => brCompact([_memberValueOut(m),]);
+  _anonymousMemberOut(Member m) => brCompact([
+        _memberValueOut(m),
+      ]);
 
   _memberAccessor(Member m) => m.hasCustomGetter ? '${m.name}()' : m.vname;
 

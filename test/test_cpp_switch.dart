@@ -74,7 +74,8 @@ switch (some_input) {
 
   test('basic char switch', () {
     final s = new Switch('some_char_input', ['x', 'y', 'z'],
-        (caseValue) => 'std::cout << $caseValue << std::endl;')..isChar = true;
+        (caseValue) => 'std::cout << $caseValue << std::endl;')
+      ..isChar = true;
     expect(darkMatter(s.definition), darkMatter('''
 switch (some_char_input) {
   // Following is for character ('x'=120)

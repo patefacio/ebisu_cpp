@@ -325,8 +325,10 @@ class InterfaceImplementation extends CppEntity {
 
   Iterable<String> get methodImpls =>
       methodDecls.map((MethodDecl md) => brCompact([
-            blockComment(chomp(
-                brCompact([md.descr, "[Inherited from ${interface.name}]",]))),
+            blockComment(chomp(brCompact([
+              md.descr,
+              "[Inherited from ${interface.name}]",
+            ]))),
             md.definition(isVirtual, _methodPrefix)
           ]));
 

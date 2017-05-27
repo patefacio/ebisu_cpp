@@ -42,7 +42,10 @@ double y_ {};
 
   test('union with multiple inits throws', () {
     var u = union('basic_union')
-      ..members = [member('x')..type = 'int', member('y')..type = 'double',];
+      ..members = [
+        member('x')..type = 'int',
+        member('y')..type = 'double',
+      ];
 
     expect(() => u.setAsRoot(), throws);
   });

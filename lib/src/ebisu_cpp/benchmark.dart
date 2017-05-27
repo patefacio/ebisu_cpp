@@ -151,7 +151,9 @@ ${codeBlock('${id} teardown')}
   set functions(Iterable functions_) =>
       _functions = functions_.map((f) => makeId(f)).toList();
 
-  Iterable<Entity> get children => [_benchmarkApp,];
+  Iterable<Entity> get children => [
+        _benchmarkApp,
+      ];
 
   String get contents => brCompact([
         '<<<< BENCHMARK($id) >>>>',

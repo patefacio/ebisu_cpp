@@ -21,7 +21,9 @@ class LibCmake {
     libSourceFilenames =
         lib.impls.map((var impl) => path.basename(impl.filePath)).toList();
 
-    setStatements.snippets.addAll(['set(CMAKE_VERBOSE_MAKEFILE ON)',]);
+    setStatements.snippets.addAll([
+      'set(CMAKE_VERBOSE_MAKEFILE ON)',
+    ]);
 
     addLibrary.tag = null;
   }
@@ -120,7 +122,8 @@ ${scriptCustomBlock("link directories")})
           'enable_testing()',
 
           /// traditional libs
-          installation.libs.where((Lib lib) => !lib.isHeaderOnly).map((Lib lib) =>
+          installation.libs.where((Lib lib) => !lib.isHeaderOnly).map((Lib
+                  lib) =>
               'add_subdirectory(${path.relative(lib.implPath, from: installation.cppPath)})'),
 
           /// header-only libs

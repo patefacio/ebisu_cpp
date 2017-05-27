@@ -54,7 +54,12 @@ default: assert(!"Enumerator not in {1, 2, 3, 4}");
     });
 
     test('SwitchDispatcher disallows string unless all sized 1', () {
-      expect(() => new SwitchDispatcher(['foo', 'bar',], null)..dispatchBlock,
+      expect(
+          () => new SwitchDispatcher([
+                'foo',
+                'bar',
+              ], null)
+                ..dispatchBlock,
           throws);
 
       expect(() => new SwitchDispatcher(['a', 'b', 'C'], null)..dispatchBlock,
@@ -83,8 +88,10 @@ if(foo == discriminator_) {
     });
 
     test('IfElseIfDispatcher (d is cptr, e is string) uses e.== ', () {
-      var dispatcher = new IfElseIfDispatcher(['foo', 'bar',],
-          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      var dispatcher = new IfElseIfDispatcher([
+        'foo',
+        'bar',
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..discriminatorType = dctCptr;
 
       expect(darkMatter(dispatcher.dispatchBlock), darkMatter('''
@@ -100,8 +107,10 @@ if(foo == discriminator_) {
     });
 
     test('IfElseIfDispatcher (e is cptr, d is string) uses d.== ', () {
-      var dispatcher = new IfElseIfDispatcher(['foo', 'bar',],
-          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      var dispatcher = new IfElseIfDispatcher([
+        'foo',
+        'bar',
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..discriminatorType = dctStdString
         ..enumeratorType = dctCptr;
 
@@ -118,8 +127,10 @@ if(discriminator_ == foo}) {
     });
 
     test('IfElseIfDispatcher (e is cptr, d is cptr) uses strcmp ', () {
-      var dispatcher = new IfElseIfDispatcher(['foo', 'bar',],
-          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      var dispatcher = new IfElseIfDispatcher([
+        'foo',
+        'bar',
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..discriminatorType = dctCptr
         ..enumeratorType = dctCptr;
 
@@ -136,8 +147,10 @@ if(strcmp(foo, discriminator_) == 0) {
     });
 
     test('IfElseIfDispatcher (d is dctInteger, e is dctInteger) uses == ', () {
-      var dispatcher = new IfElseIfDispatcher(['foo', 'bar',],
-          (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
+      var dispatcher = new IfElseIfDispatcher([
+        'foo',
+        'bar',
+      ], (dispatcher, enumerator) => 'handleValue$enumerator(buffer);')
         ..discriminatorType = dctInteger
         ..enumeratorType = dctInteger;
 
@@ -202,7 +215,9 @@ if(strncmp("125", &discriminator_[0], 3) == 0) {
 
     test('CharBinaryDispatcher with continue and logged error', () {
       var dispatcher = new CharBinaryDispatcher(
-          ['125',],
+          [
+            '125',
+          ],
           (dispatcher, enumerator) =>
               'handleValue$enumerator(buffer);\ncontinue;')
         ..errorDispatcher =

@@ -172,7 +172,9 @@ const _posixHeaders = const [
   'wordexp.h',
 ];
 
-const _linuxHeaders = const ['sys/prctl.h',];
+const _linuxHeaders = const [
+  'sys/prctl.h',
+];
 
 /// Returns true if [h] is system header
 bool isSystemHeader(String h) =>

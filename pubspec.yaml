@@ -1,5 +1,5 @@
 name: ebisu_cpp
-version: 0.3.24
+version: 0.3.25
 author: Daniel Davidson <dbdavidson@yahoo.com>
 homepage: https://github.com/patefacio/ebisu_cpp
 description: >
@@ -15,18 +15,17 @@ dependencies:
 
 # custom <ebisu_cpp dependencies>
 
-  quiver: ">=0.21.0<0.25.0"  
-  ini: ">=1.0.0<1.2.0"
-  github: ">=2.1.2<2.2.0"
+  args: ">=0.12.0 < 0.14.0"
+  ebisu: "^0.7.5"
   id: "^1.0.15"  
-  ebisu: "^0.7.4"
+  ini: ">=1.0.0<1.2.0"
+  logging: ">=0.9.3<0.12.0"  
   path: "^1.3.0"
   petitparser: "^1.5.4"
+  quiver: ">=0.21.0<0.25.0"  
   stack_trace: "^1.7.3"
-  logging: ">=0.9.3<0.12.0"  
   drudge:
     git: git://github.com/patefacio/drudge
-  args: ">=0.12.0 < 0.14.0"
 
 # end <ebisu_cpp dependencies>
 

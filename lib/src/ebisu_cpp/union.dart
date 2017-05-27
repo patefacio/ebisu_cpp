@@ -11,8 +11,11 @@ class Union extends CppEntity with AggregateBase {
 
   get unionName => namer.nameUnion(id);
 
-  get definition =>
-      brCompact(['union $unionName {', _memberJoinFormat(members), '};',]);
+  get definition => brCompact([
+        'union $unionName {',
+        _memberJoinFormat(members),
+        '};',
+      ]);
 
   set members(members) => _members = new List.from(members);
 
