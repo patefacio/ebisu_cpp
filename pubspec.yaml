@@ -24,6 +24,9 @@ dependencies:
   petitparser: "^1.5.4"
   stack_trace: "^1.7.3"
   logging: ">=0.9.3<0.12.0"  
+  drudge:
+    git: git://github.com/patefacio/drudge
+  args: ">=0.12.0 < 0.14.0"
 
 # end <ebisu_cpp dependencies>
 
@@ -32,8 +35,6 @@ dev_dependencies:
 # custom <ebisu_cpp dev dependencies>
 
   test: ">=0.12.0 < 0.14.0"
-  drudge:
-    git: git://github.com/patefacio/drudge
 
 # end <ebisu_cpp dev dependencies>
 
