@@ -16,9 +16,11 @@ final Logger _logger = new Logger('test_qt_support');
 // end <library test_qt_support>
 
 void main([List<String> args]) {
-  Logger.root.onRecord.listen(
-      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
-  Logger.root.level = Level.OFF;
+  if (args?.isEmpty ?? false) {
+    Logger.root.onRecord.listen(
+        (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
+    Logger.root.level = Level.OFF;
+  }
 // custom <main>
 
   test('qt class', () {

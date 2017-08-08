@@ -16,9 +16,11 @@ final Logger _logger = new Logger('test_cpp_test_provider');
 // end <library test_cpp_test_provider>
 
 void main([List<String> args]) {
-  Logger.root.onRecord.listen(
-      (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
-  Logger.root.level = Level.OFF;
+  if (args?.isEmpty ?? false) {
+    Logger.root.onRecord.listen(
+        (LogRecord r) => print("${r.loggerName} [${r.level}]:\t${r.message}"));
+    Logger.root.level = Level.OFF;
+  }
 // custom <main>
 
   vectorSample() => testScenario(

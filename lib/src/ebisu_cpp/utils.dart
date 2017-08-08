@@ -669,44 +669,38 @@ String name(String namingSpec, [defaultNamingFunction]) {
       case 'c':
         {
           return defaultNamer.nameClass(makeId(idPart));
-          break;
         }
       case 'm':
         {
           return defaultNamer.nameMember(makeId(idPart));
-          break;
         }
       case 'M':
         {
           return defaultNamer.nameMethod(makeId(idPart));
-          break;
         }
       case 'e':
         {
           return defaultNamer.nameEnum(makeId(idPart));
-          break;
         }
       case 'ec':
         {
           return defaultNamer.nameEnumConst(makeId(idPart));
-          break;
         }
       case 'sc':
         {
           return defaultNamer.nameStaticConst(makeId(idPart));
-          break;
         }
       case 'tdp':
         {
           return defaultNamer.nameTemplateDeclParm(makeId(idPart));
-          break;
         }
       case 'u':
         {
           return defaultNamer.nameUsingType(makeId(idPart));
-          break;
         }
     }
+
+    throw new ArgumentError('namingSpec error: $namingSpec');
   } else if (terms.length == 1) {
     final id = makeId(namingSpec);
     if (defaultNamingFunction == null) {
