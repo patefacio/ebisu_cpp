@@ -158,11 +158,7 @@ ${chomp(scriptCustomBlock('${app.name} exe additions'))}
 
 target_link_libraries(${app.name}
 ${chomp(scriptCustomBlock('${app.name} libs'))}
-  boost_program_options
-  boost_system
-  boost_regex
-  boost_filesystem
-  boost_thread
+  \${Boost_LIBRARIES}
 ''',
               requiredLibs.map(
                   (l) => indentBlock(l.contains(_isMacroRe) ? l : '-${l}')),
@@ -196,10 +192,7 @@ ${chomp(scriptCustomBlock('${test.name} test additions'))}
 
 target_link_libraries($testBaseName
 ${chomp(scriptCustomBlock('${isCatchDecl}${test.name} link requirements'))}
-  boost_system
-  boost_regex
-  boost_filesystem
-  boost_thread
+  \${Boost_LIBRARIES}
   pthread
 )
 
