@@ -179,6 +179,8 @@ abstract class EnumeratedDispatcher {
       ? null
       : '$discriminatorCppType const& discriminator_ { $enumerator };';
 
+  bool get hasNoLengthChecks => false;
+
   get _discriminatorLengthDecl => hasNoLengthChecks
       ? null
       : 'size_t discriminator_length_ { $cppDiscriminatorLength };';
@@ -353,7 +355,7 @@ class CharNode {
       return lenCmp == 0 ? a.compareTo(b) : lenCmp;
     });
 
-    Map headToTail = {};
+    Map<String, List<String>> headToTail = {};
     for (String literal in literalsSorted) {
       if (literal.isEmpty) continue;
 
@@ -436,7 +438,7 @@ class CharBinaryDispatcher extends EnumeratedDispatcher {
       throw 'CharBinaryDispatcher requires literal enumeration: not $enumeratorType';
     }
 
-    final enumeratorsSorted = new List.from(enumeration);
+    final enumeratorsSorted = enumeration.map((e) => e.toString()).toList();
     enumeratorsSorted.sort();
 
     final root = new CharNode.from(null, 'root', enumeratorsSorted, false);

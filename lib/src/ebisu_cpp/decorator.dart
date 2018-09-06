@@ -6,7 +6,7 @@ part of ebisu_cpp.ebisu_cpp;
 abstract class InstallationDecorator {
   // custom <class InstallationDecorator>
 
-  void decorate(Installation);
+  void decorate(Installation installation);
 
   // end <class InstallationDecorator>
 

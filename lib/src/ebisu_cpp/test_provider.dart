@@ -161,7 +161,9 @@ abstract class Testable {
       : _test;
 
   // All tests must belong to an entity within a [Lib]
-  get owningLib;
+  Lib get owningLib;
+
+  Id get id;
 
   get hasTest => testScenarios.isNotEmpty;
 
@@ -258,7 +260,7 @@ class CatchTestProvider extends TestProvider {
           ..getCodeBlock(fcbBeginNamespace).tag =
               '${testable.id.snake} begin namespace'
           ..namespace =
-              testable is Class ? testOwner.namespace : testable.namespace;
+              testable is Class ? (testOwner as CppFile).namespace : (testable as CppFile).namespace;
 
         ///////////////////////////////////////////////////////////////////
         // If this test is owned by something in a header, that header

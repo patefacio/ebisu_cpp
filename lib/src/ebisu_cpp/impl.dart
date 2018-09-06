@@ -14,7 +14,7 @@ class Impl extends CppFile {
 
   setFilePath(String filePath, [name]) {
     _basename = name == null ? namer.nameImpl(id) : name;
-    _filePath = path.join(filePath, _id.snake, _basename);
+    _filePath = path.join(filePath, id.snake, _basename);
   }
 
   setLibFilePathFromRoot(String rootFilePath, [name]) {

@@ -79,7 +79,7 @@ class PacketTableDecorator implements InstallationDecorator {
     logGroups.forEach((LogGroup logGroup) {
       final className = logGroup.className;
       final targetClass = installation.progeny.firstWhere(
-          (CppEntity entity) => entity is Class && entity.id.snake == className,
+          (Entity entity) => entity is Class && entity.id.snake == className,
           orElse: () =>
               throw new ClassNotFoundException(className, installation));
       assert(targetClass is Class);
@@ -184,7 +184,7 @@ static auto const& data_set_specifier() {
 }
 
 /// Given the type of a member returns the corresponding PacketMemberType
-typedef PacketMemberType TypeMapper(String);
+typedef PacketMemberType TypeMapper(String string);
 
 final _mappings = {
   'short': H5tType.h5tNativeShort,

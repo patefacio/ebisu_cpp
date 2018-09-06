@@ -38,8 +38,8 @@ class LibCmake {
                 indentBlock(brCompact(libSourceFilenames)),
                 ')',
               ]),
-              targetIncludeDirectories,
-              targetCompileOptions,
+              targetIncludeDirectories.toString(),
+              targetCompileOptions.toString(),
               '\ninstall(TARGETS ${lib.id.snake} ARCHIVE DESTINATION \${DESTDIR}lib/static)',
             ]),
         ], '\n\n'))
@@ -95,11 +95,11 @@ ${scriptCustomBlock("boost lib components")}
 '''
     ]);
 
-    libPublicHeadersCodeBlock.snippets.addAll(concat([
+    libPublicHeadersCodeBlock.snippets.addAll(concat(
       installation.libs.map((lib) => lib.headers.map(
-          (header) => 'install(FILES ${header.includeFilePath} DESTINATION '
+          (Header header) => 'install(FILES ${header.includeFilePath} DESTINATION '
               '\${DESTDIR}include/${path.dirname(header.includeFilePath)})'))
-    ]));
+    ));
   }
 
   get definition => _definition == null
@@ -236,7 +236,7 @@ class CmakeInstallationBuilder extends InstallationBuilder {
   OnInstallationCmake onInstallationCmake;
 
   /// An opportunity to update the [LibCmake] prior to its generation
-  OnInstallationCmake onLibCmake;
+  OnLibCmake onLibCmake;
   bool autoIncludeBoost = false;
 
   // custom <class CmakeInstallationBuilder>
@@ -319,8 +319,8 @@ ${scriptCustomBlock('additional exports')}
 
 // custom <part cmake_support>
 
-typedef OnLibCmake(LibCmake);
-typedef OnInstallationCmake(InstallationCmake);
+typedef OnLibCmake(LibCmake libCmake);
+typedef OnInstallationCmake(InstallationCmake installationCmake);
 
 installationCmakeRoot(Installation installation) =>
     path.join(installation.rootFilePath, 'cpp', 'CMakeLists.txt');

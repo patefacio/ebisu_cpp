@@ -13,7 +13,7 @@ abstract class InstallationBuilder implements CodeGenerator {
   get testables => installation.testables;
   get libs => installation.libs;
   get apps => installation.apps;
-  Iterable<App> get benchmarkApps => installation._benchmarkApps;
+  Iterable<BenchmarkApp> get benchmarkApps => installation._benchmarkApps;
 
   InstallationBuilder.fromInstallation(this.installation);
   generateBuildScripts() => this.generate();
@@ -55,7 +55,7 @@ class Installation extends CppEntity implements CodeGenerator {
   /// Benchmark apps are just [App] instances with some generated benchmark code
   /// (i.e. using [benchmark](https://github.com/google/benchmark)) kept separate from
   /// [apps], but tied into the build scripts.
-  List<App> get benchmarkApps => _benchmarkApps;
+  List<BenchmarkApp> get benchmarkApps => _benchmarkApps;
 
   /// Provider for generating tests
   TestProvider testProvider = new CatchTestProvider();
@@ -117,12 +117,12 @@ class Installation extends CppEntity implements CodeGenerator {
     setAsRoot();
     return br([
       '<<<< INSTALLATION($id) >>>>',
-      indentBlock(br(concat([
+      indentBlock(br(concat(<Iterable<CppEntity>>[
         libs,
         apps,
         benchmarks,
       ]).map((f) {
-        return f.contents;
+        return f is CppFile? f.contents : (f is Benchmark)? f.contents : (f as Lib).contents;
       })))
     ]);
   }
@@ -145,7 +145,6 @@ class Installation extends CppEntity implements CodeGenerator {
 Installation($rootFilePath)
   libs: =>\n${libs.map((l) => l.toString()).join('')}
   apps: => ${apps.map((a) => a.id).join(', ')}
-  scripts: => ${scripts.map((s) => s.id).join(', ')}
   paths: => [\n    ${paths.keys.map((k) => '$k => ${paths[k]}').join('\n    ')}\n  ]
 ''';
 
@@ -184,14 +183,14 @@ Installation($rootFilePath)
         ..namespace = namespace(['smoke'])
         ..impls = progeny
             .where((Entity child) => child is Header)
-            .map((Header header) {
+            .map((Entity e) {
+              Header header = e as Header;
           _logger.warning(
               'smoking ${header.id} issues with ns ${header.namespace}');
-          final impl = new Impl(idFromString('smoke_${header.id.snake}'))
+          return new Impl(idFromString('smoke_${header.id.snake}'))
             ..namespace = namespace(['smoke'])
             ..setLibFilePathFromRoot(rootFilePath)
             ..includes = [header.includeFilePath];
-          return impl;
         }).toList();
       smokeLib.owner = this;
       smokeLib.generate();
@@ -288,7 +287,7 @@ Installation($rootFilePath)
 
   String _rootFilePath;
   Map<String, String> _paths = {};
-  List<App> _benchmarkApps = [];
+  List<BenchmarkApp> _benchmarkApps = [];
 
   /// Namer to be used when generating names during generation. There is a
   /// default namer, [EbisuCppNamer] that is used if one is not provide. To

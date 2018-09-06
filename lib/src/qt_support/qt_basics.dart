@@ -1631,7 +1631,7 @@ addQtSupport(Installation installation) {
         new CmakeInstallationBuilder.fromInstallation(installation);
   }
 
-  installation.installationBuilder
+  (installation.installationBuilder as CmakeInstallationBuilder)
     ..onLibCmake = (LibCmake libCmake) {
       if (libCmake.lib.classes.any((cls) => cls is QtClass)) {
         final lib = libCmake.lib;

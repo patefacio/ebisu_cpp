@@ -344,7 +344,7 @@ ${
 
   String _makeEnum() {
     if (isDisplayedHex) {
-      final maxValue = max(_values.map((ev) => ev.value));
+      final maxValue = max(_values.map((ev) => ev.value as num));
       final padWidth = _padWidth(maxValue);
       return '''
 $_enumHead {

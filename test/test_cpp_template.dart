@@ -4,7 +4,7 @@ import 'package:logging/logging.dart';
 import 'package:test/test.dart';
 
 // custom <additional imports>
-import 'package:petitparser/dart.dart';
+import 'package:petitparser/petitparser.dart';
 import 'package:ebisu_cpp/ebisu_cpp.dart';
 import 'package:ebisu/ebisu.dart';
 // end <additional imports>

@@ -72,7 +72,7 @@ CppEntities must be created with id of String or Id: ${id.runtimeType}=$id''';
   String get docComment => combine([briefComment, detailedComment]);
 
   get allIncludes => children.fold(new Includes()..mergeIncludes(includes),
-      (prev, child) => prev.mergeIncludes(child.allIncludes));
+      (prev, child) => prev.mergeIncludes((child as CppEntity).allIncludes));
 
   _typedOwningEntity(typePred) => typePred(this)
       ? this

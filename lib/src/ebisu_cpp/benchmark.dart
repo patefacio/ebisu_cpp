@@ -208,8 +208,8 @@ class BenchmarkGroup extends CppEntity {
   // custom <class BenchmarkGroup>
 
   BenchmarkGroup(id)
-      : super(id),
-        _benchmarkApp = new BenchmarkApp(makeId(id).snake) {
+      : _benchmarkApp = new BenchmarkApp(makeId(id).snake),
+      super(id) {
     _benchmarkApp
       ..namespace = new Namespace(['benchmarks'])
       ..includes.add('benchmark/benchmark_api.h')
@@ -221,7 +221,7 @@ class BenchmarkGroup extends CppEntity {
         benchmarks
       ]);
 
-  withBenchmarkApp(updater(App app)) => updater(_benchmarkApp);
+  withBenchmarkApp(updater(BenchmarkApp app)) => updater(_benchmarkApp);
 
   withBenchmark(id, updater(Benchmark benchmark)) {
     final bmId = addPrefixToId('bm', id);

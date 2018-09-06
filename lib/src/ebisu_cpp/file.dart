@@ -51,6 +51,8 @@ abstract class CppFile extends CppEntity with Testable {
 
   String get contents;
 
+  bool get requiresLogging => false;
+
   excludeStandardizedHeader(StandardizedHeader headerType) =>
       _standardizedInclusions[headerType] = false;
 

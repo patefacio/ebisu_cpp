@@ -18,7 +18,7 @@ class Switch {
 
   /// Text repesenting the value to be switched on
   String switchValue;
-  List<int> cases = [];
+  List<dynamic> cases = [];
 
   /// Function for providing a block for *case*
   CaseFunctor onCase;
@@ -72,9 +72,9 @@ default: {
 
 // custom <part control_flow>
 
-typedef String CaseFunctor(int caseValue);
+typedef String CaseFunctor(dynamic caseValue);
 
-switch_(String switchValue, Iterable cases, CaseFunctor caseFunctor,
+switch_(String switchValue, Iterable<dynamic> cases, CaseFunctor caseFunctor,
         [String defaultCase, bool isChar = false]) =>
     new Switch(switchValue, cases, caseFunctor, defaultCase, isChar);
 

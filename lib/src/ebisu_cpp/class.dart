@@ -970,8 +970,8 @@ class Class extends CppEntity with Testable, AggregateBase {
 
   get installation => super.installation;
 
-  get requiresLogging => concat([_standardMethods, memberCtors])
-      .any((m) => m is Loggable && (m as Loggable).isLogged);
+  get requiresLogging => concat(<Iterable<dynamic>>[_standardMethods, memberCtors])
+      .any((m) => m is Loggable && m.isLogged);
 
   get includes => requiresLogging
       ? super
@@ -1046,51 +1046,51 @@ default [Interfaceimplementation] is used''')
   /// Auto-initializing accessor for the [DefaultCtor]
   DefaultCtor get defaultCtor =>
       _defaultCtor = _defaultCtor == null ? new DefaultCtor() : _defaultCtor;
-  withDefaultCtor(void f(DefaultCtor)) => f(defaultCtor);
+  withDefaultCtor(void f(DefaultCtor defaultCtor)) => f(defaultCtor);
   bool get hasDefaultCtor => _defaultCtor != null;
 
   /// Auto-initializing accessor for the [CopyCtor]
   CopyCtor get copyCtor =>
       _copyCtor = _copyCtor == null ? new CopyCtor() : _copyCtor;
-  withCopyCtor(void f(CopyCtor)) => f(copyCtor);
+  withCopyCtor(void f(CopyCtor copyCtor)) => f(copyCtor);
   bool get hasCopyCtor => _copyCtor != null;
 
   /// Auto-initializing accessor for the [MoveCtor]
   MoveCtor get moveCtor =>
       _moveCtor = _moveCtor == null ? new MoveCtor() : _moveCtor;
-  withMoveCtor(void f(MoveCtor)) => f(moveCtor);
+  withMoveCtor(void f(MoveCtor moveCtor)) => f(moveCtor);
   bool get hasMoveCtor => _moveCtor != null;
 
   /// Auto-initializing accessor for the [AssignCopy]
   AssignCopy get assignCopy =>
       _assignCopy = _assignCopy == null ? new AssignCopy() : _assignCopy;
-  withAssignCopy(void f(AssignCopy)) => f(assignCopy);
+  withAssignCopy(void f(AssignCopy assignCopy)) => f(assignCopy);
   bool get hasAssignCopy => _assignCopy != null;
 
   /// Auto-initializing accessor for the [AssignMove]
   AssignMove get assignMove =>
       _assignMove = _assignMove == null ? new AssignMove() : _assignMove;
-  withAssignMove(void f(AssignMove)) => f(assignMove);
+  withAssignMove(void f(AssignMove assignMove)) => f(assignMove);
   bool get hasAssignMove => _assignMove != null;
 
   /// Auto-initializing accessor for the [Dtor]
   Dtor get dtor => _dtor = _dtor == null ? new Dtor() : _dtor;
-  withDtor(void f(Dtor)) => f(dtor);
+  withDtor(void f(Dtor dtor)) => f(dtor);
   bool get hasDtor => _dtor != null;
 
   /// Auto-initializing accessor for the [OpEqual]
   OpEqual get opEqual => _opEqual = _opEqual == null ? new OpEqual() : _opEqual;
-  withOpEqual(void f(OpEqual)) => f(opEqual);
+  withOpEqual(void f(OpEqual opEqual)) => f(opEqual);
   bool get hasOpEqual => _opEqual != null;
 
   /// Auto-initializing accessor for the [OpLess]
   OpLess get opLess => _opLess = _opLess == null ? new OpLess() : _opLess;
-  withOpLess(void f(OpLess)) => f(opLess);
+  withOpLess(void f(OpLess opLess)) => f(opLess);
   bool get hasOpLess => _opLess != null;
 
   /// Auto-initializing accessor for the [OpOut]
   OpOut get opOut => _opOut = _opOut == null ? new OpOut() : _opOut;
-  withOpOut(void f(OpOut)) => f(opOut);
+  withOpOut(void f(OpOut opOut)) => f(opOut);
   bool get hasOpOut => _opOut != null;
 
   set defaultCtor(DefaultCtor defaultCtor) => _defaultCtor = defaultCtor;
@@ -1108,7 +1108,7 @@ default [Interfaceimplementation] is used''')
       bases.where((b) => b.cppAccess == protected);
   Iterable<Base> get basesPrivate => bases.where((b) => b.cppAccess == private);
 
-  withCustomBlock(ClassCodeBlock cb, f(CodeBlock)) => f(getCodeBlock(cb));
+  void withCustomBlock(ClassCodeBlock cb, f(CodeBlock codeBlock)) => f(getCodeBlock(cb));
 
   set template(Object t) => _template = _makeTemplate(id, t);
 

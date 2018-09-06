@@ -321,7 +321,7 @@ class InterfaceImplementation extends CppEntity {
 
   get _methodPrefix => owner is Class
       ? (owner as Class).className
-      : owner is CppFile ? (owner as CppFile).baseName : '';
+      : owner is CppFile ? (owner as CppFile).basename : '';
 
   Iterable<String> get methodImpls =>
       methodDecls.map((MethodDecl md) => brCompact([

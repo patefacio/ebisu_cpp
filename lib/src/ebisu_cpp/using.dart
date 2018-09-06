@@ -1,9 +1,21 @@
 part of ebisu_cpp.ebisu_cpp;
 
-abstract class Using {
+abstract class Using extends CppEntity {
   // custom <class Using>
 
+  Using(id) : super(id);
+
   get usingStatement;
+
+  Template get template;
+
+  set template(Object t);
+
+  String get doc;
+
+  set doc(String t);
+
+  get type;
 
   // end <class Using>
 
@@ -58,8 +70,8 @@ class UsingDeclaration extends CppEntity implements Using {
   // custom <class UsingDeclaration>
 
   UsingDeclaration(qualifiedName)
-      : super(qualifiedName.replaceAll('::', '_').toLowerCase()),
-        _qualifiedName = qualifiedName;
+      : _qualifiedName = qualifiedName,
+        super(qualifiedName.replaceAll('::', '_').toLowerCase());
 
   Iterable<Entity> get children => [];
 
@@ -67,6 +79,12 @@ class UsingDeclaration extends CppEntity implements Using {
 
   //// The using statement with documentation
   get usingStatement => brCompact([this.docComment, 'using $qualifiedName;']);
+
+  Template get template => throw 'Template not supported';
+  
+  set template(Object t) => throw 'Template not supported';
+
+  get type => qualifiedName;  
 
   // end <class UsingDeclaration>
 

@@ -422,7 +422,7 @@ AllowedOptions)";
     if (_hasString) _includes.add('string');
   }
 
-  generate() {
+  void generate() {
     super.generate();
     headers.forEach((header) => header.generate());
     impls.forEach((impl) => impl.generate());
@@ -667,7 +667,7 @@ abstract class AppBuilder implements CodeGenerator {
     this.generate();
   }
 
-  static const Map _headerToLibRequirement = const {
+  static const Map<String, String> _headerToLibRequirement = const {
     'boost/program_options.hpp': 'boost_program_options',
     'boost/date_time': 'boost_date_time',
     'boost/regex': 'boost_regex',

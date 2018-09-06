@@ -171,7 +171,7 @@ $tricky
               ..withCustomStreamable((cb) {
                 cb.tag = null;
                 cb.snippets
-                    .add([r"""out << '\n' << indent << "  <zinger>";"""]);
+                    .addAll([r"""out << '\n' << indent << "  <zinger>";"""]);
               }))
             ..withOpOut((op) => op
               ..cppAccess = access
@@ -397,51 +397,51 @@ private:
 
     /// The following does similar tests on all such methods
     final hasMethods = {
-      'defaultCtor': (cls) => cls.hasDefaultCtor,
-      'copyCtor': (cls) => cls.hasCopyCtor,
-      'moveCtor': (cls) => cls.hasMoveCtor,
-      'assignCopy': (cls) => cls.hasAssignCopy,
-      'assignMove': (cls) => cls.hasAssignMove,
-      'dtor': (cls) => cls.hasDtor,
-      'opEqual': (cls) => cls.hasOpEqual,
-      'opLess': (cls) => cls.hasOpLess,
-      'opOut': (cls) => cls.hasOpOut,
+      'defaultCtor': (Class cls) => cls.hasDefaultCtor,
+      'copyCtor': (Class cls) => cls.hasCopyCtor,
+      'moveCtor': (Class cls) => cls.hasMoveCtor,
+      'assignCopy': (Class cls) => cls.hasAssignCopy,
+      'assignMove': (Class cls) => cls.hasAssignMove,
+      'dtor': (Class cls) => cls.hasDtor,
+      'opEqual': (Class cls) => cls.hasOpEqual,
+      'opLess': (Class cls) => cls.hasOpLess,
+      'opOut': (Class cls) => cls.hasOpOut,
     };
 
     final withMethods = {
-      'defaultCtor': (cls) => cls.withDefaultCtor,
-      'copyCtor': (cls) => cls.withCopyCtor,
-      'moveCtor': (cls) => cls.withMoveCtor,
-      'assignCopy': (cls) => cls.withAssignCopy,
-      'assignMove': (cls) => cls.withAssignMove,
-      'dtor': (cls) => cls.withDtor,
-      'opEqual': (cls) => cls.withOpEqual,
-      'opLess': (cls) => cls.withOpLess,
-      'opOut': (cls) => cls.withOpOut,
+      'defaultCtor': (Class cls) => cls.withDefaultCtor,
+      'copyCtor': (Class cls) => cls.withCopyCtor,
+      'moveCtor': (Class cls) => cls.withMoveCtor,
+      'assignCopy': (Class cls) => cls.withAssignCopy,
+      'assignMove': (Class cls) => cls.withAssignMove,
+      'dtor': (Class cls) => cls.withDtor,
+      'opEqual': (Class cls) => cls.withOpEqual,
+      'opLess': (Class cls) => cls.withOpLess,
+      'opOut': (Class cls) => cls.withOpOut,
     };
 
     final autoInits = {
-      'defaultCtor': (cls) => cls.defaultCtor,
-      'copyCtor': (cls) => cls.copyCtor,
-      'moveCtor': (cls) => cls.moveCtor,
-      'assignCopy': (cls) => cls.assignCopy,
-      'assignMove': (cls) => cls.assignMove,
-      'dtor': (cls) => cls.dtor,
-      'opEqual': (cls) => cls.opEqual,
-      'opLess': (cls) => cls.opLess,
-      'opOut': (cls) => cls.opOut,
+      'defaultCtor': (Class cls) => cls.defaultCtor,
+      'copyCtor': (Class cls) => cls.copyCtor,
+      'moveCtor': (Class cls) => cls.moveCtor,
+      'assignCopy': (Class cls) => cls.assignCopy,
+      'assignMove': (Class cls) => cls.assignMove,
+      'dtor': (Class cls) => cls.dtor,
+      'opEqual': (Class cls) => cls.opEqual,
+      'opLess': (Class cls) => cls.opLess,
+      'opOut': (Class cls) => cls.opOut,
     };
 
     final newEmpties = {
-      'defaultCtor': (cls) => cls.defaultCtor = defaultCtor(),
-      'copyCtor': (cls) => cls.copyCtor = copyCtor(),
-      'moveCtor': (cls) => cls.moveCtor = moveCtor(),
-      'assignCopy': (cls) => cls.assignCopy = assignCopy(),
-      'assignMove': (cls) => cls.assignMove = assignMove(),
-      'dtor': (cls) => cls.dtor = dtor(),
-      'opEqual': (cls) => cls.opEqual = opEqual(),
-      'opLess': (cls) => cls.opLess = opLess(),
-      'opOut': (cls) => cls.opOut = opOut(),
+      'defaultCtor': (Class cls) => cls.defaultCtor = defaultCtor(),
+      'copyCtor': (Class cls) => cls.copyCtor = copyCtor(),
+      'moveCtor': (Class cls) => cls.moveCtor = moveCtor(),
+      'assignCopy': (Class cls) => cls.assignCopy = assignCopy(),
+      'assignMove': (Class cls) => cls.assignMove = assignMove(),
+      'dtor': (Class cls) => cls.dtor = dtor(),
+      'opEqual': (Class cls) => cls.opEqual = opEqual(),
+      'opLess': (Class cls) => cls.opLess = opLess(),
+      'opOut': (Class cls) => cls.opOut = opOut(),
     };
 
     [

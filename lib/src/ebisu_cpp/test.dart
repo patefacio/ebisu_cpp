@@ -10,8 +10,7 @@ class Test extends Impl implements CodeGenerator {
   // custom <class Test>
 
   Test(Testable testable)
-      : super((testable as Entity).id),
-        testable = testable {
+      : testable = testable, super((testable as Entity).id) {
     _logger.info('Creating test with ${(testable as Entity).id.snake}');
   }
 
@@ -33,7 +32,7 @@ class Test extends Impl implements CodeGenerator {
 
   String get contents => _contentsWithBlocks;
 
-  generate() => super.generate();
+  void generate() => super.generate();
 
   // end <class Test>
 

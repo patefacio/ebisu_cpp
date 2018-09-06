@@ -44,7 +44,7 @@ class ConstExpr extends CppEntity {
               ? 'int'
               : value_ is double
                   ? 'double'
-                  : throw 'ConstExpr does not infer types from ${value.runtimeType} => $value';
+                  : throw 'ConstExpr does not infer types from ${value_.runtimeType} => $value_';
     }
     _value = value_;
   }
@@ -231,9 +231,9 @@ class Includes {
       : _included = from == null ? new Set() : new Set.from(from);
 
   Iterable<String> get includeEntries {
-    final boostHeaders = [];
-    final systemHeaders = [];
-    final rest = [];
+    final boostHeaders = <String>[];
+    final systemHeaders = <String>[];
+    final rest = <String>[];
     _included.forEach((String include) {
       if (include.contains('boost/')) {
         boostHeaders.add(_sysInclude(include));
@@ -309,6 +309,9 @@ abstract class Namer {
 
   /// Name a [Method] from its [Id]
   String nameMethod(Id id);
+
+  /// Name a [Union] from its [Id]
+  String nameUnion(Id id);
 
   /// Name an [Enum] from its [Id]
   String nameEnum(Id id);
@@ -709,7 +712,7 @@ String name(String namingSpec, [defaultNamingFunction]) {
       return defaultNamingFunction(id);
     }
   } else {
-    logger_.warning("Naming spec should have at most one colon -> '.'");
+    _logger.warning("Naming spec should have at most one colon -> '.'");
   }
 }
 
