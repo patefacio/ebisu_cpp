@@ -9,28 +9,34 @@ description: >
   files, build scripts, test files, etc.)
 
 environment:
-  sdk: '>=2.0.0-dev.61 <3.0.0'
+  sdk: '>=1.8.2 <=2.0.0-dev.20.0'
 
 dependencies:
 
 # custom <ebisu_cpp dependencies>
 
-  args: "^1.4.0"
-  ebisu:
-    git: git://github.com/patefacio/ebisu
-  id:
-    git: git://github.com/patefacio/id
+  args: ">=0.12.0 < 0.14.0"
 
-  ini:
-    git:
-      git://github.com/draw-dev/dart-ini.git
+  ebisu:
+    git: 
+      url: git://github.com/patefacio/ebisu.git
+      ref: dart_1_0
+  id:
+    git: 
+      url: git://github.com/patefacio/id.git
+      ref: dart_1_0
+
+  ini: ">=1.0.0<1.2.0"
+
       
   logging: "0.11.3+2"
 
   path: "^1.4.1"
-  petitparser: "^2.0.0"
-  quiver: "2.0.0+1"
-  stack_trace: "^1.9.0"
+  petitparser: "^1.5.4"
+
+  quiver: ">=0.21.0<0.25.0"  
+
+  stack_trace: "^1.7.3"
     
 
 # end <ebisu_cpp dependencies>
@@ -39,7 +45,7 @@ dev_dependencies:
 
 # custom <ebisu_cpp dev dependencies>
 
-  test: "^1.3.0"
+  test: ">=0.12.0 < 0.14.0"
 
 # end <ebisu_cpp dev dependencies>
 
