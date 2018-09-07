@@ -290,14 +290,10 @@ inline void clear_bit(int &value, $name bit) {
   ///
   ///
   get _maskToCString => '''
-${isNested? 'static ':''}inline std::string ${name}_mask_to_str($_intType e) {
+${isNested ? 'static ' : ''}inline std::string ${name}_mask_to_str($_intType e) {
   std::ostringstream out__;
   out__ << '(' << std::hex << ${_streamPatch('e')} << std::dec << ")[";
-${
-  indentBlock(_values.map((ev) =>
-    'if(e & $_intType($name::${ev.name})) { out__ << "$name::${ev.presentationName}, ";}')
-  .join('\n'))
-}
+${indentBlock(_values.map((ev) => 'if(e & $_intType($name::${ev.name})) { out__ << "$name::${ev.presentationName}, ";}').join('\n'))}
   out__ << ']';
   return out__.str();
 }''';
@@ -306,9 +302,7 @@ ${
   String get _generalToCString => '''
 ${_friend}inline char const* to_c_str($name e) {
   switch(e) {
-${
-  indentBlock(_values.map((ev) => 'case $name::${ev.name}: return ${doubleQuote(ev.presentationName)}').join(';\n'), '    ')
-};
+${indentBlock(_values.map((ev) => 'case $name::${ev.name}: return ${doubleQuote(ev.presentationName)}').join(';\n'), '    ')};
     default: {
       return "Invalid $name";
     }
@@ -332,9 +326,7 @@ ${_friend}inline std::ostream& operator<<(std::ostream &out, $name e) {
       : '''
 inline void from_c_str(char const* str, $name &e) {
   using namespace std;
-${
-  indentBlock(_values.map((ev) => 'if(0 == strcmp(${doubleQuote(ev.presentationName)}, str)) { e = $name::${ev.name}; return; }').join('\n'))
-}
+${indentBlock(_values.map((ev) => 'if(0 == strcmp(${doubleQuote(ev.presentationName)}, str)) { e = $name::${ev.name}; return; }').join('\n'))}
   string msg { "No $name matching:" };
   throw std::runtime_error(msg + str);
 }''';

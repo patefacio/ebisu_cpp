@@ -42,7 +42,7 @@ class DsvSerializer implements Serializer {
   String serialize(Class cls) {
     return '''
 ${_out(cls)}
-${cls.isImmutable? _immutableIn(cls) : _in(cls)}
+${cls.isImmutable ? _immutableIn(cls) : _in(cls)}
 ''';
     //TODO: add back
   }
@@ -53,15 +53,13 @@ ${cls.isImmutable? _immutableIn(cls) : _in(cls)}
   String _out(Class cls) => '''
 std::string serialize_to_dsv() const {
   fmt::MemoryWriter w__;
-${
-indentBlock(
-  br([ 'w__ ',
-       cls
-         .members
-         .map((Member m) => "<< ${_outMember(m)} ")
-         .join("<< '$delimiter'"),
-       ';']))
-}
+${indentBlock(br([
+        'w__ ',
+        cls.members
+            .map((Member m) => "<< ${_outMember(m)} ")
+            .join("<< '$delimiter'"),
+        ';'
+      ]))}
   return w__.str();
 }
 ''';
@@ -94,14 +92,7 @@ void serialize_from_dsv(std::string const& tuple__) {
   tokenizer<char_separator<char> > tokens__(tuple__, sep__);
   tokenizer<boost::char_separator<char> >::iterator it__{tokens__.begin()};
 
-${
-indentBlock(
-  br([
-       cls
-         .members
-         .map((Member m) => _readToken(cls, m))
-     ]))
-}
+${indentBlock(br([cls.members.map((Member m) => _readToken(cls, m))]))}
 }
 ''';
 
@@ -112,19 +103,9 @@ static ${cls.className} serialize_from_dsv(std::string const& tuple__) {
   tokenizer<char_separator<char> > tokens__(tuple__, sep__);
   tokenizer<boost::char_separator<char> >::iterator it__{tokens__.begin()};
 
-${
-indentBlock(
-  br(cls.members.map((Member m) => '${m.type} ${m.vname};')))
-}
+${indentBlock(br(cls.members.map((Member m) => '${m.type} ${m.vname};')))}
 
-${
-indentBlock(
-  br([
-       cls
-         .members
-         .map((Member m) => _readToken(cls, m))
-     ]))
-}
+${indentBlock(br([cls.members.map((Member m) => _readToken(cls, m))]))}
 
 return ${cls.className}(${cls.members.map((Member m) => m.vname).join(', ')});
 }

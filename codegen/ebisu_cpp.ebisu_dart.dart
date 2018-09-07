@@ -46,35 +46,35 @@ files, build scripts, test files, etc.)
         ]
     ]
     ..testLibraries = [
-      library('test_cpp_enum'),
-      library('test_cpp_member'),
-      library('test_cpp_class'),
-      library('test_cpp_default_methods'),
-      library('test_cpp_forward_decl'),
-      library('test_cpp_file'),
-      library('test_cpp_header'),
-      library('test_cpp_interface'),
-      library('test_cpp_opout'),
-      library('test_cpp_method'),
-      library('test_cpp_utils'),
-      library('test_cpp_union'),
-      library('test_cpp_namer'),
-      library('test_cpp_generic'),
-      library('test_cpp_test_provider'),
-      library('test_cpp_exception'),
-      library('test_cpp_using'),
-      library('test_cpp_versioning'),
-      library('test_cpp_switch'),
-      library('test_cpp_benchmark'),
-      library('test_cpp_template'),
-      library('test_cpp_bitset'),
-      library('test_hdf5_support'),
-      library('test_qt_support'),
-      library('test_enumerated_dispatcher'),
-      library('test_print_instance'),
+      library_('test_cpp_enum'),
+      library_('test_cpp_member'),
+      library_('test_cpp_class'),
+      library_('test_cpp_default_methods'),
+      library_('test_cpp_forward_decl'),
+      library_('test_cpp_file'),
+      library_('test_cpp_header'),
+      library_('test_cpp_interface'),
+      library_('test_cpp_opout'),
+      library_('test_cpp_method'),
+      library_('test_cpp_utils'),
+      library_('test_cpp_union'),
+      library_('test_cpp_namer'),
+      library_('test_cpp_generic'),
+      library_('test_cpp_test_provider'),
+      library_('test_cpp_exception'),
+      library_('test_cpp_using'),
+      library_('test_cpp_versioning'),
+      library_('test_cpp_switch'),
+      library_('test_cpp_benchmark'),
+      library_('test_cpp_template'),
+      library_('test_cpp_bitset'),
+      library_('test_hdf5_support'),
+      library_('test_qt_support'),
+      library_('test_enumerated_dispatcher'),
+      library_('test_print_instance'),
     ]
     ..libraries = [
-      library('ebisu_cpp')
+      library_('ebisu_cpp')
         ..doc = cppLibraryDoc
         ..includesLogger = true
         ..imports = [
@@ -1921,7 +1921,7 @@ libraries, apps, and tests'''
                   member('on_lib_cmake')
                     ..doc =
                         'An opportunity to update the [LibCmake] prior to its generation'
-                    ..type = 'OnInstallationCmake',
+                    ..type = 'OnLibCmake',
                   member('auto_include_boost')..init = false,
                 ],
             ],
@@ -2253,7 +2253,7 @@ Establishes an interface to allow decoration of classes and updates
                 ]
             ],
         ],
-      library('qt_support')
+      library_('qt_support')
         ..imports = [
           'package:ebisu_cpp/ebisu_cpp.dart',
           'package:ebisu/ebisu.dart',
@@ -2271,7 +2271,7 @@ Establishes an interface to allow decoration of classes and updates
                 ..doc = 'Wrapper for qt qui app',
             ]
         ],
-      library('cookbook')
+      library_('cookbook')
         ..includesLogger = true
         ..imports = [
           'package:id/id.dart',
@@ -2482,7 +2482,7 @@ strings as discriminators.
                 ],
             ]
         ],
-      library('hdf5_support')
+      library_('hdf5_support')
         ..imports = [
           'package:ebisu_cpp/ebisu_cpp.dart',
           'package:ebisu/ebisu.dart',

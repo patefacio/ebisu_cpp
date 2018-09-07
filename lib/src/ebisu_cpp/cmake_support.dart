@@ -3,8 +3,8 @@ part of ebisu_cpp.ebisu_cpp;
 /// Cmake file for a library
 class LibCmake {
   Lib lib;
-  List libSourceFilenames = [];
-  List targetIncludeDirnames = [];
+  List<dynamic> libSourceFilenames = [];
+  List<dynamic> targetIncludeDirnames = [];
   CodeBlock setStatements = new ScriptCodeBlock('set_statements')
     ..hasSnippetsFirst = true;
   CodeBlock addLibrary = new ScriptCodeBlock('add_library')
@@ -54,8 +54,8 @@ class LibCmake {
 class InstallationCmake {
   Installation installation;
   String minimumRequiredVersion = '2.8';
-  List includeDirectories = [];
-  List linkDirectories = [];
+  List<dynamic> includeDirectories = [];
+  List<dynamic> linkDirectories = [];
   bool autoIncludeBoost = false;
   CodeBlock includesCodeBlock = new ScriptCodeBlock('includes')
     ..hasSnippetsFirst = true;
@@ -95,11 +95,10 @@ ${scriptCustomBlock("boost lib components")}
 '''
     ]);
 
-    libPublicHeadersCodeBlock.snippets.addAll(concat(
-      installation.libs.map((lib) => lib.headers.map(
-          (Header header) => 'install(FILES ${header.includeFilePath} DESTINATION '
-              '\${DESTDIR}include/${path.dirname(header.includeFilePath)})'))
-    ));
+    libPublicHeadersCodeBlock.snippets.addAll(concat(installation.libs.map(
+        (lib) => lib.headers.map((Header header) =>
+            'install(FILES ${header.includeFilePath} DESTINATION '
+            '\${DESTDIR}include/${path.dirname(header.includeFilePath)})'))));
   }
 
   get definition => _definition == null
@@ -209,7 +208,10 @@ install(TARGETS $testBaseName RUNTIME DESTINATION \${DESTDIR}bin)
     final benchName = 'bench_${app.id.snake}';
     return '''
 add_executable($benchName
-  ${concat([[relPath(app.filePath)], app.impls.map((i) => relPath(i.filePath))]).join('\n  ')}
+  ${concat([
+      [relPath(app.filePath)],
+      app.impls.map((i) => relPath(i.filePath))
+    ]).join('\n  ')}
 )
 
 ${chomp(scriptCustomBlock('${app.id.snake} bench additions'))}
@@ -292,8 +294,7 @@ ${brCompact(installDirectives)}
     });
 
     final cmakeGenerator = path.join(path.dirname(cmakeRoot), '.cmake.gen.sh');
-    scriptMergeWithFile(
-        '''
+    scriptMergeWithFile('''
 #!/bin/bash
 ${scriptCustomBlock('additional exports')}
 \$CMAKE \\
@@ -309,8 +310,7 @@ ${scriptCustomBlock('additional exports')}
   -DCMAKE_PREFIX_PATH=/usr/include/qt5 \\
   -B../cmake_build/debug \\
   -H.
-''',
-        cmakeGenerator);
+''', cmakeGenerator);
   }
 
   // end <class CmakeInstallationBuilder>

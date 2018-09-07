@@ -21,7 +21,8 @@ class ArgType implements Comparable<ArgType> {
   /// The command line arg is a flag - i.e. a boolean
   static const ArgType FLAG = const ArgType._(5);
 
-  static get values => [INT, INT64, UINT64, DOUBLE, STRING, FLAG];
+  static List<ArgType> get values =>
+      const <ArgType>[INT, INT64, UINT64, DOUBLE, STRING, FLAG];
 
   final int value;
 
@@ -29,7 +30,7 @@ class ArgType implements Comparable<ArgType> {
 
   const ArgType._(this.value);
 
-  copy() => this;
+  ArgType copy() => this;
 
   int compareTo(ArgType other) => value.compareTo(other.value);
 
@@ -474,9 +475,7 @@ Program_options(int argc, char** argv) {
   using namespace boost::program_options;
   variables_map parsed_options;
   store(parse_command_line(argc, argv, description()), parsed_options);
-${
-indentBlock(combine(_orderedArgs.map((a) => br(_pullOption(a)))))
-}
+${indentBlock(combine(_orderedArgs.map((a) => br(_pullOption(a)))))}
 }
 
 static boost::program_options::options_description const& description() {
@@ -485,9 +484,7 @@ static boost::program_options::options_description const& description() {
 
   if(options.options().empty()) {
     options.add_options()
-${
-  indentBlock(combine(args.map((a) => a.addOptionDecl)), '    ')
-};
+${indentBlock(combine(args.map((a) => a.addOptionDecl)), '    ')};
   }
   return options;
 }

@@ -19,7 +19,7 @@ void _usage() {
   print(r'''
 Finds includes that look like classes
 ''');
-  print(_parser.getUsage());
+  print(_parser.usage);
 }
 
 //! Method to parse command line options.
@@ -27,11 +27,11 @@ Finds includes that look like classes
 Map _parseArgs(List<String> args) {
   ArgResults argResults;
   Map result = {};
-  List remaining = [];
 
   _parser = new ArgParser();
   try {
     /// Fill in expectations of the parser
+
     _parser.addFlag('help',
         help: r'''
 Display this help screen
@@ -102,7 +102,6 @@ main(List<String> args) {
   Logger.root.level = Level.OFF;
   Map argResults = _parseArgs(args);
   Map options = argResults['options'];
-  List positionals = argResults['rest'];
   // custom <qtClassFinder main>
 
   Logger.root.level = Level.WARNING;

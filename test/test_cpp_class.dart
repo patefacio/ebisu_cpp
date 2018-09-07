@@ -756,10 +756,7 @@ class Point {
           ..type = 'decode::streamers::text_stream',
       ];
 
-    expect(
-        darkSame(
-            cls.definition,
-            '''
+    expect(darkSame(cls.definition, '''
 namespace decode {
 namespace streamers {
 class text_stream;
@@ -782,8 +779,7 @@ class Transformer {
  private:
   decode::streamers::text_stream& out_;
 };
-'''),
-        true);
+'''), true);
   });
 
   test('class method are customizable by injection', () {

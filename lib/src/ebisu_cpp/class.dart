@@ -648,9 +648,7 @@ class OpEqual extends ClassMethod {
 
   String get definition => '''bool operator==(${className} const& rhs) const {
   return this == &rhs ||
-    (${
-members.map((m) => '${m.vname} == rhs.${m.vname}').join(' &&\n    ')
-});
+    (${members.map((m) => '${m.vname} == rhs.${m.vname}').join(' &&\n    ')});
 }
 
 bool operator!=($className const& rhs) const {
@@ -670,9 +668,7 @@ class OpLess extends ClassMethod {
     pairs.addAll(members.map((m) => [m.vname, 'rhs.${m.vname}']));
     return '''
 bool operator<($className const& rhs) const {
-  return ${
-pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')
-}
+  return ${pairs.map((p) => '${p[0]} != ${p[1]}? ${p[0]} < ${p[1]} : (').join('\n    ')}
     false${pairs.map((_) => ')').join()};
 }
 ''';
@@ -758,12 +754,12 @@ friend inline
 std::ostream& operator<<(std::ostream &out,
                          $className const& item) {
 ${indentBlock(chomp(brCompact([
-  _indentSupport,
-  _outputOpener('$className(" << &item << ") {'),
-  _streamBases,
-  brCompact(members.map((m) => _streamMember(m))),
-  _outputText('}\\n'),
-])))}
+          _indentSupport,
+          _outputOpener('$className(" << &item << ") {'),
+          _streamBases,
+          brCompact(members.map((m) => _streamMember(m))),
+          _outputText('}\\n'),
+        ])))}
 ''',
         blockText,
         '''
@@ -970,8 +966,9 @@ class Class extends CppEntity with Testable, AggregateBase {
 
   get installation => super.installation;
 
-  get requiresLogging => concat(<Iterable<dynamic>>[_standardMethods, memberCtors])
-      .any((m) => m is Loggable && m.isLogged);
+  get requiresLogging =>
+      concat(<Iterable<dynamic>>[_standardMethods, memberCtors])
+          .any((m) => m is Loggable && m.isLogged);
 
   get includes => requiresLogging
       ? super
@@ -1108,7 +1105,8 @@ default [Interfaceimplementation] is used''')
       bases.where((b) => b.cppAccess == protected);
   Iterable<Base> get basesPrivate => bases.where((b) => b.cppAccess == private);
 
-  void withCustomBlock(ClassCodeBlock cb, f(CodeBlock codeBlock)) => f(getCodeBlock(cb));
+  void withCustomBlock(ClassCodeBlock cb, f(CodeBlock codeBlock)) =>
+      f(getCodeBlock(cb));
 
   set template(Object t) => _template = _makeTemplate(id, t);
 

@@ -341,7 +341,8 @@ class Member extends CppEntity {
 
   withCustomStreamable(void f(CodeBlock codeBlock)) => f(getCustomStreamable());
 
-  void withCustomBlock(void f(Member member, CodeBlock codeBlock)) => f(this, customBlock);
+  void withCustomBlock(void f(Member member, CodeBlock codeBlock)) =>
+      f(this, customBlock);
 
   String toString() {
     if (isStatic && isMutable)
@@ -557,8 +558,9 @@ class StandardGetterCreator extends GetterCreator {
   String get _getterOpener => '''
 //! getter for ${vname} (access is ${evCap(access)})
 $_constAccess $name() const {''';
-  get _getterReturnValue =>
-      getterReturnModifier != null ? getterReturnModifier(this.member, vname) : vname;
+  get _getterReturnValue => getterReturnModifier != null
+      ? getterReturnModifier(this.member, vname)
+      : vname;
   get _getterImpl => 'return $_getterReturnValue;';
   get _getterCloser => '}';
 

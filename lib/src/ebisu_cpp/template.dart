@@ -169,7 +169,8 @@ class Template extends CppEntity {
   Iterable<Entity> get children => parms;
 
   Template(id, Iterable<String> decls_)
-      : parms = decls_.map((d) => templateParm(d)).toList(), super(id);
+      : parms = decls_.map((d) => templateParm(d)).toList(),
+        super(id);
 
   addAll(Iterable decls) => parms.addAll(decls.map((d) => templateParm(d)));
 

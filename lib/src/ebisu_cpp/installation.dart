@@ -122,7 +122,9 @@ class Installation extends CppEntity implements CodeGenerator {
         apps,
         benchmarks,
       ]).map((f) {
-        return f is CppFile? f.contents : (f is Benchmark)? f.contents : (f as Lib).contents;
+        return f is CppFile
+            ? f.contents
+            : (f is Benchmark) ? f.contents : (f as Lib).contents;
       })))
     ]);
   }
@@ -181,10 +183,9 @@ Installation($rootFilePath)
     if (generateHeaderSmokeTest) {
       final smokeLib = lib('smoke')
         ..namespace = namespace(['smoke'])
-        ..impls = progeny
-            .where((Entity child) => child is Header)
-            .map((Entity e) {
-              Header header = e as Header;
+        ..impls =
+            progeny.where((Entity child) => child is Header).map((Entity e) {
+          Header header = e as Header;
           _logger.warning(
               'smoking ${header.id} issues with ns ${header.namespace}');
           return new Impl(idFromString('smoke_${header.id.snake}'))

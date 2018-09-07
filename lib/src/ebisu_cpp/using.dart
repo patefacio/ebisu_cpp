@@ -22,7 +22,7 @@ abstract class Using extends CppEntity {
 }
 
 /// Object corresponding to a using statement
-class UsingDirective extends CppEntity implements Using {
+class UsingDirective extends Using {
   /// The right hand side of using (ie the type decl being named)
   String get rhs => _rhs;
 
@@ -64,7 +64,7 @@ class UsingDirective extends CppEntity implements Using {
 }
 
 /// Object corresponding to a using statement
-class UsingDeclaration extends CppEntity implements Using {
+class UsingDeclaration extends Using {
   String get qualifiedName => _qualifiedName;
 
   // custom <class UsingDeclaration>
@@ -81,10 +81,10 @@ class UsingDeclaration extends CppEntity implements Using {
   get usingStatement => brCompact([this.docComment, 'using $qualifiedName;']);
 
   Template get template => throw 'Template not supported';
-  
+
   set template(Object t) => throw 'Template not supported';
 
-  get type => qualifiedName;  
+  get type => qualifiedName;
 
   // end <class UsingDeclaration>
 

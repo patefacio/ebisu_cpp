@@ -38,10 +38,7 @@ void main([List<String> args]) {
     final sampleTestScenario = vectorSample();
     sampleTestScenario.setAsRoot();
 
-    expect(
-        darkSame(
-            br(scenarioTestText(sampleTestScenario)),
-            '''
+    expect(darkSame(br(scenarioTestText(sampleTestScenario)), '''
  SCENARIO("basics") {
 // custom <(928956824)>
 // end <(928956824)>
@@ -87,8 +84,7 @@ void main([List<String> args]) {
 
   }
 }
-'''),
-        true);
+'''), true);
   });
 
   test('given block placement', () {

@@ -209,7 +209,7 @@ class BenchmarkGroup extends CppEntity {
 
   BenchmarkGroup(id)
       : _benchmarkApp = new BenchmarkApp(makeId(id).snake),
-      super(id) {
+        super(id) {
     _benchmarkApp
       ..namespace = new Namespace(['benchmarks'])
       ..includes.add('benchmark/benchmark_api.h')

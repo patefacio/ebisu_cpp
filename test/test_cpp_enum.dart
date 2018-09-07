@@ -35,7 +35,7 @@ void main([List<String> args]) {
         ..values = ['red', 'green', 'blue'];
 
       final expected = '''
-enum ${isClass? 'class':''} Color_$isClass {
+enum ${isClass ? 'class' : ''} Color_$isClass {
   Red_e,
   Green_e,
   Blue_e
@@ -76,7 +76,7 @@ inline void from_c_str(char const* str, Color_$isClass &e) {
       if (false) print(mapperEnumWithHexDisplay.toString());
 
       expect(darkMatter(mapperEnumWithHexDisplay.toString()), darkMatter('''
-enum ${isClass? 'class':''} Color_${isClass}_mapper {
+enum ${isClass ? 'class' : ''} Color_${isClass}_mapper {
   Red_e = 0xa00000,
   Green_e = 0x009900,
   Blue_e = 0x3333ff
@@ -113,7 +113,7 @@ inline void from_c_str(char const* str, Color_${isClass}_mapper &e) {
       if (false) print(sample_mask.toString());
       expect(darkMatter(sample_mask.toString()), darkMatter('''
 /** Sample doc string for mask enum */
-enum ${isClass? "class ":""}Color_${isClass}_mask {
+enum ${isClass ? "class " : ""}Color_${isClass}_mask {
   Red_e = 1 << 0,
   Green_e = 1 << 1,
   Blue_e = 1 << 2
@@ -146,7 +146,7 @@ inline void clear_bit(int &value, Color_${isClass}_mask bit) {
       if (false) print(sample_mask_base);
 
       final expectedDefinition = '''
-enum ${isClass? "class ":""}Color_${isClass}_mask : std::int8_t {
+enum ${isClass ? "class " : ""}Color_${isClass}_mask : std::int8_t {
   Red_e = 1 << 0,
   Green_e = 1 << 1,
   Blue_e = 1 << 2
