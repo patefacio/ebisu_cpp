@@ -185,11 +185,12 @@ content without being tied to an installation - this can be used.
             ],
           part('using')
             ..classes = [
-              class_('using')..isAbstract = true,
+              class_('using')
+                ..isAbstract = true
+                ..extend = 'CppEntity',
               class_('using_directive')
                 ..doc = 'Object corresponding to a using statement'
-                ..extend = 'CppEntity'
-                ..implement = ['Using']
+                ..extend = 'Using'
                 ..members = [
                   member('rhs')
                     ..doc = '''
@@ -202,9 +203,10 @@ The right hand side of using (ie the type decl being named)'''
                 ],
               class_('using_declaration')
                 ..doc = 'Object corresponding to a using statement'
-                ..extend = 'CppEntity'
-                ..implement = ['Using']
-                ..members = [member('qualified_name')..access = RO,],
+                ..extend = 'Using'
+                ..members = [
+                  member('qualified_name')..access = RO,
+                ],
             ],
           part('pointer')
             ..doc = 'Deals with pointers and references'
@@ -624,7 +626,9 @@ Classes to facilitate generating C++ template code
                 ],
               class_('type_template_parm')
                 ..extend = 'TemplateParm'
-                ..members = [member('default_type'),],
+                ..members = [
+                  member('default_type'),
+                ],
               class_('non_type_template_parm')
                 ..extend = 'TemplateParm'
                 ..members = [
@@ -642,10 +646,14 @@ Classes to facilitate generating C++ template code
                 ..doc = '''
 Represents a template declaration comprized of a list of [decls]
 '''
-                ..members = [member('parms')..type = 'List<TemplateParm>',],
+                ..members = [
+                  member('parms')..type = 'List<TemplateParm>',
+                ],
               class_('template_specialization')
                 ..doc = 'Specifies a set of specialization template parameters'
-                ..members = [member('parms')..type = 'List<String>',]
+                ..members = [
+                  member('parms')..type = 'List<String>',
+                ]
             ],
           part('enum')
             ..classes = [
@@ -903,7 +911,7 @@ bit-set will be unnamed.
                     ..doc = 'Text repesenting the value to be switched on'
                     ..ctors = [''],
                   member('cases')
-                    ..type = 'List<int>'
+                    ..type = 'List<dynamic>'
                     ..init = []
                     ..ctors = [''],
                   member('on_case')
@@ -1403,7 +1411,9 @@ prints:
     type  => std::vector< std::vector < double > >
 """
                 ..extend = 'CppEntity'
-                ..members = [member('type'),],
+                ..members = [
+                  member('type'),
+                ],
               class_('method_decl')
                 ..doc = r"""
 A method declaration, which consists of a List of [ParmDecl] (i.e. the
@@ -1531,7 +1541,9 @@ Creates a new *exception* class derived from std::exception.
                 ..doc =
                     'Provides support for serialization as *delimited separated values*'
                 ..implement = ['Serializer']
-                ..members = [member('delimiter')..init = ':',],
+                ..members = [
+                  member('delimiter')..init = ':',
+                ],
               class_('cereal')
                 ..doc = 'Adds support for serialization using *cereal*'
                 ..implement = ['Serializer']
@@ -1615,7 +1627,9 @@ and [CodeBlock]s to augment/initialize/teardown.
                 ],
               class_('test_scenario')
                 ..extend = 'TestClause'
-                ..members = [member('givens')..type = 'List<Given>',],
+                ..members = [
+                  member('givens')..type = 'List<Given>',
+                ],
               class_('testable')
                 ..isAbstract = true
                 ..members = [
@@ -1879,8 +1893,7 @@ libraries, apps, and tests'''
                   member('lib_source_filenames')..init = [],
                   member('target_include_dirnames')..init = [],
                   member('definition')..access = IA,
-                ]
-                  ..addAll([
+                ]..addAll([
                     'set_statements',
                     'add_library',
                     'target_include_directories',
@@ -1898,8 +1911,7 @@ libraries, apps, and tests'''
                   member('link_directories')..init = [],
                   member('definition')..access = IA,
                   member('auto_include_boost')..init = false,
-                ]
-                  ..addAll([
+                ]..addAll([
                     'includes',
                     'set_statements',
                     'boost_support',
@@ -2141,7 +2153,7 @@ Benchmark apps are just [App] instances with some generated benchmark code
 (i.e. using [benchmark](https://github.com/google/benchmark)) kept separate from
 [apps], but tied into the build scripts.
 '''
-                    ..type = 'List<App>'
+                    ..type = 'List<BenchmarkApp>'
                     ..access = RO
                     ..init = [],
                   member('test_provider')
@@ -2530,14 +2542,18 @@ log group. An empty list will include all members in the table.
                     ..isFinal = true,
                 ],
               class_('packet_member_type')
-                ..members = [member('base_type')..type = 'H5tType',],
+                ..members = [
+                  member('base_type')..type = 'H5tType',
+                ],
               class_('packet_member_string')
                 ..extend = 'PacketMemberType'
                 ..members = [member('size')..type = 'int'],
               class_('packet_table_decorator')
                 ..isImmutable = true
                 ..hasCtorSansNew = true
-                ..implement = ['InstallationDecorator',]
+                ..implement = [
+                  'InstallationDecorator',
+                ]
                 ..members = [member('log_groups')..type = 'List<LogGroup>']
             ]
         ],
