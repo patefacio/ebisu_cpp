@@ -17,9 +17,9 @@ dependencies:
 
   args: "^1.4.0"
   ebisu:
-    git: git://github.com/patefacio/ebisu
+    git: git://github.com/patefacio/ebisu.git
   id:
-    git: git://github.com/patefacio/id
+    git: git://github.com/patefacio/id.git
 
   ini:
     git:
